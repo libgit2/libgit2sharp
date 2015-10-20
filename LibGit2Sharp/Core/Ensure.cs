@@ -261,16 +261,14 @@ namespace LibGit2Sharp.Core
                 return;
             }
 
-            var message = string.Format(CultureInfo.InvariantCulture,
-                                        "No valid git object identified by '{0}' exists in the repository.",
-                                        identifier);
-
+            var messageFormat = "No valid git object identified by '{0}' exists in the repository.";
+                                        
             if (string.Equals("HEAD", identifier, StringComparison.Ordinal))
             {
-                throw new UnbornBranchException(message);
+                throw new UnbornBranchException(messageFormat, identifier);
             }
 
-            throw new NotFoundException(message);
+            throw new NotFoundException(messageFormat, identifier);
         }
     }
 }

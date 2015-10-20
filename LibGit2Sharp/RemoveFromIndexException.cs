@@ -25,7 +25,7 @@ namespace LibGit2Sharp
         { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LibGit2SharpException"/> class with a specified error message and a reference to the inner exception that is the cause of this exception.
+        /// Initializes a new instance of the <see cref="RemoveFromIndexException"/> class with a specified error message.
         /// </summary>
         /// <param name="format">A composite format string for use in <see cref="String.Format(IFormatProvider, string, object[])"/>.</param>
         /// <param name="args">An object array that contains zero or more objects to format.</param>

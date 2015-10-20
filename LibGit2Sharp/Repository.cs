@@ -1080,11 +1080,9 @@ namespace LibGit2Sharp
 
                 if (treesame && !amendMergeCommit)
                 {
-                    throw new EmptyCommitException(
-                        options.AmendPreviousCommit ?
-                        String.Format(CultureInfo.InvariantCulture,
-                            "Amending this commit would produce a commit that is identical to its parent (id = {0})", parents[0].Id) :
-                        "No changes; nothing to commit.");
+                    throw (options.AmendPreviousCommit ? 
+                        new EmptyCommitException("Amending this commit would produce a commit that is identical to its parent (id = {0})", parents[0].Id) :
+                        new EmptyCommitException("No changes; nothing to commit."));
                 }
             }
 
@@ -1273,8 +1271,8 @@ namespace LibGit2Sharp
             if (fetchHeads.Length == 0)
             {
                 var expectedRef = this.Head.UpstreamBranchCanonicalName;
-                throw new MergeFetchHeadNotFoundException(string.Format(CultureInfo.InvariantCulture,
-                    "The current branch is configured to merge with the reference '{0}' from the remote, but this reference was not fetched.", expectedRef));
+                throw new MergeFetchHeadNotFoundException("The current branch is configured to merge with the reference '{0}' from the remote, but this reference was not fetched.", 
+                    expectedRef);
             }
 
             GitAnnotatedCommitHandle[] annotatedCommitHandles = fetchHeads.Select(fetchHead =>

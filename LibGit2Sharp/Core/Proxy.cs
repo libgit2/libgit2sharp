@@ -823,8 +823,7 @@ namespace LibGit2Sharp.Core
             int res = NativeMethods.git_filter_register(name, filterPtr, priority);
             if (res == (int)GitErrorCode.Exists)
             {
-                var message = String.Format("A filter with the name '{0}' is already registered", name);
-                throw new EntryExistsException(message);
+                throw new EntryExistsException("A filter with the name '{0}' is already registered", name);
             }
             Ensure.ZeroResult(res);
         }
@@ -2256,7 +2255,7 @@ namespace LibGit2Sharp.Core
 
                 if (res == (int)GitErrorCode.NotFound)
                 {
-                    throw new NotFoundException(string.Format("Remote '{0}' does not exist and cannot be renamed.", name));
+                    throw new NotFoundException("Remote '{0}' does not exist and cannot be renamed.", name);
                 }
 
                 Ensure.ZeroResult(res);
@@ -2404,9 +2403,8 @@ namespace LibGit2Sharp.Core
 
             if (res == (int)GitErrorCode.NotFound)
             {
-                throw new RepositoryNotFoundException(String.Format(CultureInfo.InvariantCulture,
-                                                                    "Path '{0}' doesn't point at a valid Git repository or workdir.",
-                                                                    path));
+                throw new RepositoryNotFoundException("Path '{0}' doesn't point at a valid Git repository or workdir.",
+                                                                    path);
             }
 
             Ensure.ZeroResult(res);
@@ -2435,9 +2433,8 @@ namespace LibGit2Sharp.Core
 
             if (res == (int)GitErrorCode.NotFound)
             {
-                throw new RepositoryNotFoundException(String.Format(CultureInfo.InvariantCulture,
-                                                                    "Path '{0}' doesn't point at a valid Git repository or workdir.",
-                                                                    path));
+                throw new RepositoryNotFoundException("Path '{0}' doesn't point at a valid Git repository or workdir.",
+                                                                    path);
             }
 
             Ensure.ZeroResult(res);
@@ -3076,8 +3073,8 @@ namespace LibGit2Sharp.Core
 
             if (res == (int)GitErrorCode.Exists)
             {
-                throw new EntryExistsException(String.Format("A custom transport for '{0}' is already registered",
-                    prefix));
+                throw new EntryExistsException("A custom transport for '{0}' is already registered",
+                    prefix);
             }
 
             Ensure.ZeroResult(res);
