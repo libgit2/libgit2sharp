@@ -160,7 +160,7 @@ namespace LibGit2Sharp
 
                 if (throwIfNotFound)
                 {
-                    throw new LibGit2SharpException(CultureInfo.InvariantCulture, "Submodule lookup failed for '{0}'.", name);
+                    throw new LibGit2SharpException("Submodule lookup failed for '{0}'.", name);
                 }
 
                 return default(T);

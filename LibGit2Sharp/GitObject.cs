@@ -77,8 +77,7 @@ namespace LibGit2Sharp
                     return new Blob(repo, id);
 
                 default:
-                    throw new LibGit2SharpException(CultureInfo.InvariantCulture,
-                                                    "Unexpected type '{0}' for object '{1}'.",
+                    throw new LibGit2SharpException("Unexpected type '{0}' for object '{1}'.",
                                                     type,
                                                     id);
             }

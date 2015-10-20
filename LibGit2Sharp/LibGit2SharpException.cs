@@ -37,11 +37,10 @@ namespace LibGit2Sharp
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2SharpException"/> class with a specified error message and a reference to the inner exception that is the cause of this exception.
         /// </summary>
-        /// <param name="cultureInfo">An object that supplies culture-specific formatting information.</param>
         /// <param name="format">A composite format string for use in <see cref="String.Format(IFormatProvider, string, object[])"/>.</param>
         /// <param name="args">An object array that contains zero or more objects to format.</param>
-        public LibGit2SharpException(CultureInfo cultureInfo, string format, params object[] args)
-            : base(String.Format(cultureInfo, format, args))
+        public LibGit2SharpException(string format, params object[] args)
+            : base(String.Format(CultureInfo.InvariantCulture, format, args))
         {
         }
 

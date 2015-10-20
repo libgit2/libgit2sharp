@@ -81,8 +81,7 @@ namespace LibGit2Sharp
 
             if (this.repository.Info.CurrentOperation != CurrentOperation.None)
             {
-                throw new LibGit2SharpException(CultureInfo.InvariantCulture,
-                    "A {0} operation is already in progress.", 
+                throw new LibGit2SharpException("A {0} operation is already in progress.", 
                     this.repository.Info.CurrentOperation);
             }
 

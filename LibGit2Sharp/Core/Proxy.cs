@@ -1432,9 +1432,8 @@ namespace LibGit2Sharp.Core
 
             if (IntPtr.Zero == toReturn)
             {
-                throw new LibGit2SharpException(CultureInfo.InvariantCulture,
-                                                              "Unable to allocate {0} bytes; out of memory",
-                                                              len,
+                throw new LibGit2SharpException("Unable to allocate {0} bytes; out of memory",
+                                                len,
                                                 GitErrorCode.Error,
                                                 GitErrorCategory.NoMemory);
             }
@@ -2556,8 +2555,7 @@ namespace LibGit2Sharp.Core
                     return null;
 
                 case (int)GitErrorCode.Ambiguous:
-                    throw new AmbiguousSpecificationException(CultureInfo.InvariantCulture,
-                                                              "Provided abbreviated ObjectId '{0}' is too short.",
+                    throw new AmbiguousSpecificationException("Provided abbreviated ObjectId '{0}' is too short.",
                                                               objectish);
 
                 default:
@@ -2778,8 +2776,7 @@ namespace LibGit2Sharp.Core
                     return FileStatus.Nonexistent;
 
                 case (int)GitErrorCode.Ambiguous:
-                    throw new AmbiguousSpecificationException(CultureInfo.InvariantCulture,
-                                                              "More than one file matches the pathspec '{0}'. " +
+                    throw new AmbiguousSpecificationException("More than one file matches the pathspec '{0}'. " +
                                                               "You can either force a literal path evaluation " +
                                                               "(GIT_STATUS_OPT_DISABLE_PATHSPEC_MATCH), or use git_status_foreach().",
                                                               path);

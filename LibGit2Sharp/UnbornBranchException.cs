@@ -28,11 +28,10 @@ namespace LibGit2Sharp
         /// <summary>
         /// Initializes a new instance of the <see cref="UnbornBranchException"/> class with a specified error message.
         /// </summary>
-        /// <param name="cultureInfo">An object that supplies culture-specific formatting information.</param>
         /// <param name="format">A composite format string for use in <see cref="String.Format(IFormatProvider, string, object[])"/>.</param>
         /// <param name="args">An object array that contains zero or more objects to format.</param>
-        public UnbornBranchException(CultureInfo cultureInfo, string format, params object[] args)
-            : base(cultureInfo, format, args)
+        public UnbornBranchException(string format, params object[] args)
+            : base(format, args)
         { }
 
         /// <summary>
