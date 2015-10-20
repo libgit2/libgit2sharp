@@ -119,8 +119,7 @@ namespace LibGit2Sharp
                 case RebaseStepOperation.Fixup:
                 case RebaseStepOperation.Reword:
                     // These operations are not yet supported by lg2.
-                    throw new LibGit2SharpException(CultureInfo.InvariantCulture,
-                        "Rebase Operation Type ({0}) is not currently supported in LibGit2Sharp.",
+                    throw new LibGit2SharpException("Rebase Operation Type ({0}) is not currently supported in LibGit2Sharp.",
                         stepToApplyInfo.Type);
                 default:
                     throw new ArgumentException(string.Format(

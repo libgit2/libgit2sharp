@@ -823,8 +823,7 @@ namespace LibGit2Sharp.Core
             int res = NativeMethods.git_filter_register(name, filterPtr, priority);
             if (res == (int)GitErrorCode.Exists)
             {
-                var message = String.Format("A filter with the name '{0}' is already registered", name);
-                throw new EntryExistsException(message);
+                throw new EntryExistsException("A filter with the name '{0}' is already registered", name);
             }
             Ensure.ZeroResult(res);
         }
@@ -1432,9 +1431,8 @@ namespace LibGit2Sharp.Core
 
             if (IntPtr.Zero == toReturn)
             {
-                throw new LibGit2SharpException(CultureInfo.InvariantCulture,
-                                                              "Unable to allocate {0} bytes; out of memory",
-                                                              len,
+                throw new LibGit2SharpException("Unable to allocate {0} bytes; out of memory",
+                                                len,
                                                 GitErrorCode.Error,
                                                 GitErrorCategory.NoMemory);
             }
@@ -2257,7 +2255,7 @@ namespace LibGit2Sharp.Core
 
                 if (res == (int)GitErrorCode.NotFound)
                 {
-                    throw new NotFoundException(string.Format("Remote '{0}' does not exist and cannot be renamed.", name));
+                    throw new NotFoundException("Remote '{0}' does not exist and cannot be renamed.", name);
                 }
 
                 Ensure.ZeroResult(res);
@@ -2405,9 +2403,8 @@ namespace LibGit2Sharp.Core
 
             if (res == (int)GitErrorCode.NotFound)
             {
-                throw new RepositoryNotFoundException(String.Format(CultureInfo.InvariantCulture,
-                                                                    "Path '{0}' doesn't point at a valid Git repository or workdir.",
-                                                                    path));
+                throw new RepositoryNotFoundException("Path '{0}' doesn't point at a valid Git repository or workdir.",
+                                                                    path);
             }
 
             Ensure.ZeroResult(res);
@@ -2436,9 +2433,8 @@ namespace LibGit2Sharp.Core
 
             if (res == (int)GitErrorCode.NotFound)
             {
-                throw new RepositoryNotFoundException(String.Format(CultureInfo.InvariantCulture,
-                                                                    "Path '{0}' doesn't point at a valid Git repository or workdir.",
-                                                                    path));
+                throw new RepositoryNotFoundException("Path '{0}' doesn't point at a valid Git repository or workdir.",
+                                                                    path);
             }
 
             Ensure.ZeroResult(res);
@@ -2556,8 +2552,7 @@ namespace LibGit2Sharp.Core
                     return null;
 
                 case (int)GitErrorCode.Ambiguous:
-                    throw new AmbiguousSpecificationException(CultureInfo.InvariantCulture,
-                                                              "Provided abbreviated ObjectId '{0}' is too short.",
+                    throw new AmbiguousSpecificationException("Provided abbreviated ObjectId '{0}' is too short.",
                                                               objectish);
 
                 default:
@@ -2778,8 +2773,7 @@ namespace LibGit2Sharp.Core
                     return FileStatus.Nonexistent;
 
                 case (int)GitErrorCode.Ambiguous:
-                    throw new AmbiguousSpecificationException(CultureInfo.InvariantCulture,
-                                                              "More than one file matches the pathspec '{0}'. " +
+                    throw new AmbiguousSpecificationException("More than one file matches the pathspec '{0}'. " +
                                                               "You can either force a literal path evaluation " +
                                                               "(GIT_STATUS_OPT_DISABLE_PATHSPEC_MATCH), or use git_status_foreach().",
                                                               path);
@@ -3079,8 +3073,8 @@ namespace LibGit2Sharp.Core
 
             if (res == (int)GitErrorCode.Exists)
             {
-                throw new EntryExistsException(String.Format("A custom transport for '{0}' is already registered",
-                    prefix));
+                throw new EntryExistsException("A custom transport for '{0}' is already registered",
+                    prefix);
             }
 
             Ensure.ZeroResult(res);

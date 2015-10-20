@@ -900,8 +900,7 @@ namespace LibGit2Sharp
             // Make sure this is not an unborn branch.
             if (branch.Tip == null)
             {
-                throw new UnbornBranchException(CultureInfo.InvariantCulture,
-                                                "The tip of branch '{0}' is null. There's nothing to checkout.",
+                throw new UnbornBranchException("The tip of branch '{0}' is null. There's nothing to checkout.",
                                                 branch.FriendlyName);
             }
 
@@ -1081,11 +1080,9 @@ namespace LibGit2Sharp
 
                 if (treesame && !amendMergeCommit)
                 {
-                    throw new EmptyCommitException(
-                        options.AmendPreviousCommit ?
-                        String.Format(CultureInfo.InvariantCulture,
-                            "Amending this commit would produce a commit that is identical to its parent (id = {0})", parents[0].Id) :
-                        "No changes; nothing to commit.");
+                    throw (options.AmendPreviousCommit ? 
+                        new EmptyCommitException("Amending this commit would produce a commit that is identical to its parent (id = {0})", parents[0].Id) :
+                        new EmptyCommitException("No changes; nothing to commit."));
                 }
             }
 
@@ -1274,8 +1271,8 @@ namespace LibGit2Sharp
             if (fetchHeads.Length == 0)
             {
                 var expectedRef = this.Head.UpstreamBranchCanonicalName;
-                throw new MergeFetchHeadNotFoundException(string.Format(CultureInfo.InvariantCulture,
-                    "The current branch is configured to merge with the reference '{0}' from the remote, but this reference was not fetched.", expectedRef));
+                throw new MergeFetchHeadNotFoundException("The current branch is configured to merge with the reference '{0}' from the remote, but this reference was not fetched.", 
+                    expectedRef);
             }
 
             GitAnnotatedCommitHandle[] annotatedCommitHandles = fetchHeads.Select(fetchHead =>
@@ -1858,8 +1855,7 @@ namespace LibGit2Sharp
                 FileStatus sourceStatus = keyValuePair.Key.Item2;
                 if (sourceStatus.HasAny(new Enum[] { FileStatus.Nonexistent, FileStatus.DeletedFromIndex, FileStatus.NewInWorkdir, FileStatus.DeletedFromWorkdir }))
                 {
-                    throw new LibGit2SharpException(CultureInfo.InvariantCulture,
-                                                    "Unable to move file '{0}'. Its current status is '{1}'.",
+                    throw new LibGit2SharpException("Unable to move file '{0}'. Its current status is '{1}'.",
                                                     sourcePath,
                                                     sourceStatus);
                 }
@@ -1870,8 +1866,7 @@ namespace LibGit2Sharp
                     continue;
                 }
 
-                throw new LibGit2SharpException(CultureInfo.InvariantCulture,
-                                                "Unable to overwrite file '{0}'. Its current status is '{1}'.",
+                throw new LibGit2SharpException("Unable to overwrite file '{0}'. Its current status is '{1}'.",
                                                 destPath,
                                                 desStatus);
             }
@@ -2106,8 +2101,7 @@ namespace LibGit2Sharp
                             status.HasFlag(FileStatus.ModifiedInIndex) ||
                             status.HasFlag(FileStatus.NewInIndex)))
                         {
-                            throw new RemoveFromIndexException(CultureInfo.InvariantCulture,
-                                                               "Unable to remove file '{0}', as it has changes staged in the index. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
+                            throw new RemoveFromIndexException("Unable to remove file '{0}', as it has changes staged in the index. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
                                                                treeEntryChanges.Path);
                         }
                         removed.Add(RemoveFromIndex(treeEntryChanges.Path));
@@ -2116,22 +2110,19 @@ namespace LibGit2Sharp
                     case ChangeKind.Modified:
                         if (status.HasFlag(FileStatus.ModifiedInWorkdir) && status.HasFlag(FileStatus.ModifiedInIndex))
                         {
-                            throw new RemoveFromIndexException(CultureInfo.InvariantCulture,
-                                                               "Unable to remove file '{0}', as it has staged content different from both the working directory and the HEAD.",
+                            throw new RemoveFromIndexException("Unable to remove file '{0}', as it has staged content different from both the working directory and the HEAD.",
                                                                treeEntryChanges.Path);
                         }
                         if (removeFromWorkingDirectory)
                         {
-                            throw new RemoveFromIndexException(CultureInfo.InvariantCulture,
-                                                               "Unable to remove file '{0}', as it has local modifications. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
+                            throw new RemoveFromIndexException("Unable to remove file '{0}', as it has local modifications. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
                                                                treeEntryChanges.Path);
                         }
                         removed.Add(RemoveFromIndex(treeEntryChanges.Path));
                         continue;
 
                     default:
-                        throw new RemoveFromIndexException(CultureInfo.InvariantCulture,
-                                                           "Unable to remove file '{0}'. Its current status is '{1}'.",
+                        throw new RemoveFromIndexException("Unable to remove file '{0}'. Its current status is '{1}'.",
                                                            treeEntryChanges.Path,
                                                            treeEntryChanges.Status);
                 }

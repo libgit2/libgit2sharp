@@ -404,9 +404,7 @@ namespace LibGit2Sharp
 
             if (reference == null)
             {
-                throw new LibGit2SharpException(
-                    CultureInfo.InvariantCulture,
-                    "Reference '{0}' doesn't exist. One cannot move a non existing reference.", 
+                throw new LibGit2SharpException("Reference '{0}' doesn't exist. One cannot move a non existing reference.", 
                     currentName);
             }
 
@@ -547,8 +545,7 @@ namespace LibGit2Sharp
                 return UpdateTarget(symbolicReference, targetRef, logMessage);
             }
 
-            throw new LibGit2SharpException(CultureInfo.InvariantCulture,
-                                            "Reference '{0}' has an unexpected type ('{1}').",
+            throw new LibGit2SharpException("Reference '{0}' has an unexpected type ('{1}').",
                                             name,
                                             reference.GetType());
         }

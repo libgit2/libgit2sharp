@@ -62,9 +62,8 @@ namespace LibGit2Sharp
             {
                 if (handle == null)
                 {
-                    throw new NotFoundException(string.Format(CultureInfo.InvariantCulture,
-                                                              "Submodule lookup failed for '{0}'.",
-                                                              name));
+                    throw new NotFoundException("Submodule lookup failed for '{0}'.",
+                                                name);
                 }
 
                 Proxy.git_submodule_init(handle, overwrite);
@@ -90,9 +89,8 @@ namespace LibGit2Sharp
             {
                 if (handle == null)
                 {
-                    throw new NotFoundException(string.Format(CultureInfo.InvariantCulture,
-                                                              "Submodule lookup failed for '{0}'.",
-                                                              name));
+                    throw new NotFoundException("Submodule lookup failed for '{0}'.",
+                                                              name);
                 }
 
                 using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
@@ -160,7 +158,7 @@ namespace LibGit2Sharp
 
                 if (throwIfNotFound)
                 {
-                    throw new LibGit2SharpException(CultureInfo.InvariantCulture, "Submodule lookup failed for '{0}'.", name);
+                    throw new LibGit2SharpException("Submodule lookup failed for '{0}'.", name);
                 }
 
                 return default(T);

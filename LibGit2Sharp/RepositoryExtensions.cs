@@ -485,7 +485,7 @@ namespace LibGit2Sharp
 
             if (throwIfNotFound)
             {
-                throw new LibGit2SharpException(CultureInfo.InvariantCulture, "Unexpected kind of identifier '{0}'.", identifier);
+                throw new LibGit2SharpException("Unexpected kind of identifier '{0}'.", identifier);
             }
 
             yield return null;
