@@ -11,7 +11,6 @@ namespace LibGit2Sharp
     public sealed class PackBuilder : IDisposable
     {
         private readonly PackBuilderSafeHandle packBuilderHandle;
-        private readonly Repository repo;
 
         /// <summary>
         /// Constructs a PackBuilder for a <see cref="Repository"/>.
@@ -20,8 +19,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(repository, "repository");
 
-            repo = repository;
-            packBuilderHandle = Proxy.git_packbuilder_new(repo.Handle);
+            packBuilderHandle = Proxy.git_packbuilder_new(repository.Handle);
         }
 
         /// <summary>
@@ -143,6 +141,9 @@ namespace LibGit2Sharp
     /// </summary>
     public sealed class PackBuilderOptions
     {
+        private string path;
+        private int nThreads;
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -188,7 +189,7 @@ namespace LibGit2Sharp
             {
                 if (value < 0)
                 {
-                    throw new ArgumentException("Argument can not be negative", "MaximumNumberOfThreads");
+                    throw new ArgumentException("Argument can not be negative", "value");
                 }
 
                 nThreads = value;
@@ -197,10 +198,6 @@ namespace LibGit2Sharp
             {
                 return nThreads;
             }
-
         }
-
-        private string path;
-        private int nThreads;
     }
 }
