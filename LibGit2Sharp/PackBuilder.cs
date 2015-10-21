@@ -79,7 +79,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Disposes the PackBuilder object.
         /// </summary>
-        public void Dispose()
+        void IDisposable.Dispose()
         {
             packBuilderHandle.SafeDispose();
         }
