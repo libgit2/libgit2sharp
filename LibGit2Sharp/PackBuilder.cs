@@ -30,11 +30,13 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="gitObject">The object to be inserted.</param>
         /// <exception cref="ArgumentNullException">if the gitObject is null</exception>
-        public void Add<T>(T gitObject) where T : GitObject
+        public PackBuilder Add<T>(T gitObject) where T : GitObject
         {
             Ensure.ArgumentNotNull(gitObject, "gitObject");
 
             Add(gitObject.Id);
+
+            return this;
         }
 
         /// <summary>
@@ -43,11 +45,13 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="gitObject">The object to be inserted recursively.</param>
         /// <exception cref="ArgumentNullException">if the gitObject is null</exception>
-        public void AddRecursively<T>(T gitObject) where T : GitObject
+        public PackBuilder AddRecursively<T>(T gitObject) where T : GitObject
         {
             Ensure.ArgumentNotNull(gitObject, "gitObject");
 
             AddRecursively(gitObject.Id);
+
+            return this;
         }
 
         /// <summary>
@@ -56,11 +60,13 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="id">The object ID to be inserted.</param>
         /// <exception cref="ArgumentNullException">if the id is null</exception>
-        public void Add(ObjectId id)
+        public PackBuilder Add(ObjectId id)
         {
             Ensure.ArgumentNotNull(id, "id");
 
             Proxy.git_packbuilder_insert(packBuilderHandle, id, null);
+
+            return this;
         }
 
         /// <summary>
@@ -69,11 +75,13 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="id">The object ID to be recursively inserted.</param>
         /// <exception cref="ArgumentNullException">if the id is null</exception>
-        public void AddRecursively(ObjectId id)
+        public PackBuilder AddRecursively(ObjectId id)
         {
             Ensure.ArgumentNotNull(id, "id");
 
             Proxy.git_packbuilder_insert_recur(packBuilderHandle, id, null);
+
+            return this;
         }
 
         /// <summary>
