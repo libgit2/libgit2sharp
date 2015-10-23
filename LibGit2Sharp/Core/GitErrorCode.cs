@@ -107,6 +107,16 @@
         Uncommitted = -22,
 
         /// <summary>
+        /// The operation is not valid for a directory.
+        /// </summary>
+        Directory = -23,
+
+        /// <summary>
+        /// A merge conflict exists and cannot continue
+        /// </summary>
+        MergeConflict = -24,
+
+        /// <summary>
         /// Skip and passthrough the given ODB backend.
         /// </summary>
         PassThrough = -30,
