@@ -139,65 +139,45 @@ namespace LibGit2Sharp
     /// <summary>
     /// Packing options of the <see cref="ObjectDatabase"/>.
     /// </summary>
-    public sealed class PackBuilderOptions
+    public struct PackBuilderOptions
     {
-        private string path;
-        private int nThreads;
+        /// <summary>
+        /// Directory where the pack and index files will be written.
+        /// </summary>
+        public readonly string PackDirectory;
 
         /// <summary>
-        /// Constructor
+        /// Maximum number of threads that will be used during pack building.
+        /// </summary>
+        public readonly int MaximumNumberOfThreads;
+
+        /// <summary>
+        /// Options to write a new packfile and index to a directory with the default number of threads.
+        /// </summary>
+        public PackBuilderOptions(string packDirectory)
+            : this(packDirectory, 0)
+        {
+        }
+
+        /// <summary>
+        /// Options to write a new packfile and index to a directory.
         /// </summary>
         /// <param name="packDirectory">Directory path to write the pack and index files to it</param>
-        /// The default value for maximum number of threads to spawn is 0 which ensures using all available CPUs.
+        /// <param name="maxThreads">Maximum number of threads to spawn. The default value is 0 which ensures using all available CPUs.</param>
         /// <exception cref="ArgumentNullException">if packDirectory is null or empty</exception>
         /// <exception cref="DirectoryNotFoundException">if packDirectory doesn't exist</exception>
-        public PackBuilderOptions(string packDirectory)
+        /// <exception cref="ArgumentException">If <paramref name="maxThreads"/> is less than zero.</exception>
+        public PackBuilderOptions(string packDirectory, int maxThreads)
         {
-            PackDirectoryPath = packDirectory;
-            MaximumNumberOfThreads = 0;
-        }
-
-        /// <summary>
-        /// Directory path to write the pack and index files to it.
-        /// </summary>
-        public string PackDirectoryPath
-        {
-            set
+            Ensure.ArgumentNotNullOrEmptyString(packDirectory, "packDirectory");
+            Ensure.ArgumentPositiveInt32(maxThreads, "maxThreads");
+            if (!Directory.Exists(packDirectory))
             {
-                Ensure.ArgumentNotNullOrEmptyString(value, "packDirectory");
-
-                if (!Directory.Exists(value))
-                {
-                    throw new DirectoryNotFoundException("The Directory " + value + " does not exist.");
-                }
-
-                path = value;
+                throw new DirectoryNotFoundException("The Directory " + packDirectory + " does not exist.");
             }
-            get
-            {
-                return path;
-            }
-        }
 
-        /// <summary>
-        /// Maximum number of threads to spawn.
-        /// The default value is 0 which ensures using all available CPUs.
-        /// </summary>
-        public int MaximumNumberOfThreads
-        {
-            set
-            {
-                if (value < 0)
-                {
-                    throw new ArgumentException("Argument can not be negative", "value");
-                }
-
-                nThreads = value;
-            }
-            get
-            {
-                return nThreads;
-            }
+            PackDirectory = packDirectory;
+            MaximumNumberOfThreads = maxThreads;
         }
     }
 }

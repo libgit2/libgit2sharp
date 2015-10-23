@@ -682,7 +682,6 @@ namespace LibGit2Sharp
         /// <returns>Packing results</returns>
         private PackBuilderResults InternalPack(PackBuilderOptions options, Action<PackBuilder> packDelegate)
         {
-            Ensure.ArgumentNotNull(options, "options");
             Ensure.ArgumentNotNull(packDelegate, "packDelegate");
 
             PackBuilderResults results = new PackBuilderResults();
@@ -696,7 +695,7 @@ namespace LibGit2Sharp
                 packDelegate(builder);
 
                 // writing the pack and index files
-                builder.Write(options.PackDirectoryPath);
+                builder.Write(options.PackDirectory);
 
                 // adding the results to the PackBuilderResults object
                 results.WrittenObjectsCount = builder.WrittenObjectsCount;

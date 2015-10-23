@@ -114,26 +114,10 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ExceptionIfPathEqualsNull()
         {
-            PackBuilderOptions pbo;
-
             Assert.Throws<ArgumentNullException>(() =>
             {
-                pbo = new PackBuilderOptions(null);
+                new PackBuilderOptions(null);
             });
-        }
-
-        [Fact]
-        public void ExceptionIfOptionsEqualsNull()
-        {
-            string orgRepoPath = SandboxPackBuilderTestRepo();
-
-            using (Repository orgRepo = new Repository(orgRepoPath))
-            {
-                Assert.Throws<ArgumentNullException>(() =>
-                {
-                    orgRepo.ObjectDatabase.Pack(null);
-                });
-            }
         }
 
         [Fact]
@@ -154,12 +138,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ExceptionIfNegativeNumberOfThreads()
         {
-            string orgRepoPath = SandboxPackBuilderTestRepo();
-            PackBuilderOptions packBuilderOptions = new PackBuilderOptions(orgRepoPath);
-
             Assert.Throws<ArgumentException>(() =>
             {
-                packBuilderOptions.MaximumNumberOfThreads = -1;
+                new PackBuilderOptions(Path.GetTempPath(), -1);
             });
         }
 
