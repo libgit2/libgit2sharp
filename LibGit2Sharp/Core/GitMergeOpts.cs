@@ -106,9 +106,18 @@ namespace LibGit2Sharp.Core
         GIT_MERGE_TREE_NORMAL = 0,
 
         /// <summary>
-        /// GIT_MERGE_TREE_FIND_RENAMES in libgit2
+        /// Detect renames that occur between the common ancestor and the "ours"
+     	/// side or the common ancestor and the "theirs" side.  This will enable
+ 	    /// the ability to merge between a modified and renamed file.
         /// </summary>
         GIT_MERGE_TREE_FIND_RENAMES = (1 << 0),
+
+        /// <summary>
+        /// If a conflict occurs, exit immediately instead of attempting to
+        /// continue resolving conflicts.  The merge operation will fail with
+        /// GIT_EMERGECONFLICT and no index will be returned.
+        ///</summary>
+        GIT_MERGE_TREE_FAIL_ON_CONFLICT = (1 << 1),
     }
 
     [Flags]
