@@ -604,7 +604,7 @@ namespace LibGit2Sharp
         /// <para>The lookup start from <paramref name="startingPath"/> and walk upward parent directories if nothing has been found.</para>
         /// </summary>
         /// <param name="startingPath">The base path where the lookup starts.</param>
-        /// <returns>The path to the git repository.</returns>
+        /// <returns>The path to the git repository, or null if no repository was found.</returns>
         public static string Discover(string startingPath)
         {
             FilePath discoveredPath = Proxy.git_repository_discover(startingPath);
