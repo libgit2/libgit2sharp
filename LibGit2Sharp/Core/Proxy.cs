@@ -1540,6 +1540,77 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
+        #region git_packbuilder_
+
+        public static void git_packbuilder_free(IntPtr packbuilder)
+        {
+            NativeMethods.git_packbuilder_free(packbuilder);
+        }
+
+        public static PackBuilderSafeHandle git_packbuilder_new(RepositorySafeHandle repo)
+        {
+            PackBuilderSafeHandle handle;
+
+            int res = NativeMethods.git_packbuilder_new(out handle, repo);
+            Ensure.ZeroResult(res);
+
+            return handle;
+        }
+
+        public static void git_packbuilder_insert(PackBuilderSafeHandle packbuilder, ObjectId targetId, string name)
+        {
+            GitOid oid = targetId.Oid;
+
+            int res = NativeMethods.git_packbuilder_insert(packbuilder, ref oid, name);
+            Ensure.ZeroResult(res);
+        }
+
+        internal static void git_packbuilder_insert_commit(PackBuilderSafeHandle packbuilder, ObjectId targetId)
+        {
+            GitOid oid = targetId.Oid;
+
+            int res = NativeMethods.git_packbuilder_insert_commit(packbuilder, ref oid);
+            Ensure.ZeroResult(res);
+        }
+
+        internal static void git_packbuilder_insert_tree(PackBuilderSafeHandle packbuilder, ObjectId targetId)
+        {
+            GitOid oid = targetId.Oid;
+
+            int res = NativeMethods.git_packbuilder_insert_tree(packbuilder, ref oid);
+            Ensure.ZeroResult(res);
+        }
+
+        public static void git_packbuilder_insert_recur(PackBuilderSafeHandle packbuilder, ObjectId targetId, string name)
+        {
+            GitOid oid = targetId.Oid;
+
+            int res = NativeMethods.git_packbuilder_insert_recur(packbuilder, ref oid, name);
+            Ensure.ZeroResult(res);
+        }
+
+        public static uint git_packbuilder_set_threads(PackBuilderSafeHandle packbuilder, uint numThreads)
+        {
+            return NativeMethods.git_packbuilder_set_threads(packbuilder, numThreads);
+        }
+
+        public static void git_packbuilder_write(PackBuilderSafeHandle packbuilder, FilePath path)
+        {
+            int res = NativeMethods.git_packbuilder_write(packbuilder, path, 0, IntPtr.Zero, IntPtr.Zero);
+            Ensure.ZeroResult(res);
+        }
+
+        public static uint git_packbuilder_object_count(PackBuilderSafeHandle packbuilder)
+        {
+            return NativeMethods.git_packbuilder_object_count(packbuilder);
+        }
+
+        public static uint git_packbuilder_written(PackBuilderSafeHandle packbuilder)
+        {
+            return NativeMethods.git_packbuilder_written(packbuilder);
+        }
+        #endregion
+
         #region git_rebase
 
         public static RebaseSafeHandle git_rebase_init(

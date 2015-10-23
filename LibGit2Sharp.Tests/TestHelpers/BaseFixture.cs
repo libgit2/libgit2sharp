@@ -41,6 +41,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
         private static string SubmoduleTargetTestRepoWorkingDirPath { get; set; }
         private static string AssumeUnchangedRepoWorkingDirPath { get; set; }
         public static string SubmoduleSmallTestRepoWorkingDirPath { get; set; }
+        public static string PackBuilderTestRepoPath { get; private set; }
 
         public static DirectoryInfo ResourcesDirectory { get; private set; }
 
@@ -49,7 +50,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
         protected static DateTimeOffset TruncateSubSeconds(DateTimeOffset dto)
         {
             int seconds = dto.ToSecondsSinceEpoch();
-            return Epoch.ToDateTimeOffset(seconds, (int) dto.Offset.TotalMinutes);
+            return Epoch.ToDateTimeOffset(seconds, (int)dto.Offset.TotalMinutes);
         }
 
         private static void SetUpTestEnvironment()
@@ -74,6 +75,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             SubmoduleTargetTestRepoWorkingDirPath = Path.Combine(sourceRelativePath, "submodule_target_wd");
             AssumeUnchangedRepoWorkingDirPath = Path.Combine(sourceRelativePath, "assume_unchanged_wd");
             SubmoduleSmallTestRepoWorkingDirPath = Path.Combine(sourceRelativePath, "submodule_small_wd");
+            PackBuilderTestRepoPath = Path.Combine(sourceRelativePath, "packbuilder_testrepo_wd");
 
             CleanupTestReposOlderThan(TimeSpan.FromMinutes(15));
         }
@@ -174,6 +176,11 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return path;
         }
 
+        protected string SandboxPackBuilderTestRepo()
+        {
+            return Sandbox(PackBuilderTestRepoPath);
+        }
+
         protected string Sandbox(string sourceDirectoryPath, params string[] additionalSourcePaths)
         {
             var scd = BuildSelfCleaningDirectory();
@@ -260,7 +267,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
                 throw new InvalidOperationException("Cannot access Mono.RunTime.GetDisplayName() method.");
             }
 
-            var version = (string) displayName.Invoke(null, null);
+            var version = (string)displayName.Invoke(null, null);
 
             System.Version current;
 

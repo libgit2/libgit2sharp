@@ -75,6 +75,7 @@
     <Compile Include="Core\GitFetchOptions.cs" />
     <Compile Include="Core\GitPushUpdate.cs" />
     <Compile Include="Core\GitSubmoduleIgnore.cs" />
+    <Compile Include="Core\Handles\PackBuilderSafeHandle.cs" />
     <Compile Include="Core\Platform.cs" />
     <Compile Include="Core\Handles\ConflictIteratorSafeHandle.cs" />
     <Compile Include="Core\GitWriteStream.cs" />
@@ -131,6 +132,7 @@
     <Compile Include="MergeTreeResult.cs" />
     <Compile Include="NotFoundException.cs" />
     <Compile Include="GitObjectMetadata.cs" />
+    <Compile Include="PackBuilder.cs" />
     <Compile Include="PatchEntryChanges.cs" />
     <Compile Include="PatchStats.cs" />
     <Compile Include="PeelException.cs" />
