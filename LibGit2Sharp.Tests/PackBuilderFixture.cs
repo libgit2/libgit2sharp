@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
@@ -116,7 +117,16 @@ namespace LibGit2Sharp.Tests
         {
             Assert.Throws<ArgumentNullException>(() =>
             {
-                new PackBuilderOptions(null);
+                new PackBuilderOptions(packDirectory: null);
+            });
+        }
+
+        [Fact]
+        public void ExceptionIfStreamIsNull()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                new PackBuilderOptions(outputPackStream: null);
             });
         }
 
@@ -177,6 +187,27 @@ namespace LibGit2Sharp.Tests
                         builder.AddRecursively(null);
                     });
                 });
+            }
+        }
+
+        [Fact]
+        public void WriteToStreamWritesAllObjects()
+        {
+            var testRepoPath = SandboxPackBuilderTestRepo();
+            using (var testRepo = new Repository(testRepoPath))
+            {
+                using (var packOutput = new MemoryStream())
+                {
+                    PackBuilderResults results = testRepo.ObjectDatabase.Pack(
+                        new PackBuilderOptions(packOutput));
+
+                    const string packHeader = "PACK";
+                    Assert.Equal(
+                        packHeader,
+                        Encoding.UTF8.GetString(packOutput.GetBuffer(), 0, packHeader.Length));
+
+                    Assert.Equal(testRepo.ObjectDatabase.Count(), results.WrittenObjectsCount);
+                }
             }
         }
     }

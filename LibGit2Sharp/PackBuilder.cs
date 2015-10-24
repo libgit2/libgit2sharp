@@ -92,6 +92,45 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Write the new pack to the <paramref name="outputStream"/>. The index will not be
+        /// written, so the caller is responsible for indexing objects in the new pack.
+        /// </summary>
+        /// <param name="outputStream">The output pack stream.</param>
+        internal void WriteTo(Stream outputStream)
+        {
+            Ensure.ArgumentNotNull(outputStream, "outputStream");
+
+            // 64K is optimal buffer size per https://technet.microsoft.com/en-us/library/cc938632.aspx
+            const int defaultBufferSize = 64 * 1024;
+
+            Proxy.git_packbuilder_foreach(packBuilderHandle, (IntPtr buf, UIntPtr size, IntPtr payload) =>
+            {
+                try
+                {
+                    long objectSize = (long)size;
+                    unsafe
+                    {
+                        using (var input = new UnmanagedMemoryStream((byte*)buf.ToPointer(), objectSize))
+                        {
+                            input.CopyTo(
+                                outputStream,
+                                objectSize > defaultBufferSize ? defaultBufferSize : (int)objectSize);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Write(LogLevel.Error, "PackBuilder.WriteTo callback exception");
+                    Log.Write(LogLevel.Error, ex.ToString());
+                    Proxy.giterr_set_str(GitErrorCategory.Callback, ex);
+                    return (int)GitErrorCode.Error;
+                }
+
+                return (int)GitErrorCode.Ok;
+            });
+        }
+
+        /// <summary>
         /// Sets number of threads to spawn.
         /// </summary>
         /// <returns> Returns the number of actual threads to be used.</returns>
@@ -143,8 +182,15 @@ namespace LibGit2Sharp
     {
         /// <summary>
         /// Directory where the pack and index files will be written.
+        /// null if <see cref="OutputPackStream"/> is specified instead.
         /// </summary>
         public readonly string PackDirectory;
+
+        /// <summary>
+        /// Stream where the pack will be output to.
+        /// null if <see cref="PackDirectory"/> is specified instead.
+        /// </summary>
+        public readonly Stream OutputPackStream;
 
         /// <summary>
         /// Maximum number of threads that will be used during pack building.
@@ -160,6 +206,14 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Options to write a new packfile and index to a directory with the default number of threads.
+        /// </summary>
+        public PackBuilderOptions(Stream outputPackStream)
+            : this(outputPackStream, 0)
+        {
+        }
+
+        /// <summary>
         /// Options to write a new packfile and index to a directory.
         /// </summary>
         /// <param name="packDirectory">Directory path to write the pack and index files to it</param>
@@ -168,15 +222,35 @@ namespace LibGit2Sharp
         /// <exception cref="DirectoryNotFoundException">if packDirectory doesn't exist</exception>
         /// <exception cref="ArgumentException">If <paramref name="maxThreads"/> is less than zero.</exception>
         public PackBuilderOptions(string packDirectory, int maxThreads)
+            : this(packDirectory, null, maxThreads)
         {
             Ensure.ArgumentNotNullOrEmptyString(packDirectory, "packDirectory");
-            Ensure.ArgumentPositiveInt32(maxThreads, "maxThreads");
             if (!Directory.Exists(packDirectory))
             {
                 throw new DirectoryNotFoundException("The Directory " + packDirectory + " does not exist.");
             }
+        }
+
+        /// <summary>
+        /// Options to write a new packfile to an output <see cref="Stream"/>
+        /// </summary>
+        /// <param name="outputPackStream">Output stream to write the new pack to.</param>
+        /// <param name="maxThreads">Maximum number of threads to spawn. The default value is 0 which ensures using all available CPUs.</param>
+        /// <exception cref="ArgumentNullException">if packDirectory is null or empty</exception>
+        /// <exception cref="DirectoryNotFoundException">if packDirectory doesn't exist</exception>
+        /// <exception cref="ArgumentException">If <paramref name="maxThreads"/> is less than zero.</exception>
+        public PackBuilderOptions(Stream outputPackStream, int maxThreads)
+            : this(null, outputPackStream, maxThreads)
+        {
+            Ensure.ArgumentNotNull(outputPackStream, "outputStream");
+        }
+
+        private PackBuilderOptions(string packDirectory, Stream outputPackStream, int maxThreads)
+        {
+            Ensure.ArgumentPositiveInt32(maxThreads, "maxThreads");
 
             PackDirectory = packDirectory;
+            OutputPackStream = outputPackStream;
             MaximumNumberOfThreads = maxThreads;
         }
     }

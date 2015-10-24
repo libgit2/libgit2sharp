@@ -1572,6 +1572,13 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
+        public static int git_packbuilder_foreach(
+            PackBuilderSafeHandle packbuilder,
+            NativeMethods.git_packbuilder_foreach_callback callback)
+        {
+            return NativeMethods.git_packbuilder_foreach(packbuilder, callback, IntPtr.Zero);
+        }
+
         internal static void git_packbuilder_insert_commit(PackBuilderSafeHandle packbuilder, ObjectId targetId)
         {
             GitOid oid = targetId.Oid;

@@ -937,6 +937,13 @@ namespace LibGit2Sharp.Core
         /* Push network progress notification function */
         internal delegate int git_push_transfer_progress(uint current, uint total, UIntPtr bytes, IntPtr payload);
         internal delegate int git_packbuilder_progress(int stage, uint current, uint total, IntPtr payload);
+        internal delegate int git_packbuilder_foreach_callback(IntPtr buf, UIntPtr size, IntPtr payload);
+
+        [DllImport(libgit2)]
+        internal static extern int git_packbuilder_foreach(
+            PackBuilderSafeHandle packbuilder,
+            git_packbuilder_foreach_callback foreachCallback,
+            IntPtr payload);
 
         [DllImport(libgit2)]
         internal static extern void git_packbuilder_free(IntPtr packbuilder);

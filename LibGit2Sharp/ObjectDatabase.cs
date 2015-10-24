@@ -694,8 +694,15 @@ namespace LibGit2Sharp
                 // call the provided action
                 packDelegate(builder);
 
-                // writing the pack and index files
-                builder.Write(options.PackDirectory);
+                // A valid stream or path is guaranteed by the PackBuilderOptions constructor
+                if (options.OutputPackStream != null)
+                {
+                    builder.WriteTo(options.OutputPackStream);
+                }
+                else
+                {
+                    builder.Write(options.PackDirectory);
+                }
 
                 // adding the results to the PackBuilderResults object
                 results.WrittenObjectsCount = builder.WrittenObjectsCount;
