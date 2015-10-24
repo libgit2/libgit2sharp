@@ -82,7 +82,7 @@ You can do a few things to optimize running unit-tests on Windows:
   * If the unit-test framework cannot find the specified folder at runtime, it will fall back to the default location.
 2. Configure your anti-virus software to ignore the `LibGit2TestPath` path.
 3. Install a RAM disk like [IMDisk](http://www.ltr-data.se/opencode.html/#ImDisk) and set `LibGit2TestPath` to use it.
-  * Use `imdisk.exe -a -s 256M -m X: -p "/fs:fat /q /v:ramdisk /y"` to create a RAM disk. This command requires elevated privileges and can be placed into a scheduled task or run manually before you begin unit-testing.
+  * Use `imdisk.exe -a -s 512M -m X: -p "/fs:fat /q /v:ramdisk /y"` to create a RAM disk. This command requires elevated privileges and can be placed into a scheduled task or run manually before you begin unit-testing.
 
 ## Authors
 
