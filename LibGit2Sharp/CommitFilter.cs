@@ -148,18 +148,49 @@ namespace LibGit2Sharp
 
         private static CommitFilter MergeRangeParse(string expression)
         {
+            var parts = Strings(expression, "...");
+
             throw new NotImplementedException();
         }
 
         private static CommitFilter RangeParse(string expression)
         {
-            var parts = expression.Split(new[] { ".." }, StringSplitOptions.None);
+            var parts = Strings(expression, "..");
 
-            Debug.Assert(parts.Length == 2);
+            return new CommitFilter { IncludeReachableFrom = parts[1], ExcludeReachableFrom = parts[0] };
+        }
 
-            Func<string, string> nullify = (s) => s == string.Empty ? null : s;
+        static readonly Func<string, string> Nullify = s => s == string.Empty ? null : s;
 
-            return new CommitFilter { IncludeReachableFrom = nullify(parts[1]), ExcludeReachableFrom = nullify(parts[0]) };
+        private static string[] Strings(string expression, string rangeSeparator)
+        {
+            var parts = expression.Split(new[] { rangeSeparator }, StringSplitOptions.None);
+
+            if (parts.Length != 2)
+            {
+                throw new InvalidOperationException();
+            }
+
+            int nullsCount = 0;
+
+            for (int i = 0; i < parts.Length; i++)
+            {
+                string part = Nullify(parts[i]);
+
+                if (part == default(string))
+                {
+                    nullsCount++;
+                }
+
+                if (nullsCount > 1)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                parts[i] = part;
+            }
+
+            return parts;
         }
     }
 }
