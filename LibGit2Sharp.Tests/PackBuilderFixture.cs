@@ -131,6 +131,20 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void ExceptionIfOptionsEqualsNull()
+        {
+            string orgRepoPath = SandboxPackBuilderTestRepo();
+
+            using (Repository orgRepo = new Repository(orgRepoPath))
+            {
+                Assert.Throws<ArgumentNullException>(() =>
+                {
+                    orgRepo.ObjectDatabase.Pack(null);
+                });
+            }
+        }
+
+        [Fact]
         public void ExceptionIfBuildDelegateEqualsNull()
         {
             string orgRepoPath = SandboxPackBuilderTestRepo();

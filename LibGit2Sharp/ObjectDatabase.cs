@@ -682,6 +682,7 @@ namespace LibGit2Sharp
         /// <returns>Packing results</returns>
         private PackBuilderResults InternalPack(PackBuilderOptions options, Action<PackBuilder> packDelegate)
         {
+            Ensure.ArgumentNotNull(options, "options");
             Ensure.ArgumentNotNull(packDelegate, "packDelegate");
 
             PackBuilderResults results = new PackBuilderResults();

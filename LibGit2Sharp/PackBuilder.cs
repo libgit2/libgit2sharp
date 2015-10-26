@@ -178,7 +178,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// Packing options of the <see cref="ObjectDatabase"/>.
     /// </summary>
-    public struct PackBuilderOptions
+    public sealed class PackBuilderOptions
     {
         /// <summary>
         /// Directory where the pack and index files will be written.
