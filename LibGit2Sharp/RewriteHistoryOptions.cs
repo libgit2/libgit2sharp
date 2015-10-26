@@ -77,5 +77,13 @@ namespace LibGit2Sharp
         /// </para>
         /// </summary>
         public Action<Exception> OnError { get; set; }
+
+        /// <summary>
+        /// Specifies Commit message prettifying behavior during rewrite.
+        /// NOTE: Prettifying may result in losing one or multiple lines in the commit message.
+        /// As such it is recommended to leave this set to false.
+        /// </summary>
+        /// <value><c>true</c> if Commit messages are prettified; otherwise, <c>false</c>.</value>
+        public bool PrettifyMessages { get; set; }
     }
 }

@@ -52,7 +52,7 @@ namespace LibGit2Sharp.Core
                 var commits = repo.Commits.QueryBy(filter);
                 foreach (var commit in commits)
                 {
-                    RewriteCommit(commit);
+                    RewriteCommit(commit, options);
                 }
 
                 // Ordering matters. In the case of `A -> B -> commit`, we need to make sure B is rewritten
@@ -199,7 +199,7 @@ namespace LibGit2Sharp.Core
             return refMap[oldRef] = movedRef;
         }
 
-        private void RewriteCommit(Commit commit)
+        private void RewriteCommit(Commit commit, RewriteHistoryOptions options)
         {
             var newHeader = CommitRewriteInfo.From(commit);
             var newTree = commit.Tree;
@@ -248,7 +248,7 @@ namespace LibGit2Sharp.Core
                                                              newHeader.Message,
                                                              newTree,
                                                              mappedNewParents,
-                                                             true);
+                                                             options.PrettifyMessages);
 
             // Record the rewrite
             objectMap[commit] = newCommit;
