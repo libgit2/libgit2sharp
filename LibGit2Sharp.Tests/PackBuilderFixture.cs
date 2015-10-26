@@ -68,6 +68,58 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        internal void TestCreatingMultiplePackFiles()
+        {
+            string orgRepoPath = SandboxPackBuilderTestRepo();
+            string mrrRepoPath = SandboxPackBuilderTestRepo();
+            string mrrRepoPackDirPath = Path.Combine(mrrRepoPath + "/.git/objects");
+
+            DirectoryHelper.DeleteDirectory(mrrRepoPackDirPath);
+            Directory.CreateDirectory(mrrRepoPackDirPath + "/pack");
+
+            PackBuilderOptions packBuilderOptions = new PackBuilderOptions(mrrRepoPackDirPath + "/pack");
+
+            using (Repository orgRepo = new Repository(orgRepoPath))
+            {
+                long totalNumberOfWrittenObjects = 0;
+                PackBuilderResults results;
+
+                for (int i = 0; i < 3; i++)
+                {
+                    results = results = orgRepo.ObjectDatabase.Pack(packBuilderOptions, b =>
+                    {
+                        foreach (GitObject obj in orgRepo.ObjectDatabase)
+                        {
+                            if (i == 0 && obj is Commit)
+                                b.Add(obj.Id);
+                            if (i == 1 && obj is Tree)
+                                b.Add(obj.Id);
+                            if (i == 2 && obj is Blob)
+                                b.Add(obj.Id);
+                        }
+                    });
+
+                    totalNumberOfWrittenObjects += results.WrittenObjectsCount;
+                }
+
+                // written objects count is the same as in objects database
+                Assert.Equal(orgRepo.ObjectDatabase.Count(), totalNumberOfWrittenObjects);
+
+                // loading a repo from the written pack file.
+                using (Repository mrrRepo = new Repository(mrrRepoPath))
+                {
+                    // make sure the objects of the original repo are the same as the ones in the mirror repo
+                    // doing that by making sure the count is the same, and the set difference is empty
+                    Assert.True(mrrRepo.ObjectDatabase.Count() == orgRepo.ObjectDatabase.Count() && !mrrRepo.ObjectDatabase.Except(orgRepo.ObjectDatabase).Any());
+
+                    Assert.Equal(orgRepo.Commits.Count(), mrrRepo.Commits.Count());
+                    Assert.Equal(orgRepo.Branches.Count(), mrrRepo.Branches.Count());
+                    Assert.Equal(orgRepo.Refs.Count(), mrrRepo.Refs.Count());
+                }
+            }
+        }
+
         internal void AddingObjectIdsTestDelegate(IRepository repo, PackBuilder builder)
         {
             foreach (Branch branch in repo.Branches)
