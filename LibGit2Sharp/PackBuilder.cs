@@ -105,9 +105,19 @@ namespace LibGit2Sharp
         /// <summary>
         /// Number of objects the PackBuilder will write out.
         /// </summary>
-        internal long ObjectsCount
+        public long ObjectsCount
         {
             get { return Proxy.git_packbuilder_object_count(packBuilderHandle); }
+        }
+
+        /// <summary>
+        /// Gets the pack file's hash
+        /// A pack file's name is derived from the sorted hashing of all object names. 
+        /// This is only correct after the pack file has been written.
+        /// </summary>
+        internal string PackHash
+        {
+            get { return Proxy.git_packbuilder_hash(packBuilderHandle).Sha; }
         }
 
         /// <summary>
@@ -131,9 +141,19 @@ namespace LibGit2Sharp
     public struct PackBuilderResults
     {
         /// <summary>
-        /// Number of objects the PackBuilder has already written out. 
+        /// Number of objects that the PackBuilder has already written out.
         /// </summary>
         public long WrittenObjectsCount { get; internal set; }
+
+        /// <summary>
+        /// Hash of the pack file that the PackBuilder has already written out.
+        /// </summary>
+        public string PackHash { get; internal set; }
+
+        /// <summary>
+        /// Number of actual threads that the PackBuilder has already used.
+        /// </summary>
+        public int ActualNumberOfThreads { get; internal set; }
     }
 
     /// <summary>

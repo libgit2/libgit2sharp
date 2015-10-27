@@ -1616,6 +1616,12 @@ namespace LibGit2Sharp.Core
         {
             return NativeMethods.git_packbuilder_written(packbuilder);
         }
+
+        public static ObjectId git_packbuilder_hash(PackBuilderSafeHandle packbuilder)
+        {
+            return NativeMethods.git_packbuilder_hash(packbuilder).MarshalAsObjectId();
+        }
+
         #endregion
 
         #region git_rebase

@@ -984,6 +984,9 @@ namespace LibGit2Sharp.Core
         internal static extern UInt32 git_packbuilder_written(PackBuilderSafeHandle packbuilder);
 
         [DllImport(libgit2)]
+        internal static extern OidSafeHandle git_packbuilder_hash(PackBuilderSafeHandle packbuilder);
+
+        [DllImport(libgit2)]
         internal static extern int git_reference_create(
             out ReferenceSafeHandle reference,
             RepositorySafeHandle repo,

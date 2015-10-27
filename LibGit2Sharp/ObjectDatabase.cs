@@ -690,7 +690,7 @@ namespace LibGit2Sharp
             using (PackBuilder builder = new PackBuilder(repo))
             {
                 // set pre-build options
-                builder.SetMaximumNumberOfThreads(options.MaximumNumberOfThreads);
+               results.ActualNumberOfThreads = builder.SetMaximumNumberOfThreads(options.MaximumNumberOfThreads);
 
                 // call the provided action
                 packDelegate(builder);
@@ -700,6 +700,7 @@ namespace LibGit2Sharp
 
                 // adding the results to the PackBuilderResults object
                 results.WrittenObjectsCount = builder.WrittenObjectsCount;
+                results.PackHash = builder.PackHash;
             }
 
             return results;
