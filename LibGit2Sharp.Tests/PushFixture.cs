@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp.Handlers;
@@ -58,6 +59,43 @@ namespace LibGit2Sharp.Tests
                     clonedRepo.Network.ListReferences(remote).Single(r => r.CanonicalName == "refs/heads/master"),
                     clonedRepo.Refs.Head.ResolveToDirectReference());
             }
+        }
+
+        [Fact]
+        public void e1217()
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            string clonedRepoPath = Repository.Clone("https://github.com/nulltoken/lg2s_issues_1217.git", scd.DirectoryPath,
+                new CloneOptions
+                {
+                    CredentialsProvider = dd,
+                });
+
+            PushOptions options = new PushOptions()
+            {
+                CredentialsProvider = dd,
+                OnPushStatusError = ss,
+            };
+
+            using (var repo = new Repository(clonedRepoPath))
+            {
+                var file = Guid.NewGuid().ToString();
+                Touch(repo.Info.WorkingDirectory, file, "tada");
+                repo.Stage(file);
+                repo.Commit("de", Constants.Signature, Constants.Signature);
+                repo.Network.Push(repo.Network.Remotes["origin"], "HEAD", @"refs/heads/master", options);
+            }
+        }
+
+        private Credentials dd(string url, string usernamefromurl, SupportedCredentialTypes types)
+        {
+            return new UsernamePasswordCredentials { Username = "your_name", Password = "your_password" };
+        }
+
+        private void ss(PushStatusError pushstatuserrors)
+        {
+            Trace.WriteLine(pushstatuserrors.Message);
         }
 
         [Fact]
