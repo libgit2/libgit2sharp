@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -992,7 +992,7 @@ namespace LibGit2Sharp
         /// <param name="resetMode">Flavor of reset operation to perform.</param>
         /// <param name="commit">The target commit object.</param>
         /// <param name="opts">Collection of parameters controlling checkout behavior.</param>
-        private void Reset(ResetMode resetMode, Commit commit, IConvertableToGitCheckoutOpts opts)
+        public void Reset(ResetMode resetMode, Commit commit, IConvertableToGitCheckoutOpts opts)
         {
             Ensure.ArgumentNotNull(commit, "commit");
 
