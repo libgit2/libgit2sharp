@@ -986,6 +986,24 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Sets <see cref="Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
+        /// the content of the working tree to match.
+        /// </summary>
+        /// <param name="resetMode">Flavor of reset operation to perform.</param>
+        /// <param name="commit">The target commit object.</param>
+        /// <param name="opts">Collection of parameters controlling checkout behavior.</param>
+        public void Reset(ResetMode resetMode, Commit commit, CheckoutOptions opts)
+        {
+            Ensure.ArgumentNotNull(commit, "commit");
+
+            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(opts))
+            {
+                var options = checkoutOptionsWrapper.Options;
+                Proxy.git_reset(handle, commit.Id, resetMode, ref options);
+            }
+        }
+
+        /// <summary>
         /// Sets the current <see cref="Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
         /// the content of the working tree to match.
         /// </summary>
