@@ -235,6 +235,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void HardResetUpdatesTheContentOfTheWorkingDirectory()
         {
+            bool progressCalled = false;
+
             string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
@@ -245,11 +247,16 @@ namespace LibGit2Sharp.Tests
 
                 Assert.True(names.Count > 4);
 
-                repo.Reset(ResetMode.Hard, "HEAD~3");
+                var commit = repo.Lookup<Commit>("HEAD~3");
+                repo.Reset(ResetMode.Hard, commit, new CheckoutOptions()
+                {
+                    OnCheckoutProgress = (_path, _completed, _total) => { progressCalled = true; },
+                });
 
                 names = new DirectoryInfo(repo.Info.WorkingDirectory).GetFileSystemInfos().Select(fsi => fsi.Name).ToList();
                 names.Sort(StringComparer.Ordinal);
 
+                Assert.Equal(true, progressCalled);
                 Assert.Equal(new[] { ".git", "README", "WillNotBeRemoved.txt", "branch_file.txt", "new.txt", "new_untracked_file.txt" }, names);
             }
         }
