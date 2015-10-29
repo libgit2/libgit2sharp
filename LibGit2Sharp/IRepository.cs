@@ -166,6 +166,15 @@ namespace LibGit2Sharp
         void Reset(ResetMode resetMode, Commit commit);
 
         /// <summary>
+        /// Sets <see cref="Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
+        /// the content of the working tree to match.
+        /// </summary>
+        /// <param name="resetMode">Flavor of reset operation to perform.</param>
+        /// <param name="commit">The target commit object.</param>
+        /// <param name="opts">Collection of parameters controlling checkout behavior.</param>
+        void Reset(ResetMode resetMode, Commit commit, CheckoutOptions options);
+
+        /// <summary>
         /// Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
         /// </summary>
         /// <param name="commit">The target commit object.</param>
