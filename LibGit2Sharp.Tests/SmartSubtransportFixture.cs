@@ -70,8 +70,7 @@ namespace LibGit2Sharp.Tests
             }
             finally
             {
-                GlobalSettings.UnregisterSmartSubtransport(registration);
-
+                registration.Dispose();
                 ServicePointManager.ServerCertificateValidationCallback -= certificateValidationCallback;
             }
         }
@@ -89,20 +88,8 @@ namespace LibGit2Sharp.Tests
             }
             finally
             {
-                GlobalSettings.UnregisterSmartSubtransport(httpRegistration);
+                httpRegistration.Dispose();
             }
-        }
-
-        [Fact]
-        public void CannotUnregisterTwice()
-        {
-            SmartSubtransportRegistration<MockSmartSubtransport> httpRegistration =
-                GlobalSettings.RegisterSmartSubtransport<MockSmartSubtransport>("http");
-
-            GlobalSettings.UnregisterSmartSubtransport(httpRegistration);
-
-            Assert.Throws<NotFoundException>(() =>
-                GlobalSettings.UnregisterSmartSubtransport(httpRegistration));
         }
 
         private class MockSmartSubtransport : RpcSmartSubtransport

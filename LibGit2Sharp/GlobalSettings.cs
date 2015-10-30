@@ -79,21 +79,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Unregisters a previously registered <see cref="SmartSubtransport"/>
-        /// as a custom smart-protocol transport with libgit2.
-        /// </summary>
-        /// <typeparam name="T">The type of SmartSubtransport to register</typeparam>
-        /// <param name="registration">The previous registration</param>
-        public static void UnregisterSmartSubtransport<T>(SmartSubtransportRegistration<T> registration)
-            where T : SmartSubtransport, new()
-        {
-            Ensure.ArgumentNotNull(registration, "registration");
-
-            Proxy.git_transport_unregister(registration.Scheme);
-            registration.Free();
-        }
-
-        /// <summary>
         /// Registers a new <see cref="LogConfiguration"/> to receive
         /// information logging information from libgit2 and LibGit2Sharp.
         ///

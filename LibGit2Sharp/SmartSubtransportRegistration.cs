@@ -9,9 +9,11 @@ namespace LibGit2Sharp
     /// under a particular scheme (eg "http").
     /// </summary>
     /// <typeparam name="T">The type of SmartSubtransport to register</typeparam>
-    public sealed class SmartSubtransportRegistration<T>
+    public sealed class SmartSubtransportRegistration<T> : IDisposable
         where T : SmartSubtransport, new()
     {
+        private bool disposed = false;
+
         /// <summary>
         /// Creates a new native registration for a smart protocol transport
         /// in libgit2.
@@ -57,6 +59,38 @@ namespace LibGit2Sharp
             RegistrationPointer = IntPtr.Zero;
         }
 
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    // dispose managed objects
+                }
+                // dispose unmanaged objects
+                Proxy.git_transport_unregister(Scheme);
+                Free();
+                disposed = true;
+            }
+        }
+
+        /// <summary>
+        /// Clean up resources
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Finalizer called to free unmanaged resources
+        /// </summary>
+        ~SmartSubtransportRegistration()
+        {
+            Dispose(false);
+        }
+        
         private static class EntryPoints
         {
             // Because our GitSmartSubtransportRegistration structure exists on the managed heap only for a short time (to be marshaled
