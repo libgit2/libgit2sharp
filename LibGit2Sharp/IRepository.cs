@@ -171,7 +171,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="resetMode">Flavor of reset operation to perform.</param>
         /// <param name="commit">The target commit object.</param>
-        /// <param name="opts">Collection of parameters controlling checkout behavior.</param>
+        /// <param name="options">Collection of parameters controlling checkout behavior.</param>
         void Reset(ResetMode resetMode, Commit commit, CheckoutOptions options);
 
         /// <summary>

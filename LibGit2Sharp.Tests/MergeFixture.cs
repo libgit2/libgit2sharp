@@ -361,7 +361,7 @@ namespace LibGit2Sharp.Tests
                     OnCheckoutProgress = (path, completed, total) => wasCalled = true,
                 };
 
-                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, options);
+                repo.Merge(commitToMerge, Constants.Signature, options);
 
                 Assert.True(wasCalled);
             }
@@ -384,7 +384,7 @@ namespace LibGit2Sharp.Tests
                     CheckoutNotifyFlags = CheckoutNotifyFlags.Updated,
                 };
 
-                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, options);
+                repo.Merge(commitToMerge, Constants.Signature, options);
 
                 Assert.True(wasCalled);
                 Assert.Equal(CheckoutNotifyFlags.Updated, actualNotifyFlags);
@@ -406,7 +406,7 @@ namespace LibGit2Sharp.Tests
                     OnCheckoutProgress = (path, completed, total) => wasCalled = true,
                 };
 
-                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, options);
+                repo.Merge(commitToMerge, Constants.Signature, options);
 
                 Assert.True(wasCalled);
             }
@@ -429,7 +429,7 @@ namespace LibGit2Sharp.Tests
                     CheckoutNotifyFlags = CheckoutNotifyFlags.Updated,
                 };
 
-                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, options);
+                repo.Merge(commitToMerge, Constants.Signature, options);
 
                 Assert.True(wasCalled);
                 Assert.Equal(CheckoutNotifyFlags.Updated, actualNotifyFlags);
@@ -665,7 +665,6 @@ namespace LibGit2Sharp.Tests
                 Branch branch = repo.Branches[conflictBranchName];
                 Assert.NotNull(branch);
 
-                var status = repo.RetrieveStatus();
                 MergeOptions mergeOptions = new MergeOptions()
                 {
                     MergeFileFavor = fileFavorFlag,

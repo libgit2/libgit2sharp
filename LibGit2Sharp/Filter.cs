@@ -52,7 +52,6 @@ namespace LibGit2Sharp
         private readonly string name;
         private readonly IEnumerable<FilterAttributeEntry> attributes;
         private readonly GitFilter gitFilter;
-        private readonly object @lock = new object();
 
         private GitWriteStream thisStream;
         private GitWriteStream nextStream;

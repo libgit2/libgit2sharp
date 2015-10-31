@@ -38,7 +38,7 @@ namespace LibGit2Sharp.Tests
                 registration = GlobalSettings.RegisterSmartSubtransport<MockSmartSubtransport>(scheme);
                 Assert.NotNull(registration);
 
-                using (var repo = new Repository(scd.DirectoryPath))
+                using (var repo = new Repository(repoPath))
                 {
                     Remote remote = repo.Network.Remotes.Add(remoteName, url);
 

@@ -43,24 +43,20 @@ namespace LibGit2Sharp
                 else
                 {
                     // No step to apply - need to complete the rebase.
-                    rebaseResult = CompleteRebase(rebaseOperationHandle, committer, rebaseResult);
+                    rebaseResult = CompleteRebase(rebaseOperationHandle, committer);
                 }
             }
 
             return rebaseResult;
         }
 
-        private static RebaseResult CompleteRebase(RebaseSafeHandle rebaseOperationHandle, Identity committer, RebaseResult rebaseResult)
+        private static RebaseResult CompleteRebase(RebaseSafeHandle rebaseOperationHandle, Identity committer)
         {
             long totalStepCount = Proxy.git_rebase_operation_entrycount(rebaseOperationHandle);
-            GitRebaseOptions gitRebaseOptions = new GitRebaseOptions()
-            {
-                version = 1,
-            };
 
             // Rebase is completed!
             Proxy.git_rebase_finish(rebaseOperationHandle, committer);
-            rebaseResult = new RebaseResult(RebaseStatus.Complete,
+            var rebaseResult = new RebaseResult(RebaseStatus.Complete,
                                             totalStepCount,
                                             totalStepCount,
                                             null);

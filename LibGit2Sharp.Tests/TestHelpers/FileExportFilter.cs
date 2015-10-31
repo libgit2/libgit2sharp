@@ -77,7 +77,6 @@ namespace LibGit2Sharp.Tests.TestHelpers
         {
             SmudgeCalledCount++;
 
-            string filename = Path.GetFileName(path);
             StringBuilder text = new StringBuilder();
 
             byte[] buffer = new byte[64 * 1024];
