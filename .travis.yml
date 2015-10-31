@@ -7,6 +7,10 @@ os:
  - osx
  - linux
 
+env:
+ global:
+  - MONO_OPTIONS=--debug
+
 before_install:
  - date -u
  - uname -a
