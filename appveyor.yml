@@ -76,8 +76,8 @@ install:
 
     If ($Env:SHOULD_RUN_COVERALLS -eq $True)
     {
-      nuget install OpenCover -Version 4.5.3723 -ExcludeVersion -OutputDirectory .\packages
-      nuget install coveralls.net -Version 0.5.0 -ExcludeVersion -OutputDirectory .\packages
+      nuget install OpenCover -Version 4.6.166 -ExcludeVersion -OutputDirectory .\packages
+      nuget install coveralls.net -Version 0.6.0 -ExcludeVersion -OutputDirectory .\packages
     }
 
     If ($Env:SHOULD_RUN_COVERITY_ANALYSIS -eq $True)
@@ -110,7 +110,7 @@ test_script:
 - ps: |
     If ($Env:SHOULD_RUN_COVERALLS -eq $True -and $Env:publish_on_success -eq $True)
     {
-      .\packages\OpenCover\OpenCover.Console.exe `
+      .\packages\OpenCover\tools\OpenCover.Console.exe `
         -register:user `
         "-target:""$Env:APPVEYOR_BUILD_FOLDER\packages\xunit.runner.console.2.0.0\tools\$Env:xunit_runner""" `
         "-targetargs:""$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll"" -noshadow" `
@@ -149,17 +149,11 @@ after_test:
     {
       Write-Host "Uploading code coverage result..." -ForegroundColor "Green"
 
-      .\packages\coveralls.net\csmacnz.Coveralls.exe `
+      .\packages\coveralls.net\tools\csmacnz.Coveralls.exe `
         --opencover -i opencoverCoverage.xml `
         --repoToken $Env:coveralls_token `
-        --commitId $Env:APPVEYOR_REPO_COMMIT `
-        --commitBranch $Env:APPVEYOR_REPO_BRANCH `
-        --commitAuthor $Env:APPVEYOR_REPO_COMMIT_AUTHOR `
-        --commitEmail $Env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL `
-        --commitMessage $Env:APPVEYOR_REPO_COMMIT_MESSAGE `
         --useRelativePaths `
         --basePath "$Env:APPVEYOR_BUILD_FOLDER\"`
-        --jobId $Env:APPVEYOR_JOB_ID
     }
 
     If ($Env:SHOULD_RUN_COVERITY_ANALYSIS -eq $True -and $Env:publish_on_success -eq $True)
