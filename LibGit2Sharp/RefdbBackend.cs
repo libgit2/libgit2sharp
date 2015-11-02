@@ -584,7 +584,7 @@ namespace LibGit2Sharp
                 IntPtr payload,
                 [MarshalAs(UnmanagedType.Bool)] bool force,
                 [MarshalAs(UnmanagedType.Bool)] bool update_reflog,
-                IntPtr refNamePtr, // const char *
+                IntPtr referencePtr, // const git_reference *
                 IntPtr who, // const git_signature *
                 IntPtr messagePtr // const char *
                 )
@@ -594,7 +594,11 @@ namespace LibGit2Sharp
                 try
                 {
                     RefdbBackend refdbBackend = MarshalRefdbBackend(backend);
-                    string refName = LaxUtf8Marshaler.FromNative(refNamePtr);
+
+                    var referenceHandle = new NotOwnedReferenceSafeHandle(referencePtr);
+                    string refName = Proxy.git_reference_name(referenceHandle);
+                    GitReferenceType type = Proxy.git_reference_type(referenceHandle);
+
                     refdbBackend.UnlockReference(refName);
 
                     res = GitErrorCode.Ok;
