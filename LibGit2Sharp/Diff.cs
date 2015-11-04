@@ -53,6 +53,10 @@ namespace LibGit2Sharp
             {
                 options.Flags |= GitDiffOptionFlags.GIT_DIFF_PATIENCE;
             }
+            else if (compareOptions.Algorithm == DiffAlgorithm.Minimal)
+            {
+                options.Flags |= GitDiffOptionFlags.GIT_DIFF_MINIMAL;
+            }
 
             if (diffOptions.HasFlag(DiffModifiers.DisablePathspecMatch))
             {
