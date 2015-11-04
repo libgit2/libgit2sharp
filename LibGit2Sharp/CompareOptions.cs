@@ -14,7 +14,7 @@ namespace LibGit2Sharp
         {
             ContextLines = 3;
             InterhunkLines = 0;
-            Algorithm = DiffAlgorithm.Meyers;
+            Algorithm = DiffAlgorithm.Myers;
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Algorithm to be used when performing a Diff.
-        /// By default, <see cref="DiffAlgorithm.Meyers"/> will be used.
+        /// By default, <see cref="DiffAlgorithm.Myers"/> will be used.
         /// </summary>
         public DiffAlgorithm Algorithm { get; set; }
     }
