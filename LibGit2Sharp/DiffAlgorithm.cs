@@ -8,7 +8,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// The basic greedy diff algorithm.
         /// </summary>
-        Meyers = 0,
+        Myers = 0,
 
         /// <summary>
         /// Use "patience diff" algorithm when generating patches.
