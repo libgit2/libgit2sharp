@@ -645,45 +645,53 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Packs all the objects in the <see cref="ObjectDatabase"/> and write a pack (.pack) and index (.idx) files for them.
+        /// Packs objects in the <see cref="ObjectDatabase"/> and write the resulting pack to
+        /// the <paramref name="outputPackStream"/>. Note that no index is outputted.
         /// </summary>
+        /// <param name="outputPackStream">Stream where the pack will be written to.</param>
         /// <param name="options">Packing options</param>
-        /// This method will invoke the default action of packing all objects in an arbitrary order.
         /// <returns>Packing results</returns>
-        public virtual PackBuilderResults Pack(PackBuilderOptions options)
+        public virtual PackBuilderResults Pack(Stream outputPackStream, PackBuilderOptions options)
         {
-            return InternalPack(options, builder =>
+            Ensure.ArgumentNotNull(outputPackStream, "outputPackStream");
+            if (!outputPackStream.CanWrite)
             {
-                foreach (GitObject obj in repo.ObjectDatabase)
-                {
-                    builder.Add(obj.Id);
-                }
-            });
+                throw new ArgumentException("The outputPackStream must be writeable.");
+            }
+
+            return InternalPack(options, builder => builder.WriteTo(outputPackStream));
+
         }
 
         /// <summary>
-        /// Packs objects in the <see cref="ObjectDatabase"/> chosen by the packDelegate action
-        /// and write a pack (.pack) and index (.idx) files for them
+        /// Packs objects in the <see cref="ObjectDatabase"/>, and write a pack (.pack) and index (.idx) 
+        /// files for them to the <paramref name="packDirectory"/>
         /// </summary>
+        /// <param name="packDirectory">Output directory for pack and idx files.</param>
         /// <param name="options">Packing options</param>
-        /// <param name="packDelegate">Packing action</param>
         /// <returns>Packing results</returns>
-        public virtual PackBuilderResults Pack(PackBuilderOptions options, Action<PackBuilder> packDelegate)
+        public virtual PackBuilderResults Pack(string packDirectory, PackBuilderOptions options)
         {
-            return InternalPack(options, packDelegate);
+            Ensure.ArgumentNotNullOrEmptyString(packDirectory, "packDirectory");
+            if (!Directory.Exists(packDirectory))
+            {
+                throw new DirectoryNotFoundException("The Directory " + packDirectory + " does not exist.");
+            }
+
+            return InternalPack(options, builder => builder.Write(packDirectory));
         }
 
         /// <summary>
-        /// Packs objects in the <see cref="ObjectDatabase"/> and write a pack (.pack) and index (.idx) files for them.
+        /// Packs objects in the <see cref="ObjectDatabase"/> and use the <paramref name="writeAction"/>
+        /// to write the results.
         /// For internal use only.
         /// </summary>
         /// <param name="options">Packing options</param>
-        /// <param name="packDelegate">Packing action</param>
+        /// <param name="writeAction">Writing action action</param>
         /// <returns>Packing results</returns>
-        private PackBuilderResults InternalPack(PackBuilderOptions options, Action<PackBuilder> packDelegate)
+        private PackBuilderResults InternalPack(PackBuilderOptions options, Action<PackBuilder> writeAction)
         {
             Ensure.ArgumentNotNull(options, "options");
-            Ensure.ArgumentNotNull(packDelegate, "packDelegate");
 
             PackBuilderResults results = new PackBuilderResults();
 
@@ -692,18 +700,19 @@ namespace LibGit2Sharp
                 // set pre-build options
                 builder.SetMaximumNumberOfThreads(options.MaximumNumberOfThreads);
 
-                // call the provided action
-                packDelegate(builder);
-
-                // A valid stream or path is guaranteed by the PackBuilderOptions constructor
-                if (options.OutputPackStream != null)
+                if (options.PackDelegate == null)
                 {
-                    builder.WriteTo(options.OutputPackStream);
+                    foreach (GitObject obj in repo.ObjectDatabase)
+                    {
+                        builder.Add(obj.Id);
+                    }
                 }
                 else
                 {
-                    builder.Write(options.PackDirectory);
+                    options.PackDelegate(builder);
                 }
+
+                writeAction(builder);
 
                 // adding the results to the PackBuilderResults object
                 results.WrittenObjectsCount = builder.WrittenObjectsCount;

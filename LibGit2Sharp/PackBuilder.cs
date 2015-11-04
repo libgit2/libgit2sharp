@@ -180,78 +180,42 @@ namespace LibGit2Sharp
     /// </summary>
     public sealed class PackBuilderOptions
     {
-        /// <summary>
-        /// Directory where the pack and index files will be written.
-        /// null if <see cref="OutputPackStream"/> is specified instead.
-        /// </summary>
-        public readonly string PackDirectory;
+        private int nThreads;
+        private Action<PackBuilder> packDelegate;
 
         /// <summary>
-        /// Stream where the pack will be output to.
-        /// null if <see cref="PackDirectory"/> is specified instead.
+        /// Maximum number of threads to spawn.
+        /// The default value is 0 which ensures using all available CPUs.
         /// </summary>
-        public readonly Stream OutputPackStream;
-
-        /// <summary>
-        /// Maximum number of threads that will be used during pack building.
-        /// </summary>
-        public readonly int MaximumNumberOfThreads;
-
-        /// <summary>
-        /// Options to write a new packfile and index to a directory with the default number of threads.
-        /// </summary>
-        public PackBuilderOptions(string packDirectory)
-            : this(packDirectory, 0)
+        public int MaximumNumberOfThreads
         {
-        }
-
-        /// <summary>
-        /// Options to write a new packfile and index to a directory with the default number of threads.
-        /// </summary>
-        public PackBuilderOptions(Stream outputPackStream)
-            : this(outputPackStream, 0)
-        {
-        }
-
-        /// <summary>
-        /// Options to write a new packfile and index to a directory.
-        /// </summary>
-        /// <param name="packDirectory">Directory path to write the pack and index files to it</param>
-        /// <param name="maxThreads">Maximum number of threads to spawn. The default value is 0 which ensures using all available CPUs.</param>
-        /// <exception cref="ArgumentNullException">if packDirectory is null or empty</exception>
-        /// <exception cref="DirectoryNotFoundException">if packDirectory doesn't exist</exception>
-        /// <exception cref="ArgumentException">If <paramref name="maxThreads"/> is less than zero.</exception>
-        public PackBuilderOptions(string packDirectory, int maxThreads)
-            : this(packDirectory, null, maxThreads)
-        {
-            Ensure.ArgumentNotNullOrEmptyString(packDirectory, "packDirectory");
-            if (!Directory.Exists(packDirectory))
+            set
             {
-                throw new DirectoryNotFoundException("The Directory " + packDirectory + " does not exist.");
+                Ensure.ArgumentPositiveInt32(value, "value");
+                nThreads = value;
+            }
+            get
+            {
+                return nThreads;
             }
         }
 
         /// <summary>
-        /// Options to write a new packfile to an output <see cref="Stream"/>
+        /// Packing action to perform instead of the default, which is to
+        /// pack all objects in the repository into a single packfile and index,
+        /// enumerating them in an arbitrary order.
         /// </summary>
-        /// <param name="outputPackStream">Output stream to write the new pack to.</param>
-        /// <param name="maxThreads">Maximum number of threads to spawn. The default value is 0 which ensures using all available CPUs.</param>
-        /// <exception cref="ArgumentNullException">if packDirectory is null or empty</exception>
-        /// <exception cref="DirectoryNotFoundException">if packDirectory doesn't exist</exception>
-        /// <exception cref="ArgumentException">If <paramref name="maxThreads"/> is less than zero.</exception>
-        public PackBuilderOptions(Stream outputPackStream, int maxThreads)
-            : this(null, outputPackStream, maxThreads)
+        public Action<PackBuilder> PackDelegate
         {
-            Ensure.ArgumentNotNull(outputPackStream, "outputStream");
-        }
-
-        private PackBuilderOptions(string packDirectory, Stream outputPackStream, int maxThreads)
-        {
-            Ensure.ArgumentPositiveInt32(maxThreads, "maxThreads");
-
-            PackDirectory = packDirectory;
-            OutputPackStream = outputPackStream;
-            MaximumNumberOfThreads = maxThreads;
+            set
+            {
+                Ensure.ArgumentNotNull(value, "value");
+                packDelegate = value;
+            }
+            get
+            {
+                return packDelegate;
+            }
         }
     }
 }
