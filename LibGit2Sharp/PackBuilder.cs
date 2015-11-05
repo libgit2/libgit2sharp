@@ -6,16 +6,16 @@ using LibGit2Sharp.Core.Handles;
 namespace LibGit2Sharp
 {
     /// <summary>
-    /// Representation of a git PackBuilder.
+    /// Provides access to repository packing capabilities.
     /// </summary>
-    public sealed class PackBuilder : IDisposable
+    public sealed class PackDefinition : IDisposable
     {
         private readonly PackBuilderSafeHandle packBuilderHandle;
 
         /// <summary>
         /// Constructs a PackBuilder for a <see cref="Repository"/>.
         /// </summary>
-        internal PackBuilder(Repository repository)
+        internal PackDefinition(Repository repository)
         {
             Ensure.ArgumentNotNull(repository, "repository");
 
@@ -167,7 +167,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// The results of pack process of the <see cref="ObjectDatabase"/>.
     /// </summary>
-    public struct PackBuilderResults
+    public struct PackResults
     {
         /// <summary>
         /// Number of objects the PackBuilder has already written out. 
@@ -178,7 +178,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// Packing options of the <see cref="ObjectDatabase"/>.
     /// </summary>
-    public sealed class PackBuilderOptions
+    public sealed class PackOptions
     {
         private int nThreads;
 
@@ -204,6 +204,6 @@ namespace LibGit2Sharp
         /// pack all objects in the repository into a single packfile and index,
         /// enumerating them in an arbitrary order.
         /// </summary>
-        public Action<PackBuilder> PackDelegate { get; set; }
+        public Action<PackDefinition> PackBuilder { get; set; }
     }
 }

@@ -651,7 +651,7 @@ namespace LibGit2Sharp
         /// <param name="outputPackStream">Stream where the pack will be written to.</param>
         /// <param name="options">Packing options</param>
         /// <returns>Packing results</returns>
-        public virtual PackBuilderResults Pack(Stream outputPackStream, PackBuilderOptions options)
+        public virtual PackResults Pack(Stream outputPackStream, PackOptions options)
         {
             Ensure.ArgumentNotNull(outputPackStream, "outputPackStream");
             if (!outputPackStream.CanWrite)
@@ -670,7 +670,7 @@ namespace LibGit2Sharp
         /// <param name="packDirectory">Output directory for pack and idx files.</param>
         /// <param name="options">Packing options</param>
         /// <returns>Packing results</returns>
-        public virtual PackBuilderResults Pack(string packDirectory, PackBuilderOptions options)
+        public virtual PackResults Pack(string packDirectory, PackOptions options)
         {
             Ensure.ArgumentNotNullOrEmptyString(packDirectory, "packDirectory");
             if (!Directory.Exists(packDirectory))
@@ -689,18 +689,18 @@ namespace LibGit2Sharp
         /// <param name="options">Packing options</param>
         /// <param name="writeAction">Writing action action</param>
         /// <returns>Packing results</returns>
-        private PackBuilderResults InternalPack(PackBuilderOptions options, Action<PackBuilder> writeAction)
+        private PackResults InternalPack(PackOptions options, Action<PackDefinition> writeAction)
         {
-            options = options ?? new PackBuilderOptions();
+            options = options ?? new PackOptions();
 
-            PackBuilderResults results = new PackBuilderResults();
+            PackResults results = new PackResults();
 
-            using (PackBuilder builder = new PackBuilder(repo))
+            using (PackDefinition builder = new PackDefinition(repo))
             {
                 // set pre-build options
                 builder.SetMaximumNumberOfThreads(options.MaximumNumberOfThreads);
 
-                if (options.PackDelegate == null)
+                if (options.PackBuilder == null)
                 {
                     foreach (GitObject obj in repo.ObjectDatabase)
                     {
@@ -709,7 +709,7 @@ namespace LibGit2Sharp
                 }
                 else
                 {
-                    options.PackDelegate(builder);
+                    options.PackBuilder(builder);
                 }
 
                 writeAction(builder);
