@@ -142,23 +142,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void ExceptionIfOptionsEqualsNull()
-        {
-            string orgRepoPath = SandboxPackBuilderTestRepo();
-
-            using (Repository orgRepo = new Repository(orgRepoPath))
-            {
-                string packDir = Path.Combine(orgRepoPath, "objects", "pack");
-                Directory.CreateDirectory(packDir);
-
-                Assert.Throws<ArgumentNullException>(() =>
-                {
-                    orgRepo.ObjectDatabase.Pack(packDirectory: packDir, options: null);
-                });
-            }
-        }
-
-        [Fact]
         public void ExceptionIfNegativeNumberOfThreads()
         {
             Assert.Throws<ArgumentException>(() =>
