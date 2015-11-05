@@ -181,7 +181,6 @@ namespace LibGit2Sharp
     public sealed class PackBuilderOptions
     {
         private int nThreads;
-        private Action<PackBuilder> packDelegate;
 
         /// <summary>
         /// Maximum number of threads to spawn.
@@ -205,17 +204,6 @@ namespace LibGit2Sharp
         /// pack all objects in the repository into a single packfile and index,
         /// enumerating them in an arbitrary order.
         /// </summary>
-        public Action<PackBuilder> PackDelegate
-        {
-            set
-            {
-                Ensure.ArgumentNotNull(value, "value");
-                packDelegate = value;
-            }
-            get
-            {
-                return packDelegate;
-            }
-        }
+        public Action<PackBuilder> PackDelegate { get; set; }
     }
 }

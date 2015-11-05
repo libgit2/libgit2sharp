@@ -51,12 +51,9 @@ namespace LibGit2Sharp.Tests
                 if (packDelegate != null)
                 {
                     packBuilderOptions.PackDelegate = b => packDelegate(orgRepo, b);
-                    results = orgRepo.ObjectDatabase.Pack(packDir, packBuilderOptions);
                 }
-                else
-                {
-                    results = orgRepo.ObjectDatabase.Pack(packDir, packBuilderOptions);
-                }
+
+                results = orgRepo.ObjectDatabase.Pack(packDir, packBuilderOptions);
 
                 // written objects count is the same as in objects database
                 Assert.Equal(orgRepo.ObjectDatabase.Count(), results.WrittenObjectsCount);
@@ -126,7 +123,7 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Throws<ArgumentNullException>(() =>
                 {
-                    repo.ObjectDatabase.Pack(packDirectory: null, options: new PackBuilderOptions());
+                    repo.ObjectDatabase.Pack(default(string), new PackBuilderOptions());
                 });
             }
         }
@@ -139,7 +136,7 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Throws<ArgumentNullException>(() =>
                 {
-                    repo.ObjectDatabase.Pack(outputPackStream: null, options: new PackBuilderOptions());
+                    repo.ObjectDatabase.Pack(default(Stream), new PackBuilderOptions());
                 });
             }
         }
@@ -159,15 +156,6 @@ namespace LibGit2Sharp.Tests
                     orgRepo.ObjectDatabase.Pack(packDirectory: packDir, options: null);
                 });
             }
-        }
-
-        [Fact]
-        public void ExceptionIfBuildDelegateEqualsNull()
-        {
-            Assert.Throws<ArgumentNullException>(() =>
-            {
-                (new PackBuilderOptions()).PackDelegate = null;
-            });
         }
 
         [Fact]
