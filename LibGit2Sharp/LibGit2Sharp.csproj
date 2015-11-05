@@ -130,7 +130,7 @@
     <Compile Include="MergeTreeResult.cs" />
     <Compile Include="NotFoundException.cs" />
     <Compile Include="GitObjectMetadata.cs" />
-    <Compile Include="PackBuilder.cs" />
+    <Compile Include="PackDefinition.cs" />
     <Compile Include="PatchEntryChanges.cs" />
     <Compile Include="PatchStats.cs" />
     <Compile Include="PeelException.cs" />

@@ -7,7 +7,7 @@ using Xunit;
 
 namespace LibGit2Sharp.Tests
 {
-    public class PackBuilderFixture : BaseFixture
+    public class PackDefinitionFixture : BaseFixture
     {
         [Fact]
         public void TestDefaultPackDelegate()
@@ -18,16 +18,16 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void TestCommitsPerBranchPackDelegate()
         {
-            TestIfSameRepoAfterPacking(AddingObjectIdsTestDelegate);
+            TestIfSameRepoAfterPacking(AddingObjectIdsPackBuilder);
         }
 
         [Fact]
         public void TestCommitsPerBranchIdsPackDelegate()
         {
-            TestIfSameRepoAfterPacking(AddingObjectsTestDelegate);
+            TestIfSameRepoAfterPacking(AddingObjectsPackBuilder);
         }
 
-        internal void TestIfSameRepoAfterPacking(Action<IRepository, PackDefinition> packDelegate)
+        internal void TestIfSameRepoAfterPacking(Action<IRepository, PackDefinition> packBuilder)
         {
             // read a repo
             // pack with the provided action
@@ -35,8 +35,8 @@ namespace LibGit2Sharp.Tests
             // read new repo
             // compare
 
-            string orgRepoPath = SandboxPackBuilderTestRepo();
-            string mrrRepoPath = SandboxPackBuilderTestRepo();
+            string orgRepoPath = SandboxPackDefinitionTestRepo();
+            string mrrRepoPath = SandboxPackDefinitionTestRepo();
             string mrrRepoPackDirPath = Path.Combine(mrrRepoPath + ".git", "objects");
 
             DirectoryHelper.DeleteDirectory(mrrRepoPackDirPath);
@@ -45,15 +45,15 @@ namespace LibGit2Sharp.Tests
 
             using (Repository orgRepo = new Repository(orgRepoPath))
             {
-                var packBuilderOptions = new PackOptions();
+                var packOptions = new PackOptions();
 
                 PackResults results;
-                if (packDelegate != null)
+                if (packBuilder != null)
                 {
-                    packBuilderOptions.PackBuilder = b => packDelegate(orgRepo, b);
+                    packOptions.PackBuilder = b => packBuilder(orgRepo, b);
                 }
 
-                results = orgRepo.ObjectDatabase.Pack(packDir, packBuilderOptions);
+                results = orgRepo.ObjectDatabase.Pack(packDir, packOptions);
 
                 // written objects count is the same as in objects database
                 Assert.Equal(orgRepo.ObjectDatabase.Count(), results.WrittenObjectsCount);
@@ -72,7 +72,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        internal void AddingObjectIdsTestDelegate(IRepository repo, PackDefinition builder)
+        internal void AddingObjectIdsPackBuilder(IRepository repo, PackDefinition builder)
         {
             foreach (Branch branch in repo.Branches)
             {
@@ -88,7 +88,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        internal void AddingObjectsTestDelegate(IRepository repo, PackDefinition builder)
+        internal void AddingObjectsPackBuilder(IRepository repo, PackDefinition builder)
         {
             foreach (Branch branch in repo.Branches)
             {
@@ -107,7 +107,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ExceptionIfPathDoesNotExist()
         {
-            using (Repository repo = new Repository(SandboxPackBuilderTestRepo()))
+            using (Repository repo = new Repository(SandboxPackDefinitionTestRepo()))
             {
                 Assert.Throws<DirectoryNotFoundException>(() =>
                 {
@@ -119,7 +119,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ExceptionIfPathEqualsNull()
         {
-            using (Repository repo = new Repository(SandboxPackBuilderTestRepo()))
+            using (Repository repo = new Repository(SandboxPackDefinitionTestRepo()))
             {
                 Assert.Throws<ArgumentNullException>(() =>
                 {
@@ -131,7 +131,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ExceptionIfStreamIsNull()
         {
-            using (Repository repo = new Repository(SandboxPackBuilderTestRepo()))
+            using (Repository repo = new Repository(SandboxPackDefinitionTestRepo()))
             {
                 Assert.Throws<ArgumentNullException>(() =>
                 {
@@ -152,18 +152,18 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ExceptionIfAddNullObjectID()
         {
-            string orgRepoPath = SandboxPackBuilderTestRepo();
-            var packBuilderOptions = new PackOptions();
+            string orgRepoPath = SandboxPackDefinitionTestRepo();
+            var packOptions = new PackOptions();
 
             using (Repository orgRepo = new Repository(orgRepoPath))
             {
-                packBuilderOptions.PackBuilder = builder => builder.Add(null);
+                packOptions.PackBuilder = builder => builder.Add(null);
 
                 using (var ms = new MemoryStream())
                 {
                     Assert.Throws<ArgumentNullException>(() =>
                     {
-                        orgRepo.ObjectDatabase.Pack(ms, packBuilderOptions);
+                        orgRepo.ObjectDatabase.Pack(ms, packOptions);
                     });
                 }
             }
@@ -172,18 +172,18 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ExceptionIfAddRecursivelyNullObjectID()
         {
-            string orgRepoPath = SandboxPackBuilderTestRepo();
-            var packBuilderOptions = new PackOptions();
+            string orgRepoPath = SandboxPackDefinitionTestRepo();
+            var packOptions = new PackOptions();
 
             using (Repository orgRepo = new Repository(orgRepoPath))
             {
-                packBuilderOptions.PackBuilder = builder => builder.AddRecursively(null);
+                packOptions.PackBuilder = builder => builder.AddRecursively(null);
 
                 using (var ms = new MemoryStream())
                 {
                     Assert.Throws<ArgumentNullException>(() =>
                     {
-                        orgRepo.ObjectDatabase.Pack(ms, packBuilderOptions);
+                        orgRepo.ObjectDatabase.Pack(ms, packOptions);
                     });
                 }
             }
@@ -192,7 +192,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void WriteToStreamWritesAllObjects()
         {
-            var testRepoPath = SandboxPackBuilderTestRepo();
+            var testRepoPath = SandboxPackDefinitionTestRepo();
             using (var testRepo = new Repository(testRepoPath))
             {
                 using (var packOutput = new MemoryStream())

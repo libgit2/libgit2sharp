@@ -6,14 +6,14 @@ using LibGit2Sharp.Core.Handles;
 namespace LibGit2Sharp
 {
     /// <summary>
-    /// Provides access to repository packing capabilities.
+    /// Provides access to <see cref="Repository"/> packing capabilities.
     /// </summary>
     public sealed class PackDefinition : IDisposable
     {
         private readonly PackBuilderSafeHandle packBuilderHandle;
 
         /// <summary>
-        /// Constructs a PackBuilder for a <see cref="Repository"/>.
+        /// Constructs a <see cref="PackDefinition"/> for the <paramref name="repository"/>.
         /// </summary>
         internal PackDefinition(Repository repository)
         {
@@ -23,7 +23,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Inserts a single <see cref="GitObject"/> to the PackBuilder.
+        /// Inserts a single <see cref="GitObject"/> into this <see cref="PackDefinition"/>.
         /// For an optimal pack it's mandatory to insert objects in recency order, commits followed by trees and blobs. (quoted from libgit2 API ref)
         /// </summary>
         /// <param name="gitObject">The object to be inserted.</param>
@@ -49,7 +49,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Inserts a single object to the PackBuilder by its <see cref="ObjectId"/>.
+        /// Inserts a single object to the <see cref="PackDefinition"/> by its <see cref="ObjectId"/>.
         /// For an optimal pack it's mandatory to insert objects in recency order, commits followed by trees and blobs. (quoted from libgit2 API ref)
         /// </summary>
         /// <param name="id">The object ID to be inserted.</param>
@@ -75,7 +75,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Disposes the PackBuilder object.
+        /// Releases handles owned by this <see cref="PackDefinition"/> object.
         /// </summary>
         void IDisposable.Dispose()
         {
@@ -131,7 +131,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Sets number of threads to spawn.
+        /// Sets number of threads to spawn during packing.
         /// </summary>
         /// <returns> Returns the number of actual threads to be used.</returns>
         /// <param name="nThread">The Number of threads to spawn. An argument of 0 ensures using all available CPUs</param>
@@ -142,7 +142,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Number of objects the PackBuilder will write out.
+        /// Number of objects that will be written out during packing.
         /// </summary>
         internal long ObjectsCount
         {
@@ -150,17 +150,11 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Number of objects the PackBuilder has already written out. 
-        /// This is only correct after the pack file has been written.
+        /// Total number of objects that have been written out after packing.
         /// </summary>
         internal long WrittenObjectsCount
         {
             get { return Proxy.git_packbuilder_written(packBuilderHandle); }
-        }
-
-        internal PackBuilderSafeHandle Handle
-        {
-            get { return packBuilderHandle; }
         }
     }
 
@@ -170,7 +164,7 @@ namespace LibGit2Sharp
     public struct PackResults
     {
         /// <summary>
-        /// Number of objects the PackBuilder has already written out. 
+        /// Total number of objects that have been written out after packing.
         /// </summary>
         public long WrittenObjectsCount { get; internal set; }
     }

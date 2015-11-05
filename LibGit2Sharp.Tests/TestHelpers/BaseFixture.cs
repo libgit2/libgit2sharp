@@ -41,7 +41,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
         private static string SubmoduleTargetTestRepoWorkingDirPath { get; set; }
         private static string AssumeUnchangedRepoWorkingDirPath { get; set; }
         public static string SubmoduleSmallTestRepoWorkingDirPath { get; set; }
-        public static string PackBuilderTestRepoPath { get; private set; }
+        public static string PackDefinitionTestRepoPath { get; private set; }
 
         public static DirectoryInfo ResourcesDirectory { get; private set; }
 
@@ -75,7 +75,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             SubmoduleTargetTestRepoWorkingDirPath = Path.Combine(sourceRelativePath, "submodule_target_wd");
             AssumeUnchangedRepoWorkingDirPath = Path.Combine(sourceRelativePath, "assume_unchanged_wd");
             SubmoduleSmallTestRepoWorkingDirPath = Path.Combine(sourceRelativePath, "submodule_small_wd");
-            PackBuilderTestRepoPath = Path.Combine(sourceRelativePath, "packbuilder_testrepo_wd");
+            PackDefinitionTestRepoPath = Path.Combine(sourceRelativePath, "packbuilder_testrepo_wd");
 
             CleanupTestReposOlderThan(TimeSpan.FromMinutes(15));
         }
@@ -176,9 +176,9 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return path;
         }
 
-        protected string SandboxPackBuilderTestRepo()
+        protected string SandboxPackDefinitionTestRepo()
         {
-            return Sandbox(PackBuilderTestRepoPath);
+            return Sandbox(PackDefinitionTestRepoPath);
         }
 
         protected string Sandbox(string sourceDirectoryPath, params string[] additionalSourcePaths)
