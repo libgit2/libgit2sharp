@@ -103,23 +103,13 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ExceptionIfPathDoesNotExist()
         {
-            PackBuilderOptions pbo;
-
-            Assert.Throws<DirectoryNotFoundException>(() =>
-            {
-                pbo = new PackBuilderOptions("aaa");
-            });
+            Assert.Throws<DirectoryNotFoundException>(() => new PackBuilderOptions("aaa"));
         }
 
         [Fact]
         public void ExceptionIfPathEqualsNull()
         {
-            PackBuilderOptions pbo;
-
-            Assert.Throws<ArgumentNullException>(() =>
-            {
-                pbo = new PackBuilderOptions(null);
-            });
+            Assert.Throws<ArgumentNullException>(() => new PackBuilderOptions(null));
         }
 
         [Fact]

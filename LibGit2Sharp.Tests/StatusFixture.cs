@@ -99,7 +99,7 @@ namespace LibGit2Sharp.Tests
             var path = SandboxStandardTestRepoGitDir();
             using (var repo = new Repository(path))
             {
-                Assert.Throws<AmbiguousSpecificationException>(() => { FileStatus status = repo.RetrieveStatus("1"); });
+                Assert.Throws<AmbiguousSpecificationException>(() => { repo.RetrieveStatus("1"); });
             }
         }
 

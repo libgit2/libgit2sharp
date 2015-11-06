@@ -67,8 +67,6 @@ namespace LibGit2Sharp.Tests
             string path = SandboxRevertTestRepo();
             using (var repo = new Repository(path))
             {
-                string modifiedFileFullPath = Path.Combine(repo.Info.WorkingDirectory, revertedFile);
-
                 // Checkout the revert branch.
                 Branch branch = repo.Checkout(revertBranchName);
                 Assert.NotNull(branch);
@@ -160,6 +158,7 @@ namespace LibGit2Sharp.Tests
                 };
 
                 RevertResult result =  repo.Revert(repo.Head.Tip.Parents.First(), Constants.Signature, options);
+                Assert.Equal(RevertStatus.Conflicts, result.Status);
 
                 // Verify there is a conflict.
                 Assert.False(repo.Index.IsFullyMerged);
@@ -242,6 +241,7 @@ namespace LibGit2Sharp.Tests
                 repo.Revert(repo.Head.Tip, Constants.Signature, options);
 
                 Assert.True(wasCalled);
+                Assert.Equal(CheckoutNotifyFlags.Updated, actualNotifyFlags);
             }
         }
 
