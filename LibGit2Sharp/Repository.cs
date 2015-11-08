@@ -1997,7 +1997,16 @@ namespace LibGit2Sharp
             return new RepositoryStatus(this, options);
         }
 
-        internal void ReloadFromDisk()
+		/// <summary>
+		/// Gets the default signature for this repository
+		/// </summary>
+		/// <returns>Signature object</returns>
+		public Signature GetDefaultSignature()
+		{
+			return new Signature(Proxy.git_signature_default(this.Handle).DangerousGetHandle());
+		}
+
+		internal void ReloadFromDisk()
         {
             Proxy.git_index_read(Index.Handle);
         }

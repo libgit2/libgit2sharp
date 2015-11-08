@@ -2730,7 +2730,17 @@ namespace LibGit2Sharp.Core
             return handle;
         }
 
-        public static SignatureSafeHandle git_signature_now(string name, string email)
+		public static SignatureSafeHandle git_signature_default(RepositorySafeHandle repo)
+		{
+			SignatureSafeHandle handle;
+
+			int res = NativeMethods.git_signature_default(out handle, repo);
+			Ensure.ZeroResult(res);
+
+			return handle;
+		}
+
+		public static SignatureSafeHandle git_signature_now(string name, string email)
         {
             SignatureSafeHandle handle;
             int res = NativeMethods.git_signature_now(out handle, name, email);
