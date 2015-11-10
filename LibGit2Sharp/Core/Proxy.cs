@@ -2924,6 +2924,21 @@ namespace LibGit2Sharp.Core
             return git_foreach(resultSelector, c => NativeMethods.git_submodule_foreach(repo, (x, y, p) => c(x, y, p), IntPtr.Zero));
         }
 
+        public static SubmoduleSafeHandle git_submodule_add_setup(RepositorySafeHandle repo, string url, FilePath path, bool useGitLink)
+        {
+            SubmoduleSafeHandle sub;
+            var res = NativeMethods.git_submodule_add_setup(out sub, repo, url, path, useGitLink);
+            Ensure.ZeroResult(res);
+            return sub;
+        }
+
+        public static void git_submodule_add_finalize(SubmoduleSafeHandle submodule)
+        {
+            // This should be called on a submodule once you have called add setup and done the clone of the submodule. This adds the .gitmodules file and the newly cloned submodule to the index to be ready to be committed (but doesn't actually do the commit).
+            var res = NativeMethods.git_submodule_add_finalize(submodule);
+            Ensure.ZeroResult(res);
+        }
+
         public static void git_submodule_add_to_index(SubmoduleSafeHandle submodule, bool write_index)
         {
             var res = NativeMethods.git_submodule_add_to_index(submodule, write_index);
