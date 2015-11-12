@@ -209,6 +209,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanAddSubmodule()
         {
+            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
+            var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
+
             //var path = SandboxSubmoduleTestRepo();
             var path = SandboxStandardTestRepo();
             var pathSubRepoOrigin = SandboxStandardTestRepo();
@@ -218,7 +221,7 @@ namespace LibGit2Sharp.Tests
             string expectedSubmoduleUrl = pathSubRepoOrigin.Replace('\\', '/');
             ObjectId expectedCommitId = (ObjectId)"32eab9cb1f450b5fe7ab663462b77d7f4b703344";
 
-            using (var repo = new Repository(path))
+            using (var repo = new Repository(path, options))
             {
                 // check on adding config entry
                 var configEntryBeforeAdd = repo.Config.Get<string>(string.Format("submodule.{0}.url", submoduleSubPath));
