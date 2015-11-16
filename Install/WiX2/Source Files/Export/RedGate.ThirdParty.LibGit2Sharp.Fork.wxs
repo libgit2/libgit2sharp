@@ -5,19 +5,19 @@
         <File Id="LibGit2Sharp_RedGate.dll" Name="git2srg.dll" LongName="LibGit2Sharp-RedGate.dll" DiskId="1" Source="..\Files\LibGit2Sharp-RedGate.dll" />
         <File Id="gitlic" Name="lib2git.txt" LongName="libgit2.license.txt" DiskId="1" Source="..\Files\libgit2.license.txt" />
       </Component>
-
-      <Directory Name="x86" Id="git2x86">
-        <Component Id="git2Sharp32" Guid="{6D93983D-2797-47A6-9486-51127D36C05F}" DiskId="1">
-          <File Id="Git2_Win32.dll" Name="git2-91f.dll" LongName="git2-91fa31f.dll" Source="..\Files\x86\git2-91fa31f.dll" />
-        </Component>
-      </Directory>
-
-      <Directory Name="x64" Id="git2x64">
-        <Component Id="git2Sharp64" Guid="{485CE328-5E75-4D7E-A583-353A0BFEE1B6}" DiskId="1" Win64="yes">
-          <File Id="Git2_Win64.dll" Name="git2-91f.dll" LongName="git2-91fa31f.dll" Source="..\Files\x64\git2-91fa31f.dll" />
-        </Component>
-      </Directory>
     </DirectoryRef>
+	
+	<DirectoryRef Id="Arch32bit">
+		<Component Id="git2Sharp32" Guid="{6D93983D-2797-47A6-9486-51127D36C05F}" DiskId="1">
+			<File Id="Git2_Win32.dll" Name="git2-91f.dll" LongName="git2-91fa31f.dll" Source="..\Files\x86\git2-91fa31f.dll" />
+		</Component>
+	</DirectoryRef>
+
+	<DirectoryRef Id="Arch64bit">
+		<Component Id="git2Sharp64" Guid="{485CE328-5E75-4D7E-A583-353A0BFEE1B6}" DiskId="1" Win64="yes">
+			<File Id="Git2_Win64.dll" Name="git2-91f.dll" LongName="git2-91fa31f.dll" Source="..\Files\x64\git2-91fa31f.dll" />
+		</Component>
+	</DirectoryRef>
 
     <!-- These get installed as part of the main product -->
     <FeatureRef Id="Product">
