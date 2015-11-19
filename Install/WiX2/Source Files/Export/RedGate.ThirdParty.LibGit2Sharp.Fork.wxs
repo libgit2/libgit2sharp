@@ -4,6 +4,7 @@
       <Component Id="git2Sharp" Guid="{8978B7F8-A28F-44DD-AB1B-67A80317C8E2}" DiskId="1">
         <File Id="LibGit2Sharp_RedGate.dll" Name="git2srg.dll" LongName="LibGit2Sharp-RedGate.dll" DiskId="1" Source="..\Files\LibGit2Sharp-RedGate.dll" />
         <File Id="gitlic" Name="lib2git.txt" LongName="libgit2.license.txt" DiskId="1" Source="..\Files\libgit2.license.txt" />
+        <File Id="sharplic" Name="lib2git.md" LongName="LibGit2Sharp.LICENSE.md" DiskId="1" Source="..\Files\LibGit2Sharp.LICENSE.md" />
       </Component>
     </DirectoryRef>
 	
