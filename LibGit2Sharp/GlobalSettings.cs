@@ -268,7 +268,7 @@ namespace LibGit2Sharp
 
             lock (registeredFilters)
             {
-                // if the filter has already been registered 
+                // if the filter has already been registered
                 if (registeredFilters.ContainsKey(name))
                 {
                     throw new EntryExistsException("The filter has already been registered.", GitErrorCode.Exists, GitErrorCategory.Filter);
