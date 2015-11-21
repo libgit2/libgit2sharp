@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using LibGit2Sharp.Advanced;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -650,15 +651,9 @@ namespace LibGit2Sharp
         /// <param name="options">Packing options</param>
         /// This method will invoke the default action of packing all objects in an arbitrary order.
         /// <returns>Packing results</returns>
-        public virtual PackBuilderResults Pack(PackBuilderOptions options)
+        public virtual PackBuilderResults PackAll(string directoryPath)
         {
-            return InternalPack(options, builder =>
-            {
-                foreach (GitObject obj in repo.ObjectDatabase)
-                {
-                    builder.Add(obj.Id);
-                }
-            });
+            return InternalPack(directoryPath, null);
         }
 
         /// <summary>
@@ -668,9 +663,9 @@ namespace LibGit2Sharp
         /// <param name="options">Packing options</param>
         /// <param name="packDelegate">Packing action</param>
         /// <returns>Packing results</returns>
-        public virtual PackBuilderResults Pack(PackBuilderOptions options, Action<PackBuilder> packDelegate)
+        public virtual PackBuilderResults PackAll(Stream outStream)
         {
-            return InternalPack(options, packDelegate);
+            return InternalPack(null, outStream);
         }
 
         /// <summary>
@@ -680,27 +675,26 @@ namespace LibGit2Sharp
         /// <param name="options">Packing options</param>
         /// <param name="packDelegate">Packing action</param>
         /// <returns>Packing results</returns>
-        private PackBuilderResults InternalPack(PackBuilderOptions options, Action<PackBuilder> packDelegate)
+        private PackBuilderResults InternalPack(string directoryPath, Stream outStream)
         {
-            Ensure.ArgumentNotNull(options, "options");
-            Ensure.ArgumentNotNull(packDelegate, "packDelegate");
-
-            PackBuilderResults results = new PackBuilderResults();
+            PackBuilderResults results;
 
             using (PackBuilder builder = new PackBuilder(repo))
             {
-                // set pre-build options
-               results.ActualNumberOfThreads = builder.SetMaximumNumberOfThreads(options.MaximumNumberOfThreads);
-
-                // call the provided action
-                packDelegate(builder);
+                foreach (GitObject obj in repo.ObjectDatabase)
+                {
+                    builder.Add(obj.Id);
+                }
 
                 // writing the pack and index files
-                builder.Write(options.PackDirectoryPath);
-
-                // adding the results to the PackBuilderResults object
-                results.WrittenObjectsCount = builder.WrittenObjectsCount;
-                results.PackHash = builder.PackHash;
+                if (directoryPath != null)
+                {
+                    results = builder.WritePackTo(directoryPath);
+                }
+                else
+                {
+                    results = builder.WritePackTo(outStream);
+                }
             }
 
             return results;

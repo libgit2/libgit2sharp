@@ -3,23 +3,25 @@ using System.IO;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
-namespace LibGit2Sharp
+namespace LibGit2Sharp.Advanced
 {
     /// <summary>
     /// Representation of a git PackBuilder.
     /// </summary>
     public sealed class PackBuilder : IDisposable
     {
-        private readonly PackBuilderSafeHandle packBuilderHandle;
+        private PackBuilderSafeHandle packBuilderHandle;
+        private readonly RepositorySafeHandle repositoryHandle;
 
         /// <summary>
         /// Constructs a PackBuilder for a <see cref="Repository"/>.
         /// </summary>
-        internal PackBuilder(Repository repository)
+        public PackBuilder(Repository repository)
         {
             Ensure.ArgumentNotNull(repository, "repository");
 
-            packBuilderHandle = Proxy.git_packbuilder_new(repository.Handle);
+            repositoryHandle = repository.Handle;
+            packBuilderHandle = Proxy.git_packbuilder_new(repositoryHandle);
         }
 
         /// <summary>
@@ -85,10 +87,25 @@ namespace LibGit2Sharp
         /// <summary>
         /// Writes the pack file and corresponding index file to path.
         /// </summary>
-        /// <param name="path">The path that pack and index files will be written to it.</param>
-        internal void Write(string path)
+        /// <param name="packDirectoryPath">The directory path that pack and index files will be written to it.</param>
+        public PackBuilderResults WritePackTo(string packDirectoryPath)
         {
-            Proxy.git_packbuilder_write(packBuilderHandle, path);
+            Ensure.ArgumentNotNullOrEmptyString(packDirectoryPath, "packDirectoryPath");
+
+            if (!Directory.Exists(packDirectoryPath))
+            {
+                throw new DirectoryNotFoundException("The Directory " + packDirectoryPath + " does not exist.");
+            }
+
+            Proxy.git_packbuilder_write(packBuilderHandle, packDirectoryPath);
+
+            return new PackBuilderResults(WrittenObjectsCount, PackHash);
+        }
+
+        public PackBuilderResults WritePackTo(Stream outStream)
+        {
+            // Leaving it for Kevin David.
+            return new PackBuilderResults();
         }
 
         /// <summary>
@@ -96,7 +113,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <returns> Returns the number of actual threads to be used.</returns>
         /// <param name="nThread">The Number of threads to spawn. An argument of 0 ensures using all available CPUs</param>
-        internal int SetMaximumNumberOfThreads(int nThread)
+        public int SetMaximumNumberOfThreads(int nThread)
         {
             // Libgit2 set the number of threads to 1 by default, 0 ensures git_online_cpus
             return (int)Proxy.git_packbuilder_set_threads(packBuilderHandle, (uint)nThread);
@@ -129,6 +146,15 @@ namespace LibGit2Sharp
             get { return Proxy.git_packbuilder_written(packBuilderHandle); }
         }
 
+        public void Reset()
+        {
+            // Dispose the old handle
+            packBuilderHandle.SafeDispose();
+
+            // Create a new handle
+            packBuilderHandle = Proxy.git_packbuilder_new(repositoryHandle);
+        }
+
         internal PackBuilderSafeHandle Handle
         {
             get { return packBuilderHandle; }
@@ -140,6 +166,12 @@ namespace LibGit2Sharp
     /// </summary>
     public struct PackBuilderResults
     {
+        internal PackBuilderResults(long writtenObjectsCount, string packHash) : this()
+        {
+            WrittenObjectsCount = writtenObjectsCount;
+            PackHash = packHash;
+        }
+
         /// <summary>
         /// Number of objects that the PackBuilder has already written out.
         /// </summary>
@@ -149,75 +181,5 @@ namespace LibGit2Sharp
         /// Hash of the pack file that the PackBuilder has already written out.
         /// </summary>
         public string PackHash { get; internal set; }
-
-        /// <summary>
-        /// Number of actual threads that the PackBuilder has already used.
-        /// </summary>
-        public int ActualNumberOfThreads { get; internal set; }
-    }
-
-    /// <summary>
-    /// Packing options of the <see cref="ObjectDatabase"/>.
-    /// </summary>
-    public sealed class PackBuilderOptions
-    {
-        private string path;
-        private int nThreads;
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="packDirectory">Directory path to write the pack and index files to it</param>
-        /// The default value for maximum number of threads to spawn is 0 which ensures using all available CPUs.
-        /// <exception cref="ArgumentNullException">if packDirectory is null or empty</exception>
-        /// <exception cref="DirectoryNotFoundException">if packDirectory doesn't exist</exception>
-        public PackBuilderOptions(string packDirectory)
-        {
-            PackDirectoryPath = packDirectory;
-            MaximumNumberOfThreads = 0;
-        }
-
-        /// <summary>
-        /// Directory path to write the pack and index files to it.
-        /// </summary>
-        public string PackDirectoryPath
-        {
-            set
-            {
-                Ensure.ArgumentNotNullOrEmptyString(value, "packDirectory");
-
-                if (!Directory.Exists(value))
-                {
-                    throw new DirectoryNotFoundException("The Directory " + value + " does not exist.");
-                }
-
-                path = value;
-            }
-            get
-            {
-                return path;
-            }
-        }
-
-        /// <summary>
-        /// Maximum number of threads to spawn.
-        /// The default value is 0 which ensures using all available CPUs.
-        /// </summary>
-        public int MaximumNumberOfThreads
-        {
-            set
-            {
-                if (value < 0)
-                {
-                    throw new ArgumentException("Argument can not be negative", "value");
-                }
-
-                nThreads = value;
-            }
-            get
-            {
-                return nThreads;
-            }
-        }
     }
 }

@@ -4,26 +4,27 @@ using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using System.Collections.Generic;
+using LibGit2Sharp.Advanced;
 
 namespace LibGit2Sharp.Tests
 {
     public class PackBuilderFixture : BaseFixture
     {
         [Fact]
-        public void TestDefaultPackDelegate()
+        public void TestDefaultPackAllWithDirPath()
         {
-            TestBody((repo, options) =>
+            TestBody((repo, packDirPath) =>
             {
-                PackBuilderResults results = repo.ObjectDatabase.Pack(options);
+                PackBuilderResults results = repo.ObjectDatabase.PackAll(packDirPath);
             });
         }
 
         [Fact]
-        public void TestCommitsPerBranchPackDelegate()
+        public void TestCommitsPerBranch()
         {
-            TestBody((repo, options) =>
+            TestBody((repo, packDirPath) =>
             {
-                PackBuilderResults results = repo.ObjectDatabase.Pack(options, builder =>
+                using (PackBuilder builder = new PackBuilder(repo))
                 {
                     foreach (Branch branch in repo.Branches)
                     {
@@ -37,16 +38,18 @@ namespace LibGit2Sharp.Tests
                     {
                         builder.Add(tag.Target);
                     }
-                });
+
+                    builder.WritePackTo(packDirPath);
+                }
             });
         }
 
         [Fact]
-        public void TestCommitsPerBranchIdsPackDelegate()
+        public void TestCommitsPerBranchIds()
         {
-            TestBody((repo, options) =>
+            TestBody((repo, packDirPath) =>
             {
-                PackBuilderResults results = repo.ObjectDatabase.Pack(options, builder =>
+                using (PackBuilder builder = new PackBuilder(repo))
                 {
                     foreach (Branch branch in repo.Branches)
                     {
@@ -60,38 +63,46 @@ namespace LibGit2Sharp.Tests
                     {
                         builder.Add(tag.Target.Id);
                     }
-                });
+
+                    builder.WritePackTo(packDirPath);
+                }
             });
         }
 
         [Fact]
         public void TestCreatingMultiplePackFilesByType()
         {
-            TestBody((repo, options) =>
+            TestBody((repo, packDirPath) =>
             {
                 long totalNumberOfWrittenObjects = 0;
-                PackBuilderResults results;
 
-                for (int i = 0; i < 3; i++)
+                using (PackBuilder builder = new PackBuilder(repo))
                 {
-                    results = repo.ObjectDatabase.Pack(options, b =>
+                    for (int i = 0; i < 3; i++)
                     {
                         foreach (GitObject obj in repo.ObjectDatabase)
                         {
                             if (i == 0 && obj is Commit)
-                                b.Add(obj.Id);
+                                builder.Add(obj.Id);
+
                             if (i == 1 && obj is Tree)
-                                b.Add(obj.Id);
+                                builder.Add(obj.Id);
+
                             if (i == 2 && obj is Blob)
-                                b.Add(obj.Id);
+                                builder.Add(obj.Id);
                         }
-                    });
 
-                    // assert the pack file is written 
-                    Assert.True(File.Exists(Path.Combine(options.PackDirectoryPath, "pack-" + results.PackHash + ".pack")));
-                    Assert.True(File.Exists(Path.Combine(options.PackDirectoryPath, "pack-" + results.PackHash + ".idx")));
+                        PackBuilderResults results = builder.WritePackTo(packDirPath);
 
-                    totalNumberOfWrittenObjects += results.WrittenObjectsCount;
+                        // for reuse to build the next pack file.
+                        builder.Reset();
+
+                        // assert the pack file is written 
+                        Assert.True(File.Exists(Path.Combine(packDirPath, "pack-" + results.PackHash + ".pack")));
+                        Assert.True(File.Exists(Path.Combine(packDirPath, "pack-" + results.PackHash + ".idx")));
+
+                        totalNumberOfWrittenObjects += results.WrittenObjectsCount;
+                    }
                 }
 
                 // assert total number of written objects count is the same as in objects database
@@ -102,34 +113,43 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void TestCreatingMultiplePackFilesByCount()
         {
-            TestBody((repo, options) =>
+            TestBody((repo, packDirPath) =>
             {
                 long totalNumberOfWrittenObjects = 0;
                 PackBuilderResults results;
 
-                List<GitObject> objectsList = repo.ObjectDatabase.ToList();
-                int totalObjectCount = objectsList.Count;
-
-                int currentObject = 0;
-
-                while (currentObject < totalObjectCount)
+                using (PackBuilder packBuilder = new PackBuilder(repo))
                 {
-                    results = repo.ObjectDatabase.Pack(options, b =>
+                    int currentObject = 0;
+
+                    foreach (GitObject gitObject in repo.ObjectDatabase)
                     {
-                        while (currentObject < totalObjectCount)
+                        packBuilder.Add(gitObject.Id);
+
+                        if (currentObject++ % 100 == 0)
                         {
-                            b.Add(objectsList[currentObject]);
+                            results = packBuilder.WritePackTo(packDirPath);
+                            packBuilder.Reset();
 
-                            if (currentObject++ % 100 == 0)
-                                break;
+                            // assert the pack file is written 
+                            Assert.True(File.Exists(Path.Combine(packDirPath, "pack-" + results.PackHash + ".pack")));
+                            Assert.True(File.Exists(Path.Combine(packDirPath, "pack-" + results.PackHash + ".idx")));
+
+                            totalNumberOfWrittenObjects += results.WrittenObjectsCount;
                         }
-                    });
+                    }
 
-                    // assert the pack file is written 
-                    Assert.True(File.Exists(Path.Combine(options.PackDirectoryPath, "pack-" + results.PackHash + ".pack")));
-                    Assert.True(File.Exists(Path.Combine(options.PackDirectoryPath, "pack-" + results.PackHash + ".idx")));
+                    if (currentObject % 100 != 1)
+                    {
+                        results = packBuilder.WritePackTo(packDirPath);
+                        packBuilder.Reset();
 
-                    totalNumberOfWrittenObjects += results.WrittenObjectsCount;
+                        // assert the pack file is written 
+                        Assert.True(File.Exists(Path.Combine(packDirPath, "pack-" + results.PackHash + ".pack")));
+                        Assert.True(File.Exists(Path.Combine(packDirPath, "pack-" + results.PackHash + ".idx")));
+
+                        totalNumberOfWrittenObjects += results.WrittenObjectsCount;
+                    }
                 }
 
                 // assert total number of written objects count is the same as in objects database
@@ -140,13 +160,13 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanWritePackAndIndexFiles()
         {
-            using (Repository repo = new Repository(SandboxStandardTestRepo()))
+            using (Repository repo = new Repository(SandboxPackBuilderTestRepo()))
             {
                 string path = Path.GetTempPath();
-                PackBuilderResults results = repo.ObjectDatabase.Pack(new PackBuilderOptions(path));
+
+                PackBuilderResults results = repo.ObjectDatabase.PackAll(path);
 
                 Assert.Equal(repo.ObjectDatabase.Count(), results.WrittenObjectsCount);
-
                 Assert.True(File.Exists(Path.Combine(path, "pack-" + results.PackHash + ".pack")));
                 Assert.True(File.Exists(Path.Combine(path, "pack-" + results.PackHash + ".idx")));
             }
@@ -158,13 +178,14 @@ namespace LibGit2Sharp.Tests
             using (Repository repo = new Repository(SandboxPackBuilderTestRepo()))
             {
                 string path = Path.GetTempPath();
-                PackBuilderResults results = repo.ObjectDatabase.Pack(new PackBuilderOptions(path), b =>
+
+                using (PackBuilder builder = new PackBuilder(repo))
                 {
+                    PackBuilderResults results = builder.WritePackTo(path);
 
-                });
-
-                Assert.True(File.Exists(Path.Combine(path, "pack-" + results.PackHash + ".pack")));
-                Assert.True(File.Exists(Path.Combine(path, "pack-" + results.PackHash + ".idx")));
+                    Assert.True(File.Exists(Path.Combine(path, "pack-" + results.PackHash + ".pack")));
+                    Assert.True(File.Exists(Path.Combine(path, "pack-" + results.PackHash + ".idx")));
+                }
             }
         }
 
@@ -174,103 +195,55 @@ namespace LibGit2Sharp.Tests
             using (Repository repo = new Repository(InitNewRepository()))
             {
                 string path = Path.GetTempPath();
-                PackBuilderResults results = repo.ObjectDatabase.Pack(new PackBuilderOptions(path));
 
+                PackBuilderResults results = repo.ObjectDatabase.PackAll(path);
+
+                Assert.Equal(repo.ObjectDatabase.Count(), results.WrittenObjectsCount);
                 Assert.True(File.Exists(Path.Combine(path, "pack-" + results.PackHash + ".pack")));
                 Assert.True(File.Exists(Path.Combine(path, "pack-" + results.PackHash + ".idx")));
             }
         }
 
         [Fact]
-        public void ExceptionIfPathDoesNotExist()
+        public void ExceptionIfPathDoesNotExistAtPackAll()
         {
-            Assert.Throws<DirectoryNotFoundException>(() => new PackBuilderOptions("aaa"));
-        }
-
-        [Fact]
-        public void ExceptionIfPathEqualsNull()
-        {
-            Assert.Throws<ArgumentNullException>(() => new PackBuilderOptions(null));
-        }
-
-        [Fact]
-        public void ExceptionIfOptionsEqualsNull()
-        {
-            string orgRepoPath = SandboxPackBuilderTestRepo();
-
-            using (Repository orgRepo = new Repository(orgRepoPath))
+            using (Repository repo = new Repository(SandboxPackBuilderTestRepo()))
             {
-                Assert.Throws<ArgumentNullException>(() =>
-                {
-                    orgRepo.ObjectDatabase.Pack(null);
-                });
+                Assert.Throws<DirectoryNotFoundException>(() => repo.ObjectDatabase.PackAll("aaaaa"));
             }
         }
 
         [Fact]
-        public void ExceptionIfBuildDelegateEqualsNull()
+        public void ExceptionIfPathDoesNotExistAtWriteToPack()
         {
-            string orgRepoPath = SandboxPackBuilderTestRepo();
-            PackBuilderOptions packBuilderOptions = new PackBuilderOptions(orgRepoPath);
-
-            using (Repository orgRepo = new Repository(orgRepoPath))
+            using (Repository repo = new Repository(SandboxPackBuilderTestRepo()))
+            using (PackBuilder builder = new PackBuilder(repo))
             {
-                Assert.Throws<ArgumentNullException>(() =>
-                {
-                    orgRepo.ObjectDatabase.Pack(packBuilderOptions, null);
-                });
+                Assert.Throws<DirectoryNotFoundException>(() => builder.WritePackTo("aaaaa"));
             }
-        }
-
-        [Fact]
-        public void ExceptionIfNegativeNumberOfThreads()
-        {
-            string orgRepoPath = SandboxPackBuilderTestRepo();
-            PackBuilderOptions packBuilderOptions = new PackBuilderOptions(orgRepoPath);
-
-            Assert.Throws<ArgumentException>(() =>
-            {
-                packBuilderOptions.MaximumNumberOfThreads = -1;
-            });
         }
 
         [Fact]
         public void ExceptionIfAddNullObjectID()
         {
-            string orgRepoPath = SandboxPackBuilderTestRepo();
-            PackBuilderOptions packBuilderOptions = new PackBuilderOptions(orgRepoPath);
-
-            using (Repository orgRepo = new Repository(orgRepoPath))
+            using (Repository repo = new Repository(SandboxPackBuilderTestRepo()))
+            using (PackBuilder builder = new PackBuilder(repo))
             {
-                Assert.Throws<ArgumentNullException>(() =>
-                {
-                    orgRepo.ObjectDatabase.Pack(packBuilderOptions, builder =>
-                    {
-                        builder.Add(null);
-                    });
-                });
+                Assert.Throws<ArgumentNullException>(() => builder.Add(null));
             }
         }
 
         [Fact]
         public void ExceptionIfAddRecursivelyNullObjectID()
         {
-            string orgRepoPath = SandboxPackBuilderTestRepo();
-            PackBuilderOptions packBuilderOptions = new PackBuilderOptions(orgRepoPath);
-
-            using (Repository orgRepo = new Repository(orgRepoPath))
+            using (Repository repo = new Repository(SandboxPackBuilderTestRepo()))
+            using (PackBuilder builder = new PackBuilder(repo))
             {
-                Assert.Throws<ArgumentNullException>(() =>
-                {
-                    orgRepo.ObjectDatabase.Pack(packBuilderOptions, builder =>
-                    {
-                        builder.AddRecursively(null);
-                    });
-                });
+                Assert.Throws<ArgumentNullException>(() => builder.AddRecursively(null));
             }
         }
 
-        internal void TestBody(Action<IRepository, PackBuilderOptions> fullPackingAction)
+        internal void TestBody(Action<Repository, string> fullPackingAction)
         {
             // read a repo, pack with the provided action, write the pack file in a mirror repo, read new repo, compare
 
@@ -281,11 +254,9 @@ namespace LibGit2Sharp.Tests
             DirectoryHelper.DeleteDirectory(mrrRepoPackDirPath);
             Directory.CreateDirectory(mrrRepoPackDirPath + "/pack");
 
-            PackBuilderOptions packBuilderOptions = new PackBuilderOptions(mrrRepoPackDirPath + "/pack");
-
             using (Repository orgRepo = new Repository(orgRepoPath))
             {
-                fullPackingAction(orgRepo, packBuilderOptions);
+                fullPackingAction(orgRepo, mrrRepoPackDirPath + "/pack");
 
                 // loading the mirror repo from the written pack file and make sure it's identical to the original.
                 using (Repository mrrRepo = new Repository(mrrRepoPath))
