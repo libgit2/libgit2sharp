@@ -267,6 +267,68 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+
+        [Fact]
+        public void CanAddSubmoduleWithManualClone()
+        {
+            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
+            var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
+
+            //var path = SandboxSubmoduleTestRepo();
+            var path = SandboxStandardTestRepo();
+            var pathSubRepoOrigin = SandboxStandardTestRepo();
+
+            string submoduleSubPath = "submodule_target_wd";
+            string expectedSubmodulePath = Path.GetFullPath(Path.Combine(path, submoduleSubPath));
+            string expectedSubmoduleUrl = pathSubRepoOrigin.Replace('\\', '/');
+            ObjectId expectedCommitId = (ObjectId)"32eab9cb1f450b5fe7ab663462b77d7f4b703344";
+
+            using (var repo = new Repository(path, options))
+            {
+                // check on adding config entry
+                var configEntryBeforeAdd = repo.Config.Get<string>(string.Format("submodule.{0}.url", submoduleSubPath));
+                Assert.Null(configEntryBeforeAdd);
+
+                // add submodule
+                Submodule submodule = repo.Submodules.Add(pathSubRepoOrigin, submoduleSubPath, x => Repository.Clone(pathSubRepoOrigin, x, new CloneOptions() { } ));
+                Assert.NotNull(submodule);
+
+                // check that the expected commit is checked out, but not set in parent repo until committed
+                Assert.Equal(expectedCommitId, repo.Submodules[submoduleSubPath].WorkDirCommitId);
+                Assert.Null(repo.Submodules[submoduleSubPath].HeadCommitId);
+
+                // check status
+                var submoduleStatus = submodule.RetrieveStatus();
+                Assert.True((submoduleStatus & SubmoduleStatus.InIndex) == SubmoduleStatus.InIndex);
+                Assert.True((submoduleStatus & SubmoduleStatus.InConfig) == SubmoduleStatus.InConfig);
+                Assert.True((submoduleStatus & SubmoduleStatus.InWorkDir) == SubmoduleStatus.InWorkDir);
+                Assert.True((submoduleStatus & SubmoduleStatus.IndexAdded) == SubmoduleStatus.IndexAdded);
+
+                // check that config entry was added with the correct url
+                var configEntryAfterAdd = repo.Config.Get<string>(string.Format("submodule.{0}.url", submoduleSubPath));
+                Assert.NotNull(configEntryAfterAdd);
+                Assert.Equal(expectedSubmoduleUrl, configEntryAfterAdd.Value);
+
+                // check on directory being added and repository directory
+                Assert.True(Directory.Exists(expectedSubmodulePath));
+                Assert.True(Directory.Exists(Path.Combine(expectedSubmodulePath, ".git")));
+
+                // manually check commit by opening submodule as a repository
+                using (var repo2 = new Repository(expectedSubmodulePath))
+                {
+                    Assert.False(repo2.Info.IsHeadDetached);
+                    Assert.False(repo2.Info.IsHeadUnborn);
+                    Commit headCommit = repo2.Head.Tip;
+                    Assert.Equal(headCommit.Id, expectedCommitId);
+                }
+
+                // commit parent repository, then verify it reports the correct CommitId for the submodule
+                Signature signature = repo.Config.BuildSignature(DateTimeOffset.Now);
+                repo.Commit("Added submodule " + submoduleSubPath, signature, signature);
+                Assert.Equal(expectedCommitId, repo.Submodules[submoduleSubPath].HeadCommitId);
+            }
+        }
+
         [Fact]
         public void UpdatingUninitializedSubmoduleThrows()
         {

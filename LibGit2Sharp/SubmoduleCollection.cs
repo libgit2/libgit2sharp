@@ -53,8 +53,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="url">The url of the remote repository</param>
         /// <param name="relativePath">The path of the submodule inside of the parent repository, which will also become the submodule name.</param>
+        /// <param name="cloneMethod">A method that takes the full path to where we expect the repository to be cloned to so the caller
+        /// can clone it themselves.  If not specified or if null, Add() will perform the clone using Repository.Clone(url, subPath, new CloneOptions() { } ).</param>
         /// <returns></returns>
-        public virtual Submodule Add(string url, string relativePath)
+        public virtual Submodule Add(string url, string relativePath, Action<string> cloneMethod = null)
         {
             Ensure.ArgumentNotNullOrEmptyString(relativePath, "relativePath");
 
@@ -70,20 +72,14 @@ namespace LibGit2Sharp
                 // branches and checkout whatever the remote HEAD is, which seems hard to find.
                 System.IO.Directory.Delete(subPath, true);
 
-                // now clone
-                //Proxy.git_submodule_init(handle, true);
-                //GitSubmoduleOptions options = new GitSubmoduleOptions();
-                //Proxy.git_submodule_update(handle, true, ref options);
-                string result = Repository.Clone(url, subPath, new CloneOptions() { } );
-
-                //using (Repository subRep = new Repository(subPath))
-                //{
-                //    subRep.Fetch("origin");
-                //    var refs = subRep.Network.ListReferences(subRep.Network.Remotes["origin"]);
-                //    //Branch b = subRep.Checkout(dr.CanonicalName);
-                //    var fhs = subRep.Network.FetchHeads.Select(_ => new { CN = _.CanonicalName, RCN = _.RemoteCanonicalName }).ToArray();
-                //    //string defbranch = subRep.Network.Remotes["origin"].DefaultBranch;
-                //}
+                // now clone the repository, or let the caller do it if an action was specified
+                if (cloneMethod != null)
+                {
+                    cloneMethod(subPath);
+                } else
+                {
+                    string result = Repository.Clone(url, subPath, new CloneOptions() { });
+                }
 
                 Proxy.git_submodule_add_finalize(handle);
             }
