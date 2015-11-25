@@ -70,6 +70,21 @@ namespace LibGit2Sharp
         SubmoduleCollection Submodules { get; }
 
         /// <summary>
+        /// Gets the post-checkout handler registered with this repository
+        /// </summary>
+        PostCheckoutDelegate PostCheckoutCallback { get; }
+
+        /// <summary>
+        /// Gets the post-commit handler registered with this repository
+        /// </summary>
+        PostCommitDelegate PostCommitCallback { get; }
+
+        /// <summary>
+        /// Gets the pre-push handler registered with this repository
+        /// </summary>
+        PrePushDelegate PrePushCallback { get; }
+
+        /// <summary>
         /// Checkout the commit pointed at by the tip of the specified <see cref="Branch"/>.
         /// <para>
         ///   If this commit is the current tip of the branch as it exists in the repository, the HEAD
@@ -405,5 +420,11 @@ namespace LibGit2Sharp
         /// <param name="options">Determines how the commit will be described.</param>
         /// <returns>A descriptive identifier for the commit based on the nearest annotated tag.</returns>
         string Describe(Commit commit, DescribeOptions options);
+
+        /// <summary>
+        /// Registers a pre-push handler with the repository
+        /// </summary>
+        /// <param name="callbacks"><see cref="RepositoryCallbacks"/> object containing the related delegates to be registered with the repository.</param>
+        void RegisterCallbacks(RepositoryCallbacks callbacks);
     }
 }

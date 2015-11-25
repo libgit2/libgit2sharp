@@ -93,6 +93,7 @@
     <Compile Include="EntryExistsException.cs" />
     <Compile Include="FetchOptionsBase.cs" />
     <Compile Include="Core\FetchPruneStrategy.cs" />
+    <Compile Include="RepositoryCallbacks.cs" />
     <Compile Include="LogEntry.cs" />
     <Compile Include="FollowFilter.cs" />
     <Compile Include="IBelongToARepository.cs" />
