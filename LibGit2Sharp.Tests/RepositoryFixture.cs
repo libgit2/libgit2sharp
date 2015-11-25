@@ -711,5 +711,60 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<InvalidOperationException>(() => reference.Target);
             }
         }
+
+        [Fact]
+        public void GitHookCallbacksWork()
+        {
+            int prepushCallCount = 0;
+            int postcheckoutCallCount = 0;
+            int postcommitCallCount = 0;
+
+            PrePushDelegate prepush = (Repository repo, IEnumerable<PushUpdate> updates) =>
+            {
+                prepushCallCount++;
+                return true;
+            };
+            PostCheckoutDelegate postcheckout = (Repository repo, Reference oldHead, Reference newHead, bool wholeTree) =>
+            {
+                postcheckoutCallCount++;
+            };
+            PostCommitDelegate postcommit = (Repository repo) =>
+            {
+                postcommitCallCount++;
+            };
+
+            RepositoryCallbacks callbacks = new RepositoryCallbacks()
+            {
+                PostCheckoutCallback = postcheckout,
+                PostCommitCallback = postcommit,
+                PrePushCallback = prepush,
+            };
+
+            string repoPath = SandboxStandardTestRepo();
+            string nextPath = SandboxBareTestRepo();
+            using (var repo = new Repository(repoPath))
+            {
+                var file0Name = Path.Combine(repoPath, "test.txt");
+                File.WriteAllText(file0Name, "test\ntest");
+                
+                repo.RegisterCallbacks(callbacks);
+                repo.Stage(file0Name);
+
+                var commit = repo.Commit("commiting");
+                repo.Checkout(commit, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
+                repo.Checkout("master");
+
+                using (var next = new Repository(nextPath))
+                {
+                    var nextRemote = repo.Network.Remotes.Add("next", nextPath);
+
+                    repo.Network.Push(nextRemote, next.Refs.Head.TargetIdentifier);
+                }
+            }
+
+            Assert.Equal(1, prepushCallCount);
+            Assert.Equal(2, postcheckoutCallCount);
+            Assert.Equal(1, postcommitCallCount);
+        }
     }
 }

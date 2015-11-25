@@ -374,6 +374,33 @@ namespace LibGit2Sharp
             get { return submodules; }
         }
 
+        /// <summary>
+        /// Gets the post-checkout handler registered with this repository
+        /// </summary>
+        public PostCheckoutDelegate PostCheckoutCallback
+        {
+            get { return _postCheckoutCallback; }
+        }
+        private PostCheckoutDelegate _postCheckoutCallback;
+
+        /// <summary>
+        /// Gets the post-commit handler registered with this repository
+        /// </summary>
+        public PostCommitDelegate PostCommitCallback
+        {
+            get { return _postCommitCallback; }
+        }
+        private PostCommitDelegate _postCommitCallback;
+
+        /// <summary>
+        /// Gets the pre-push handler registered with this repository
+        /// </summary>
+        public PrePushDelegate PrePushCallback
+        {
+            get { return _prePushCallback; }
+        }
+        private PrePushDelegate _prePushCallback;
+
         #region IDisposable Members
 
         /// <summary>
@@ -1234,33 +1261,6 @@ namespace LibGit2Sharp
             _postCommitCallback = callbacks.PostCommitCallback;
             _prePushCallback = callbacks.PrePushCallback;
         }
-
-        /// <summary>
-        /// Gets the post-checkout handler registered with this repository
-        /// </summary>
-        public PostCheckoutDelegate PostCheckoutCallback
-        {
-            get { return _postCheckoutCallback; }
-        }
-        private PostCheckoutDelegate _postCheckoutCallback;
-
-        /// <summary>
-        /// Gets the post-commit handler registered with this repository
-        /// </summary>
-        public PostCommitDelegate PostCommitCallback
-        {
-            get { return _postCommitCallback; }
-        }
-        private PostCommitDelegate _postCommitCallback;
-
-        /// <summary>
-        /// Gets the pre-push handler registered with this repository
-        /// </summary>
-        public PrePushDelegate PrePushCallback
-        {
-            get { return _prePushCallback; }
-        }
-        private PrePushDelegate _prePushCallback;
 
         /// <summary>
         /// Merges changes from commit into the branch pointed at by HEAD.
