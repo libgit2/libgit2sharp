@@ -132,7 +132,12 @@ namespace LibGit2Sharp
                 diff = new Diff(this);
                 notes = new NoteCollection(this);
                 ignore = new Ignore(this);
-                network = new Lazy<Network>(() => new Network(this));
+                network = new Lazy<Network>(() =>
+                {
+                    var network = new Network(this);
+                    network.DefaultPrePushHandler = PrePushHandler;
+                    return network;
+                });
                 rebaseOperation = new Lazy<Rebase>(() => new Rebase(this));
                 pathCase = new Lazy<PathCase>(() => new PathCase(this));
                 submodules = new SubmoduleCollection(this);
@@ -670,7 +675,7 @@ namespace LibGit2Sharp
             bool continueOperation = OnRepositoryOperationStarting(options.RepositoryOperationStarting,
                                                                    context);
 
-            if(!continueOperation)
+            if (!continueOperation)
             {
                 throw new UserCancelledException("Clone cancelled by the user.");
             }
@@ -966,11 +971,19 @@ namespace LibGit2Sharp
             IList<string> paths,
             IConvertableToGitCheckoutOpts opts)
         {
+            var oldHead = Refs.Head;
 
-            using(GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(opts, ToFilePaths(paths)))
+            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(opts, ToFilePaths(paths)))
             {
                 var options = checkoutOptionsWrapper.Options;
                 Proxy.git_checkout_tree(Handle, tree.Id, ref options);
+            }
+
+            var newHead = Refs.Head;
+
+            if (_postCheckoutCallback != null)
+            {
+                _postCheckoutCallback(this, oldHead, newHead, paths == null || paths.Count == 0);
             }
         }
 
@@ -1148,7 +1161,7 @@ namespace LibGit2Sharp
                     return;
                 }
 
-                var symRef = (SymbolicReference) reference;
+                var symRef = (SymbolicReference)reference;
 
                 reference = symRef.Target;
 
@@ -1210,6 +1223,44 @@ namespace LibGit2Sharp
             toCleanup.Push(disposable);
             return disposable;
         }
+
+        /// <summary>
+        /// Registers a pre-push handler with the repository
+        /// </summary>
+        /// <param name="callbacks"></param>
+        public void RegisterCallbacks(RepositoryCallbacks callbacks)
+        {
+            _postCheckoutCallback = callbacks.PostCheckoutCallback;
+            _postCommitCallback = callbacks.PostCommitCallback;
+            _prePushCallback = callbacks.PrePushCallback;
+        }
+
+        /// <summary>
+        /// Gets the post-checkout handler registered with this repository
+        /// </summary>
+        public PostCheckoutDelegate PostCheckoutCallback
+        {
+            get { return _postCheckoutCallback; }
+        }
+        private PostCheckoutDelegate _postCheckoutCallback;
+
+        /// <summary>
+        /// Gets the post-commit handler registered with this repository
+        /// </summary>
+        public PostCommitDelegate PostCommitCallback
+        {
+            get { return _postCommitCallback; }
+        }
+        private PostCommitDelegate _postCommitCallback;
+
+        /// <summary>
+        /// Gets the pre-push handler registered with this repository
+        /// </summary>
+        public PrePushDelegate PrePushCallback
+        {
+            get { return _prePushCallback; }
+        }
+        private PrePushDelegate _prePushCallback;
 
         /// <summary>
         /// Merges changes from commit into the branch pointed at by HEAD.
@@ -1507,7 +1558,7 @@ namespace LibGit2Sharp
             FastForwardStrategy fastForwardStrategy = (options.FastForwardStrategy != FastForwardStrategy.Default) ?
                 options.FastForwardStrategy : FastForwardStrategyFromMergePreference(mergePreference);
 
-            switch(fastForwardStrategy)
+            switch (fastForwardStrategy)
             {
                 case FastForwardStrategy.Default:
                     if (mergeAnalysis.HasFlag(GitMergeAnalysis.GIT_MERGE_ANALYSIS_FASTFORWARD))
@@ -1575,14 +1626,14 @@ namespace LibGit2Sharp
             MergeResult mergeResult;
 
             var mergeOptions = new GitMergeOpts
-                {
-                    Version = 1,
-                    MergeFileFavorFlags = options.MergeFileFavor,
-                    MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES :
+            {
+                Version = 1,
+                MergeFileFavorFlags = options.MergeFileFavor,
+                MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES :
                                                                GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
-                    RenameThreshold = (uint) options.RenameThreshold,
-                    TargetLimit = (uint) options.TargetLimit,
-                };
+                RenameThreshold = (uint)options.RenameThreshold,
+                TargetLimit = (uint)options.TargetLimit,
+            };
 
             using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
             {
@@ -1619,7 +1670,7 @@ namespace LibGit2Sharp
         private MergeResult FastForwardMerge(GitAnnotatedCommitHandle annotatedCommit, MergeOptions options)
         {
             ObjectId id = Proxy.git_annotated_commit_id(annotatedCommit);
-            Commit fastForwardCommit = (Commit) Lookup(id, ObjectType.Commit);
+            Commit fastForwardCommit = (Commit)Lookup(id, ObjectType.Commit);
             Ensure.GitObjectIsNotNull(fastForwardCommit, id.Sha);
 
             CheckoutTree(fastForwardCommit.Tree, null, new FastForwardCheckoutOptionsAdapter(options));
@@ -2123,7 +2174,7 @@ namespace LibGit2Sharp
                     case ChangeKind.Unmodified:
                         if (removeFromWorkingDirectory && (
                             status.HasFlag(FileStatus.ModifiedInIndex) ||
-                            status.HasFlag(FileStatus.NewInIndex) ))
+                            status.HasFlag(FileStatus.NewInIndex)))
                         {
                             throw new RemoveFromIndexException(CultureInfo.InvariantCulture,
                                                                "Unable to remove file '{0}', as it has changes staged in the index. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
@@ -2181,6 +2232,16 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(options, "options");
 
             return Proxy.git_describe_commit(handle, commit.Id, options);
+        }
+
+        private bool PrePushHandler(IEnumerable<PushUpdate> updates)
+        {
+            if (_prePushCallback != null)
+            {
+                return _prePushCallback(this, updates);
+            }
+
+            return true;
         }
 
         private string DebuggerDisplay

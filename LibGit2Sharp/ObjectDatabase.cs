@@ -367,6 +367,12 @@ namespace LibGit2Sharp
 
             Commit commit = repo.Lookup<Commit>(commitId);
             Ensure.GitObjectIsNotNull(commit, commitId.Sha);
+
+            if (repo.PostCommitCallback != null)
+            {
+                repo.PostCommitCallback(repo);
+            }
+
             return commit;
         }
 

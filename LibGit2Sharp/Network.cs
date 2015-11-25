@@ -522,7 +522,11 @@ namespace LibGit2Sharp
 
             if (pushOptions == null)
             {
-                pushOptions = new PushOptions();
+                pushOptions = new PushOptions() { OnNegotiationCompletedBeforePush = DefaultPrePushHandler };
+            }
+            else
+            {
+                pushOptions.OnNegotiationCompletedBeforePush = pushOptions.OnNegotiationCompletedBeforePush ?? DefaultPrePushHandler;
             }
 
             // Load the remote.
@@ -580,5 +584,15 @@ namespace LibGit2Sharp
                     (name, url, oid, isMerge) => new FetchHead(repository, name, url, oid, isMerge, i++));
             }
         }
+
+        /// <summary>
+        /// The default pre-push handler used by this `<see cref="Network"/>` object if no other
+        /// handler is supplied via `<see cref="PushOptions"/>` when `<see cref="Push(Branch, PushOptions)"/>`,
+        /// <see cref="Push(IEnumerable{Branch}, PushOptions)"/>, 
+        /// `<see cref="Push(Remote, IEnumerable{string}, PushOptions)"/>`,
+        /// `<see cref="Push(Remote, string, PushOptions)"/>`, 
+        /// or `<see cref="Push(Remote, string, string, PushOptions)"/>` is called.
+        /// </summary>
+        public PrePushHandler DefaultPrePushHandler { get; internal set; }
     }
 }
