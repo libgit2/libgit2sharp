@@ -48,15 +48,43 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Adds a new submodule, cloning into the new directory and staging it and
-        /// .gitmodules to the parent repository just like the command line 'git submodule add'
+        /// Adds a new submodule, calling the passed action to allow the caller
+        /// to clone the submodule into the passed path.  The submodule ends
+        /// up being staged along with the .gitmodules just like the command
+        /// line 'git submodule add'
         /// </summary>
         /// <param name="url">The url of the remote repository</param>
         /// <param name="relativePath">The path of the submodule inside of the parent repository, which will also become the submodule name.</param>
         /// <param name="cloneMethod">A method that takes the full path to where we expect the repository to be cloned to so the caller
         /// can clone it themselves.  If not specified or if null, Add() will perform the clone using Repository.Clone(url, subPath, new CloneOptions() { } ).</param>
-        /// <returns></returns>
-        public virtual Submodule Add(string url, string relativePath, Action<string> cloneMethod = null)
+        /// <returns>The new Submodule</returns>
+        public virtual Submodule Add(string url, string relativePath, Action<string> cloneMethod)
+        {
+            return MainAddSubmodule(url, relativePath, cloneMethod);
+        }
+
+        /// <summary>
+        /// Adds a new submodule and clones it using the passed url.  The
+        /// url must be supported for cloning by LibGit2Sharp.
+        /// </summary>
+        /// <param name="url">The url of the remote repository</param>
+        /// <param name="relativePath">The path of the submodule inside of the parent repository, which will also become the submodule name.</param>
+        /// <returns>The new Submodule</returns>
+        public virtual Submodule Add(string url, string relativePath)
+        {
+            return MainAddSubmodule(url, relativePath);
+        }
+
+        /// <summary>
+        /// Method that actually adds a submodule, called by overloaded Add()
+        /// methods.
+        /// </summary>
+        /// <param name="url">The url of the remote repository</param>
+        /// <param name="relativePath">The path of the submodule inside of the parent repository, which will also become the submodule name.</param>
+        /// <param name="cloneMethod">A method that takes the full path to where we expect the repository to be cloned to so the caller
+        /// can clone it themselves.  If not specified or if null, Add() will perform the clone using Repository.Clone(url, subPath, new CloneOptions() { } ).</param>
+        /// <returns>The new Submodule</returns>
+        Submodule MainAddSubmodule(string url, string relativePath, Action<string> cloneMethod = null)
         {
             Ensure.ArgumentNotNullOrEmptyString(relativePath, "relativePath");
 
@@ -76,7 +104,8 @@ namespace LibGit2Sharp
                 if (cloneMethod != null)
                 {
                     cloneMethod(subPath);
-                } else
+                }
+                else
                 {
                     string result = Repository.Clone(url, subPath, new CloneOptions() { });
                 }
