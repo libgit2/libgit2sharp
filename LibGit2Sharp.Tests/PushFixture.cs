@@ -85,9 +85,9 @@ namespace LibGit2Sharp.Tests
             bool packBuilderCalled = false;
             bool prePushHandlerCalled = false;
             PackBuilderProgressHandler packBuilderCb = (x, y, z) => { packBuilderCalled = true; return true; };
-            PrePushHandler prePushHook = (IEnumerable<PushUpdate> updates) =>
+            PrePushHandler prePushHook = (PrePushArguments args) =>
             {
-                Assert.True(updates.Count() == 1, "Expected 1 update, received " + updates.Count());
+                Assert.True(args.Updates.Count() == 1, "Expected 1 update, received " + args.Updates.Count());
                 prePushHandlerCalled = true;
                 return true;
             };
@@ -113,9 +113,9 @@ namespace LibGit2Sharp.Tests
             bool packBuilderCalled = false;
             bool prePushHandlerCalled = false;
             PackBuilderProgressHandler packBuilderCb = (x, y, z) => { packBuilderCalled = true; return true; };
-            PrePushHandler prePushHook = (IEnumerable<PushUpdate> updates) =>
+            PrePushHandler prePushHook = (PrePushArguments args) =>
             {
-                Assert.True(updates.Count() == 1, "Expected 1 update, received " + updates.Count());
+                Assert.True(args.Updates.Count() == 1, "Expected 1 update, received " + args.Updates.Count());
                 prePushHandlerCalled = true;
                 return false;
             };

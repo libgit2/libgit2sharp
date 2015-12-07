@@ -83,11 +83,36 @@ namespace LibGit2Sharp.Handlers
     public delegate bool PackBuilderProgressHandler(PackBuilderStage stage, int current, int total);
 
     /// <summary>
+    /// Arguments for the pre-push handler. Designed to be as close to git.git's pre-push hook
+    /// specification as possible.
+    /// </summary>
+    /// <remarks>
+    /// Designed to be future-proof and to avoid API breaking changes. Having this as a struct
+    /// and not a series of arguments to a method allows the fields to be changed with a minimal
+    /// amount of breaking changes.
+    /// </remarks>
+    public struct PrePushArguments
+    {
+        /// <summary>
+        /// Name of the remote to which the push is being done; null if the name is unknown.
+        /// </summary>
+        public string RemoteName;
+        /// <summary>
+        /// URL to which the push is being done.
+        /// </summary>
+        public string RemoteUrl;
+        /// <summary>
+        /// List of updates about to be performed via push.
+        /// </summary>
+        public IEnumerable<PushUpdate> Updates;
+    }
+
+    /// <summary>
     /// Provides information about what updates will be performed before a push occurs
     /// </summary>
-    /// <param name="updates">List of updates about to be performed via push</param>
+    /// <param name="arguments">Arguments for the method.</param>
     /// <returns>True to continue, false to cancel.</returns>
-    public delegate bool PrePushHandler(IEnumerable<PushUpdate> updates);
+    public delegate bool PrePushHandler(PrePushArguments arguments);
 
     /// <summary>
     /// Delegate definition to handle reporting errors when updating references on the remote.

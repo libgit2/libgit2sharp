@@ -422,7 +422,7 @@ namespace LibGit2Sharp
         string Describe(Commit commit, DescribeOptions options);
 
         /// <summary>
-        /// Registers a pre-push handler with the repository
+        /// Registers callback handlers with the repository.
         /// </summary>
         /// <param name="callbacks"><see cref="RepositoryCallbacks"/> object containing the related delegates to be registered with the repository.</param>
         void RegisterCallbacks(RepositoryCallbacks callbacks);
