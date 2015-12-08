@@ -1029,6 +1029,23 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanCatchDeprecatedException()
+        {
+            bool caught = false;
+
+            try
+            {
+                throw new CheckoutConflictException();
+            }
+            catch (MergeConflictException)
+            {
+                caught = true;
+            }
+
+            Assert.True(caught);
+        }
+
         /// <summary>
         /// Helper method to populate a simple repository with
         /// a single file and two branches.
