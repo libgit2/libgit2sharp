@@ -420,11 +420,5 @@ namespace LibGit2Sharp
         /// <param name="options">Determines how the commit will be described.</param>
         /// <returns>A descriptive identifier for the commit based on the nearest annotated tag.</returns>
         string Describe(Commit commit, DescribeOptions options);
-
-        /// <summary>
-        /// Registers callback handlers with the repository.
-        /// </summary>
-        /// <param name="callbacks"><see cref="RepositoryCallbacks"/> object containing the related delegates to be registered with the repository.</param>
-        void RegisterCallbacks(RepositoryCallbacks callbacks);
     }
 }

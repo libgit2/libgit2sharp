@@ -109,6 +109,13 @@ namespace LibGit2Sharp
                     {
                         Proxy.git_repository_set_ident(handle, options.Identity.Name, options.Identity.Email);
                     }
+
+                    if (options.Callbacks != null)
+                    {
+                        postCheckoutCallback = options.Callbacks.PostCheckoutCallback;
+                        postCommitCallback = options.Callbacks.PostCommitCallback;
+                        prePushCallback = options.Callbacks.PrePushCallback;
+                    }
                 }
 
                 if (!isBare)
@@ -1197,17 +1204,6 @@ namespace LibGit2Sharp
         {
             toCleanup.Push(disposable);
             return disposable;
-        }
-
-        /// <summary>
-        /// Registers callback handlers with the repository.
-        /// </summary>
-        /// <param name="callbacks"><see cref="RepositoryCallbacks"/> object containing the related delegates to be registered with the repository.</param>
-        public void RegisterCallbacks(RepositoryCallbacks callbacks)
-        {
-            postCheckoutCallback = callbacks.PostCheckoutCallback;
-            postCommitCallback = callbacks.PostCommitCallback;
-            prePushCallback = callbacks.PrePushCallback;
         }
 
         /// <summary>
