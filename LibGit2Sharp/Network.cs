@@ -517,11 +517,9 @@ namespace LibGit2Sharp
             }
 
             // if there is a pre-push callback registered with the repository, honor it.
-            if (pushOptions.OnNegotiationCompletedBeforePush == null
-                && repository != null 
-                && repository.PrePushCallback != null)
+            if (repository != null)
             {
-                pushOptions.OnNegotiationCompletedBeforePush = repository.PrePushHandler;
+                pushOptions.OnPrePush = repository.PrePushHandler;
             }
 
             // Load the remote.

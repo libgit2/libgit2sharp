@@ -110,6 +110,13 @@ namespace LibGit2Sharp.Handlers
     /// <summary>
     /// Provides information about what updates will be performed before a push occurs
     /// </summary>
+    /// <param name="updates">List of updates to pushed to the server.</param>
+    /// <returns>True to continue, false to cancel.</returns>
+    public delegate bool NegotiationCompletedBeforePushHandler(IEnumerable<PushUpdate> updates);
+
+    /// <summary>
+    /// Provides information about what updates will be performed before a push occurs
+    /// </summary>
     /// <param name="arguments">Arguments for the method.</param>
     /// <returns>True to continue, false to cancel.</returns>
     public delegate bool PrePushHandler(PrePushArguments arguments);
