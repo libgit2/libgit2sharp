@@ -1329,8 +1329,8 @@ namespace LibGit2Sharp
                 {
                     Version = 1,
                     MergeFileFavorFlags = options.MergeFileFavor,
-                    MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES :
-                                                           GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
+                    MergeTreeFlags = options.FindRenames ? GitMergeFlag.GIT_MERGE_FIND_RENAMES :
+                                                           GitMergeFlag.GIT_MERGE_NORMAL,
                     RenameThreshold = (uint)options.RenameThreshold,
                     TargetLimit = (uint)options.TargetLimit,
                 };
@@ -1413,8 +1413,8 @@ namespace LibGit2Sharp
                 {
                     Version = 1,
                     MergeFileFavorFlags = options.MergeFileFavor,
-                    MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES :
-                                                           GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
+                    MergeTreeFlags = options.FindRenames ? GitMergeFlag.GIT_MERGE_FIND_RENAMES :
+                                                           GitMergeFlag.GIT_MERGE_NORMAL,
                     RenameThreshold = (uint)options.RenameThreshold,
                     TargetLimit = (uint)options.TargetLimit,
                 };
@@ -1553,12 +1553,24 @@ namespace LibGit2Sharp
         private MergeResult NormalMerge(GitAnnotatedCommitHandle[] annotatedCommits, Signature merger, MergeOptions options)
         {
             MergeResult mergeResult;
+            GitMergeFlag treeFlags = options.FindRenames ? GitMergeFlag.GIT_MERGE_FIND_RENAMES
+                                                              : GitMergeFlag.GIT_MERGE_NORMAL;
+
+            if (options.FailOnConflict)
+            {
+                treeFlags |= GitMergeFlag.GIT_MERGE_FAIL_ON_CONFLICT;
+            }
+
+            if (options.SkipReuc)
+            {
+                treeFlags |= GitMergeFlag.GIT_MERGE_SKIP_REUC;
+            }
+
             var mergeOptions = new GitMergeOpts
             {
                 Version = 1,
                 MergeFileFavorFlags = options.MergeFileFavor,
-                MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES
-                                                     : GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
+                MergeTreeFlags = treeFlags,
                 RenameThreshold = (uint)options.RenameThreshold,
                 TargetLimit = (uint)options.TargetLimit,
             };

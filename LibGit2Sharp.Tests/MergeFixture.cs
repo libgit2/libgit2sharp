@@ -295,6 +295,23 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanFailOnFirstMergeConflict()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var master = repo.Lookup<Commit>("master");
+                var branch = repo.Lookup<Commit>("conflicts");
+
+                Assert.Throws<ConflictInMergeException>(() =>
+                {
+                    repo.Merge("conflicts", Constants.Signature, new MergeOptions() { FailOnConflict = true, });
+                });
+            }
+
+        }
+
         [Theory]
         [InlineData(true, FastForwardStrategy.Default, fastForwardBranchInitialId, MergeStatus.FastForward)]
         [InlineData(true, FastForwardStrategy.FastForwardOnly, fastForwardBranchInitialId, MergeStatus.FastForward)]

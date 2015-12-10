@@ -125,6 +125,7 @@ namespace LibGit2Sharp.Core
                     { GitErrorCode.UnmergedEntries, (m, r, c) => new UnmergedIndexEntriesException(m, r, c) },
                     { GitErrorCode.NonFastForward, (m, r, c) => new NonFastForwardException(m, r, c) },
                     { GitErrorCode.Conflict, (m, r, c) => new CheckoutConflictException(m, r, c) },
+                    { GitErrorCode.MergeConflict, (m ,r, c) => new ConflictInMergeException(m, r, c) },
                     { GitErrorCode.LockedFile, (m, r, c) => new LockedFileException(m, r, c) },
                     { GitErrorCode.NotFound, (m, r, c) => new NotFoundException(m, r, c) },
                     { GitErrorCode.Peel, (m, r, c) => new PeelException(m, r, c)  },
