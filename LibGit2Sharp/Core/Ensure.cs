@@ -151,6 +151,13 @@ namespace LibGit2Sharp.Core
                 errorMessage = LaxUtf8Marshaler.FromNative(error.Message);
             }
 
+            // special case filter exceptions due to filters returning `GitErrorCode.Error`
+            // which is not a good key for the `GitErrorsToLibGit2SharpExceptions` lookup.
+            if (error.Category == GitErrorCategory.Filter)
+            {
+                throw new FilterException(errorMessage, result, GitErrorCategory.Filter);
+            }
+
             Func<string, GitErrorCode, GitErrorCategory, LibGit2SharpException> exceptionBuilder;
             if (!GitErrorsToLibGit2SharpExceptions.TryGetValue((GitErrorCode)result, out exceptionBuilder))
             {
