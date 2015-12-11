@@ -960,7 +960,7 @@ namespace LibGit2Sharp
         /// <param name="tree">The <see cref="Tree"/> to checkout.</param>
         /// <param name="paths">The paths to checkout.</param>
         /// <param name="opts">Collection of parameters controlling checkout behavior.</param>
-        private void CheckoutTree(
+        internal void CheckoutTree(
             Tree tree,
             IList<string> paths,
             IConvertableToGitCheckoutOpts opts)
