@@ -301,13 +301,14 @@ namespace LibGit2Sharp.Tests
             string path = SandboxMergeTestRepo();
             using (var repo = new Repository(path))
             {
-                var master = repo.Lookup<Commit>("master");
-                var branch = repo.Lookup<Commit>("conflicts");
+                var mergeResult = repo.Merge("conflicts", Constants.Signature, new MergeOptions() { FailOnConflict = true, });
+                Assert.Equal(MergeStatus.Conflicts, mergeResult.Status);
 
-                Assert.Throws<ConflictInMergeException>(() =>
-                {
-                    repo.Merge("conflicts", Constants.Signature, new MergeOptions() { FailOnConflict = true, });
-                });
+                var master = repo.Branches["master"];
+                var branch = repo.Branches["conflicts"];
+                var mergeTreeResult = repo.ObjectDatabase.MergeCommits(master.Tip, branch.Tip, new MergeTreeOptions() { FailOnConflict = true });
+                Assert.Equal(MergeTreeStatus.Conflicts, mergeTreeResult.Status);
+                Assert.Empty(mergeTreeResult.Conflicts);
             }
 
         }

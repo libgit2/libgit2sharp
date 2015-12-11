@@ -69,7 +69,6 @@
     <Compile Include="CommitOptions.cs" />
     <Compile Include="CommitSortStrategies.cs" />
     <Compile Include="CompareOptions.cs" />
-    <Compile Include="ConflictInMergeException.cs" />
     <Compile Include="Core\FileHistory.cs" />
     <Compile Include="Core\GitFetchOptions.cs" />
     <Compile Include="Core\GitPushUpdate.cs" />

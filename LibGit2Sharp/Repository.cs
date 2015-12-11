@@ -1575,11 +1575,17 @@ namespace LibGit2Sharp
                 TargetLimit = (uint)options.TargetLimit,
             };
 
+            bool earlyStop;
             using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
             {
                 var checkoutOpts = checkoutOptionsWrapper.Options;
 
-                Proxy.git_merge(Handle, annotatedCommits, mergeOptions, checkoutOpts);
+                Proxy.git_merge(Handle, annotatedCommits, mergeOptions, checkoutOpts, out earlyStop);
+            }
+
+            if (earlyStop)
+            {
+                return new MergeResult(MergeStatus.Conflicts);
             }
 
             if (Index.IsFullyMerged)

@@ -23,9 +23,8 @@
         public bool FindRenames { get; set; }
 
         /// <summary>
-        /// If set, do not create conflict entries but fail the operation. No
-        /// merged index will be created and a <see cref="LibGit2Sharp.ConflictInMergeException"/>
-        /// exception will be thrown.
+        /// If set, do not create or return conflict entries, but stop and return
+        /// an error result after finding the first conflict.
         /// </summary>
         public bool FailOnConflict { get; set; }
 
