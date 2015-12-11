@@ -287,7 +287,6 @@
     <Compile Include="Core\Handles\NotOwnedSafeHandleBase.cs" />
     <Compile Include="Core\Handles\OidSafeHandle.cs" />
     <Compile Include="Core\Handles\TreeBuilderSafeHandle.cs" />
-    <Compile Include="Core\Handles\TreeEntrySafeHandle_Owned.cs" />
     <Compile Include="Core\Handles\ReferenceSafeHandle.cs" />
     <Compile Include="Core\Handles\SignatureSafeHandle.cs" />
     <Compile Include="Core\Handles\TreeEntrySafeHandle.cs" />
@@ -381,6 +380,8 @@
     <Compile Include="Core\GitCertificateSshType.cs" />
     <Compile Include="CertificateSsh.cs" />
     <Compile Include="IDiffResult.cs" />
+    <Compile Include="Core\Opaques.cs" />
+    <Compile Include="Core\Handles\TreeEntryOwnedHandle.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />

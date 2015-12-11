@@ -1737,29 +1737,29 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string prefix);
 
         [DllImport(libgit2)]
-        internal static extern uint git_tree_entry_filemode(SafeHandle entry);
+        internal static extern unsafe uint git_tree_entry_filemode(git_tree_entry* entry);
 
         [DllImport(libgit2)]
-        internal static extern TreeEntrySafeHandle git_tree_entry_byindex(GitObjectSafeHandle tree, UIntPtr idx);
+        internal static extern unsafe git_tree_entry* git_tree_entry_byindex(GitObjectSafeHandle tree, UIntPtr idx);
 
         [DllImport(libgit2)]
-        internal static extern int git_tree_entry_bypath(
-            out TreeEntrySafeHandle_Owned tree,
+        internal static extern unsafe int git_tree_entry_bypath(
+            out git_tree_entry* tree,
             GitObjectSafeHandle root,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath treeentry_path);
 
         [DllImport(libgit2)]
-        internal static extern void git_tree_entry_free(IntPtr treeEntry);
+        internal static extern unsafe void git_tree_entry_free(git_tree_entry* treeEntry);
 
         [DllImport(libgit2)]
-        internal static extern OidSafeHandle git_tree_entry_id(SafeHandle entry);
+        internal static extern unsafe OidSafeHandle git_tree_entry_id(git_tree_entry* entry);
 
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]
-        internal static extern string git_tree_entry_name(SafeHandle entry);
+        internal static extern unsafe string git_tree_entry_name(git_tree_entry* entry);
 
         [DllImport(libgit2)]
-        internal static extern GitObjectType git_tree_entry_type(SafeHandle entry);
+        internal static extern unsafe GitObjectType git_tree_entry_type(git_tree_entry* entry);
 
         [DllImport(libgit2)]
         internal static extern UIntPtr git_tree_entrycount(GitObjectSafeHandle tree);
