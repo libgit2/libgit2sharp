@@ -79,7 +79,7 @@ namespace LibGit2Sharp.Core
         }
 
         [DllImport(libgit2)]
-        internal static extern GitErrorSafeHandle giterr_last();
+        internal static extern unsafe GitError* giterr_last();
 
         [DllImport(libgit2)]
         internal static extern void giterr_set_str(

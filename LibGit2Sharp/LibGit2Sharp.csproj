@@ -280,7 +280,6 @@
     <Compile Include="Core\GitErrorCategory.cs" />
     <Compile Include="Core\GitOdbBackend.cs" />
     <Compile Include="Core\GitOdbBackendStream.cs" />
-    <Compile Include="Core\Handles\GitErrorSafeHandle.cs" />
     <Compile Include="Core\Handles\NoteSafeHandle.cs" />
     <Compile Include="Core\Handles\ObjectDatabaseSafeHandle.cs" />
     <Compile Include="Core\Handles\DiffSafeHandle.cs" />
