@@ -473,42 +473,31 @@ namespace LibGit2Sharp.Core
             NativeMethods.git_config_free(config);
         }
 
-        public static void git_config_entry_free(IntPtr entry)
+        public static unsafe ConfigurationEntry<T> git_config_get_entry<T>(ConfigurationSafeHandle config, string key)
         {
-            NativeMethods.git_config_entry_free(entry);
-        }
-
-        public static ConfigurationEntry<T> git_config_get_entry<T>(ConfigurationSafeHandle config, string key)
-        {
-            GitConfigEntryHandle handle = null;
-
             if (!configurationParser.ContainsKey(typeof(T)))
             {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
             }
 
-            GitConfigEntry entry;
-
+            GitConfigEntry* entry = null;
             try
             {
-                var res = NativeMethods.git_config_get_entry(out handle, config, key);
+                var res = NativeMethods.git_config_get_entry(out entry, config, key);
                 if (res == (int)GitErrorCode.NotFound)
                 {
                     return null;
                 }
 
                 Ensure.ZeroResult(res);
-
-                entry = handle.MarshalAsGitConfigEntry();
+                return new ConfigurationEntry<T>(LaxUtf8Marshaler.FromNative(entry->namePtr),
+                    (T)configurationParser[typeof(T)](LaxUtf8Marshaler.FromNative(entry->valuePtr)),
+                    (ConfigurationLevel)entry->level);
             }
             finally
             {
-                handle.SafeDispose();
+                NativeMethods.git_config_entry_free(entry);
             }
-
-            return new ConfigurationEntry<T>(LaxUtf8Marshaler.FromNative(entry.namePtr),
-                                             (T)configurationParser[typeof(T)](LaxUtf8Marshaler.FromNative(entry.valuePtr)),
-                                             (ConfigurationLevel)entry.level);
         }
 
         public static ConfigurationSafeHandle git_config_new()
@@ -593,7 +582,7 @@ namespace LibGit2Sharp.Core
             return git_foreach(resultSelector, c => NativeMethods.git_config_foreach(config, (e, p) => c(e, p), IntPtr.Zero));
         }
 
-        public static IEnumerable<ConfigurationEntry<string>> git_config_iterator_glob(
+        public static unsafe IEnumerable<ConfigurationEntry<string>> git_config_iterator_glob(
             ConfigurationSafeHandle config,
             string regexp,
             Func<IntPtr, ConfigurationEntry<string>> resultSelector)

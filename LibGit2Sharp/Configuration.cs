@@ -732,13 +732,12 @@ namespace LibGit2Sharp
             return Proxy.git_config_foreach(configHandle, BuildConfigEntry);
         }
 
-        private static ConfigurationEntry<string> BuildConfigEntry(IntPtr entryPtr)
+        private static unsafe ConfigurationEntry<string> BuildConfigEntry(IntPtr entryPtr)
         {
-            var entry = entryPtr.MarshalAs<GitConfigEntry>();
-
-            return new ConfigurationEntry<string>(LaxUtf8Marshaler.FromNative(entry.namePtr),
-                                                  LaxUtf8Marshaler.FromNative(entry.valuePtr),
-                                                  (ConfigurationLevel)entry.level);
+            var entry = (GitConfigEntry*)entryPtr.ToPointer();
+            return new ConfigurationEntry<string>(LaxUtf8Marshaler.FromNative(entry->namePtr),
+                                                  LaxUtf8Marshaler.FromNative(entry->valuePtr),
+                                                  (ConfigurationLevel)entry->level);
         }
 
         /// <summary>

@@ -348,11 +348,11 @@ namespace LibGit2Sharp.Core
         internal static extern void git_config_free(IntPtr cfg);
 
         [DllImport(libgit2)]
-        internal static extern void git_config_entry_free(IntPtr entry);
+        internal static extern unsafe void git_config_entry_free(GitConfigEntry* entry);
 
         [DllImport(libgit2)]
-        internal static extern int git_config_get_entry(
-            out GitConfigEntryHandle entry,
+        internal static extern unsafe int git_config_get_entry(
+            out GitConfigEntry* entry,
             ConfigurationSafeHandle cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
 

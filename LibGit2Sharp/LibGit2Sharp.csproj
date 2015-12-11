@@ -241,7 +241,6 @@
     <Compile Include="Core\Handles\NullIndexSafeHandle.cs" />
     <Compile Include="Core\ILazy.cs" />
     <Compile Include="Core\LazyGroup.cs" />
-    <Compile Include="Core\Handles\GitConfigEntryHandle.cs" />
     <Compile Include="Core\Proxy.cs" />
     <Compile Include="Credentials.cs" />
     <Compile Include="Core\TarWriter.cs" />
