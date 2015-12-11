@@ -857,7 +857,7 @@ namespace LibGit2Sharp
             GitObject obj;
             try
             {
-                if (!refH.IsInvalid)
+                if (!refH.IsNull)
                 {
                     var reference = Reference.BuildFromPtr<Reference>(refH, this);
                     if (reference.IsLocalBranch)
@@ -1225,7 +1225,7 @@ namespace LibGit2Sharp
 
             options = options ?? new MergeOptions();
 
-            using (ReferenceSafeHandle referencePtr = Refs.RetrieveReferencePtr(branch.CanonicalName))
+            using (GitReferenceHandle referencePtr = Refs.RetrieveReferencePtr(branch.CanonicalName))
             using (GitAnnotatedCommitHandle annotatedCommitHandle = Proxy.git_annotated_commit_from_ref(Handle, referencePtr))
             {
                 return Merge(new[] { annotatedCommitHandle }, merger, options);

@@ -124,7 +124,7 @@ namespace LibGit2Sharp
 
             if (refState == RefState.DoesNotExistButLooksValid && gitObject == null)
             {
-                using (ReferenceSafeHandle handle = Proxy.git_reference_symbolic_create(repo.Handle, name, canonicalRefNameOrObjectish, allowOverwrite,
+                using (GitReferenceHandle handle = Proxy.git_reference_symbolic_create(repo.Handle, name, canonicalRefNameOrObjectish, allowOverwrite,
                     logMessage))
                 {
                     return Reference.BuildFromPtr<Reference>(handle, repo);
@@ -191,7 +191,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNull(targetId, "targetId");
 
-            using (ReferenceSafeHandle handle = Proxy.git_reference_create(repo.Handle, name, targetId, allowOverwrite, logMessage))
+            using (GitReferenceHandle handle = Proxy.git_reference_create(repo.Handle, name, targetId, allowOverwrite, logMessage))
             {
                 return (DirectReference)Reference.BuildFromPtr<Reference>(handle, repo);
             }
@@ -245,7 +245,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNull(targetRef, "targetRef");
 
-            using (ReferenceSafeHandle handle = Proxy.git_reference_symbolic_create(repo.Handle,
+            using (GitReferenceHandle handle = Proxy.git_reference_symbolic_create(repo.Handle,
                                                                                     name,
                                                                                     targetRef.CanonicalName,
                                                                                     allowOverwrite,
@@ -343,8 +343,8 @@ namespace LibGit2Sharp
                                            newName);
             }
 
-            using (ReferenceSafeHandle referencePtr = RetrieveReferencePtr(reference.CanonicalName))
-            using (ReferenceSafeHandle handle = Proxy.git_reference_rename(referencePtr, newName, allowOverwrite, logMessage))
+            using (GitReferenceHandle referencePtr = RetrieveReferencePtr(reference.CanonicalName))
+            using (GitReferenceHandle handle = Proxy.git_reference_rename(referencePtr, newName, allowOverwrite, logMessage))
             {
                 return Reference.BuildFromPtr<Reference>(handle, repo);
             }
@@ -438,7 +438,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            using (ReferenceSafeHandle referencePtr = RetrieveReferencePtr(name, false))
+            using (GitReferenceHandle referencePtr = RetrieveReferencePtr(name, false))
             {
                 return referencePtr == null
                     ? null
@@ -468,8 +468,8 @@ namespace LibGit2Sharp
 
         private Reference UpdateDirectReferenceTarget(Reference directRef, ObjectId targetId, string logMessage)
         {
-            using (ReferenceSafeHandle referencePtr = RetrieveReferencePtr(directRef.CanonicalName))
-            using (ReferenceSafeHandle handle = Proxy.git_reference_set_target(referencePtr, targetId, logMessage))
+            using (GitReferenceHandle referencePtr = RetrieveReferencePtr(directRef.CanonicalName))
+            using (GitReferenceHandle handle = Proxy.git_reference_set_target(referencePtr, targetId, logMessage))
             {
                 return Reference.BuildFromPtr<Reference>(handle, repo);
             }
@@ -594,8 +594,8 @@ namespace LibGit2Sharp
 
         private Reference UpdateSymbolicRefenceTarget(Reference symbolicRef, Reference targetRef, string logMessage)
         {
-            using (ReferenceSafeHandle referencePtr = RetrieveReferencePtr(symbolicRef.CanonicalName))
-            using (ReferenceSafeHandle handle = Proxy.git_reference_symbolic_set_target(referencePtr, targetRef.CanonicalName, logMessage))
+            using (GitReferenceHandle referencePtr = RetrieveReferencePtr(symbolicRef.CanonicalName))
+            using (GitReferenceHandle handle = Proxy.git_reference_symbolic_set_target(referencePtr, targetRef.CanonicalName, logMessage))
             {
                 return Reference.BuildFromPtr<Reference>(handle, repo);
             }
@@ -671,9 +671,9 @@ namespace LibGit2Sharp
             return repo.Refs.Head;
         }
 
-        internal ReferenceSafeHandle RetrieveReferencePtr(string referenceName, bool shouldThrowIfNotFound = true)
+        internal GitReferenceHandle RetrieveReferencePtr(string referenceName, bool shouldThrowIfNotFound = true)
         {
-            ReferenceSafeHandle reference = Proxy.git_reference_lookup(repo.Handle, referenceName, shouldThrowIfNotFound);
+            GitReferenceHandle reference = Proxy.git_reference_lookup(repo.Handle, referenceName, shouldThrowIfNotFound);
 
             return reference;
         }

@@ -73,6 +73,7 @@
     <Compile Include="Core\GitFetchOptions.cs" />
     <Compile Include="Core\GitPushUpdate.cs" />
     <Compile Include="Core\GitSubmoduleIgnore.cs" />
+    <Compile Include="Core\Handles\GitReferenceHandle.cs" />
     <Compile Include="Core\Handles\PackBuilderSafeHandle.cs" />
     <Compile Include="Core\Platform.cs" />
     <Compile Include="Core\Handles\ConflictIteratorSafeHandle.cs" />
@@ -287,7 +288,6 @@
     <Compile Include="Core\Handles\NotOwnedSafeHandleBase.cs" />
     <Compile Include="Core\Handles\OidSafeHandle.cs" />
     <Compile Include="Core\Handles\TreeBuilderSafeHandle.cs" />
-    <Compile Include="Core\Handles\ReferenceSafeHandle.cs" />
     <Compile Include="Core\Handles\SignatureSafeHandle.cs" />
     <Compile Include="Core\Handles\TreeEntrySafeHandle.cs" />
     <Compile Include="DetachedHead.cs" />

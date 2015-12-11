@@ -190,9 +190,9 @@ namespace LibGit2Sharp.Core
 
         #region git_branch_
 
-        public static ReferenceSafeHandle git_branch_create_from_annotated(RepositorySafeHandle repo, string branch_name, string targetIdentifier, bool force)
+        public static unsafe GitReferenceHandle git_branch_create_from_annotated(RepositorySafeHandle repo, string branch_name, string targetIdentifier, bool force)
         {
-            ReferenceSafeHandle reference;
+            git_reference* reference;
 
             using (var annotatedCommit = git_annotated_commit_from_revspec(repo, targetIdentifier))
             {
@@ -200,28 +200,29 @@ namespace LibGit2Sharp.Core
                 Ensure.ZeroResult(res);
             }
 
-            return reference;
+            return new GitReferenceHandle(reference);
         }
 
-        public static void git_branch_delete(ReferenceSafeHandle reference)
+        public static unsafe void git_branch_delete(GitReferenceHandle reference)
         {
-            int res = NativeMethods.git_branch_delete(reference);
+            int res = NativeMethods.git_branch_delete(reference.ToPointer());
             Ensure.ZeroResult(res);
         }
 
-        public static IEnumerable<Branch> git_branch_iterator(Repository repo, GitBranchType branchType)
+        public static unsafe IEnumerable<Branch> git_branch_iterator(Repository repo, GitBranchType branchType)
         {
             return git_iterator((out BranchIteratorSafeHandle iter_out) =>
                                     NativeMethods.git_branch_iterator_new(out iter_out, repo.Handle, branchType),
-                                (BranchIteratorSafeHandle iter, out ReferenceSafeHandle ref_out, out int res) =>
+                                (BranchIteratorSafeHandle iter, out IntPtr refPtr, out int res) =>
                                     {
                                         GitBranchType type_out;
-                                        res = NativeMethods.git_branch_next(out ref_out, out type_out, iter);
+                                        res = NativeMethods.git_branch_next(out refPtr, out type_out, iter);
                                         return new { BranchType = type_out };
                                     },
                                 (handle, payload) =>
                                     {
-                                        var reference = Reference.BuildFromPtr<Reference>(handle, repo);
+                                        git_reference* refPtr = (git_reference*)handle.ToPointer();
+                                        var reference = Reference.BuildFromPtr<Reference>(refPtr, repo);
                                         return new Branch(repo, reference, reference.CanonicalName);
                                     });
         }
@@ -231,12 +232,12 @@ namespace LibGit2Sharp.Core
             NativeMethods.git_branch_iterator_free(iter);
         }
 
-        public static ReferenceSafeHandle git_branch_move(ReferenceSafeHandle reference, string new_branch_name, bool force)
+        public static unsafe GitReferenceHandle git_branch_move(GitReferenceHandle reference, string new_branch_name, bool force)
         {
-            ReferenceSafeHandle ref_out;
-            int res = NativeMethods.git_branch_move(out ref_out, reference, new_branch_name, force);
+            git_reference* ref_out;
+            int res = NativeMethods.git_branch_move(out ref_out, reference.ToPointer(), new_branch_name, force);
             Ensure.ZeroResult(res);
-            return ref_out;
+            return new GitReferenceHandle(ref_out);
         }
 
         public static string git_branch_remote_name(RepositorySafeHandle repo, string canonical_branch_name, bool shouldThrowIfNotFound)
@@ -589,10 +590,9 @@ namespace LibGit2Sharp.Core
         {
             return git_iterator((out ConfigurationIteratorSafeHandle iter) =>
                                     NativeMethods.git_config_iterator_glob_new(out iter, config, regexp),
-                                (ConfigurationIteratorSafeHandle iter, out SafeHandleBase handle, out int res) =>
+                                (ConfigurationIteratorSafeHandle iter, out IntPtr handle, out int res) =>
                                     {
-                                        handle = null;
-
+                                        handle = IntPtr.Zero;
                                         IntPtr entry;
                                         res = NativeMethods.git_config_next(out entry, iter);
                                         return new { EntryPtr = entry };
@@ -1151,11 +1151,11 @@ namespace LibGit2Sharp.Core
             return their_head;
         }
 
-        public static GitAnnotatedCommitHandle git_annotated_commit_from_ref(RepositorySafeHandle repo, ReferenceSafeHandle reference)
+        public static unsafe GitAnnotatedCommitHandle git_annotated_commit_from_ref(RepositorySafeHandle repo, GitReferenceHandle reference)
         {
             GitAnnotatedCommitHandle their_head;
 
-            int res = NativeMethods.git_annotated_commit_from_ref(out their_head, repo, reference);
+            int res = NativeMethods.git_annotated_commit_from_ref(out their_head, repo, reference.ToPointer());
 
             Ensure.ZeroResult(res);
 
@@ -1777,7 +1777,7 @@ namespace LibGit2Sharp.Core
 
         #region git_reference_
 
-        public static ReferenceSafeHandle git_reference_create(
+        public static unsafe GitReferenceHandle git_reference_create(
             RepositorySafeHandle repo,
             string name,
             ObjectId targetId,
@@ -1785,27 +1785,27 @@ namespace LibGit2Sharp.Core
             string logMessage)
         {
             GitOid oid = targetId.Oid;
-            ReferenceSafeHandle handle;
+            git_reference* handle;
 
             int res = NativeMethods.git_reference_create(out handle, repo, name, ref oid, allowOverwrite, logMessage);
             Ensure.ZeroResult(res);
 
-            return handle;
+            return new GitReferenceHandle(handle);
         }
 
-        public static ReferenceSafeHandle git_reference_symbolic_create(
+        public static unsafe GitReferenceHandle git_reference_symbolic_create(
             RepositorySafeHandle repo,
             string name,
             string target,
             bool allowOverwrite,
             string logMessage)
         {
-            ReferenceSafeHandle handle;
+            git_reference* handle;
             int res = NativeMethods.git_reference_symbolic_create(out handle, repo, name, target, allowOverwrite,
                 logMessage);
             Ensure.ZeroResult(res);
 
-            return handle;
+            return new GitReferenceHandle(handle);
         }
 
         public static ICollection<TResult> git_reference_foreach_glob<TResult>(
@@ -1846,9 +1846,9 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static ReferenceSafeHandle git_reference_lookup(RepositorySafeHandle repo, string name, bool shouldThrowIfNotFound)
+        public static unsafe GitReferenceHandle git_reference_lookup(RepositorySafeHandle repo, string name, bool shouldThrowIfNotFound)
         {
-            ReferenceSafeHandle handle;
+            git_reference* handle;
             int res = NativeMethods.git_reference_lookup(out handle, repo, name);
 
             if (!shouldThrowIfNotFound && res == (int)GitErrorCode.NotFound)
@@ -1858,10 +1858,10 @@ namespace LibGit2Sharp.Core
 
             Ensure.ZeroResult(res);
 
-            return handle;
+            return new GitReferenceHandle(handle);
         }
 
-        public static string git_reference_name(ReferenceSafeHandle reference)
+        public static unsafe string git_reference_name(git_reference* reference)
         {
             return NativeMethods.git_reference_name(reference);
         }
@@ -1872,52 +1872,52 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
-        public static ObjectId git_reference_target(ReferenceSafeHandle reference)
+        public static unsafe ObjectId git_reference_target(git_reference* reference)
         {
             return NativeMethods.git_reference_target(reference).MarshalAsObjectId();
         }
 
-        public static ReferenceSafeHandle git_reference_rename(
-            ReferenceSafeHandle reference,
+        public static unsafe GitReferenceHandle git_reference_rename(
+            GitReferenceHandle reference,
             string newName,
             bool allowOverwrite,
             string logMessage)
         {
-            ReferenceSafeHandle ref_out;
+            git_reference* ref_out;
 
-            int res = NativeMethods.git_reference_rename(out ref_out, reference, newName, allowOverwrite, logMessage);
+            int res = NativeMethods.git_reference_rename(out ref_out, reference.ToPointer(), newName, allowOverwrite, logMessage);
             Ensure.ZeroResult(res);
 
-            return ref_out;
+            return new GitReferenceHandle(ref_out);
         }
 
-        public static ReferenceSafeHandle git_reference_set_target(ReferenceSafeHandle reference, ObjectId id, string logMessage)
+        public static unsafe GitReferenceHandle git_reference_set_target(GitReferenceHandle reference, ObjectId id, string logMessage)
         {
             GitOid oid = id.Oid;
-            ReferenceSafeHandle ref_out;
+            git_reference* ref_out;
 
-            int res = NativeMethods.git_reference_set_target(out ref_out, reference, ref oid, logMessage);
+            int res = NativeMethods.git_reference_set_target(out ref_out, reference.ToPointer(), ref oid, logMessage);
             Ensure.ZeroResult(res);
 
-            return ref_out;
+            return new GitReferenceHandle(ref_out);
         }
 
-        public static ReferenceSafeHandle git_reference_symbolic_set_target(ReferenceSafeHandle reference, string target, string logMessage)
+        public static unsafe GitReferenceHandle git_reference_symbolic_set_target(GitReferenceHandle reference, string target, string logMessage)
         {
-            ReferenceSafeHandle ref_out;
+            git_reference* ref_out;
 
-            int res = NativeMethods.git_reference_symbolic_set_target(out ref_out, reference, target, logMessage);
+            int res = NativeMethods.git_reference_symbolic_set_target(out ref_out, reference.ToPointer(), target, logMessage);
             Ensure.ZeroResult(res);
 
-            return ref_out;
+            return new GitReferenceHandle(ref_out);
         }
 
-        public static string git_reference_symbolic_target(ReferenceSafeHandle reference)
+        public static unsafe string git_reference_symbolic_target(git_reference* reference)
         {
             return NativeMethods.git_reference_symbolic_target(reference);
         }
 
-        public static GitReferenceType git_reference_type(ReferenceSafeHandle reference)
+        public static unsafe GitReferenceType git_reference_type(git_reference* reference)
         {
             return NativeMethods.git_reference_type(reference);
         }
@@ -2600,10 +2600,10 @@ namespace LibGit2Sharp.Core
 
         #region git_revparse_
 
-        public static Tuple<GitObjectSafeHandle, ReferenceSafeHandle> git_revparse_ext(RepositorySafeHandle repo, string objectish)
+        public static unsafe Tuple<GitObjectSafeHandle, GitReferenceHandle> git_revparse_ext(RepositorySafeHandle repo, string objectish)
         {
             GitObjectSafeHandle obj;
-            ReferenceSafeHandle reference;
+            git_reference* reference;
             int res = NativeMethods.git_revparse_ext(out obj, out reference, repo, objectish);
 
             switch (res)
@@ -2620,7 +2620,7 @@ namespace LibGit2Sharp.Core
                     break;
             }
 
-            return new Tuple<GitObjectSafeHandle, ReferenceSafeHandle>(obj, reference);
+            return new Tuple<GitObjectSafeHandle, GitReferenceHandle>(obj, new GitReferenceHandle(reference));
         }
 
         public static GitObjectSafeHandle git_revparse_single(RepositorySafeHandle repo, string objectish)
@@ -3410,15 +3410,14 @@ namespace LibGit2Sharp.Core
             return iter;
         }
 
-        private static IEnumerable<TResult> git_iterator_next<TIterator, THandle, TPayload, TResult>(
+        private static IEnumerable<TResult> git_iterator_next<TIterator, TPayload, TResult>(
             TIterator iter,
-            IteratorNext<TIterator, THandle, TPayload> nextFunc,
-            Func<THandle, TPayload, TResult> resultSelector)
-            where THandle : SafeHandleBase
+            IteratorNext<TIterator, IntPtr, TPayload> nextFunc,
+            Func<IntPtr, TPayload, TResult> resultSelector)
         {
             while (true)
             {
-                var next = default(THandle);
+                var next = IntPtr.Zero;
                 try
                 {
                     int res;
@@ -3434,18 +3433,17 @@ namespace LibGit2Sharp.Core
                 }
                 finally
                 {
-                    next.SafeDispose();
+                    NativeMethods.git_reference_free(next);
                 }
             }
         }
 
-        private static IEnumerable<TResult> git_iterator<TIterator, THandle, TPayload, TResult>(
+        private static IEnumerable<TResult> git_iterator<TIterator, TPayload, TResult>(
             IteratorNew<TIterator> newFunc,
-            IteratorNext<TIterator, THandle, TPayload> nextFunc,
-            Func<THandle, TPayload, TResult> resultSelector
+            IteratorNext<TIterator, IntPtr, TPayload> nextFunc,
+            Func<IntPtr, TPayload, TResult> resultSelector
             )
             where TIterator : SafeHandleBase
-            where THandle : SafeHandleBase
         {
             using (var iter = git_iterator_new(newFunc))
             {
