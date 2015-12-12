@@ -1244,10 +1244,8 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
 
-        internal delegate int git_headlist_cb(ref GitRemoteHead remoteHeadPtr, IntPtr payload);
-
         [DllImport(libgit2)]
-        internal static extern int git_remote_ls(out IntPtr heads, out UIntPtr size, RemoteSafeHandle remote);
+        internal static extern unsafe int git_remote_ls(out git_remote_head** heads, out UIntPtr size, RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]

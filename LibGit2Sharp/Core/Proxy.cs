@@ -2214,32 +2214,23 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static IEnumerable<Reference> git_remote_ls(Repository repository, RemoteSafeHandle remote)
+        public static unsafe IEnumerable<Reference> git_remote_ls(Repository repository, RemoteSafeHandle remote)
         {
-            IntPtr heads;
+            git_remote_head** heads;
             UIntPtr count;
 
             int res = NativeMethods.git_remote_ls(out heads, out count, remote);
             Ensure.ZeroResult(res);
 
-            var intCount = (int)count.ToUInt32();
-
-            if (intCount < 0)
-            {
-                throw new OverflowException();
-            }
-
+            var intCount = checked(count.ToUInt32());
             var directRefs = new Dictionary<string, Reference>();
             var symRefs = new Dictionary<string, string>();
 
-            IntPtr currentHead = heads;
-
             for (int i = 0; i < intCount; i++)
             {
-                var remoteHead = Marshal.ReadIntPtr(currentHead).MarshalAs<GitRemoteHead>();
-
-                string name = LaxUtf8Marshaler.FromNative(remoteHead.NamePtr);
-                string symRefTarget = LaxUtf8Marshaler.FromNative(remoteHead.SymRefTargetPtr);
+                git_remote_head* currentHead = heads[i];
+                string name = LaxUtf8Marshaler.FromNative(currentHead->Name);
+                string symRefTarget = LaxUtf8Marshaler.FromNative(currentHead->SymrefTarget);
 
                 // The name pointer should never be null - if it is,
                 // this indicates a bug somewhere (libgit2, server, etc).
@@ -2254,10 +2245,8 @@ namespace LibGit2Sharp.Core
                 }
                 else
                 {
-                    directRefs.Add(name, new DirectReference(name, repository, remoteHead.Oid));
+                    directRefs.Add(name, new DirectReference(name, repository, new ObjectId(currentHead->Oid.Id)));
                 }
-
-                currentHead = IntPtr.Add(currentHead, IntPtr.Size);
             }
 
             for (int i = 0; i < symRefs.Count; i++)
