@@ -22,28 +22,24 @@ namespace LibGit2Sharp
         protected RefSpecCollection()
         { }
 
-        internal RefSpecCollection(RemoteSafeHandle handle)
+        internal RefSpecCollection(Remote remote, RemoteSafeHandle handle)
         {
             Ensure.ArgumentNotNull(handle, "handle");
 
-            refspecs = RetrieveRefSpecs(handle);
+            refspecs = RetrieveRefSpecs(remote, handle);
         }
 
-        static IList<RefSpec> RetrieveRefSpecs(RemoteSafeHandle remoteHandle)
+        static IList<RefSpec> RetrieveRefSpecs(Remote remote, RemoteSafeHandle remoteHandle)
         {
             int count = Proxy.git_remote_refspec_count(remoteHandle);
             List<RefSpec> refSpecs = new List<RefSpec>();
 
             for (int i = 0; i < count; i++)
             {
-                using (GitRefSpecHandle handle = Proxy.git_remote_get_refspec(remoteHandle, i))
-                {
-                    refSpecs.Add(RefSpec.BuildFromPtr(handle));
-                }
+                refSpecs.Add(new RefSpec(remote, Proxy.git_remote_get_refspec(remoteHandle, i)));
             }
 
             return refSpecs;
-
         }
 
         /// <summary>

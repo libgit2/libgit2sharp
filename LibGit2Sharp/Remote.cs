@@ -22,27 +22,31 @@ namespace LibGit2Sharp
         private readonly RefSpecCollection refSpecs;
         private string pushUrl;
 
+        readonly RemoteSafeHandle handle;
+
         /// <summary>
         /// Needed for mocking purposes.
         /// </summary>
         protected Remote()
         { }
 
-        private Remote(RemoteSafeHandle handle, Repository repository)
+        internal Remote(RemoteSafeHandle handle, Repository repository)
         {
             this.repository = repository;
+            this.handle = handle;
             Name = Proxy.git_remote_name(handle);
             Url = Proxy.git_remote_url(handle);
             PushUrl = Proxy.git_remote_pushurl(handle);
             TagFetchMode = Proxy.git_remote_autotag(handle);
-            refSpecs = new RefSpecCollection(handle);
+            refSpecs = new RefSpecCollection(this, handle);
         }
 
-        internal static Remote BuildFromPtr(RemoteSafeHandle handle, Repository repo)
+        ~Remote()
         {
-            var remote = new Remote(handle, repo);
-
-            return remote;
+            if (handle != null)
+            {
+                handle.Dispose();
+            }
         }
 
         /// <summary>

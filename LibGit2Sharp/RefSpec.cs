@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
@@ -11,17 +12,13 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class RefSpec
     {
-        private RefSpec(string refSpec, RefSpecDirection direction, string source, string destination, bool forceUpdate)
-        {
-            Ensure.ArgumentNotNullOrEmptyString(refSpec, "refSpec");
-            Ensure.ArgumentNotNull(source, "source");
-            Ensure.ArgumentNotNull(destination, "destination");
+        readonly Remote remote;
+        readonly GitRefSpecHandle handle;
 
-            Specification = refSpec;
-            Direction = direction;
-            Source = source;
-            Destination = destination;
-            ForceUpdate = forceUpdate;
+        internal RefSpec(Remote remote, GitRefSpecHandle handle)
+        {
+            this.remote = remote;
+            this.handle = handle;
         }
 
         /// <summary>
@@ -30,38 +27,60 @@ namespace LibGit2Sharp
         protected RefSpec()
         { }
 
-        internal static RefSpec BuildFromPtr(GitRefSpecHandle handle)
-        {
-            Ensure.ArgumentNotNull(handle, "handle");
-
-            return new RefSpec(Proxy.git_refspec_string(handle), Proxy.git_refspec_direction(handle),
-                Proxy.git_refspec_src(handle), Proxy.git_refspec_dst(handle), Proxy.git_refspec_force(handle));
-        }
-
         /// <summary>
         /// Gets the pattern describing the mapping between remote and local references
         /// </summary>
-        public virtual string Specification { get; private set; }
+        public virtual string Specification
+        {
+            get
+            {
+                return Proxy.git_refspec_string(this.handle);
+            }
+        }
 
         /// <summary>
         /// Indicates whether this <see cref="RefSpec"/> is intended to be used during a Push or Fetch operation
         /// </summary>
-        public virtual RefSpecDirection Direction { get; private set; }
+        public virtual RefSpecDirection Direction
+        {
+            get
+            {
+                return Proxy.git_refspec_direction(this.handle);
+            }
+        }
 
         /// <summary>
         /// The source reference specifier
         /// </summary>
-        public virtual string Source { get; private set; }
+        public virtual string Source
+        {
+            get
+            {
+                return Proxy.git_refspec_src(this.handle);
+            }
+        }
 
         /// <summary>
         /// The target reference specifier
         /// </summary>
-        public virtual string Destination { get; private set; }
+        public virtual string Destination
+        {
+            get
+            {
+                return Proxy.git_refspec_dst(this.handle);
+            }
+        }
 
         /// <summary>
         /// Indicates whether the destination will be force-updated if fast-forwarding is not possible
         /// </summary>
-        public virtual bool ForceUpdate { get; private set; }
+        public virtual bool ForceUpdate
+        {
+            get
+            {
+                return Proxy.git_refspec_force(this.handle);
+            }
+        }
 
         private string DebuggerDisplay
         {
