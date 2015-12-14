@@ -82,6 +82,46 @@ namespace LibGit2Sharp
             }
         }
 
+        /// <summary>
+        /// Check whether the given reference matches the source (lhs) part of
+        /// this refspec.
+        /// </summary>
+        /// <param name="reference">The reference name to check</param>
+        public virtual bool SourceMatches(string reference)
+        {
+            return Proxy.git_refspec_src_matches(handle, reference);
+        }
+
+        /// <summary>
+        /// Check whether the given reference matches the target (rhs) part of
+        /// this refspec.
+        /// </summary>
+        /// <param name="reference">The reference name to check</param>
+        public virtual bool DestinationMatches(string reference)
+        {
+            return Proxy.git_refspec_dst_matches(handle, reference);
+        }
+
+        /// <summary>
+        /// Perform the transformation described by this refspec on the given
+        /// reference name (from source to destination).
+        /// </summary>
+        /// <param name="reference">The reference name to transform</param>
+        public virtual string Transform(string reference)
+        {
+            return Proxy.git_refspec_transform(handle, reference);
+        }
+
+        /// <summary>
+        /// Perform the reverse of the transformation described by this refspec
+        /// on the given reference name (from destination to source).
+        /// </summary>
+        /// <param name="reference">The reference name to transform</param>
+        public virtual string ReverseTransform(string reference)
+        {
+            return Proxy.git_refspec_rtransform(handle, reference);
+        }
+
         private string DebuggerDisplay
         {
             get

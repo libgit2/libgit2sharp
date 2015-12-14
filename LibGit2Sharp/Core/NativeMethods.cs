@@ -1113,6 +1113,12 @@ namespace LibGit2Sharp.Core
         internal static extern string git_reflog_entry_message(SafeHandle entry);
 
         [DllImport(libgit2)]
+        internal static extern int git_refspec_transform(
+            GitBuf buf,
+            GitRefSpecHandle refspec,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
+
+        [DllImport(libgit2)]
         internal static extern int git_refspec_rtransform(
             GitBuf buf,
             GitRefSpecHandle refSpec,
@@ -1138,6 +1144,16 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern bool git_refspec_force(GitRefSpecHandle refSpec);
+
+        [DllImport(libgit2)]
+        internal static extern bool git_refspec_src_matches(
+            GitRefSpecHandle resfpec,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string reference);
+
+        [DllImport(libgit2)]
+        internal static extern bool git_refspec_dst_matches(
+            GitRefSpecHandle resfpec,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string reference);
 
         [DllImport(libgit2)]
         internal static extern int git_remote_autotag(RemoteSafeHandle remote);
