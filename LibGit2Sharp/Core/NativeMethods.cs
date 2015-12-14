@@ -634,10 +634,10 @@ namespace LibGit2Sharp.Core
             GitIndexEntry entry);
 
         [DllImport(libgit2)]
-        internal static extern int git_index_conflict_get(
-            out IndexEntrySafeHandle ancestor,
-            out IndexEntrySafeHandle ours,
-            out IndexEntrySafeHandle theirs,
+        internal static extern unsafe int git_index_conflict_get(
+            out git_index_entry* ancestor,
+            out git_index_entry* ours,
+            out git_index_entry* theirs,
             IndexSafeHandle index,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path);
 
@@ -647,10 +647,10 @@ namespace LibGit2Sharp.Core
             IndexSafeHandle index);
 
         [DllImport(libgit2)]
-        internal static extern int git_index_conflict_next(
-            out IndexEntrySafeHandle ancestor,
-            out IndexEntrySafeHandle ours,
-            out IndexEntrySafeHandle theirs,
+        internal static extern unsafe int git_index_conflict_next(
+            out git_index_entry* ancestor,
+            out git_index_entry* ours,
+            out git_index_entry* theirs,
             ConflictIteratorSafeHandle iterator);
 
         [DllImport(libgit2)]
@@ -661,16 +661,16 @@ namespace LibGit2Sharp.Core
         internal static extern UIntPtr git_index_entrycount(IndexSafeHandle index);
 
         [DllImport(libgit2)]
-        internal static extern int git_index_entry_stage(IndexEntrySafeHandle indexentry);
+        internal static extern unsafe int git_index_entry_stage(git_index_entry* indexentry);
 
         [DllImport(libgit2)]
         internal static extern void git_index_free(IntPtr index);
 
         [DllImport(libgit2)]
-        internal static extern IndexEntrySafeHandle git_index_get_byindex(IndexSafeHandle index, UIntPtr n);
+        internal static extern unsafe git_index_entry* git_index_get_byindex(IndexSafeHandle index, UIntPtr n);
 
         [DllImport(libgit2)]
-        internal static extern IndexEntrySafeHandle git_index_get_bypath(
+        internal static extern unsafe git_index_entry* git_index_get_bypath(
             IndexSafeHandle index,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path,
             int stage);

@@ -70,22 +70,22 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the <see cref="IndexEntry"/> with the specified relative path.
         /// </summary>
-        public virtual IndexEntry this[string path]
+        public virtual unsafe IndexEntry this[string path]
         {
             get
             {
                 Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-                IndexEntrySafeHandle entryHandle = Proxy.git_index_get_bypath(handle, path, 0);
-                return IndexEntry.BuildFromPtr(entryHandle);
+                git_index_entry* entry = Proxy.git_index_get_bypath(handle, path, 0);
+                return IndexEntry.BuildFromPtr(entry);
             }
         }
 
-        private IndexEntry this[int index]
+        private unsafe IndexEntry this[int index]
         {
             get
             {
-                IndexEntrySafeHandle entryHandle = Proxy.git_index_get_byindex(handle, (UIntPtr)index);
+                git_index_entry* entryHandle = Proxy.git_index_get_byindex(handle, (UIntPtr)index);
                 return IndexEntry.BuildFromPtr(entryHandle);
             }
         }

@@ -905,11 +905,11 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
-        public static Conflict git_index_conflict_get(
+        public static unsafe Conflict git_index_conflict_get(
             IndexSafeHandle index,
             FilePath path)
         {
-            IndexEntrySafeHandle ancestor, ours, theirs;
+            git_index_entry* ancestor, ours, theirs;
 
             int res = NativeMethods.git_index_conflict_get(out ancestor,
                                                            out ours,
@@ -938,9 +938,9 @@ namespace LibGit2Sharp.Core
             return iter;
         }
 
-        public static Conflict git_index_conflict_next(ConflictIteratorSafeHandle iterator)
+        public static unsafe Conflict git_index_conflict_next(ConflictIteratorSafeHandle iterator)
         {
-            IndexEntrySafeHandle ancestor, ours, theirs;
+            git_index_entry* ancestor, ours, theirs;
 
             int res = NativeMethods.git_index_conflict_next(out ancestor, out ours, out theirs, iterator);
 
@@ -951,14 +951,9 @@ namespace LibGit2Sharp.Core
 
             Ensure.ZeroResult(res);
 
-            using (ancestor)
-            using (ours)
-            using (theirs)
-            {
-                return new Conflict(IndexEntry.BuildFromPtr(ancestor),
-                                    IndexEntry.BuildFromPtr(ours),
-                                    IndexEntry.BuildFromPtr(theirs));
-            }
+            return new Conflict(IndexEntry.BuildFromPtr(ancestor),
+                                IndexEntry.BuildFromPtr(ours),
+                                IndexEntry.BuildFromPtr(theirs));
         }
 
         public static void git_index_conflict_iterator_free(IntPtr iterator)
@@ -972,9 +967,9 @@ namespace LibGit2Sharp.Core
                 .ConvertToInt();
         }
 
-        public static StageLevel git_index_entry_stage(IndexEntrySafeHandle index)
+        public static unsafe StageLevel git_index_entry_stage(git_index_entry* entry)
         {
-            return (StageLevel)NativeMethods.git_index_entry_stage(index);
+            return (StageLevel)NativeMethods.git_index_entry_stage(entry);
         }
 
         public static void git_index_free(IntPtr index)
@@ -982,16 +977,14 @@ namespace LibGit2Sharp.Core
             NativeMethods.git_index_free(index);
         }
 
-        public static IndexEntrySafeHandle git_index_get_byindex(IndexSafeHandle index, UIntPtr n)
+        public static unsafe git_index_entry* git_index_get_byindex(IndexSafeHandle index, UIntPtr n)
         {
             return NativeMethods.git_index_get_byindex(index, n);
         }
 
-        public static IndexEntrySafeHandle git_index_get_bypath(IndexSafeHandle index, FilePath path, int stage)
+        public static unsafe git_index_entry* git_index_get_bypath(IndexSafeHandle index, FilePath path, int stage)
         {
-            IndexEntrySafeHandle handle = NativeMethods.git_index_get_bypath(index, path, stage);
-
-            return handle.IsZero ? null : handle;
+            return NativeMethods.git_index_get_bypath(index, path, stage);
         }
 
         public static bool git_index_has_conflicts(IndexSafeHandle index)
