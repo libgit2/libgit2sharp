@@ -522,7 +522,13 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(one, "one");
             Ensure.ArgumentNotNull(another, "another");
 
-            var result = repo.ObjectDatabase.MergeCommits(one, another, null);
+            var opts = new MergeTreeOptions()
+            {
+                SkipReuc = true,
+                FailOnConflict = true,
+            };
+
+            var result = repo.ObjectDatabase.MergeCommits(one, another, opts);
             return (result.Status == MergeTreeStatus.Succeeded);
         }
 
