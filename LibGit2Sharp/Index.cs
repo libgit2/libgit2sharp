@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -270,17 +271,18 @@ namespace LibGit2Sharp
             get { return conflicts; }
         }
 
-        private void AddEntryToTheIndex(string path, ObjectId id, Mode mode)
+        private unsafe void AddEntryToTheIndex(string path, ObjectId id, Mode mode)
         {
-            var indexEntry = new GitIndexEntry
+            IntPtr pathPtr = StrictFilePathMarshaler.FromManaged(path);
+            var indexEntry = new git_index_entry
             {
-                Mode = (uint)mode,
-                Id = id.Oid,
-                Path = StrictFilePathMarshaler.FromManaged(path),
+                mode = (uint)mode,
+                path = (char*) pathPtr,
             };
+            Marshal.Copy(id.RawId, 0, new IntPtr(indexEntry.id.Id), GitOid.Size);
 
-            Proxy.git_index_add(handle, indexEntry);
-            EncodingMarshaler.Cleanup(indexEntry.Path);
+            Proxy.git_index_add(handle, &indexEntry);
+            EncodingMarshaler.Cleanup(pathPtr);
         }
 
         private string DebuggerDisplay

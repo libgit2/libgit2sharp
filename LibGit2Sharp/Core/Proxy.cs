@@ -893,7 +893,7 @@ namespace LibGit2Sharp.Core
 
         #region git_index_
 
-        public static void git_index_add(IndexSafeHandle index, GitIndexEntry entry)
+        public static unsafe void git_index_add(IndexSafeHandle index, git_index_entry* entry)
         {
             int res = NativeMethods.git_index_add(index, entry);
             Ensure.ZeroResult(res);

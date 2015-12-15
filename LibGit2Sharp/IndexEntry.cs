@@ -55,7 +55,7 @@ namespace LibGit2Sharp
                 Id = new ObjectId(entry->id.Id),
                 StageLevel = Proxy.git_index_entry_stage(entry),
                 Mode = (Mode)entry->mode,
-                AssumeUnchanged = (GitIndexEntry.GIT_IDXENTRY_VALID & entry->flags) == GitIndexEntry.GIT_IDXENTRY_VALID
+                AssumeUnchanged = (git_index_entry.GIT_IDXENTRY_VALID & entry->flags) == git_index_entry.GIT_IDXENTRY_VALID
             };
         }
 

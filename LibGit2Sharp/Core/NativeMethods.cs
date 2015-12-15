@@ -629,9 +629,9 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path);
 
         [DllImport(libgit2)]
-        internal static extern int git_index_add(
+        internal static extern unsafe int git_index_add(
             IndexSafeHandle index,
-            GitIndexEntry entry);
+            git_index_entry* entry);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_index_conflict_get(
