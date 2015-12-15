@@ -103,15 +103,13 @@ namespace LibGit2Sharp.Tests
         [InlineData("e9671e138a780833cb689753570fd10a55be84fb", "dummy.guess")]
         public void CanCreateABlobFromAStream(string expectedSha, string hintPath)
         {
-            string path = InitNewRepository();
-
             var sb = new StringBuilder();
             for (int i = 0; i < 6; i++)
             {
                 sb.Append("libgit2\n\r\n");
             }
 
-            using (var repo = new Repository(path))
+            using (var repo = InitIsolatedRepository())
             {
                 CreateAttributesFiles(Path.Combine(repo.Info.Path, "info"), "attributes");
 
