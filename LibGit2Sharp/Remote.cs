@@ -12,7 +12,7 @@ namespace LibGit2Sharp
     /// A remote repository whose branches are tracked.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class Remote : IEquatable<Remote>, IBelongToARepository
+    public class Remote : IEquatable<Remote>, IBelongToARepository, IDisposable
     {
         private static readonly LambdaEqualityHelper<Remote> equalityHelper =
             new LambdaEqualityHelper<Remote>(x => x.Name, x => x.Url, x => x.PushUrl);
@@ -43,11 +43,36 @@ namespace LibGit2Sharp
 
         ~Remote()
         {
-            if (handle != null)
+            Dispose(false);
+        }
+
+        #region IDisposable
+
+        bool disposedValue = false; // To detect redundant calls
+
+        /// <summary>
+        /// Release the unmanaged remote object
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposedValue)
             {
-                handle.Dispose();
+                if (handle != null)
+                {
+                    handle.Dispose();
+                }
+
+                disposedValue = true;
             }
         }
+
+        #endregion
 
         /// <summary>
         /// Gets the alias of this remote repository.
