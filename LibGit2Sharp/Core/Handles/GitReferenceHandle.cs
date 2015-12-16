@@ -11,6 +11,11 @@ namespace LibGit2Sharp.Core.Handles
             this.ptr = refPtr;
         }
 
+        internal GitReferenceHandle(IntPtr refPtr)
+        {
+            this.ptr = (git_reference*) refPtr.ToPointer();
+        }
+
         ~GitReferenceHandle()
         {
             Dispose();
@@ -31,7 +36,7 @@ namespace LibGit2Sharp.Core.Handles
 
         public void Dispose()
         {
-            NativeMethods.git_reference_free(new IntPtr(ptr));
+            NativeMethods.git_reference_free(ptr);
             ptr = null;
         }
     }

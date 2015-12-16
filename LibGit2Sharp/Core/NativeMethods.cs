@@ -1013,7 +1013,7 @@ namespace LibGit2Sharp.Core
             IntPtr payload);
 
         [DllImport(libgit2)]
-        internal static extern void git_reference_free(IntPtr reference);
+        internal static extern unsafe void git_reference_free(git_reference* reference);
 
         [DllImport(libgit2)]
         internal static extern int git_reference_is_valid_name(

@@ -679,7 +679,7 @@ namespace LibGit2Sharp
             using (ConfigurationSafeHandle snapshot = Snapshot())
             using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true, snapshot))
             {
-                return Proxy.git_config_iterator_glob(h, regexp, BuildConfigEntry).ToList();
+                return Proxy.git_config_iterator_glob(h, regexp).ToList();
             }
         }
 
@@ -732,7 +732,7 @@ namespace LibGit2Sharp
             return Proxy.git_config_foreach(configHandle, BuildConfigEntry);
         }
 
-        private static unsafe ConfigurationEntry<string> BuildConfigEntry(IntPtr entryPtr)
+        internal static unsafe ConfigurationEntry<string> BuildConfigEntry(IntPtr entryPtr)
         {
             var entry = (GitConfigEntry*)entryPtr.ToPointer();
             return new ConfigurationEntry<string>(LaxUtf8Marshaler.FromNative(entry->namePtr),

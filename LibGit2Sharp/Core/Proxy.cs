@@ -209,22 +209,33 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
-        public static unsafe IEnumerable<Branch> git_branch_iterator(Repository repo, GitBranchType branchType)
+        public static IEnumerable<Branch> git_branch_iterator(Repository repo, GitBranchType branchType)
         {
-            return git_iterator((out BranchIteratorSafeHandle iter_out) =>
-                                    NativeMethods.git_branch_iterator_new(out iter_out, repo.Handle, branchType),
-                                (BranchIteratorSafeHandle iter, out IntPtr refPtr, out int res) =>
-                                    {
-                                        GitBranchType type_out;
-                                        res = NativeMethods.git_branch_next(out refPtr, out type_out, iter);
-                                        return new { BranchType = type_out };
-                                    },
-                                (handle, payload) =>
-                                    {
-                                        git_reference* refPtr = (git_reference*)handle.ToPointer();
-                                        var reference = Reference.BuildFromPtr<Reference>(refPtr, repo);
-                                        return new Branch(repo, reference, reference.CanonicalName);
-                                    });
+            BranchIteratorSafeHandle iter;
+            var res = NativeMethods.git_branch_iterator_new(out iter, repo.Handle, branchType);
+            Ensure.ZeroResult(res);
+
+            using (iter)
+            {
+                while (true)
+                {
+                    IntPtr refPtr = IntPtr.Zero;
+                    GitBranchType _branchType;
+                    res = NativeMethods.git_branch_next(out refPtr, out _branchType, iter);
+                    if (res == (int)GitErrorCode.IterOver)
+                    {
+                        yield break;
+                    }
+                    Ensure.ZeroResult(res);
+
+                    Reference reference;
+                    using (var refHandle = new GitReferenceHandle(refPtr))
+                    {
+                        reference = Reference.BuildFromPtr<Reference>(refHandle, repo);
+                    }
+                    yield return new Branch(repo, reference, reference.CanonicalName);
+                }
+            }
         }
 
         public static void git_branch_iterator_free(IntPtr iter)
@@ -583,22 +594,28 @@ namespace LibGit2Sharp.Core
             return git_foreach(resultSelector, c => NativeMethods.git_config_foreach(config, (e, p) => c(e, p), IntPtr.Zero));
         }
 
-        public static unsafe IEnumerable<ConfigurationEntry<string>> git_config_iterator_glob(
+        public static IEnumerable<ConfigurationEntry<string>> git_config_iterator_glob(
             ConfigurationSafeHandle config,
-            string regexp,
-            Func<IntPtr, ConfigurationEntry<string>> resultSelector)
+            string regexp)
         {
-            return git_iterator((out ConfigurationIteratorSafeHandle iter) =>
-                                    NativeMethods.git_config_iterator_glob_new(out iter, config, regexp),
-                                (ConfigurationIteratorSafeHandle iter, out IntPtr handle, out int res) =>
-                                    {
-                                        handle = IntPtr.Zero;
-                                        IntPtr entry;
-                                        res = NativeMethods.git_config_next(out entry, iter);
-                                        return new { EntryPtr = entry };
-                                    },
-                                (handle, payload) =>
-                                    resultSelector(payload.EntryPtr));
+            ConfigurationIteratorSafeHandle iter;
+            var res = NativeMethods.git_config_iterator_glob_new(out iter, config, regexp);
+            Ensure.ZeroResult(res);
+            using (iter)
+            {
+                while (true)
+                {
+                    IntPtr entry;
+                    res = NativeMethods.git_config_next(out entry, iter);
+                    if (res == (int)GitErrorCode.IterOver)
+                    {
+                        yield break;
+                    }
+                    Ensure.ZeroResult(res);
+
+                    yield return Configuration.BuildConfigEntry(entry);
+                }
+            }
         }
 
         public static void git_config_iterator_free(IntPtr iter)
@@ -1807,11 +1824,6 @@ namespace LibGit2Sharp.Core
             Func<IntPtr, TResult> resultSelector)
         {
             return git_foreach(resultSelector, c => NativeMethods.git_reference_foreach_glob(repo, glob, (x, p) => c(x, p), IntPtr.Zero));
-        }
-
-        public static void git_reference_free(IntPtr reference)
-        {
-            NativeMethods.git_reference_free(reference);
         }
 
         public static bool git_reference_is_valid_name(string refname)
@@ -3378,62 +3390,6 @@ namespace LibGit2Sharp.Core
 
             Ensure.ZeroResult(res);
             return result;
-        }
-
-        private delegate int IteratorNew<THandle>(out THandle iter);
-
-        private delegate TPayload IteratorNext<in TIterator, THandle, out TPayload>(TIterator iter, out THandle next, out int res);
-
-        private static THandle git_iterator_new<THandle>(IteratorNew<THandle> newFunc)
-            where THandle : SafeHandleBase
-        {
-            THandle iter;
-            Ensure.ZeroResult(newFunc(out iter));
-            return iter;
-        }
-
-        private static IEnumerable<TResult> git_iterator_next<TIterator, TPayload, TResult>(
-            TIterator iter,
-            IteratorNext<TIterator, IntPtr, TPayload> nextFunc,
-            Func<IntPtr, TPayload, TResult> resultSelector)
-        {
-            while (true)
-            {
-                var next = IntPtr.Zero;
-                try
-                {
-                    int res;
-                    var payload = nextFunc(iter, out next, out res);
-
-                    if (res == (int)GitErrorCode.IterOver)
-                    {
-                        yield break;
-                    }
-
-                    Ensure.ZeroResult(res);
-                    yield return resultSelector(next, payload);
-                }
-                finally
-                {
-                    NativeMethods.git_reference_free(next);
-                }
-            }
-        }
-
-        private static IEnumerable<TResult> git_iterator<TIterator, TPayload, TResult>(
-            IteratorNew<TIterator> newFunc,
-            IteratorNext<TIterator, IntPtr, TPayload> nextFunc,
-            Func<IntPtr, TPayload, TResult> resultSelector
-            )
-            where TIterator : SafeHandleBase
-        {
-            using (var iter = git_iterator_new(newFunc))
-            {
-                foreach (var next in git_iterator_next(iter, nextFunc, resultSelector))
-                {
-                    yield return next;
-                }
-            }
         }
 
         private static bool RepositoryStateChecker(RepositorySafeHandle repo, Func<RepositorySafeHandle, int> checker)
