@@ -211,11 +211,11 @@ namespace LibGit2Sharp.Core
 
         public static IEnumerable<Branch> git_branch_iterator(Repository repo, GitBranchType branchType)
         {
-            BranchIteratorSafeHandle iter;
+            IntPtr iter;
             var res = NativeMethods.git_branch_iterator_new(out iter, repo.Handle, branchType);
             Ensure.ZeroResult(res);
 
-            using (iter)
+            try
             {
                 while (true)
                 {
@@ -235,6 +235,10 @@ namespace LibGit2Sharp.Core
                     }
                     yield return new Branch(repo, reference, reference.CanonicalName);
                 }
+            }
+            finally
+            {
+                NativeMethods.git_branch_iterator_free(iter);
             }
         }
 

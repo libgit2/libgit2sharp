@@ -166,8 +166,8 @@ namespace LibGit2Sharp.Core
             IntPtr iterator);
 
         [DllImport(libgit2)]
-        internal static extern int git_branch_iterator_new(
-            out BranchIteratorSafeHandle iter_out,
+        internal static extern  int git_branch_iterator_new(
+            out IntPtr iter_out,
             RepositorySafeHandle repo,
             GitBranchType branch_type);
 
@@ -182,7 +182,7 @@ namespace LibGit2Sharp.Core
         internal static extern int git_branch_next(
             out IntPtr ref_out,
             out GitBranchType type_out,
-            BranchIteratorSafeHandle iter);
+            IntPtr iter);
 
         [DllImport(libgit2)]
         internal static extern int git_branch_remote_name(

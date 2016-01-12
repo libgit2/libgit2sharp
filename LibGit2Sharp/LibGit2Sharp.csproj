@@ -147,7 +147,6 @@
     <Compile Include="RefSpecCollection.cs" />
     <Compile Include="Core\EncodingMarshaler.cs" />
     <Compile Include="Core\GitMergeOpts.cs" />
-    <Compile Include="Core\Handles\BranchIteratorSafeHandle.cs" />
     <Compile Include="Core\Handles\ConfigurationIteratorSafeHandle.cs" />
     <Compile Include="Core\GitBlame.cs" />
     <Compile Include="Core\Handles\BlameSafeHandle.cs" />
