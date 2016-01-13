@@ -54,7 +54,7 @@ namespace LibGit2Sharp
                 return null;
             }
 
-            using (TreeEntryOwnedHandle treeEntry = Proxy.git_tree_entry_bypath(repo.Handle, Id, relativePath))
+            using (TreeEntryHandle treeEntry = Proxy.git_tree_entry_bypath(repo.Handle, Id, relativePath))
             {
                 if (treeEntry == null)
                 {
@@ -64,7 +64,7 @@ namespace LibGit2Sharp
                 string posixPath = relativePath.Posix;
                 string filename = posixPath.Split('/').Last();
                 string parentPath = posixPath.Substring(0, posixPath.Length - filename.Length);
-                return new TreeEntry(treeEntry.Handle, Id, repo, path.Combine(parentPath));
+                return new TreeEntry(treeEntry, Id, repo, path.Combine(parentPath));
             }
         }
 

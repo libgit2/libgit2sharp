@@ -1,0 +1,63 @@
+﻿<#@ template language="C#" #>
+<#@ output extention=".cs" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+
+using System;
+
+namespace LibGit2Sharp.Core
+{
+
+<#
+var cNames = new[] {
+    "git_tree_entry",
+};
+
+var csNames = new[] {
+    "TreeEntryHandle"
+};
+
+for (var i = 0; i < cNames.Length; i++)
+{
+#>
+    internal unsafe class <#= csNames[i] #> : IDisposable
+    {
+        internal <#= cNames[i] #>* Handle { get; private set; }
+        bool owned;
+        bool disposed;
+
+        public unsafe <#= csNames[i] #>(<#= cNames[i] #>* handle, bool owned)
+        {
+            this.Handle = handle;
+            this.owned = owned;
+        }
+
+        ~<#= csNames[i] #>()
+        {
+            Dispose(false);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (owned)
+                {
+                    NativeMethods.<#= cNames[i] #>_free(Handle);
+                }
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+    }
+<#
+}
+#>
+}

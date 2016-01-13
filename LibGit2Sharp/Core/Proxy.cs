@@ -3159,12 +3159,18 @@ namespace LibGit2Sharp.Core
             return (Mode)NativeMethods.git_tree_entry_filemode(entry);
         }
 
-        public static unsafe git_tree_entry* git_tree_entry_byindex(GitObjectSafeHandle tree, long idx)
+        public static unsafe TreeEntryHandle git_tree_entry_byindex(GitObjectSafeHandle tree, long idx)
         {
-            return NativeMethods.git_tree_entry_byindex(tree, (UIntPtr)idx);
+            var handle = NativeMethods.git_tree_entry_byindex(tree, (UIntPtr)idx);
+            if (handle == null)
+            {
+                return null;
+            }
+
+            return new TreeEntryHandle(handle, false);
         }
 
-        public static unsafe TreeEntryOwnedHandle git_tree_entry_bypath(RepositorySafeHandle repo, ObjectId id, FilePath treeentry_path)
+        public static unsafe TreeEntryHandle git_tree_entry_bypath(RepositorySafeHandle repo, ObjectId id, FilePath treeentry_path)
         {
             using (var obj = new ObjectSafeWrapper(id, repo))
             {
@@ -3178,13 +3184,8 @@ namespace LibGit2Sharp.Core
 
                 Ensure.ZeroResult(res);
 
-                return new TreeEntryOwnedHandle(treeEntryPtr);
+                return new TreeEntryHandle(treeEntryPtr, true);
             }
-        }
-
-        public static unsafe void git_tree_entry_free(git_tree_entry* treeEntry)
-        {
-            NativeMethods.git_tree_entry_free(treeEntry);
         }
 
         public static unsafe ObjectId git_tree_entry_id(git_tree_entry* entry)

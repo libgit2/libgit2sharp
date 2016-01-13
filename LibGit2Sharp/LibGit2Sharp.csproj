@@ -379,7 +379,9 @@
     <Compile Include="CertificateSsh.cs" />
     <Compile Include="IDiffResult.cs" />
     <Compile Include="Core\Opaques.cs" />
-    <Compile Include="Core\Handles\TreeEntryOwnedHandle.cs" />
+    <Compile Include="Core\Handles\Objects.cs">
+      <DependentUpon>Objects.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
@@ -389,6 +391,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Core\Handles\Objects.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Objects.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="UniqueIdentifier.targets" />

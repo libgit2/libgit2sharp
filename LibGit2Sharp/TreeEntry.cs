@@ -27,8 +27,9 @@ namespace LibGit2Sharp
         protected TreeEntry()
         { }
 
-        internal unsafe TreeEntry(git_tree_entry* entry, ObjectId parentTreeId, Repository repo, FilePath parentPath)
+        internal unsafe TreeEntry(TreeEntryHandle handle, ObjectId parentTreeId, Repository repo, FilePath parentPath)
         {
+            var entry = handle.Handle;
             this.parentTreeId = parentTreeId;
             this.repo = repo;
             targetOid = Proxy.git_tree_entry_id(entry);
