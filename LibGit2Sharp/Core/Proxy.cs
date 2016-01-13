@@ -408,9 +408,9 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_commit_message_encoding(obj);
         }
 
-        public static ObjectId git_commit_parent_id(GitObjectSafeHandle obj, uint i)
+        public static unsafe ObjectId git_commit_parent_id(GitObjectSafeHandle obj, uint i)
         {
-            return NativeMethods.git_commit_parent_id(obj, i).MarshalAsObjectId();
+            return ObjectId.BuildFromPtr(NativeMethods.git_commit_parent_id(obj, i));
         }
 
         public static int git_commit_parentcount(RepositorySafeHandle repo, ObjectId id)
@@ -426,9 +426,9 @@ namespace LibGit2Sharp.Core
             return (int)NativeMethods.git_commit_parentcount(obj.ObjectPtr);
         }
 
-        public static ObjectId git_commit_tree_id(GitObjectSafeHandle obj)
+        public static unsafe ObjectId git_commit_tree_id(GitObjectSafeHandle obj)
         {
-            return NativeMethods.git_commit_tree_id(obj).MarshalAsObjectId();
+            return ObjectId.BuildFromPtr(NativeMethods.git_commit_tree_id(obj));
         }
 
         #endregion
@@ -1187,9 +1187,9 @@ namespace LibGit2Sharp.Core
             return their_head;
         }
 
-        public static ObjectId git_annotated_commit_id(GitAnnotatedCommitHandle mergeHead)
+        public static unsafe ObjectId git_annotated_commit_id(GitAnnotatedCommitHandle mergeHead)
         {
-            return NativeMethods.git_annotated_commit_id(mergeHead).MarshalAsObjectId();
+            return ObjectId.BuildFromPtr(NativeMethods.git_annotated_commit_id(mergeHead));
         }
 
         public static void git_merge(RepositorySafeHandle repo, GitAnnotatedCommitHandle[] heads, GitMergeOpts mergeOptions, GitCheckoutOpts checkoutOptions)
@@ -1308,9 +1308,9 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_note_message(note);
         }
 
-        public static ObjectId git_note_id(NoteSafeHandle note)
+        public static unsafe ObjectId git_note_id(NoteSafeHandle note)
         {
-            return NativeMethods.git_note_id(note).MarshalAsObjectId();
+            return ObjectId.BuildFromPtr(NativeMethods.git_note_id(note));
         }
 
         public static NoteSafeHandle git_note_read(RepositorySafeHandle repo, string notes_ref, ObjectId id)
@@ -1352,9 +1352,9 @@ namespace LibGit2Sharp.Core
 
         #region git_object_
 
-        public static ObjectId git_object_id(GitObjectSafeHandle obj)
+        public static unsafe ObjectId git_object_id(GitObjectSafeHandle obj)
         {
-            return NativeMethods.git_object_id(obj).MarshalAsObjectId();
+            return ObjectId.BuildFromPtr(NativeMethods.git_object_id(obj));
         }
 
         public static void git_object_free(IntPtr obj)
@@ -1883,7 +1883,7 @@ namespace LibGit2Sharp.Core
 
         public static unsafe ObjectId git_reference_target(git_reference* reference)
         {
-            return NativeMethods.git_reference_target(reference).MarshalAsObjectId();
+            return ObjectId.BuildFromPtr(NativeMethods.git_reference_target(reference));
         }
 
         public static unsafe ReferenceHandle git_reference_rename(
@@ -1966,14 +1966,14 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_reflog_entry_byindex(reflog, (UIntPtr)idx);
         }
 
-        public static ObjectId git_reflog_entry_id_old(SafeHandle entry)
+        public static unsafe ObjectId git_reflog_entry_id_old(SafeHandle entry)
         {
-            return NativeMethods.git_reflog_entry_id_old(entry).MarshalAsObjectId();
+            return ObjectId.BuildFromPtr(NativeMethods.git_reflog_entry_id_old(entry));
         }
 
-        public static ObjectId git_reflog_entry_id_new(SafeHandle entry)
+        public static unsafe ObjectId git_reflog_entry_id_new(SafeHandle entry)
         {
-            return NativeMethods.git_reflog_entry_id_new(entry).MarshalAsObjectId();
+            return ObjectId.BuildFromPtr(NativeMethods.git_reflog_entry_id_new(entry));
         }
 
         public static Signature git_reflog_entry_committer(SafeHandle entry)
@@ -2938,19 +2938,20 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_submodule_url(submodule);
         }
 
-        public static ObjectId git_submodule_index_id(SubmoduleSafeHandle submodule)
+        public static unsafe ObjectId git_submodule_index_id(SubmoduleSafeHandle submodule)
         {
-            return NativeMethods.git_submodule_index_id(submodule).MarshalAsObjectId();
+            return ObjectId.BuildFromPtr(NativeMethods.git_submodule_index_id(submodule));
         }
 
-        public static ObjectId git_submodule_head_id(SubmoduleSafeHandle submodule)
+        public static unsafe ObjectId git_submodule_head_id(SubmoduleSafeHandle submodule)
         {
-            return NativeMethods.git_submodule_head_id(submodule).MarshalAsObjectId();
+            Console.WriteLine("got git_oid for head {0}", NativeMethods.git_submodule_head_id(submodule) == null);
+            return ObjectId.BuildFromPtr(NativeMethods.git_submodule_head_id(submodule));
         }
 
-        public static ObjectId git_submodule_wd_id(SubmoduleSafeHandle submodule)
+        public static unsafe ObjectId git_submodule_wd_id(SubmoduleSafeHandle submodule)
         {
-            return NativeMethods.git_submodule_wd_id(submodule).MarshalAsObjectId();
+            return ObjectId.BuildFromPtr(NativeMethods.git_submodule_wd_id(submodule));
         }
 
         public static SubmoduleIgnore git_submodule_ignore(SubmoduleSafeHandle submodule)
@@ -3089,9 +3090,9 @@ namespace LibGit2Sharp.Core
             return tagger;
         }
 
-        public static ObjectId git_tag_target_id(GitObjectSafeHandle tag)
+        public static unsafe ObjectId git_tag_target_id(GitObjectSafeHandle tag)
         {
-            return NativeMethods.git_tag_target_id(tag).MarshalAsObjectId();
+            return ObjectId.BuildFromPtr(NativeMethods.git_tag_target_id(tag));
         }
 
         public static GitObjectType git_tag_target_type(GitObjectSafeHandle tag)
@@ -3190,7 +3191,7 @@ namespace LibGit2Sharp.Core
 
         public static unsafe ObjectId git_tree_entry_id(git_tree_entry* entry)
         {
-            return NativeMethods.git_tree_entry_id(entry).MarshalAsObjectId();
+            return ObjectId.BuildFromPtr(NativeMethods.git_tree_entry_id(entry));
         }
 
         public static unsafe string git_tree_entry_name(git_tree_entry* entry)

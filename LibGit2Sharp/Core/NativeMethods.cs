@@ -316,13 +316,13 @@ namespace LibGit2Sharp.Core
         internal static extern string git_commit_message_encoding(GitObjectSafeHandle commit);
 
         [DllImport(libgit2)]
-        internal static extern OidSafeHandle git_commit_parent_id(GitObjectSafeHandle commit, uint n);
+        internal static extern unsafe git_oid* git_commit_parent_id(GitObjectSafeHandle commit, uint n);
 
         [DllImport(libgit2)]
         internal static extern uint git_commit_parentcount(GitObjectSafeHandle commit);
 
         [DllImport(libgit2)]
-        internal static extern OidSafeHandle git_commit_tree_id(GitObjectSafeHandle commit);
+        internal static extern unsafe git_oid* git_commit_tree_id(GitObjectSafeHandle commit);
 
         [DllImport(libgit2)]
         internal static extern int git_config_delete_entry(
@@ -767,7 +767,7 @@ namespace LibGit2Sharp.Core
             ref GitOid id);
 
         [DllImport(libgit2)]
-        internal static extern OidSafeHandle git_annotated_commit_id(
+        internal static extern unsafe git_oid* git_annotated_commit_id(
             GitAnnotatedCommitHandle annotatedCommit);
 
         [DllImport(libgit2)]
@@ -824,7 +824,7 @@ namespace LibGit2Sharp.Core
         internal static extern string git_note_message(NoteSafeHandle note);
 
         [DllImport(libgit2)]
-        internal static extern OidSafeHandle git_note_id(NoteSafeHandle note);
+        internal static extern unsafe git_oid* git_note_id(NoteSafeHandle note);
 
         [DllImport(libgit2)]
         internal static extern int git_note_read(
@@ -899,7 +899,7 @@ namespace LibGit2Sharp.Core
         internal static extern void git_odb_stream_free(IntPtr stream);
 
         [DllImport(libgit2)]
-        internal static extern OidSafeHandle git_object_id(GitObjectSafeHandle obj);
+        internal static extern unsafe git_oid* git_object_id(GitObjectSafeHandle obj);
 
         [DllImport(libgit2)]
         internal static extern int git_object_lookup(out GitObjectSafeHandle obj, RepositorySafeHandle repo, ref GitOid id, GitObjectType type);
@@ -1038,7 +1038,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
 
         [DllImport(libgit2)]
-        internal static extern unsafe OidSafeHandle git_reference_target(git_reference* reference);
+        internal static extern unsafe git_oid* git_reference_target(git_reference* reference);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_reference_rename(
@@ -1094,11 +1094,11 @@ namespace LibGit2Sharp.Core
             UIntPtr idx);
 
         [DllImport(libgit2)]
-        internal static extern OidSafeHandle git_reflog_entry_id_old(
+        internal static extern unsafe git_oid* git_reflog_entry_id_old(
             SafeHandle entry);
 
         [DllImport(libgit2)]
-        internal static extern OidSafeHandle git_reflog_entry_id_new(
+        internal static extern unsafe git_oid* git_reflog_entry_id_new(
             SafeHandle entry);
 
         [DllImport(libgit2)]
@@ -1604,15 +1604,15 @@ namespace LibGit2Sharp.Core
             SubmoduleSafeHandle submodule);
 
         [DllImport(libgit2)]
-        internal static extern OidSafeHandle git_submodule_index_id(
+        internal static extern unsafe git_oid* git_submodule_index_id(
             SubmoduleSafeHandle submodule);
 
         [DllImport(libgit2)]
-        internal static extern OidSafeHandle git_submodule_head_id(
+        internal static extern unsafe git_oid* git_submodule_head_id(
             SubmoduleSafeHandle submodule);
 
         [DllImport(libgit2)]
-        internal static extern OidSafeHandle git_submodule_wd_id(
+        internal static extern unsafe git_oid* git_submodule_wd_id(
             SubmoduleSafeHandle submodule);
 
         [DllImport(libgit2)]
@@ -1693,7 +1693,7 @@ namespace LibGit2Sharp.Core
         internal static extern IntPtr git_tag_tagger(GitObjectSafeHandle tag);
 
         [DllImport(libgit2)]
-        internal static extern OidSafeHandle git_tag_target_id(GitObjectSafeHandle tag);
+        internal static extern unsafe git_oid* git_tag_target_id(GitObjectSafeHandle tag);
 
         [DllImport(libgit2)]
         internal static extern GitObjectType git_tag_target_type(GitObjectSafeHandle tag);
@@ -1750,7 +1750,7 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe void git_tree_entry_free(git_tree_entry* treeEntry);
 
         [DllImport(libgit2)]
-        internal static extern unsafe OidSafeHandle git_tree_entry_id(git_tree_entry* entry);
+        internal static extern unsafe git_oid* git_tree_entry_id(git_tree_entry* entry);
 
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]
