@@ -55,6 +55,7 @@ namespace LibGit2Sharp.Core
                 if (owned)
                 {
                     NativeMethods.git_tree_entry_free(ptr);
+                    ptr = null;
                 }
             }
 
@@ -123,6 +124,7 @@ namespace LibGit2Sharp.Core
                 if (owned)
                 {
                     NativeMethods.git_reference_free(ptr);
+                    ptr = null;
                 }
             }
 
@@ -191,6 +193,7 @@ namespace LibGit2Sharp.Core
                 if (owned)
                 {
                     NativeMethods.git_repository_free(ptr);
+                    ptr = null;
                 }
             }
 
