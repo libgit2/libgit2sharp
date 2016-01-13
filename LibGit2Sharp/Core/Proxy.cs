@@ -819,9 +819,9 @@ namespace LibGit2Sharp.Core
             return (int)NativeMethods.git_diff_num_deltas(diff);
         }
 
-        public static GitDiffDelta git_diff_get_delta(DiffSafeHandle diff, int idx)
+        public static unsafe git_diff_delta* git_diff_get_delta(DiffSafeHandle diff, int idx)
         {
-            return NativeMethods.git_diff_get_delta(diff, (UIntPtr)idx).MarshalAs<GitDiffDelta>(false);
+            return NativeMethods.git_diff_get_delta(diff, (UIntPtr)idx);
         }
 
         #endregion
@@ -2853,7 +2853,7 @@ namespace LibGit2Sharp.Core
             return res;
         }
 
-        public static StatusEntrySafeHandle git_status_byindex(StatusListSafeHandle list, long idx)
+        public static unsafe git_status_entry* git_status_byindex(StatusListSafeHandle list, long idx)
         {
             return NativeMethods.git_status_byindex(list, (UIntPtr)idx);
         }

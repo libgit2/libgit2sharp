@@ -7,21 +7,21 @@ namespace LibGit2Sharp.Core
     /// A status entry from libgit2.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    internal class GitStatusEntry
+    internal unsafe struct git_status_entry
     {
         /// <summary>
         /// Calculated status of a filepath in the working directory considering the current <see cref = "Repository.Index" /> and the <see cref="Repository.Head" />.
         /// </summary>
-        public FileStatus Status;
+        public FileStatus status;
 
         /// <summary>
         /// The difference between the <see cref="Repository.Head" /> and <see cref = "Repository.Index" />.
         /// </summary>
-        public IntPtr HeadToIndexPtr;
+        public git_diff_delta* head_to_index;
 
         /// <summary>
         /// The difference between the <see cref = "Repository.Index" /> and the working directory.
         /// </summary>
-        public IntPtr IndexToWorkDirPtr;
+        public git_diff_delta* index_to_workdir;
     }
 }

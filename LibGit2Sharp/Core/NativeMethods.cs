@@ -512,24 +512,24 @@ namespace LibGit2Sharp.Core
             GitObjectSafeHandle oldTree,
             GitDiffOptions options);
 
-        internal delegate int git_diff_file_cb(
-            [In] GitDiffDelta delta,
+        internal unsafe delegate int git_diff_file_cb(
+            [In] git_diff_delta* delta,
             float progress,
             IntPtr payload);
 
-        internal delegate int git_diff_hunk_cb(
-            [In] GitDiffDelta delta,
+        internal unsafe delegate int git_diff_hunk_cb(
+            [In] git_diff_delta* delta,
             [In] GitDiffHunk hunk,
             IntPtr payload);
 
-        internal delegate int git_diff_line_cb(
-            [In] GitDiffDelta delta,
+        internal unsafe delegate int git_diff_line_cb(
+            [In] git_diff_delta* delta,
             [In] GitDiffHunk hunk,
             [In] GitDiffLine line,
             IntPtr payload);
 
-        internal delegate int git_diff_binary_cb(
-            [In] GitDiffDelta delta,
+        internal unsafe delegate int git_diff_binary_cb(
+            [In] git_diff_delta* delta,
             [In] GitDiffBinary binary,
             IntPtr payload);
 
@@ -564,7 +564,7 @@ namespace LibGit2Sharp.Core
         internal static extern UIntPtr git_diff_num_deltas(DiffSafeHandle diff);
 
         [DllImport(libgit2)]
-        internal static extern IntPtr git_diff_get_delta(DiffSafeHandle diff, UIntPtr idx);
+        internal static extern unsafe git_diff_delta* git_diff_get_delta(DiffSafeHandle diff, UIntPtr idx);
 
         [DllImport(libgit2)]
         internal static extern int git_filter_register(
@@ -1543,7 +1543,7 @@ namespace LibGit2Sharp.Core
             StatusListSafeHandle statusList);
 
         [DllImport(libgit2)]
-        internal static extern StatusEntrySafeHandle git_status_byindex(
+        internal static extern unsafe git_status_entry* git_status_byindex(
             StatusListSafeHandle list,
             UIntPtr idx);
 

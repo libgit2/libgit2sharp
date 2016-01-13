@@ -235,24 +235,24 @@ namespace LibGit2Sharp.Core
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal class GitDiffFile
+    internal unsafe struct git_diff_file
     {
-        public GitOid Id;
-        public IntPtr Path;
+        public git_oid Id;
+        public char* Path;
         public Int64 Size;
         public GitDiffFlags Flags;
         public UInt16 Mode;
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal class GitDiffDelta
+    internal unsafe struct git_diff_delta
     {
-        public ChangeKind Status;
-        public GitDiffFlags Flags;
-        public UInt16 Similarity;
-        public UInt16 NumberOfFiles;
-        public GitDiffFile OldFile;
-        public GitDiffFile NewFile;
+        public ChangeKind status;
+        public GitDiffFlags flags;
+        public UInt16 similarity;
+        public UInt16 nfiles;
+        public git_diff_file old_file;
+        public git_diff_file new_file;
     }
 
     [StructLayout(LayoutKind.Sequential)]

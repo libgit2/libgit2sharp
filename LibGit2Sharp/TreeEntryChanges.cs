@@ -16,21 +16,21 @@ namespace LibGit2Sharp
         protected TreeEntryChanges()
         { }
 
-        internal TreeEntryChanges(GitDiffDelta delta)
+        internal unsafe TreeEntryChanges(git_diff_delta* delta)
         {
-            Path = LaxFilePathMarshaler.FromNative(delta.NewFile.Path).Native;
-            OldPath = LaxFilePathMarshaler.FromNative(delta.OldFile.Path).Native;
+            Path = LaxFilePathMarshaler.FromNative(delta->new_file.Path);
+            OldPath = LaxFilePathMarshaler.FromNative(delta->old_file.Path);
 
-            Mode = (Mode)delta.NewFile.Mode;
-            OldMode = (Mode)delta.OldFile.Mode;
-            Oid = delta.NewFile.Id;
-            OldOid = delta.OldFile.Id;
-            Exists = (delta.NewFile.Flags & GitDiffFlags.GIT_DIFF_FLAG_EXISTS) != 0;
-            OldExists = (delta.OldFile.Flags & GitDiffFlags.GIT_DIFF_FLAG_EXISTS) != 0;
+            Mode = (Mode)delta->new_file.Mode;
+            OldMode = (Mode)delta->old_file.Mode;
+            Oid = ObjectId.BuildFromPtr(&delta->new_file.Id);
+            OldOid = ObjectId.BuildFromPtr(&delta->old_file.Id);
+            Exists = (delta->new_file.Flags & GitDiffFlags.GIT_DIFF_FLAG_EXISTS) != 0;
+            OldExists = (delta->old_file.Flags & GitDiffFlags.GIT_DIFF_FLAG_EXISTS) != 0;
 
-            Status = (delta.Status == ChangeKind.Untracked || delta.Status == ChangeKind.Ignored)
+            Status = (delta->status == ChangeKind.Untracked || delta->status == ChangeKind.Ignored)
                 ? ChangeKind.Added
-                : delta.Status;
+                : delta->status;
         }
 
         /// <summary>

@@ -53,7 +53,7 @@ namespace LibGit2Sharp
         protected RepositoryStatus()
         { }
 
-        internal RepositoryStatus(Repository repo, StatusOptions options)
+        internal unsafe RepositoryStatus(Repository repo, StatusOptions options)
         {
             statusEntries = new List<StatusEntry>();
 
@@ -64,22 +64,8 @@ namespace LibGit2Sharp
 
                 for (int i = 0; i < count; i++)
                 {
-                    StatusEntrySafeHandle e = Proxy.git_status_byindex(list, i);
-                    GitStatusEntry entry = e.MarshalAsGitStatusEntry();
-
-                    GitDiffDelta deltaHeadToIndex = null;
-                    GitDiffDelta deltaIndexToWorkDir = null;
-
-                    if (entry.HeadToIndexPtr != IntPtr.Zero)
-                    {
-                        deltaHeadToIndex = entry.HeadToIndexPtr.MarshalAs<GitDiffDelta>();
-                    }
-                    if (entry.IndexToWorkDirPtr != IntPtr.Zero)
-                    {
-                        deltaIndexToWorkDir = entry.IndexToWorkDirPtr.MarshalAs<GitDiffDelta>();
-                    }
-
-                    AddStatusEntryForDelta(entry.Status, deltaHeadToIndex, deltaIndexToWorkDir);
+                    git_status_entry *entry = Proxy.git_status_byindex(list, i);
+                    AddStatusEntryForDelta(entry->status, entry->head_to_index, entry->index_to_workdir);
                 }
 
                 isDirty = statusEntries.Any(entry => entry.State != FileStatus.Ignored && entry.State != FileStatus.Unaltered);
@@ -144,7 +130,7 @@ namespace LibGit2Sharp
             return coreOptions;
         }
 
-        private void AddStatusEntryForDelta(FileStatus gitStatus, GitDiffDelta deltaHeadToIndex, GitDiffDelta deltaIndexToWorkDir)
+        private unsafe void AddStatusEntryForDelta(FileStatus gitStatus, git_diff_delta* deltaHeadToIndex, git_diff_delta* deltaIndexToWorkDir)
         {
             RenameDetails headToIndexRenameDetails = null;
             RenameDetails indexToWorkDirRenameDetails = null;
@@ -152,22 +138,22 @@ namespace LibGit2Sharp
             if ((gitStatus & FileStatus.RenamedInIndex) == FileStatus.RenamedInIndex)
             {
                 headToIndexRenameDetails =
-                    new RenameDetails(LaxFilePathMarshaler.FromNative(deltaHeadToIndex.OldFile.Path).Native,
-                                      LaxFilePathMarshaler.FromNative(deltaHeadToIndex.NewFile.Path).Native,
-                                      (int)deltaHeadToIndex.Similarity);
+                    new RenameDetails(LaxFilePathMarshaler.FromNative(deltaHeadToIndex->old_file.Path),
+                                      LaxFilePathMarshaler.FromNative(deltaHeadToIndex->new_file.Path),
+                                      (int)deltaHeadToIndex->similarity);
             }
 
             if ((gitStatus & FileStatus.RenamedInWorkdir) == FileStatus.RenamedInWorkdir)
             {
                 indexToWorkDirRenameDetails =
-                    new RenameDetails(LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir.OldFile.Path).Native,
-                                      LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir.NewFile.Path).Native,
-                                      (int)deltaIndexToWorkDir.Similarity);
+                    new RenameDetails(LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir->old_file.Path),
+                                      LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir->new_file.Path),
+                                      (int)deltaIndexToWorkDir->similarity);
             }
 
             var filePath = (deltaIndexToWorkDir != null)
-                ? LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir.NewFile.Path).Native
-                : LaxFilePathMarshaler.FromNative(deltaHeadToIndex.NewFile.Path).Native;
+                ? LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir->new_file.Path)
+                : LaxFilePathMarshaler.FromNative(deltaHeadToIndex->new_file.Path);
 
             StatusEntry statusEntry = new StatusEntry(filePath, gitStatus, headToIndexRenameDetails, indexToWorkDirRenameDetails);
 
