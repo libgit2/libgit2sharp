@@ -1022,7 +1022,7 @@ namespace LibGit2Sharp.Core
                 .ConvertToInt();
         }
 
-        public static IndexNameEntrySafeHandle git_index_name_get_byindex(IndexSafeHandle index, UIntPtr n)
+        public static unsafe git_index_name_entry* git_index_name_get_byindex(IndexSafeHandle index, UIntPtr n)
         {
             return NativeMethods.git_index_name_get_byindex(index, n);
         }
@@ -1054,12 +1054,12 @@ namespace LibGit2Sharp.Core
                 .ConvertToInt();
         }
 
-        public static IndexReucEntrySafeHandle git_index_reuc_get_byindex(IndexSafeHandle index, UIntPtr n)
+        public static unsafe git_index_reuc_entry* git_index_reuc_get_byindex(IndexSafeHandle index, UIntPtr n)
         {
             return NativeMethods.git_index_reuc_get_byindex(index, n);
         }
 
-        public static IndexReucEntrySafeHandle git_index_reuc_get_bypath(IndexSafeHandle index, string path)
+        public static unsafe git_index_reuc_entry* git_index_reuc_get_bypath(IndexSafeHandle index, string path)
         {
             return NativeMethods.git_index_reuc_get_bypath(index, path);
         }

@@ -85,8 +85,6 @@
     <Compile Include="Core\GitIndexReucEntry.cs" />
     <Compile Include="Core\GitSubmoduleOptions.cs" />
     <Compile Include="Core\Handles\DescribeResultSafeHandle.cs" />
-    <Compile Include="Core\Handles\IndexNameEntrySafeHandle.cs" />
-    <Compile Include="Core\Handles\IndexReucEntrySafeHandle.cs" />
     <Compile Include="DiffAlgorithm.cs" />
     <Compile Include="EntryExistsException.cs" />
     <Compile Include="FetchOptionsBase.cs" />

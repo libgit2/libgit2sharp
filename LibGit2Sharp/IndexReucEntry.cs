@@ -25,26 +25,24 @@ namespace LibGit2Sharp
         protected IndexReucEntry()
         { }
 
-        internal static IndexReucEntry BuildFromPtr(IndexReucEntrySafeHandle handle)
+        internal static unsafe IndexReucEntry BuildFromPtr(git_index_reuc_entry* entry)
         {
-            if (handle == null || handle.IsZero)
+            if (entry == null)
             {
                 return null;
             }
 
-            GitIndexReucEntry entry = handle.MarshalAsGitIndexReucEntry();
-
-            FilePath path = LaxFilePathMarshaler.FromNative(entry.Path);
+            FilePath path = LaxUtf8Marshaler.FromNative(entry->Path);
 
             return new IndexReucEntry
             {
                 Path = path.Native,
-                AncestorId = entry.AncestorId,
-                AncestorMode = (Mode)entry.AncestorMode,
-                OurId = entry.OurId,
-                OurMode = (Mode)entry.OurMode,
-                TheirId = entry.TheirId,
-                TheirMode = (Mode)entry.TheirMode,
+                AncestorId = ObjectId.BuildFromPtr(&entry->AncestorId),
+                AncestorMode = (Mode)entry->AncestorMode,
+                OurId = ObjectId.BuildFromPtr(&entry->OurId),
+                OurMode = (Mode)entry->OurMode,
+                TheirId = ObjectId.BuildFromPtr(&entry->TheirId),
+                TheirMode = (Mode)entry->TheirMode,
             };
         }
 
