@@ -21,7 +21,7 @@ namespace LibGit2Sharp
         private readonly BranchCollection branches;
         private readonly CommitLog commits;
         private readonly Lazy<Configuration> config;
-        private readonly RepositorySafeHandle handle;
+        private readonly RepositoryHandle handle;
         private readonly Lazy<Index> index;
         private readonly ReferenceCollection refs;
         private readonly TagCollection tags;
@@ -204,7 +204,7 @@ namespace LibGit2Sharp
             }
         }
 
-        internal RepositorySafeHandle Handle
+        internal RepositoryHandle Handle
         {
             get { return handle; }
         }
@@ -404,7 +404,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            using (RepositorySafeHandle repo = Proxy.git_repository_init_ext(null, path, isBare))
+            using (RepositoryHandle repo = Proxy.git_repository_init_ext(null, path, isBare))
             {
                 FilePath repoPath = Proxy.git_repository_path(repo);
                 return repoPath.Native;
@@ -429,7 +429,7 @@ namespace LibGit2Sharp
 
             // TODO: Shouldn't we ensure that the working folder isn't under the gitDir?
 
-            using (RepositorySafeHandle repo = Proxy.git_repository_init_ext(wd, gitDirectoryPath, false))
+            using (RepositoryHandle repo = Proxy.git_repository_init_ext(wd, gitDirectoryPath, false))
             {
                 FilePath repoPath = Proxy.git_repository_path(repo);
                 return repoPath.Native;
@@ -583,7 +583,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(url, "url");
 
-            using (RepositorySafeHandle repositoryHandle = Proxy.git_repository_new())
+            using (RepositoryHandle repositoryHandle = Proxy.git_repository_new())
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_create_anonymous(repositoryHandle, url))
             {
                 var gitCallbacks = new GitRemoteCallbacks { version = 1 };
@@ -691,7 +691,7 @@ namespace LibGit2Sharp
                 {
                     cloneOpts.CheckoutBranch = StrictUtf8Marshaler.FromManaged(options.BranchName);
 
-                    using (RepositorySafeHandle repo = Proxy.git_clone(sourceUrl, workdirPath, ref cloneOpts))
+                    using (RepositoryHandle repo = Proxy.git_clone(sourceUrl, workdirPath, ref cloneOpts))
                     {
                         clonedRepoPath = Proxy.git_repository_path(repo).Native;
                     }

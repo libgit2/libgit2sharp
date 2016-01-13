@@ -7,7 +7,7 @@ namespace LibGit2Sharp.Core
     {
         private readonly GitObjectSafeHandle objectPtr;
 
-        public ObjectSafeWrapper(ObjectId id, RepositorySafeHandle handle, bool allowNullObjectId = false)
+        public ObjectSafeWrapper(ObjectId id, RepositoryHandle handle, bool allowNullObjectId = false)
         {
             Ensure.ArgumentNotNull(handle, "handle");
 

@@ -14,11 +14,13 @@ namespace LibGit2Sharp.Core
 var cNames = new[] {
     "git_tree_entry",
     "git_reference",
+    "git_repository",
 };
 
 var csNames = new[] {
     "TreeEntryHandle",
     "ReferenceHandle",
+    "RepositoryHandle",
 };
 
 for (var i = 0; i < cNames.Length; i++)
@@ -63,6 +65,10 @@ for (var i = 0; i < cNames.Length; i++)
             }
         }
 
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
 
         void Dispose(bool disposing)
         {
@@ -80,6 +86,11 @@ for (var i = 0; i < cNames.Length; i++)
         public void Dispose()
         {
             Dispose(true);
+        }
+
+        public static implicit operator <#= cNames[i] #>*(<#= csNames[i] #> handle)
+        {
+            return handle.Handle;
         }
     }
 

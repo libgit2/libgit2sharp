@@ -43,6 +43,10 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
 
         void Dispose(bool disposing)
         {
@@ -60,6 +64,11 @@ namespace LibGit2Sharp.Core
         public void Dispose()
         {
             Dispose(true);
+        }
+
+        public static implicit operator git_tree_entry*(TreeEntryHandle handle)
+        {
+            return handle.Handle;
         }
     }
 
@@ -102,6 +111,10 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
 
         void Dispose(bool disposing)
         {
@@ -119,6 +132,79 @@ namespace LibGit2Sharp.Core
         public void Dispose()
         {
             Dispose(true);
+        }
+
+        public static implicit operator git_reference*(ReferenceHandle handle)
+        {
+            return handle.Handle;
+        }
+    }
+
+    internal unsafe class RepositoryHandle : IDisposable
+    {
+        git_repository* ptr;
+        internal git_repository* Handle
+        {
+            get
+            {
+                return ptr;
+            }
+        }
+
+        bool owned;
+        bool disposed;
+
+        public unsafe RepositoryHandle(git_repository* handle, bool owned)
+        {
+            this.ptr = handle;
+            this.owned = owned;
+        }
+
+        public unsafe RepositoryHandle(IntPtr ptr, bool owned)
+        {
+            this.ptr = (git_repository*) ptr.ToPointer();
+            this.owned = owned;
+        }
+
+        ~RepositoryHandle()
+        {
+            Dispose(false);
+        }
+
+        internal bool IsNull
+        {
+            get
+            {
+                return ptr == null;
+            }
+        }
+
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (owned)
+                {
+                    NativeMethods.git_repository_free(ptr);
+                }
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public static implicit operator git_repository*(RepositoryHandle handle)
+        {
+            return handle.Handle;
         }
     }
 

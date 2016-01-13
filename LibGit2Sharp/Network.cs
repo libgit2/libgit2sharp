@@ -130,20 +130,20 @@ namespace LibGit2Sharp
             }
         }
 
-        static RemoteSafeHandle BuildRemoteSafeHandle(RepositorySafeHandle repoHandle, Remote remote)
+        static RemoteSafeHandle BuildRemoteSafeHandle(RepositoryHandle repoHandle, Remote remote)
         {
-            Debug.Assert(repoHandle != null && !repoHandle.IsClosed && !repoHandle.IsInvalid);
+            Debug.Assert(repoHandle != null && !repoHandle.IsNull);
             Debug.Assert(remote != null && remote.Name != null);
 
             RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repoHandle, remote.Name, true);
-            Debug.Assert(remoteHandle != null && !(remoteHandle.IsClosed || remoteHandle.IsInvalid));
+            Debug.Assert(remoteHandle != null && !(remoteHandle.IsInvalid || remoteHandle.IsInvalid));
 
             return remoteHandle;
         }
 
-        static RemoteSafeHandle BuildRemoteSafeHandle(RepositorySafeHandle repoHandle, string url)
+        static RemoteSafeHandle BuildRemoteSafeHandle(RepositoryHandle repoHandle, string url)
         {
-            Debug.Assert(repoHandle != null && !repoHandle.IsClosed && !repoHandle.IsInvalid);
+            Debug.Assert(repoHandle != null && !repoHandle.IsNull);
             Debug.Assert(url != null);
 
             RemoteSafeHandle remoteHandle = Proxy.git_remote_create_anonymous(repoHandle, url);
@@ -153,7 +153,7 @@ namespace LibGit2Sharp
         }
 
         static void DoFetch(
-            RepositorySafeHandle repoHandle,
+            RepositoryHandle repoHandle,
             Remote remote,
             FetchOptions options,
             string logMessage,
@@ -166,7 +166,7 @@ namespace LibGit2Sharp
         }
 
         static void DoFetch(
-            RepositorySafeHandle repoHandle,
+            RepositoryHandle repoHandle,
             string url,
             FetchOptions options,
             string logMessage,
