@@ -13,10 +13,12 @@ namespace LibGit2Sharp.Core
 <#
 var cNames = new[] {
     "git_tree_entry",
+    "git_reference",
 };
 
 var csNames = new[] {
-    "TreeEntryHandle"
+    "TreeEntryHandle",
+    "ReferenceHandle",
 };
 
 for (var i = 0; i < cNames.Length; i++)
@@ -24,13 +26,27 @@ for (var i = 0; i < cNames.Length; i++)
 #>
     internal unsafe class <#= csNames[i] #> : IDisposable
     {
-        internal <#= cNames[i] #>* Handle { get; private set; }
+        <#= cNames[i] #>* ptr;
+        internal <#= cNames[i] #>* Handle
+        {
+            get
+            {
+                return ptr;
+            }
+        }
+
         bool owned;
         bool disposed;
 
         public unsafe <#= csNames[i] #>(<#= cNames[i] #>* handle, bool owned)
         {
-            this.Handle = handle;
+            this.ptr = handle;
+            this.owned = owned;
+        }
+
+        public unsafe <#= csNames[i] #>(IntPtr ptr, bool owned)
+        {
+            this.ptr = (<#= cNames[i] #>*) ptr.ToPointer();
             this.owned = owned;
         }
 
@@ -39,13 +55,22 @@ for (var i = 0; i < cNames.Length; i++)
             Dispose(false);
         }
 
+        internal bool IsNull
+        {
+            get
+            {
+                return ptr == null;
+            }
+        }
+
+
         void Dispose(bool disposing)
         {
             if (!disposed)
             {
                 if (owned)
                 {
-                    NativeMethods.<#= cNames[i] #>_free(Handle);
+                    NativeMethods.<#= cNames[i] #>_free(ptr);
                 }
             }
 
@@ -57,6 +82,7 @@ for (var i = 0; i < cNames.Length; i++)
             Dispose(true);
         }
     }
+
 <#
 }
 #>

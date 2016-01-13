@@ -85,15 +85,15 @@ namespace LibGit2Sharp
                     this.repository.Info.CurrentOperation);
             }
 
-            Func<Branch, GitReferenceHandle> RefHandleFromBranch = (Branch b) =>
+            Func<Branch, ReferenceHandle> RefHandleFromBranch = (Branch b) =>
             {
                 return (b == null) ?
                     null :
                     this.repository.Refs.RetrieveReferencePtr(b.CanonicalName);
             };
 
-            Func<GitReferenceHandle, GitAnnotatedCommitHandle> AnnotatedCommitHandleFromRefHandle =
-                (GitReferenceHandle refHandle) =>
+            Func<ReferenceHandle, GitAnnotatedCommitHandle> AnnotatedCommitHandleFromRefHandle =
+                (ReferenceHandle refHandle) =>
             {
                 return (refHandle == null) ?
                     new GitAnnotatedCommitHandle() :
@@ -108,9 +108,9 @@ namespace LibGit2Sharp
                     checkout_options = checkoutOptionsWrapper.Options,
                 };
 
-                using (GitReferenceHandle branchRefPtr = RefHandleFromBranch(branch))
-                using (GitReferenceHandle upstreamRefPtr = RefHandleFromBranch(upstream))
-                using (GitReferenceHandle ontoRefPtr = RefHandleFromBranch(onto))
+                using (ReferenceHandle branchRefPtr = RefHandleFromBranch(branch))
+                using (ReferenceHandle upstreamRefPtr = RefHandleFromBranch(upstream))
+                using (ReferenceHandle ontoRefPtr = RefHandleFromBranch(onto))
                 using (GitAnnotatedCommitHandle annotatedBranchCommitHandle = AnnotatedCommitHandleFromRefHandle(branchRefPtr))
                 using (GitAnnotatedCommitHandle upstreamRefAnnotatedCommitHandle = AnnotatedCommitHandleFromRefHandle(upstreamRefPtr))
                 using (GitAnnotatedCommitHandle ontoRefAnnotatedCommitHandle = AnnotatedCommitHandleFromRefHandle(ontoRefPtr))

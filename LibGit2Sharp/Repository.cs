@@ -1225,7 +1225,7 @@ namespace LibGit2Sharp
 
             options = options ?? new MergeOptions();
 
-            using (GitReferenceHandle referencePtr = Refs.RetrieveReferencePtr(branch.CanonicalName))
+            using (ReferenceHandle referencePtr = Refs.RetrieveReferencePtr(branch.CanonicalName))
             using (GitAnnotatedCommitHandle annotatedCommitHandle = Proxy.git_annotated_commit_from_ref(Handle, referencePtr))
             {
                 return Merge(new[] { annotatedCommitHandle }, merger, options);
