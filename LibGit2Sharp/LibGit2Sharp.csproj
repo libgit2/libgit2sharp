@@ -192,7 +192,6 @@
     <Compile Include="ConflictCollection.cs" />
     <Compile Include="RemoteUpdater.cs" />
     <Compile Include="RemoveFromIndexException.cs" />
-    <Compile Include="Core\Handles\GitRefSpecHandle.cs" />
     <Compile Include="Core\Handles\NullRepositorySafeHandle.cs" />
     <Compile Include="GitLink.cs" />
     <Compile Include="Core\RepositoryOpenFlags.cs" />

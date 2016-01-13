@@ -1990,7 +1990,7 @@ namespace LibGit2Sharp.Core
 
         #region git_refspec
 
-        public static string git_refspec_rtransform(GitRefSpecHandle refSpecPtr, string name)
+        public static unsafe string git_refspec_rtransform(git_refspec* refSpecPtr, string name)
         {
             using (var buf = new GitBuf())
             {
@@ -2001,27 +2001,27 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static string git_refspec_string(GitRefSpecHandle refSpec)
+        public static unsafe string git_refspec_string(git_refspec* refSpec)
         {
             return NativeMethods.git_refspec_string(refSpec);
         }
 
-        public static string git_refspec_src(GitRefSpecHandle refSpec)
+        public static unsafe string git_refspec_src(git_refspec* refSpec)
         {
             return NativeMethods.git_refspec_src(refSpec);
         }
 
-        public static string git_refspec_dst(GitRefSpecHandle refSpec)
+        public static unsafe string git_refspec_dst(git_refspec* refSpec)
         {
             return NativeMethods.git_refspec_dst(refSpec);
         }
 
-        public static RefSpecDirection git_refspec_direction(GitRefSpecHandle refSpec)
+        public static unsafe RefSpecDirection git_refspec_direction(git_refspec* refSpec)
         {
             return NativeMethods.git_refspec_direction(refSpec);
         }
 
-        public static bool git_refspec_force(GitRefSpecHandle refSpec)
+        public static unsafe bool git_refspec_force(git_refspec* refSpec)
         {
             return NativeMethods.git_refspec_force(refSpec);
         }
@@ -2089,7 +2089,7 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
-        public static GitRefSpecHandle git_remote_get_refspec(RemoteSafeHandle remote, int n)
+        public static unsafe git_refspec* git_remote_get_refspec(RemoteSafeHandle remote, int n)
         {
             return NativeMethods.git_remote_get_refspec(remote, (UIntPtr)n);
         }

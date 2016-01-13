@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
@@ -30,9 +31,12 @@ namespace LibGit2Sharp
         protected RefSpec()
         { }
 
-        internal static RefSpec BuildFromPtr(GitRefSpecHandle handle)
+        internal static unsafe RefSpec BuildFromPtr(git_refspec* handle)
         {
-            Ensure.ArgumentNotNull(handle, "handle");
+            if (handle == null)
+            {
+                throw new ArgumentNullException("handle");
+            }
 
             return new RefSpec(Proxy.git_refspec_string(handle), Proxy.git_refspec_direction(handle),
                 Proxy.git_refspec_src(handle), Proxy.git_refspec_dst(handle), Proxy.git_refspec_force(handle));
