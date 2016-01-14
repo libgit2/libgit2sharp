@@ -58,7 +58,7 @@ namespace LibGit2Sharp
             statusEntries = new List<StatusEntry>();
 
             using (GitStatusOptions coreOptions = CreateStatusOptions(options ?? new StatusOptions()))
-            using (StatusListSafeHandle list = Proxy.git_status_list_new(repo.Handle, coreOptions))
+            using (StatusListHandle list = Proxy.git_status_list_new(repo.Handle, coreOptions))
             {
                 int count = Proxy.git_status_list_entrycount(list);
 

@@ -2833,29 +2833,24 @@ namespace LibGit2Sharp.Core
             return status;
         }
 
-        public static unsafe StatusListSafeHandle git_status_list_new(RepositoryHandle repo, GitStatusOptions options)
+        public static unsafe StatusListHandle git_status_list_new(RepositoryHandle repo, GitStatusOptions options)
         {
-            StatusListSafeHandle handle;
-            int res = NativeMethods.git_status_list_new(out handle, repo, options);
+            git_status_list* ptr;
+            int res = NativeMethods.git_status_list_new(out ptr, repo, options);
             Ensure.ZeroResult(res);
-            return handle;
+            return new StatusListHandle(ptr, true);
         }
 
-        public static int git_status_list_entrycount(StatusListSafeHandle list)
+        public static unsafe int git_status_list_entrycount(StatusListHandle list)
         {
             int res = NativeMethods.git_status_list_entrycount(list);
             Ensure.Int32Result(res);
             return res;
         }
 
-        public static unsafe git_status_entry* git_status_byindex(StatusListSafeHandle list, long idx)
+        public static unsafe git_status_entry* git_status_byindex(StatusListHandle list, long idx)
         {
             return NativeMethods.git_status_byindex(list, (UIntPtr)idx);
-        }
-
-        public static void git_status_list_free(IntPtr statusList)
-        {
-            NativeMethods.git_status_list_free(statusList);
         }
 
         #endregion

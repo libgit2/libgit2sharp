@@ -6,5 +6,6 @@ namespace LibGit2Sharp.Core
     internal struct git_reference { }
     internal struct git_refspec {}
     internal struct git_repository {}
+    internal struct git_status_list {}
 }
 

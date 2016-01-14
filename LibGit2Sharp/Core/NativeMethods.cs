@@ -1534,22 +1534,22 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_status_list_new(
-            out StatusListSafeHandle git_status_list,
+            out git_status_list* git_status_list,
             git_repository* repo,
             GitStatusOptions options);
 
         [DllImport(libgit2)]
-        internal static extern int git_status_list_entrycount(
-            StatusListSafeHandle statusList);
+        internal static extern unsafe int git_status_list_entrycount(
+            git_status_list* statusList);
 
         [DllImport(libgit2)]
         internal static extern unsafe git_status_entry* git_status_byindex(
-            StatusListSafeHandle list,
+            git_status_list* list,
             UIntPtr idx);
 
         [DllImport(libgit2)]
-        internal static extern void git_status_list_free(
-            IntPtr statusList);
+        internal static extern unsafe void git_status_list_free(
+            git_status_list* statusList);
 
         [DllImport(libgit2)]
         internal static extern void git_strarray_free(

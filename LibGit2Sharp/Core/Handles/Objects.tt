@@ -16,6 +16,7 @@ var cNames = new[] {
     "git_reference",
     "git_repository",
     "git_signature",
+    "git_status_list",
 };
 
 var csNames = new[] {
@@ -23,6 +24,7 @@ var csNames = new[] {
     "ReferenceHandle",
     "RepositoryHandle",
     "SignatureHandle",
+    "StatusListHandle",
 };
 
 for (var i = 0; i < cNames.Length; i++)

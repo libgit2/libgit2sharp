@@ -158,7 +158,6 @@
     <Compile Include="RefSpecDirection.cs" />
     <Compile Include="Core\GitStatusEntry.cs" />
     <Compile Include="Core\GitStatusOptions.cs" />
-    <Compile Include="Core\Handles\StatusListSafeHandle.cs" />
     <Compile Include="RenameDetails.cs" />
     <Compile Include="RevertResult.cs" />
     <Compile Include="RevertOptions.cs" />

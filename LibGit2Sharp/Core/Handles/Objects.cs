@@ -280,4 +280,73 @@ namespace LibGit2Sharp.Core
         }
     }
 
+    internal unsafe class StatusListHandle : IDisposable
+    {
+        git_status_list* ptr;
+        internal git_status_list* Handle
+        {
+            get
+            {
+                return ptr;
+            }
+        }
+
+        bool owned;
+        bool disposed;
+
+        public unsafe StatusListHandle(git_status_list* handle, bool owned)
+        {
+            this.ptr = handle;
+            this.owned = owned;
+        }
+
+        public unsafe StatusListHandle(IntPtr ptr, bool owned)
+        {
+            this.ptr = (git_status_list*) ptr.ToPointer();
+            this.owned = owned;
+        }
+
+        ~StatusListHandle()
+        {
+            Dispose(false);
+        }
+
+        internal bool IsNull
+        {
+            get
+            {
+                return ptr == null;
+            }
+        }
+
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (owned)
+                {
+                    NativeMethods.git_status_list_free(ptr);
+                    ptr = null;
+                }
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public static implicit operator git_status_list*(StatusListHandle handle)
+        {
+            return handle.Handle;
+        }
+    }
+
 }
