@@ -15,12 +15,14 @@ var cNames = new[] {
     "git_tree_entry",
     "git_reference",
     "git_repository",
+    "git_signature",
 };
 
 var csNames = new[] {
     "TreeEntryHandle",
     "ReferenceHandle",
     "RepositoryHandle",
+    "SignatureHandle",
 };
 
 for (var i = 0; i < cNames.Length; i++)

@@ -53,18 +53,18 @@ namespace LibGit2Sharp.Core
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal class GitBlameHunk
+    internal unsafe class GitBlameHunk
     {
         public ushort LinesInHunk;
 
         public GitOid FinalCommitId;
         public ushort FinalStartLineNumber;
-        public IntPtr FinalSignature;
+        public git_signature* FinalSignature;
 
         public GitOid OrigCommitId;
         public IntPtr OrigPath;
         public ushort OrigStartLineNumber;
-        public IntPtr OrigSignature;
+        public git_signature* OrigSignature;
 
         public byte Boundary;
     }

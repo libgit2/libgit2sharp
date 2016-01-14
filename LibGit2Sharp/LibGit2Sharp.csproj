@@ -277,7 +277,6 @@
     <Compile Include="Core\Handles\GitObjectSafeHandle.cs" />
     <Compile Include="Core\Handles\NotOwnedSafeHandleBase.cs" />
     <Compile Include="Core\Handles\TreeBuilderSafeHandle.cs" />
-    <Compile Include="Core\Handles\SignatureSafeHandle.cs" />
     <Compile Include="DetachedHead.cs" />
     <Compile Include="Diff.cs" />
     <Compile Include="IRepository.cs" />

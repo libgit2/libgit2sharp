@@ -211,4 +211,73 @@ namespace LibGit2Sharp.Core
         }
     }
 
+    internal unsafe class SignatureHandle : IDisposable
+    {
+        git_signature* ptr;
+        internal git_signature* Handle
+        {
+            get
+            {
+                return ptr;
+            }
+        }
+
+        bool owned;
+        bool disposed;
+
+        public unsafe SignatureHandle(git_signature* handle, bool owned)
+        {
+            this.ptr = handle;
+            this.owned = owned;
+        }
+
+        public unsafe SignatureHandle(IntPtr ptr, bool owned)
+        {
+            this.ptr = (git_signature*) ptr.ToPointer();
+            this.owned = owned;
+        }
+
+        ~SignatureHandle()
+        {
+            Dispose(false);
+        }
+
+        internal bool IsNull
+        {
+            get
+            {
+                return ptr == null;
+            }
+        }
+
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (owned)
+                {
+                    NativeMethods.git_signature_free(ptr);
+                    ptr = null;
+                }
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public static implicit operator git_signature*(SignatureHandle handle)
+        {
+            return handle.Handle;
+        }
+    }
+
 }

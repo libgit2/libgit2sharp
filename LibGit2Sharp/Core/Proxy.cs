@@ -349,12 +349,12 @@ namespace LibGit2Sharp.Core
 
         #region git_commit_
 
-        public static Signature git_commit_author(GitObjectSafeHandle obj)
+        public static unsafe Signature git_commit_author(GitObjectSafeHandle obj)
         {
             return new Signature(NativeMethods.git_commit_author(obj));
         }
 
-        public static Signature git_commit_committer(GitObjectSafeHandle obj)
+        public static unsafe Signature git_commit_committer(GitObjectSafeHandle obj)
         {
             return new Signature(NativeMethods.git_commit_committer(obj));
         }
@@ -368,8 +368,8 @@ namespace LibGit2Sharp.Core
             Tree tree,
             GitOid[] parentIds)
         {
-            using (SignatureSafeHandle authorHandle = author.BuildHandle())
-            using (SignatureSafeHandle committerHandle = committer.BuildHandle())
+            using (SignatureHandle authorHandle = author.BuildHandle())
+            using (SignatureHandle committerHandle = committer.BuildHandle())
             using (var parentPtrs = new ArrayMarshaler<GitOid>(parentIds))
             {
                 GitOid commitOid;
@@ -1266,8 +1266,8 @@ namespace LibGit2Sharp.Core
             string note,
             bool force)
         {
-            using (SignatureSafeHandle authorHandle = author.BuildHandle())
-            using (SignatureSafeHandle committerHandle = committer.BuildHandle())
+            using (SignatureHandle authorHandle = author.BuildHandle())
+            using (SignatureHandle committerHandle = committer.BuildHandle())
             {
                 GitOid noteOid;
                 GitOid oid = targetId.Oid;
@@ -1332,8 +1332,8 @@ namespace LibGit2Sharp.Core
 
         public static unsafe void git_note_remove(RepositoryHandle repo, string notes_ref, Signature author, Signature committer, ObjectId targetId)
         {
-            using (SignatureSafeHandle authorHandle = author.BuildHandle())
-            using (SignatureSafeHandle committerHandle = committer.BuildHandle())
+            using (SignatureHandle authorHandle = author.BuildHandle())
+            using (SignatureHandle committerHandle = committer.BuildHandle())
             {
                 GitOid oid = targetId.Oid;
 
@@ -1713,7 +1713,7 @@ namespace LibGit2Sharp.Core
             return operation;
         }
 
-        public static GitRebaseCommitResult git_rebase_commit(
+        public static unsafe GitRebaseCommitResult git_rebase_commit(
             RebaseSafeHandle rebase,
             Identity author,
             Identity committer)
@@ -1721,8 +1721,8 @@ namespace LibGit2Sharp.Core
             Ensure.ArgumentNotNull(rebase, "rebase");
             Ensure.ArgumentNotNull(committer, "committer");
 
-            using (SignatureSafeHandle committerHandle = committer.BuildNowSignatureHandle())
-            using (SignatureSafeHandle authorHandle = author.SafeBuildNowSignatureHandle())
+            using (SignatureHandle committerHandle = committer.BuildNowSignatureHandle())
+            using (SignatureHandle authorHandle = author.SafeBuildNowSignatureHandle())
             {
                 GitRebaseCommitResult commitResult = new GitRebaseCommitResult();
 
@@ -1768,7 +1768,7 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(result);
         }
 
-        public static void git_rebase_finish(
+        public static unsafe void git_rebase_finish(
             RebaseSafeHandle rebase,
             Identity committer)
         {
@@ -1976,7 +1976,7 @@ namespace LibGit2Sharp.Core
             return ObjectId.BuildFromPtr(NativeMethods.git_reflog_entry_id_new(entry));
         }
 
-        public static Signature git_reflog_entry_committer(SafeHandle entry)
+        public static unsafe Signature git_reflog_entry_committer(SafeHandle entry)
         {
             return new Signature(NativeMethods.git_reflog_entry_committer(entry));
         }
@@ -2695,34 +2695,29 @@ namespace LibGit2Sharp.Core
 
         #region git_signature_
 
-        public static void git_signature_free(IntPtr signature)
+        public static unsafe SignatureHandle git_signature_new(string name, string email, DateTimeOffset when)
         {
-            NativeMethods.git_signature_free(signature);
-        }
+            git_signature* ptr;
 
-        public static SignatureSafeHandle git_signature_new(string name, string email, DateTimeOffset when)
-        {
-            SignatureSafeHandle handle;
-
-            int res = NativeMethods.git_signature_new(out handle, name, email, when.ToSecondsSinceEpoch(),
+            int res = NativeMethods.git_signature_new(out ptr, name, email, when.ToSecondsSinceEpoch(),
                                                       (int)when.Offset.TotalMinutes);
             Ensure.ZeroResult(res);
 
-            return handle;
+            return new SignatureHandle(ptr, true);
         }
 
-        public static SignatureSafeHandle git_signature_now(string name, string email)
+        public static unsafe SignatureHandle git_signature_now(string name, string email)
         {
-            SignatureSafeHandle handle;
-            int res = NativeMethods.git_signature_now(out handle, name, email);
+            git_signature* ptr;
+            int res = NativeMethods.git_signature_now(out ptr, name, email);
             Ensure.ZeroResult(res);
 
-            return handle;
+            return new SignatureHandle(ptr, true);
         }
 
-        public static IntPtr git_signature_dup(IntPtr sig)
+        public static unsafe git_signature* git_signature_dup(git_signature* sig)
         {
-            IntPtr handle;
+            git_signature* handle;
             int res = NativeMethods.git_signature_dup(out handle, sig);
             Ensure.ZeroResult(res);
             return handle;
@@ -2738,7 +2733,7 @@ namespace LibGit2Sharp.Core
             string prettifiedMessage,
             StashModifiers options)
         {
-            using (SignatureSafeHandle sigHandle = stasher.BuildHandle())
+            using (SignatureHandle sigHandle = stasher.BuildHandle())
             {
                 GitOid stashOid;
 
@@ -2995,7 +2990,7 @@ namespace LibGit2Sharp.Core
             string message)
         {
             using (var objectPtr = new ObjectSafeWrapper(target.Id, repo))
-            using (SignatureSafeHandle sigHandle = tagger.BuildHandle())
+            using (SignatureHandle sigHandle = tagger.BuildHandle())
             {
                 GitOid oid;
                 int res = NativeMethods.git_tag_annotation_create(out oid, repo, name, objectPtr.ObjectPtr, sigHandle, message);
@@ -3014,7 +3009,7 @@ namespace LibGit2Sharp.Core
             bool allowOverwrite)
         {
             using (var objectPtr = new ObjectSafeWrapper(target.Id, repo))
-            using (SignatureSafeHandle sigHandle = tagger.BuildHandle())
+            using (SignatureHandle sigHandle = tagger.BuildHandle())
             {
                 GitOid oid;
                 int res = NativeMethods.git_tag_create(out oid, repo, name, objectPtr.ObjectPtr, sigHandle, message, allowOverwrite);
@@ -3069,14 +3064,14 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_tag_name(tag);
         }
 
-        public static Signature git_tag_tagger(GitObjectSafeHandle tag)
+        public static unsafe Signature git_tag_tagger(GitObjectSafeHandle tag)
         {
-            IntPtr taggerHandle = NativeMethods.git_tag_tagger(tag);
+            git_signature* taggerHandle = NativeMethods.git_tag_tagger(tag);
 
             // Not all tags have a tagger signature - we need to handle
             // this case.
             Signature tagger = null;
-            if (taggerHandle != IntPtr.Zero)
+            if (taggerHandle != null)
             {
                 tagger = new Signature(taggerHandle);
             }

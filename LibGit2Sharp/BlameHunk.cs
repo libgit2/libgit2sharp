@@ -20,7 +20,7 @@ namespace LibGit2Sharp
                                                 x => x.InitialCommit);
 
 
-        internal BlameHunk(IRepository repository, GitBlameHunk rawHunk)
+        internal unsafe BlameHunk(IRepository repository, GitBlameHunk rawHunk)
         {
             finalCommit = new Lazy<Commit>(() => repository.Lookup<Commit>(rawHunk.FinalCommitId));
             origCommit = new Lazy<Commit>(() => repository.Lookup<Commit>(rawHunk.OrigCommitId));
@@ -36,12 +36,12 @@ namespace LibGit2Sharp
             InitialStartLineNumber = rawHunk.OrigStartLineNumber - 1;
 
             // Signature objects need to have ownership of their native pointers
-            if (rawHunk.FinalSignature != IntPtr.Zero)
+            if (rawHunk.FinalSignature != null)
             {
                 FinalSignature = new Signature(Proxy.git_signature_dup(rawHunk.FinalSignature));
             }
 
-            if (rawHunk.OrigSignature != IntPtr.Zero)
+            if (rawHunk.OrigSignature != null)
             {
                 InitialSignature = new Signature(Proxy.git_signature_dup(rawHunk.OrigSignature));
             }

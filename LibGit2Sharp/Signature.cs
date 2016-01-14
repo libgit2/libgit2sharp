@@ -17,13 +17,11 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<Signature> equalityHelper =
             new LambdaEqualityHelper<Signature>(x => x.Name, x => x.Email, x => x.When);
 
-        internal Signature(IntPtr signaturePtr)
+        internal unsafe Signature(git_signature* sig)
         {
-            var handle = signaturePtr.MarshalAs<GitSignature>();
-
-            name = LaxUtf8Marshaler.FromNative(handle.Name);
-            email = LaxUtf8Marshaler.FromNative(handle.Email);
-            when = Epoch.ToDateTimeOffset(handle.When.Time, handle.When.Offset);
+            name = LaxUtf8Marshaler.FromNative(sig->name);
+            email = LaxUtf8Marshaler.FromNative(sig->email);
+            when = Epoch.ToDateTimeOffset(sig->when.time, sig->when.offset);
         }
 
         /// <summary>
@@ -58,7 +56,7 @@ namespace LibGit2Sharp
             this.when = when;
         }
 
-        internal SignatureSafeHandle BuildHandle()
+        internal SignatureHandle BuildHandle()
         {
             return Proxy.git_signature_new(name, email, when);
         }
@@ -156,11 +154,11 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="signature"></param>
         /// <returns></returns>
-        public static SignatureSafeHandle SafeBuildHandle(this Signature signature)
+        public static unsafe SignatureHandle SafeBuildHandle(this Signature signature)
         {
             if (signature == null)
             {
-                return new SignatureSafeHandle();
+                return new SignatureHandle(null, false);
             }
 
             return signature.BuildHandle();
