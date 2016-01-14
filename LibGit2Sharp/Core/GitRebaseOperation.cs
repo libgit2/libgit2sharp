@@ -4,10 +4,10 @@ using System.Runtime.InteropServices;
 namespace LibGit2Sharp.Core
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal class GitRebaseOperation
+    internal unsafe struct git_rebase_operation
     {
         internal RebaseStepOperation type;
-        internal GitOid id;
-        internal IntPtr exec;
+        internal git_oid id;
+        internal char* exec;
     }
 }

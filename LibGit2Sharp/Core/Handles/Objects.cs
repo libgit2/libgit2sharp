@@ -349,4 +349,73 @@ namespace LibGit2Sharp.Core
         }
     }
 
+    internal unsafe class BlameHandle : IDisposable
+    {
+        git_blame* ptr;
+        internal git_blame* Handle
+        {
+            get
+            {
+                return ptr;
+            }
+        }
+
+        bool owned;
+        bool disposed;
+
+        public unsafe BlameHandle(git_blame* handle, bool owned)
+        {
+            this.ptr = handle;
+            this.owned = owned;
+        }
+
+        public unsafe BlameHandle(IntPtr ptr, bool owned)
+        {
+            this.ptr = (git_blame*) ptr.ToPointer();
+            this.owned = owned;
+        }
+
+        ~BlameHandle()
+        {
+            Dispose(false);
+        }
+
+        internal bool IsNull
+        {
+            get
+            {
+                return ptr == null;
+            }
+        }
+
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (owned)
+                {
+                    NativeMethods.git_blame_free(ptr);
+                    ptr = null;
+                }
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public static implicit operator git_blame*(BlameHandle handle)
+        {
+            return handle.Handle;
+        }
+    }
+
 }

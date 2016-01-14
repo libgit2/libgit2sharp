@@ -95,25 +95,20 @@ namespace LibGit2Sharp.Core
 
         #region git_blame_
 
-        public static unsafe BlameSafeHandle git_blame_file(
+        public static unsafe BlameHandle git_blame_file(
             RepositoryHandle repo,
             FilePath path,
-            GitBlameOptions options)
+            git_blame_options options)
         {
-            BlameSafeHandle handle;
-            int res = NativeMethods.git_blame_file(out handle, repo, path, options);
+            git_blame* ptr;
+            int res = NativeMethods.git_blame_file(out ptr, repo, path, options);
             Ensure.ZeroResult(res);
-            return handle;
+            return new BlameHandle(ptr, true);
         }
 
-        public static GitBlameHunk git_blame_get_hunk_byindex(BlameSafeHandle blame, uint idx)
+        public static unsafe git_blame_hunk* git_blame_get_hunk_byindex(BlameHandle blame, uint idx)
         {
-            return NativeMethods.git_blame_get_hunk_byindex(blame, idx).MarshalAs<GitBlameHunk>(false);
-        }
-
-        public static void git_blame_free(IntPtr blame)
-        {
-            NativeMethods.git_blame_free(blame);
+            return NativeMethods.git_blame_get_hunk_byindex(blame, idx);
         }
 
         #endregion
@@ -844,7 +839,7 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
-        public static FilterMode git_filter_source_mode(IntPtr filterSource)
+        public static unsafe FilterMode git_filter_source_mode(git_filter_source* filterSource)
         {
             var res = NativeMethods.git_filter_source_mode(filterSource);
             return (FilterMode)res;
@@ -1465,14 +1460,17 @@ namespace LibGit2Sharp.Core
             return new GitObjectMetadata((long)length, objectType);
         }
 
-        public static ICollection<TResult> git_odb_foreach<TResult>(
-            ObjectDatabaseSafeHandle odb,
-            Func<IntPtr, TResult> resultSelector)
+        public static unsafe ICollection<ObjectId> git_odb_foreach(ObjectDatabaseSafeHandle odb)
         {
-            return git_foreach(resultSelector,
-                               c => NativeMethods.git_odb_foreach(odb,
-                                                                  (x, p) => c(x, p),
-                                                                  IntPtr.Zero));
+            var list = new List<ObjectId>();
+
+            NativeMethods.git_odb_foreach(odb, (p, _data) =>
+                {
+                    list.Add(ObjectId.BuildFromPtr(p));
+                    return 0;
+                }, IntPtr.Zero);
+
+            return list;
         }
 
         public static OdbStreamSafeHandle git_odb_open_wstream(ObjectDatabaseSafeHandle odb, long size, GitObjectType type)
@@ -1680,15 +1678,12 @@ namespace LibGit2Sharp.Core
 
         public const long RebaseNoOperation = -1;
 
-        public static GitRebaseOperation git_rebase_operation_byindex(
+        public static unsafe git_rebase_operation* git_rebase_operation_byindex(
             RebaseSafeHandle rebase,
             long index)
         {
             Debug.Assert(index >= 0);
-            IntPtr ptr = NativeMethods.git_rebase_operation_byindex(rebase, ((UIntPtr)index));
-            GitRebaseOperation operation = ptr.MarshalAs<GitRebaseOperation>();
-
-            return operation;
+            return NativeMethods.git_rebase_operation_byindex(rebase, ((UIntPtr)index));
         }
 
         /// <summary>
@@ -1696,10 +1691,9 @@ namespace LibGit2Sharp.Core
         /// </summary>
         /// <param name="rebase"></param>
         /// <returns></returns>
-        public static GitRebaseOperation git_rebase_next(RebaseSafeHandle rebase)
+        public static unsafe git_rebase_operation* git_rebase_next(RebaseSafeHandle rebase)
         {
-            GitRebaseOperation operation = null;
-            IntPtr ptr;
+            git_rebase_operation* ptr;
             int result = NativeMethods.git_rebase_next(out ptr, rebase);
             if (result == (int)GitErrorCode.IterOver)
             {
@@ -1707,10 +1701,7 @@ namespace LibGit2Sharp.Core
             }
             Ensure.ZeroResult(result);
 
-            // If successsful, then marshal native struct to managed struct.
-            operation = ptr.MarshalAs<GitRebaseOperation>();
-
-            return operation;
+            return ptr;
         }
 
         public static unsafe GitRebaseCommitResult git_rebase_commit(

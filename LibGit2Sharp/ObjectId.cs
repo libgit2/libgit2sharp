@@ -57,6 +57,11 @@ namespace LibGit2Sharp
             Ensure.ArgumentConformsTo(rawId, b => b.Length == rawSize, "rawId");
         }
 
+        internal static unsafe ObjectId BuildFromPtr(IntPtr ptr)
+        {
+            return BuildFromPtr((git_oid*) ptr.ToPointer());
+        }
+
         internal static unsafe ObjectId BuildFromPtr(git_oid* id)
         {
             return id == null ? null : new ObjectId(id->Id);

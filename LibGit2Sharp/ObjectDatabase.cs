@@ -41,11 +41,10 @@ namespace LibGit2Sharp
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<GitObject> GetEnumerator()
         {
-            ICollection<GitOid> oids = Proxy.git_odb_foreach(handle,
-                                                             ptr => ptr.MarshalAs<GitOid>());
+            ICollection<ObjectId> oids = Proxy.git_odb_foreach(handle);
 
             return oids
-                .Select(gitOid => repo.Lookup<GitObject>(new ObjectId(gitOid)))
+                .Select(gitOid => repo.Lookup<GitObject>(gitOid))
                 .GetEnumerator();
         }
 

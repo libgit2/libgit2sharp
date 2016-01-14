@@ -74,7 +74,7 @@ namespace LibGit2Sharp
         /// <param name="stepToApplyIndex"></param>
         /// <param name="totalStepCount"/>
         /// <returns></returns>
-        private static RebaseResult RunRebaseStep(RebaseSafeHandle rebaseOperationHandle,
+        private static unsafe RebaseResult RunRebaseStep(RebaseSafeHandle rebaseOperationHandle,
                                                   Repository repository,
                                                   Identity committer,
                                                   RebaseOptions options,
@@ -84,12 +84,12 @@ namespace LibGit2Sharp
             RebaseStepResult rebaseStepResult = null;
             RebaseResult rebaseSequenceResult = null;
 
-            GitRebaseOperation rebaseOp = Proxy.git_rebase_operation_byindex(rebaseOperationHandle, stepToApplyIndex);
-            ObjectId idOfCommitBeingRebased = new ObjectId(rebaseOp.id);
+            git_rebase_operation* rebaseOp = Proxy.git_rebase_operation_byindex(rebaseOperationHandle, stepToApplyIndex);
+            ObjectId idOfCommitBeingRebased = ObjectId.BuildFromPtr(&rebaseOp->id);
 
-            RebaseStepInfo stepToApplyInfo = new RebaseStepInfo(rebaseOp.type,
+            RebaseStepInfo stepToApplyInfo = new RebaseStepInfo(rebaseOp->type,
                                                                 repository.Lookup<Commit>(idOfCommitBeingRebased),
-                                                                LaxUtf8NoCleanupMarshaler.FromNative(rebaseOp.exec));
+                                                                LaxUtf8NoCleanupMarshaler.FromNative(rebaseOp->exec));
 
             // Report the rebase step we are about to perform.
             if (options.RebaseStepStarting != null)
@@ -98,7 +98,7 @@ namespace LibGit2Sharp
             }
 
             // Perform the rebase step
-            GitRebaseOperation rebaseOpReport = Proxy.git_rebase_next(rebaseOperationHandle);
+            git_rebase_operation* rebaseOpReport = Proxy.git_rebase_next(rebaseOperationHandle);
 
             // Verify that the information from the native library is consistent.
             VerifyRebaseOp(rebaseOpReport, stepToApplyInfo);
@@ -184,13 +184,13 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="rebaseOpReport"></param>
         /// <param name="stepInfo"></param>
-        private static void VerifyRebaseOp(GitRebaseOperation rebaseOpReport, RebaseStepInfo stepInfo)
+        private static unsafe void VerifyRebaseOp(git_rebase_operation* rebaseOpReport, RebaseStepInfo stepInfo)
         {
             // The step reported via querying by index and the step returned from git_rebase_next
             // should be the same
             if (rebaseOpReport == null ||
-                new ObjectId(rebaseOpReport.id) != stepInfo.Commit.Id ||
-                rebaseOpReport.type != stepInfo.Type)
+                ObjectId.BuildFromPtr(&rebaseOpReport->id) != stepInfo.Commit.Id ||
+                rebaseOpReport->type != stepInfo.Type)
             {
                 // This is indicative of a program error - should never happen.
                 throw new LibGit2SharpException("Unexpected step info reported by running rebase step.");

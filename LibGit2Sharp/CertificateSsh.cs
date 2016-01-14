@@ -1,4 +1,6 @@
-﻿using LibGit2Sharp.Core;
+﻿using System;
+using System.Runtime.InteropServices;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
@@ -37,17 +39,29 @@ namespace LibGit2Sharp
         /// True if we have the SHA1 hostkey hash from the server
         /// </summary>public readonly bool HasSHA1;
 
-        internal CertificateSsh(GitCertificateSsh cert)
+        internal unsafe CertificateSsh(git_certificate_ssh* cert)
         {
 
-            HasMD5  = cert.type.HasFlag(GitCertificateSshType.MD5);
-            HasSHA1 = cert.type.HasFlag(GitCertificateSshType.SHA1);
+            HasMD5  = cert->type.HasFlag(GitCertificateSshType.MD5);
+            HasSHA1 = cert->type.HasFlag(GitCertificateSshType.SHA1);
 
             HashMD5 = new byte[16];
-            cert.HashMD5.CopyTo(HashMD5, 0);
+            fixed (byte* p = &HashMD5[0])
+            {
+                for (var i = 0; i < HashMD5.Length; i++)
+                {
+                    HashMD5[i] = p[i];
+                }
+            }
 
             HashSHA1 = new byte[20];
-            cert.HashSHA1.CopyTo(HashSHA1, 0);
+            fixed (byte* p = &HashSHA1[0])
+            {
+                for (var i = 0; i < HashSHA1.Length; i++)
+                {
+                    HashMD5[i] = p[i];
+                }
+            }
         }
     }
 }

@@ -41,32 +41,32 @@ namespace LibGit2Sharp.Core
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal class GitBlameOptions
+    internal class git_blame_options
     {
         public uint version = 1;
         public GitBlameOptionFlags flags;
-        public UInt16 MinMatchCharacters;
-        public GitOid NewestCommit;
-        public GitOid OldestCommit;
-        public uint MinLine;
-        public uint MaxLine;
+        public UInt16 min_match_characters;
+        public git_oid newest_commit;
+        public git_oid oldest_commit;
+        public uint min_line;
+        public uint max_line;
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal unsafe class GitBlameHunk
+    internal unsafe struct git_blame_hunk
     {
-        public ushort LinesInHunk;
+        public ushort lines_in_hunk;
 
-        public GitOid FinalCommitId;
-        public ushort FinalStartLineNumber;
-        public git_signature* FinalSignature;
+        public git_oid final_commit_id;
+        public ushort final_start_line_number;
+        public git_signature* final_signature;
 
-        public GitOid OrigCommitId;
-        public IntPtr OrigPath;
-        public ushort OrigStartLineNumber;
-        public git_signature* OrigSignature;
+        public git_oid orig_commit_id;
+        public char* orig_path;
+        public ushort orig_start_line_number;
+        public git_signature* orig_signature;
 
-        public byte Boundary;
+        public byte boundary;
     }
 
     internal static class BlameStrategyExtensions
