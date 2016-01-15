@@ -110,7 +110,6 @@
     <Compile Include="Core\GitIndexNameEntry.cs" />
     <Compile Include="Core\GitRevertOpts.cs" />
     <Compile Include="Core\Handles\DisposableExtensions.cs" />
-    <Compile Include="Core\Handles\PatchSafeHandle.cs" />
     <Compile Include="DefaultCredentials.cs" />
     <Compile Include="EmptyCommitException.cs" />
     <Compile Include="FetchOptions.cs" />
@@ -272,7 +271,6 @@
     <Compile Include="Core\GitOdbBackendStream.cs" />
     <Compile Include="Core\Handles\NoteSafeHandle.cs" />
     <Compile Include="Core\Handles\ObjectDatabaseSafeHandle.cs" />
-    <Compile Include="Core\Handles\DiffSafeHandle.cs" />
     <Compile Include="Core\Handles\GitObjectSafeHandle.cs" />
     <Compile Include="Core\Handles\NotOwnedSafeHandleBase.cs" />
     <Compile Include="Core\Handles\TreeBuilderSafeHandle.cs" />

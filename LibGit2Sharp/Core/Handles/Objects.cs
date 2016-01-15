@@ -418,4 +418,142 @@ namespace LibGit2Sharp.Core
         }
     }
 
+    internal unsafe class DiffHandle : IDisposable
+    {
+        git_diff* ptr;
+        internal git_diff* Handle
+        {
+            get
+            {
+                return ptr;
+            }
+        }
+
+        bool owned;
+        bool disposed;
+
+        public unsafe DiffHandle(git_diff* handle, bool owned)
+        {
+            this.ptr = handle;
+            this.owned = owned;
+        }
+
+        public unsafe DiffHandle(IntPtr ptr, bool owned)
+        {
+            this.ptr = (git_diff*) ptr.ToPointer();
+            this.owned = owned;
+        }
+
+        ~DiffHandle()
+        {
+            Dispose(false);
+        }
+
+        internal bool IsNull
+        {
+            get
+            {
+                return ptr == null;
+            }
+        }
+
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (owned)
+                {
+                    NativeMethods.git_diff_free(ptr);
+                    ptr = null;
+                }
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public static implicit operator git_diff*(DiffHandle handle)
+        {
+            return handle.Handle;
+        }
+    }
+
+    internal unsafe class PatchHandle : IDisposable
+    {
+        git_patch* ptr;
+        internal git_patch* Handle
+        {
+            get
+            {
+                return ptr;
+            }
+        }
+
+        bool owned;
+        bool disposed;
+
+        public unsafe PatchHandle(git_patch* handle, bool owned)
+        {
+            this.ptr = handle;
+            this.owned = owned;
+        }
+
+        public unsafe PatchHandle(IntPtr ptr, bool owned)
+        {
+            this.ptr = (git_patch*) ptr.ToPointer();
+            this.owned = owned;
+        }
+
+        ~PatchHandle()
+        {
+            Dispose(false);
+        }
+
+        internal bool IsNull
+        {
+            get
+            {
+                return ptr == null;
+            }
+        }
+
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (owned)
+                {
+                    NativeMethods.git_patch_free(ptr);
+                    ptr = null;
+                }
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public static implicit operator git_patch*(PatchHandle handle)
+        {
+            return handle.Handle;
+        }
+    }
+
 }

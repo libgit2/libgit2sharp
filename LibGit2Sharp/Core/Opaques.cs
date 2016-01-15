@@ -8,5 +8,7 @@ namespace LibGit2Sharp.Core
     internal struct git_repository {}
     internal struct git_status_list {}
     internal struct git_blame {}
+    internal struct git_diff {}
+    internal struct git_patch {}
 }
 

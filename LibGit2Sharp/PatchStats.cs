@@ -25,7 +25,7 @@ namespace LibGit2Sharp
         protected PatchStats()
         { }
 
-        internal unsafe PatchStats(DiffSafeHandle diff)
+        internal unsafe PatchStats(DiffHandle diff)
         {
             int count = Proxy.git_diff_num_deltas(diff);
             for (int i = 0; i < count; i++)

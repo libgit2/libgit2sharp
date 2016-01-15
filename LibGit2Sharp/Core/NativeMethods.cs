@@ -475,11 +475,11 @@ namespace LibGit2Sharp.Core
         internal static extern void git_describe_result_free(IntPtr describe);
 
         [DllImport(libgit2)]
-        internal static extern void git_diff_free(IntPtr diff);
+        internal static extern unsafe void git_diff_free(git_diff* diff);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_diff_tree_to_tree(
-            out DiffSafeHandle diff,
+            out git_diff* diff,
             git_repository* repo,
             GitObjectSafeHandle oldTree,
             GitObjectSafeHandle newTree,
@@ -487,27 +487,27 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_diff_tree_to_index(
-            out DiffSafeHandle diff,
+            out git_diff* diff,
             git_repository* repo,
             GitObjectSafeHandle oldTree,
             IndexSafeHandle index,
             GitDiffOptions options);
 
         [DllImport(libgit2)]
-        internal static extern int git_diff_merge(
-            DiffSafeHandle onto,
-            DiffSafeHandle from);
+        internal static extern unsafe int git_diff_merge(
+            git_diff* onto,
+            git_diff* from);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_diff_index_to_workdir(
-            out DiffSafeHandle diff,
+            out git_diff* diff,
             git_repository* repo,
             IndexSafeHandle index,
             GitDiffOptions options);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_diff_tree_to_workdir(
-            out DiffSafeHandle diff,
+            out git_diff* diff,
             git_repository* repo,
             GitObjectSafeHandle oldTree,
             GitDiffOptions options);
@@ -547,8 +547,8 @@ namespace LibGit2Sharp.Core
             IntPtr payload);
 
         [DllImport(libgit2)]
-        internal static extern int git_diff_foreach(
-            DiffSafeHandle diff,
+        internal static extern unsafe int git_diff_foreach(
+            git_diff* diff,
             git_diff_file_cb fileCallback,
             git_diff_binary_cb binaryCallback,
             git_diff_hunk_cb hunkCallback,
@@ -556,15 +556,15 @@ namespace LibGit2Sharp.Core
             IntPtr payload);
 
         [DllImport(libgit2)]
-        internal static extern int git_diff_find_similar(
-            DiffSafeHandle diff,
+        internal static extern unsafe int git_diff_find_similar(
+            git_diff* diff,
             GitDiffFindOptions options);
 
         [DllImport(libgit2)]
-        internal static extern UIntPtr git_diff_num_deltas(DiffSafeHandle diff);
+        internal static extern unsafe UIntPtr git_diff_num_deltas(git_diff* diff);
 
         [DllImport(libgit2)]
-        internal static extern unsafe git_diff_delta* git_diff_get_delta(DiffSafeHandle diff, UIntPtr idx);
+        internal static extern unsafe git_diff_delta* git_diff_get_delta(git_diff* diff, UIntPtr idx);
 
         [DllImport(libgit2)]
         internal static extern int git_filter_register(
@@ -919,20 +919,20 @@ namespace LibGit2Sharp.Core
         internal static extern GitObjectType git_object_type(GitObjectSafeHandle obj);
 
         [DllImport(libgit2)]
-        internal static extern int git_patch_from_diff(out PatchSafeHandle patch, DiffSafeHandle diff, UIntPtr idx);
+        internal static extern unsafe int git_patch_from_diff(out git_patch* patch, git_diff* diff, UIntPtr idx);
 
         [DllImport(libgit2)]
-        internal static extern int git_patch_print(PatchSafeHandle patch, git_diff_line_cb print_cb, IntPtr payload);
+        internal static extern unsafe int git_patch_print(git_patch* patch, git_diff_line_cb print_cb, IntPtr payload);
 
         [DllImport(libgit2)]
-        internal static extern int git_patch_line_stats(
+        internal static extern unsafe int git_patch_line_stats(
             out UIntPtr total_context,
             out UIntPtr total_additions,
             out UIntPtr total_deletions,
-            PatchSafeHandle patch);
+            git_patch* patch);
 
         [DllImport(libgit2)]
-        internal static extern void git_patch_free(IntPtr patch);
+        internal static extern unsafe void git_patch_free(git_patch* patch);
 
         /* Push network progress notification function */
         internal delegate int git_push_transfer_progress(uint current, uint total, UIntPtr bytes, IntPtr payload);

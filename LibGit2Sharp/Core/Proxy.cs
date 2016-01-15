@@ -722,8 +722,8 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_diff_foreach(
-            DiffSafeHandle diff,
+        public static unsafe void git_diff_foreach(
+            git_diff* diff,
             NativeMethods.git_diff_file_cb fileCallback,
             NativeMethods.git_diff_hunk_cb hunkCallback,
             NativeMethods.git_diff_line_cb lineCallback)
@@ -732,7 +732,7 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
-        public static unsafe DiffSafeHandle git_diff_tree_to_index(
+        public static unsafe DiffHandle git_diff_tree_to_index(
             RepositoryHandle repo,
             IndexSafeHandle index,
             ObjectId oldTree,
@@ -740,26 +740,21 @@ namespace LibGit2Sharp.Core
         {
             using (var osw = new ObjectSafeWrapper(oldTree, repo, true))
             {
-                DiffSafeHandle diff;
+                git_diff* diff;
                 int res = NativeMethods.git_diff_tree_to_index(out diff, repo, osw.ObjectPtr, index, options);
                 Ensure.ZeroResult(res);
 
-                return diff;
+                return new DiffHandle(diff, true);
             }
         }
 
-        public static void git_diff_free(IntPtr diff)
-        {
-            NativeMethods.git_diff_free(diff);
-        }
-
-        public static void git_diff_merge(DiffSafeHandle onto, DiffSafeHandle from)
+        public static unsafe void git_diff_merge(DiffHandle onto, DiffHandle from)
         {
             int res = NativeMethods.git_diff_merge(onto, from);
             Ensure.ZeroResult(res);
         }
 
-        public static unsafe DiffSafeHandle git_diff_tree_to_tree(
+        public static unsafe DiffHandle git_diff_tree_to_tree(
             RepositoryHandle repo,
             ObjectId oldTree,
             ObjectId newTree,
@@ -768,53 +763,53 @@ namespace LibGit2Sharp.Core
             using (var osw1 = new ObjectSafeWrapper(oldTree, repo, true))
             using (var osw2 = new ObjectSafeWrapper(newTree, repo, true))
             {
-                DiffSafeHandle diff;
+                git_diff* diff;
                 int res = NativeMethods.git_diff_tree_to_tree(out diff, repo, osw1.ObjectPtr, osw2.ObjectPtr, options);
                 Ensure.ZeroResult(res);
 
-                return diff;
+                return new DiffHandle(diff, true);
             }
         }
 
-        public static unsafe DiffSafeHandle git_diff_index_to_workdir(
+        public static unsafe DiffHandle git_diff_index_to_workdir(
             RepositoryHandle repo,
             IndexSafeHandle index,
             GitDiffOptions options)
         {
-            DiffSafeHandle diff;
+            git_diff* diff;
             int res = NativeMethods.git_diff_index_to_workdir(out diff, repo, index, options);
             Ensure.ZeroResult(res);
 
-            return diff;
+            return new DiffHandle(diff, true);
         }
 
-        public static unsafe DiffSafeHandle git_diff_tree_to_workdir(
+        public static unsafe DiffHandle git_diff_tree_to_workdir(
            RepositoryHandle repo,
            ObjectId oldTree,
            GitDiffOptions options)
         {
             using (var osw = new ObjectSafeWrapper(oldTree, repo, true))
             {
-                DiffSafeHandle diff;
+                git_diff* diff;
                 int res = NativeMethods.git_diff_tree_to_workdir(out diff, repo, osw.ObjectPtr, options);
                 Ensure.ZeroResult(res);
 
-                return diff;
+                return new DiffHandle(diff, true);
             }
         }
 
-        public static void git_diff_find_similar(DiffSafeHandle diff, GitDiffFindOptions options)
+        public static unsafe void git_diff_find_similar(DiffHandle diff, GitDiffFindOptions options)
         {
             int res = NativeMethods.git_diff_find_similar(diff, options);
             Ensure.ZeroResult(res);
         }
 
-        public static int git_diff_num_deltas(DiffSafeHandle diff)
+        public static unsafe int git_diff_num_deltas(DiffHandle diff)
         {
             return (int)NativeMethods.git_diff_num_deltas(diff);
         }
 
-        public static unsafe git_diff_delta* git_diff_get_delta(DiffSafeHandle diff, int idx)
+        public static unsafe git_diff_delta* git_diff_get_delta(DiffHandle diff, int idx)
         {
             return NativeMethods.git_diff_get_delta(diff, (UIntPtr)idx);
         }
@@ -1519,26 +1514,21 @@ namespace LibGit2Sharp.Core
 
         #region git_patch_
 
-        public static void git_patch_free(IntPtr patch)
+        public static unsafe PatchHandle git_patch_from_diff(DiffHandle diff, int idx)
         {
-            NativeMethods.git_patch_free(patch);
-        }
-
-        public static PatchSafeHandle git_patch_from_diff(DiffSafeHandle diff, int idx)
-        {
-            PatchSafeHandle handle;
+            git_patch* handle;
             int res = NativeMethods.git_patch_from_diff(out handle, diff, (UIntPtr)idx);
             Ensure.ZeroResult(res);
-            return handle;
+            return new PatchHandle(handle, true);
         }
 
-        public static void git_patch_print(PatchSafeHandle patch, NativeMethods.git_diff_line_cb printCallback)
+        public static unsafe void git_patch_print(PatchHandle patch, NativeMethods.git_diff_line_cb printCallback)
         {
             int res = NativeMethods.git_patch_print(patch, printCallback, IntPtr.Zero);
             Ensure.ZeroResult(res);
         }
 
-        public static Tuple<int, int> git_patch_line_stats(PatchSafeHandle patch)
+        public static unsafe Tuple<int, int> git_patch_line_stats(PatchHandle patch)
         {
             UIntPtr ctx, add, del;
             int res = NativeMethods.git_patch_line_stats(out ctx, out add, out del, patch);
