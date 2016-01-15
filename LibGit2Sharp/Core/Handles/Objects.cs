@@ -832,4 +832,832 @@ namespace LibGit2Sharp.Core
         }
     }
 
+    internal unsafe class TreeBuilderHandle : IDisposable
+    {
+        git_treebuilder* ptr;
+        internal git_treebuilder* Handle
+        {
+            get
+            {
+                return ptr;
+            }
+        }
+
+        bool owned;
+        bool disposed;
+
+        public unsafe TreeBuilderHandle(git_treebuilder* handle, bool owned)
+        {
+            this.ptr = handle;
+            this.owned = owned;
+        }
+
+        public unsafe TreeBuilderHandle(IntPtr ptr, bool owned)
+        {
+            this.ptr = (git_treebuilder*) ptr.ToPointer();
+            this.owned = owned;
+        }
+
+        ~TreeBuilderHandle()
+        {
+            Dispose(false);
+        }
+
+        internal bool IsNull
+        {
+            get
+            {
+                return ptr == null;
+            }
+        }
+
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (owned)
+                {
+                    NativeMethods.git_treebuilder_free(ptr);
+                    ptr = null;
+                }
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public static implicit operator git_treebuilder*(TreeBuilderHandle handle)
+        {
+            return handle.Handle;
+        }
+    }
+
+    internal unsafe class PackBuilderHandle : IDisposable
+    {
+        git_packbuilder* ptr;
+        internal git_packbuilder* Handle
+        {
+            get
+            {
+                return ptr;
+            }
+        }
+
+        bool owned;
+        bool disposed;
+
+        public unsafe PackBuilderHandle(git_packbuilder* handle, bool owned)
+        {
+            this.ptr = handle;
+            this.owned = owned;
+        }
+
+        public unsafe PackBuilderHandle(IntPtr ptr, bool owned)
+        {
+            this.ptr = (git_packbuilder*) ptr.ToPointer();
+            this.owned = owned;
+        }
+
+        ~PackBuilderHandle()
+        {
+            Dispose(false);
+        }
+
+        internal bool IsNull
+        {
+            get
+            {
+                return ptr == null;
+            }
+        }
+
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (owned)
+                {
+                    NativeMethods.git_packbuilder_free(ptr);
+                    ptr = null;
+                }
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public static implicit operator git_packbuilder*(PackBuilderHandle handle)
+        {
+            return handle.Handle;
+        }
+    }
+
+    internal unsafe class NoteHandle : IDisposable
+    {
+        git_note* ptr;
+        internal git_note* Handle
+        {
+            get
+            {
+                return ptr;
+            }
+        }
+
+        bool owned;
+        bool disposed;
+
+        public unsafe NoteHandle(git_note* handle, bool owned)
+        {
+            this.ptr = handle;
+            this.owned = owned;
+        }
+
+        public unsafe NoteHandle(IntPtr ptr, bool owned)
+        {
+            this.ptr = (git_note*) ptr.ToPointer();
+            this.owned = owned;
+        }
+
+        ~NoteHandle()
+        {
+            Dispose(false);
+        }
+
+        internal bool IsNull
+        {
+            get
+            {
+                return ptr == null;
+            }
+        }
+
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (owned)
+                {
+                    NativeMethods.git_note_free(ptr);
+                    ptr = null;
+                }
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public static implicit operator git_note*(NoteHandle handle)
+        {
+            return handle.Handle;
+        }
+    }
+
+    internal unsafe class DescribeResultHandle : IDisposable
+    {
+        git_describe_result* ptr;
+        internal git_describe_result* Handle
+        {
+            get
+            {
+                return ptr;
+            }
+        }
+
+        bool owned;
+        bool disposed;
+
+        public unsafe DescribeResultHandle(git_describe_result* handle, bool owned)
+        {
+            this.ptr = handle;
+            this.owned = owned;
+        }
+
+        public unsafe DescribeResultHandle(IntPtr ptr, bool owned)
+        {
+            this.ptr = (git_describe_result*) ptr.ToPointer();
+            this.owned = owned;
+        }
+
+        ~DescribeResultHandle()
+        {
+            Dispose(false);
+        }
+
+        internal bool IsNull
+        {
+            get
+            {
+                return ptr == null;
+            }
+        }
+
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (owned)
+                {
+                    NativeMethods.git_describe_result_free(ptr);
+                    ptr = null;
+                }
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public static implicit operator git_describe_result*(DescribeResultHandle handle)
+        {
+            return handle.Handle;
+        }
+    }
+
+    internal unsafe class SubmoduleHandle : IDisposable
+    {
+        git_submodule* ptr;
+        internal git_submodule* Handle
+        {
+            get
+            {
+                return ptr;
+            }
+        }
+
+        bool owned;
+        bool disposed;
+
+        public unsafe SubmoduleHandle(git_submodule* handle, bool owned)
+        {
+            this.ptr = handle;
+            this.owned = owned;
+        }
+
+        public unsafe SubmoduleHandle(IntPtr ptr, bool owned)
+        {
+            this.ptr = (git_submodule*) ptr.ToPointer();
+            this.owned = owned;
+        }
+
+        ~SubmoduleHandle()
+        {
+            Dispose(false);
+        }
+
+        internal bool IsNull
+        {
+            get
+            {
+                return ptr == null;
+            }
+        }
+
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (owned)
+                {
+                    NativeMethods.git_submodule_free(ptr);
+                    ptr = null;
+                }
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public static implicit operator git_submodule*(SubmoduleHandle handle)
+        {
+            return handle.Handle;
+        }
+    }
+
+    internal unsafe class AnnotatedCommitHandle : IDisposable
+    {
+        git_annotated_commit* ptr;
+        internal git_annotated_commit* Handle
+        {
+            get
+            {
+                return ptr;
+            }
+        }
+
+        bool owned;
+        bool disposed;
+
+        public unsafe AnnotatedCommitHandle(git_annotated_commit* handle, bool owned)
+        {
+            this.ptr = handle;
+            this.owned = owned;
+        }
+
+        public unsafe AnnotatedCommitHandle(IntPtr ptr, bool owned)
+        {
+            this.ptr = (git_annotated_commit*) ptr.ToPointer();
+            this.owned = owned;
+        }
+
+        ~AnnotatedCommitHandle()
+        {
+            Dispose(false);
+        }
+
+        internal bool IsNull
+        {
+            get
+            {
+                return ptr == null;
+            }
+        }
+
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (owned)
+                {
+                    NativeMethods.git_annotated_commit_free(ptr);
+                    ptr = null;
+                }
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public static implicit operator git_annotated_commit*(AnnotatedCommitHandle handle)
+        {
+            return handle.Handle;
+        }
+    }
+
+    internal unsafe class ObjectDatabaseHandle : IDisposable
+    {
+        git_odb* ptr;
+        internal git_odb* Handle
+        {
+            get
+            {
+                return ptr;
+            }
+        }
+
+        bool owned;
+        bool disposed;
+
+        public unsafe ObjectDatabaseHandle(git_odb* handle, bool owned)
+        {
+            this.ptr = handle;
+            this.owned = owned;
+        }
+
+        public unsafe ObjectDatabaseHandle(IntPtr ptr, bool owned)
+        {
+            this.ptr = (git_odb*) ptr.ToPointer();
+            this.owned = owned;
+        }
+
+        ~ObjectDatabaseHandle()
+        {
+            Dispose(false);
+        }
+
+        internal bool IsNull
+        {
+            get
+            {
+                return ptr == null;
+            }
+        }
+
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (owned)
+                {
+                    NativeMethods.git_odb_free(ptr);
+                    ptr = null;
+                }
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public static implicit operator git_odb*(ObjectDatabaseHandle handle)
+        {
+            return handle.Handle;
+        }
+    }
+
+    internal unsafe class RevWalkerHandle : IDisposable
+    {
+        git_revwalk* ptr;
+        internal git_revwalk* Handle
+        {
+            get
+            {
+                return ptr;
+            }
+        }
+
+        bool owned;
+        bool disposed;
+
+        public unsafe RevWalkerHandle(git_revwalk* handle, bool owned)
+        {
+            this.ptr = handle;
+            this.owned = owned;
+        }
+
+        public unsafe RevWalkerHandle(IntPtr ptr, bool owned)
+        {
+            this.ptr = (git_revwalk*) ptr.ToPointer();
+            this.owned = owned;
+        }
+
+        ~RevWalkerHandle()
+        {
+            Dispose(false);
+        }
+
+        internal bool IsNull
+        {
+            get
+            {
+                return ptr == null;
+            }
+        }
+
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (owned)
+                {
+                    NativeMethods.git_revwalk_free(ptr);
+                    ptr = null;
+                }
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public static implicit operator git_revwalk*(RevWalkerHandle handle)
+        {
+            return handle.Handle;
+        }
+    }
+
+    internal unsafe class RemoteHandle : IDisposable
+    {
+        git_remote* ptr;
+        internal git_remote* Handle
+        {
+            get
+            {
+                return ptr;
+            }
+        }
+
+        bool owned;
+        bool disposed;
+
+        public unsafe RemoteHandle(git_remote* handle, bool owned)
+        {
+            this.ptr = handle;
+            this.owned = owned;
+        }
+
+        public unsafe RemoteHandle(IntPtr ptr, bool owned)
+        {
+            this.ptr = (git_remote*) ptr.ToPointer();
+            this.owned = owned;
+        }
+
+        ~RemoteHandle()
+        {
+            Dispose(false);
+        }
+
+        internal bool IsNull
+        {
+            get
+            {
+                return ptr == null;
+            }
+        }
+
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (owned)
+                {
+                    NativeMethods.git_remote_free(ptr);
+                    ptr = null;
+                }
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public static implicit operator git_remote*(RemoteHandle handle)
+        {
+            return handle.Handle;
+        }
+    }
+
+    internal unsafe class ObjectHandle : IDisposable
+    {
+        git_object* ptr;
+        internal git_object* Handle
+        {
+            get
+            {
+                return ptr;
+            }
+        }
+
+        bool owned;
+        bool disposed;
+
+        public unsafe ObjectHandle(git_object* handle, bool owned)
+        {
+            this.ptr = handle;
+            this.owned = owned;
+        }
+
+        public unsafe ObjectHandle(IntPtr ptr, bool owned)
+        {
+            this.ptr = (git_object*) ptr.ToPointer();
+            this.owned = owned;
+        }
+
+        ~ObjectHandle()
+        {
+            Dispose(false);
+        }
+
+        internal bool IsNull
+        {
+            get
+            {
+                return ptr == null;
+            }
+        }
+
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (owned)
+                {
+                    NativeMethods.git_object_free(ptr);
+                    ptr = null;
+                }
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public static implicit operator git_object*(ObjectHandle handle)
+        {
+            return handle.Handle;
+        }
+    }
+
+    internal unsafe class RebaseHandle : IDisposable
+    {
+        git_rebase* ptr;
+        internal git_rebase* Handle
+        {
+            get
+            {
+                return ptr;
+            }
+        }
+
+        bool owned;
+        bool disposed;
+
+        public unsafe RebaseHandle(git_rebase* handle, bool owned)
+        {
+            this.ptr = handle;
+            this.owned = owned;
+        }
+
+        public unsafe RebaseHandle(IntPtr ptr, bool owned)
+        {
+            this.ptr = (git_rebase*) ptr.ToPointer();
+            this.owned = owned;
+        }
+
+        ~RebaseHandle()
+        {
+            Dispose(false);
+        }
+
+        internal bool IsNull
+        {
+            get
+            {
+                return ptr == null;
+            }
+        }
+
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (owned)
+                {
+                    NativeMethods.git_rebase_free(ptr);
+                    ptr = null;
+                }
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public static implicit operator git_rebase*(RebaseHandle handle)
+        {
+            return handle.Handle;
+        }
+    }
+
+    internal unsafe class OdbStreamHandle : IDisposable
+    {
+        git_odb_stream* ptr;
+        internal git_odb_stream* Handle
+        {
+            get
+            {
+                return ptr;
+            }
+        }
+
+        bool owned;
+        bool disposed;
+
+        public unsafe OdbStreamHandle(git_odb_stream* handle, bool owned)
+        {
+            this.ptr = handle;
+            this.owned = owned;
+        }
+
+        public unsafe OdbStreamHandle(IntPtr ptr, bool owned)
+        {
+            this.ptr = (git_odb_stream*) ptr.ToPointer();
+            this.owned = owned;
+        }
+
+        ~OdbStreamHandle()
+        {
+            Dispose(false);
+        }
+
+        internal bool IsNull
+        {
+            get
+            {
+                return ptr == null;
+            }
+        }
+
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (owned)
+                {
+                    NativeMethods.git_odb_stream_free(ptr);
+                    ptr = null;
+                }
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public static implicit operator git_odb_stream*(OdbStreamHandle handle)
+        {
+            return handle.Handle;
+        }
+    }
+
 }

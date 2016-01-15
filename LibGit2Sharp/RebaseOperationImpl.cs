@@ -14,7 +14,7 @@ namespace LibGit2Sharp
         /// <param name="committer">Committer Identity to use for the rebased commits.</param>
         /// <param name="options">Options controlling rebase behavior.</param>
         /// <returns>RebaseResult that describes the result of the rebase operation.</returns>
-        public static RebaseResult Run(RebaseSafeHandle rebaseOperationHandle,
+        public static RebaseResult Run(RebaseHandle rebaseOperationHandle,
             Repository repository,
             Identity committer,
             RebaseOptions options)
@@ -50,7 +50,7 @@ namespace LibGit2Sharp
             return rebaseResult;
         }
 
-        private static RebaseResult CompleteRebase(RebaseSafeHandle rebaseOperationHandle, Identity committer)
+        private static RebaseResult CompleteRebase(RebaseHandle rebaseOperationHandle, Identity committer)
         {
             long totalStepCount = Proxy.git_rebase_operation_entrycount(rebaseOperationHandle);
 
@@ -74,7 +74,7 @@ namespace LibGit2Sharp
         /// <param name="stepToApplyIndex"></param>
         /// <param name="totalStepCount"/>
         /// <returns></returns>
-        private static unsafe RebaseResult RunRebaseStep(RebaseSafeHandle rebaseOperationHandle,
+        private static unsafe RebaseResult RunRebaseStep(RebaseHandle rebaseOperationHandle,
                                                   Repository repository,
                                                   Identity committer,
                                                   RebaseOptions options,
@@ -153,7 +153,7 @@ namespace LibGit2Sharp
             return rebaseSequenceResult;
         }
 
-        private static RebaseStepResult ApplyPickStep(RebaseSafeHandle rebaseOperationHandle, Repository repository, Identity committer, RebaseOptions options, RebaseStepInfo stepToApplyInfo)
+        private static RebaseStepResult ApplyPickStep(RebaseHandle rebaseOperationHandle, Repository repository, Identity committer, RebaseOptions options, RebaseStepInfo stepToApplyInfo)
         {
             RebaseStepResult rebaseStepResult;
 
@@ -212,7 +212,7 @@ namespace LibGit2Sharp
         /// <returns></returns>
         private static RebaseProgress NextRebaseStep(
             Repository repository,
-            RebaseSafeHandle rebaseOperationHandle)
+            RebaseHandle rebaseOperationHandle)
         {
             // stepBeingApplied indicates the step that will be applied by by git_rebase_next.
             // The current step does not get incremented until git_rebase_next (except on

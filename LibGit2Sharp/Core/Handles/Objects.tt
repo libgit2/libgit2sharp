@@ -24,6 +24,18 @@ var cNames = new[] {
     "git_index_conflict_iterator",
     "git_index",
     "git_reflog",
+    "git_treebuilder",
+    "git_packbuilder",
+    "git_note",
+    "git_describe_result",
+    "git_submodule",
+    "git_annotated_commit",
+    "git_odb",
+    "git_revwalk",
+    "git_remote",
+    "git_object",
+    "git_rebase",
+    "git_odb_stream",
 };
 
 var csNames = new[] {
@@ -39,6 +51,18 @@ var csNames = new[] {
     "ConflictIteratorHandle",
     "IndexHandle",
     "ReflogHandle",
+    "TreeBuilderHandle",
+    "PackBuilderHandle",
+    "NoteHandle",
+    "DescribeResultHandle",
+    "SubmoduleHandle",
+    "AnnotatedCommitHandle",
+    "ObjectDatabaseHandle",
+    "RevWalkerHandle",
+    "RemoteHandle",
+    "ObjectHandle",
+    "RebaseHandle",
+    "OdbStreamHandle",
 };
 
 for (var i = 0; i < cNames.Length; i++)

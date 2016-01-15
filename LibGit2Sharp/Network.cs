@@ -115,7 +115,7 @@ namespace LibGit2Sharp
 
         private IEnumerable<Reference> ListReferencesInternal(string url, CredentialsHandler credentialsProvider)
         {
-            using (RemoteSafeHandle remoteHandle = BuildRemoteSafeHandle(repository.Handle, url))
+            using (RemoteHandle remoteHandle = BuildRemoteHandle(repository.Handle, url))
             {
                 GitRemoteCallbacks gitCallbacks = new GitRemoteCallbacks { version = 1 };
 
@@ -130,24 +130,24 @@ namespace LibGit2Sharp
             }
         }
 
-        static RemoteSafeHandle BuildRemoteSafeHandle(RepositoryHandle repoHandle, Remote remote)
+        static RemoteHandle BuildRemoteHandle(RepositoryHandle repoHandle, Remote remote)
         {
             Debug.Assert(repoHandle != null && !repoHandle.IsNull);
             Debug.Assert(remote != null && remote.Name != null);
 
-            RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repoHandle, remote.Name, true);
-            Debug.Assert(remoteHandle != null && !(remoteHandle.IsInvalid || remoteHandle.IsInvalid));
+            RemoteHandle remoteHandle = Proxy.git_remote_lookup(repoHandle, remote.Name, true);
+            Debug.Assert(remoteHandle != null && !(remoteHandle.IsNull));
 
             return remoteHandle;
         }
 
-        static RemoteSafeHandle BuildRemoteSafeHandle(RepositoryHandle repoHandle, string url)
+        static RemoteHandle BuildRemoteHandle(RepositoryHandle repoHandle, string url)
         {
             Debug.Assert(repoHandle != null && !repoHandle.IsNull);
             Debug.Assert(url != null);
 
-            RemoteSafeHandle remoteHandle = Proxy.git_remote_create_anonymous(repoHandle, url);
-            Debug.Assert(remoteHandle != null && !(remoteHandle.IsClosed || remoteHandle.IsInvalid));
+            RemoteHandle remoteHandle = Proxy.git_remote_create_anonymous(repoHandle, url);
+            Debug.Assert(remoteHandle != null && !(remoteHandle.IsNull));
 
             return remoteHandle;
         }
@@ -159,7 +159,7 @@ namespace LibGit2Sharp
             string logMessage,
             IEnumerable<string> refspecs)
         {
-            using (RemoteSafeHandle remoteHandle = BuildRemoteSafeHandle(repoHandle, remote))
+            using (RemoteHandle remoteHandle = BuildRemoteHandle(repoHandle, remote))
             {
                 DoFetch(options, remoteHandle, logMessage, refspecs);
             }
@@ -172,15 +172,15 @@ namespace LibGit2Sharp
             string logMessage,
             IEnumerable<string> refspecs)
         {
-            using (RemoteSafeHandle remoteHandle = BuildRemoteSafeHandle(repoHandle, url))
+            using (RemoteHandle remoteHandle = BuildRemoteHandle(repoHandle, url))
             {
                 DoFetch(options, remoteHandle, logMessage, refspecs);
             }
         }
 
-        private static void DoFetch(FetchOptions options, RemoteSafeHandle remoteHandle, string logMessage, IEnumerable<string> refspecs)
+        private static void DoFetch(FetchOptions options, RemoteHandle remoteHandle, string logMessage, IEnumerable<string> refspecs)
         {
-            Debug.Assert(remoteHandle != null && !remoteHandle.IsClosed && !remoteHandle.IsInvalid);
+            Debug.Assert(remoteHandle != null && !remoteHandle.IsNull);
 
             options = options ?? new FetchOptions();
 
@@ -517,7 +517,7 @@ namespace LibGit2Sharp
             }
 
             // Load the remote.
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, remote.Name, true))
+            using (RemoteHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, remote.Name, true))
             {
                 var callbacks = new RemoteCallbacks(pushOptions);
                 GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();

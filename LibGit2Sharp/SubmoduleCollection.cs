@@ -146,7 +146,7 @@ namespace LibGit2Sharp
                           });
         }
 
-        internal T Lookup<T>(string name, Func<SubmoduleSafeHandle, T> selector, bool throwIfNotFound = false)
+        internal T Lookup<T>(string name, Func<SubmoduleHandle, T> selector, bool throwIfNotFound = false)
         {
             using (var handle = Proxy.git_submodule_lookup(repo.Handle, name))
             {

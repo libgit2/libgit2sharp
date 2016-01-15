@@ -17,7 +17,7 @@ namespace LibGit2Sharp
     public class ObjectDatabase : IEnumerable<GitObject>
     {
         private readonly Repository repo;
-        private readonly ObjectDatabaseSafeHandle handle;
+        private readonly ObjectDatabaseHandle handle;
 
         /// <summary>
         /// Needed for mocking purposes.

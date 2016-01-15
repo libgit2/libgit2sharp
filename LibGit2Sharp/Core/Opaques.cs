@@ -15,5 +15,17 @@ namespace LibGit2Sharp.Core
     internal struct git_index {}
     internal struct git_reflog {}
     internal struct git_reflog_entry {}
+    internal struct git_treebuilder {}
+    internal struct git_packbuilder {}
+    internal struct git_note {}
+    internal struct git_describe_result {}
+    internal struct git_submodule {}
+    internal struct git_annotated_commit {}
+    internal struct git_odb {}
+    internal struct git_revwalk {}
+    internal struct git_remote {}
+    internal struct git_object {}
+    internal struct git_rebase {}
+    internal struct git_odb_stream {}
 }
 

@@ -73,19 +73,16 @@
     <Compile Include="Core\GitFetchOptions.cs" />
     <Compile Include="Core\GitPushUpdate.cs" />
     <Compile Include="Core\GitSubmoduleIgnore.cs" />
-    <Compile Include="Core\Handles\PackBuilderSafeHandle.cs" />
     <Compile Include="Core\Platform.cs" />
     <Compile Include="Core\GitWriteStream.cs" />
     <Compile Include="Core\WriteStream.cs" />
     <Compile Include="Core\GitRebaseOperation.cs" />
     <Compile Include="Core\GitRebaseOptions.cs" />
-    <Compile Include="Core\Handles\RebaseSafeHandle.cs" />
     <Compile Include="DescribeOptions.cs" />
     <Compile Include="DescribeStrategy.cs" />
     <Compile Include="Core\GitDescribeFormatOptions.cs" />
     <Compile Include="Core\GitIndexReucEntry.cs" />
     <Compile Include="Core\GitSubmoduleOptions.cs" />
-    <Compile Include="Core\Handles\DescribeResultSafeHandle.cs" />
     <Compile Include="DiffAlgorithm.cs" />
     <Compile Include="EntryExistsException.cs" />
     <Compile Include="FetchOptionsBase.cs" />
@@ -142,7 +139,6 @@
     <Compile Include="Core\EncodingMarshaler.cs" />
     <Compile Include="Core\GitMergeOpts.cs" />
     <Compile Include="Core\GitBlame.cs" />
-    <Compile Include="Core\Handles\GitAnnotatedCommitHandle.cs" />
     <Compile Include="Core\PushTransferProgressCallbacks.cs" />
     <Compile Include="Core\PackbuilderCallbacks.cs" />
     <Compile Include="HistoryDivergence.cs" />
@@ -185,7 +181,6 @@
     <Compile Include="ConflictCollection.cs" />
     <Compile Include="RemoteUpdater.cs" />
     <Compile Include="RemoveFromIndexException.cs" />
-    <Compile Include="Core\Handles\NullRepositorySafeHandle.cs" />
     <Compile Include="GitLink.cs" />
     <Compile Include="Core\RepositoryOpenFlags.cs" />
     <Compile Include="RewriteHistoryOptions.cs" />
@@ -195,7 +190,6 @@
     <Compile Include="ReflogCollection.cs" />
     <Compile Include="Core\PathCase.cs" />
     <Compile Include="MatchedPathsAggregator.cs" />
-    <Compile Include="Core\Handles\SubmoduleSafeHandle.cs" />
     <Compile Include="Core\SubmoduleLazyGroup.cs" />
     <Compile Include="Core\GitPushOptions.cs" />
     <Compile Include="Network.cs" />
@@ -224,7 +218,6 @@
     <Compile Include="Core\GitObjectLazyGroup.cs" />
     <Compile Include="Core\GitSmartSubtransportRegistration.cs" />
     <Compile Include="Core\GitTransferProgress.cs" />
-    <Compile Include="Core\Handles\NullGitObjectSafeHandle.cs" />
     <Compile Include="Core\ILazy.cs" />
     <Compile Include="Core\LazyGroup.cs" />
     <Compile Include="Core\Proxy.cs" />
@@ -264,11 +257,6 @@
     <Compile Include="Core\GitErrorCategory.cs" />
     <Compile Include="Core\GitOdbBackend.cs" />
     <Compile Include="Core\GitOdbBackendStream.cs" />
-    <Compile Include="Core\Handles\NoteSafeHandle.cs" />
-    <Compile Include="Core\Handles\ObjectDatabaseSafeHandle.cs" />
-    <Compile Include="Core\Handles\GitObjectSafeHandle.cs" />
-    <Compile Include="Core\Handles\NotOwnedSafeHandleBase.cs" />
-    <Compile Include="Core\Handles\TreeBuilderSafeHandle.cs" />
     <Compile Include="DetachedHead.cs" />
     <Compile Include="Diff.cs" />
     <Compile Include="IRepository.cs" />
@@ -291,11 +279,6 @@
     <Compile Include="Core\GitTime.cs" />
     <Compile Include="Core\NativeMethods.cs" />
     <Compile Include="Core\ObjectSafeWrapper.cs" />
-    <Compile Include="Core\Handles\RemoteSafeHandle.cs" />
-    <Compile Include="Core\Handles\RevWalkerSafeHandle.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Core\Handles\SafeHandleBase.cs" />
     <Compile Include="Core\Utf8Marshaler.cs" />
     <Compile Include="DirectReference.cs" />
     <Compile Include="Core\GitIndexTime.cs" />
@@ -341,7 +324,6 @@
     <Compile Include="Version.cs" />
     <Compile Include="VoidReference.cs" />
     <Compile Include="Core\RawContentStream.cs" />
-    <Compile Include="Core\Handles\OdbStreamSafeHandle.cs" />
     <Compile Include="SupportedCredentialTypes.cs" />
     <Compile Include="StashApplyProgress.cs" />
     <Compile Include="StashApplyOptions.cs" />

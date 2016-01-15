@@ -28,7 +28,7 @@ namespace LibGit2Sharp
         protected Remote()
         { }
 
-        private Remote(RemoteSafeHandle handle, Repository repository)
+        private Remote(RemoteHandle handle, Repository repository)
         {
             this.repository = repository;
             Name = Proxy.git_remote_name(handle);
@@ -38,7 +38,7 @@ namespace LibGit2Sharp
             refSpecs = new RefSpecCollection(handle);
         }
 
-        internal static Remote BuildFromPtr(RemoteSafeHandle handle, Repository repo)
+        internal static Remote BuildFromPtr(RemoteHandle handle, Repository repo)
         {
             var remote = new Remote(handle, repo);
 
@@ -100,7 +100,7 @@ namespace LibGit2Sharp
         /// <returns>The transformed reference.</returns>
         internal unsafe string FetchSpecTransformToSource(string reference)
         {
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, Name, true))
+            using (RemoteHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, Name, true))
             {
                 git_refspec* fetchSpecPtr = Proxy.git_remote_get_refspec(remoteHandle, 0);
                 return Proxy.git_refspec_rtransform(fetchSpecPtr, reference);

@@ -62,6 +62,13 @@ namespace LibGit2Sharp
             this.repository = repo;
         }
 
+        unsafe AnnotatedCommitHandle AnnotatedCommitHandleFromRefHandle(ReferenceHandle refHandle)
+        {
+            return (refHandle == null) ?
+                new AnnotatedCommitHandle(null, false) :
+                Proxy.git_annotated_commit_from_ref(this.repository.Handle, refHandle);
+        }
+
         /// <summary>
         /// Start a rebase operation.
         /// </summary>
@@ -92,14 +99,6 @@ namespace LibGit2Sharp
                     this.repository.Refs.RetrieveReferencePtr(b.CanonicalName);
             };
 
-            Func<ReferenceHandle, GitAnnotatedCommitHandle> AnnotatedCommitHandleFromRefHandle =
-                (ReferenceHandle refHandle) =>
-            {
-                return (refHandle == null) ?
-                    new GitAnnotatedCommitHandle() :
-                    Proxy.git_annotated_commit_from_ref(this.repository.Handle, refHandle);
-            };
-
             using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
             {
                 GitRebaseOptions gitRebaseOptions = new GitRebaseOptions()
@@ -111,10 +110,10 @@ namespace LibGit2Sharp
                 using (ReferenceHandle branchRefPtr = RefHandleFromBranch(branch))
                 using (ReferenceHandle upstreamRefPtr = RefHandleFromBranch(upstream))
                 using (ReferenceHandle ontoRefPtr = RefHandleFromBranch(onto))
-                using (GitAnnotatedCommitHandle annotatedBranchCommitHandle = AnnotatedCommitHandleFromRefHandle(branchRefPtr))
-                using (GitAnnotatedCommitHandle upstreamRefAnnotatedCommitHandle = AnnotatedCommitHandleFromRefHandle(upstreamRefPtr))
-                using (GitAnnotatedCommitHandle ontoRefAnnotatedCommitHandle = AnnotatedCommitHandleFromRefHandle(ontoRefPtr))
-                using (RebaseSafeHandle rebaseOperationHandle = Proxy.git_rebase_init(this.repository.Handle,
+                using (AnnotatedCommitHandle annotatedBranchCommitHandle = AnnotatedCommitHandleFromRefHandle(branchRefPtr))
+                using (AnnotatedCommitHandle upstreamRefAnnotatedCommitHandle = AnnotatedCommitHandleFromRefHandle(upstreamRefPtr))
+                using (AnnotatedCommitHandle ontoRefAnnotatedCommitHandle = AnnotatedCommitHandleFromRefHandle(ontoRefPtr))
+                using (RebaseHandle rebaseOperationHandle = Proxy.git_rebase_init(this.repository.Handle,
                                                                                       annotatedBranchCommitHandle,
                                                                                       upstreamRefAnnotatedCommitHandle,
                                                                                       ontoRefAnnotatedCommitHandle,
@@ -150,7 +149,7 @@ namespace LibGit2Sharp
                     checkout_options = checkoutOptionsWrapper.Options,
                 };
 
-                using (RebaseSafeHandle rebase = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
+                using (RebaseHandle rebase = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
                 {
                     // TODO: Should we check the pre-conditions for committing here
                     // for instance - what if we had failed on the git_rebase_finish call,
@@ -213,7 +212,7 @@ namespace LibGit2Sharp
                     checkout_options = checkoutOptionsWrapper.Options,
                 };
 
-                using (RebaseSafeHandle rebase = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
+                using (RebaseHandle rebase = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
                 {
                     Proxy.git_rebase_abort(rebase);
                 }
@@ -235,7 +234,7 @@ namespace LibGit2Sharp
                 version = 1,
             };
 
-            using (RebaseSafeHandle rebaseHandle = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
+            using (RebaseHandle rebaseHandle = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
             {
                 long currentStepIndex = Proxy.git_rebase_operation_current(rebaseHandle);
                 git_rebase_operation* gitRebasestepInfo = Proxy.git_rebase_operation_byindex(rebaseHandle, currentStepIndex);
@@ -263,7 +262,7 @@ namespace LibGit2Sharp
                 version = 1,
             };
 
-            using (RebaseSafeHandle rebaseHandle = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
+            using (RebaseHandle rebaseHandle = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
             {
                 git_rebase_operation* gitRebasestepInfo = Proxy.git_rebase_operation_byindex(rebaseHandle, stepIndex);
                 var stepInfo = new RebaseStepInfo(gitRebasestepInfo->type,
@@ -284,7 +283,7 @@ namespace LibGit2Sharp
                 version = 1,
             };
 
-            using (RebaseSafeHandle rebaseHandle = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
+            using (RebaseHandle rebaseHandle = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
             {
                 return Proxy.git_rebase_operation_current(rebaseHandle);
             }
@@ -301,7 +300,7 @@ namespace LibGit2Sharp
                 version = 1,
             };
 
-            using (RebaseSafeHandle rebaseHandle = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
+            using (RebaseHandle rebaseHandle = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
             {
                 return Proxy.git_rebase_operation_entrycount(rebaseHandle);
             }
