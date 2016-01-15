@@ -20,6 +20,7 @@ var cNames = new[] {
     "git_blame",
     "git_diff",
     "git_patch",
+    "git_config",
 };
 
 var csNames = new[] {
@@ -30,7 +31,8 @@ var csNames = new[] {
     "StatusListHandle",
     "BlameHandle",
     "DiffHandle",
-    "PatchHandle"
+    "PatchHandle",
+    "ConfigurationHandle",
 };
 
 for (var i = 0; i < cNames.Length; i++)

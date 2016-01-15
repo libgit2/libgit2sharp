@@ -10,5 +10,6 @@ namespace LibGit2Sharp.Core
     internal struct git_blame {}
     internal struct git_diff {}
     internal struct git_patch {}
+    internal struct git_config {}
 }
 

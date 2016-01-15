@@ -556,4 +556,73 @@ namespace LibGit2Sharp.Core
         }
     }
 
+    internal unsafe class ConfigurationHandle : IDisposable
+    {
+        git_config* ptr;
+        internal git_config* Handle
+        {
+            get
+            {
+                return ptr;
+            }
+        }
+
+        bool owned;
+        bool disposed;
+
+        public unsafe ConfigurationHandle(git_config* handle, bool owned)
+        {
+            this.ptr = handle;
+            this.owned = owned;
+        }
+
+        public unsafe ConfigurationHandle(IntPtr ptr, bool owned)
+        {
+            this.ptr = (git_config*) ptr.ToPointer();
+            this.owned = owned;
+        }
+
+        ~ConfigurationHandle()
+        {
+            Dispose(false);
+        }
+
+        internal bool IsNull
+        {
+            get
+            {
+                return ptr == null;
+            }
+        }
+
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (owned)
+                {
+                    NativeMethods.git_config_free(ptr);
+                    ptr = null;
+                }
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public static implicit operator git_config*(ConfigurationHandle handle)
+        {
+            return handle.Handle;
+        }
+    }
+
 }

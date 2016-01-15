@@ -430,13 +430,13 @@ namespace LibGit2Sharp.Core
 
         #region git_config_
 
-        public static void git_config_add_file_ondisk(ConfigurationSafeHandle config, FilePath path, ConfigurationLevel level)
+        public static unsafe void git_config_add_file_ondisk(ConfigurationHandle config, FilePath path, ConfigurationLevel level)
         {
             int res = NativeMethods.git_config_add_file_ondisk(config, path, (uint)level, true);
             Ensure.ZeroResult(res);
         }
 
-        public static bool git_config_delete(ConfigurationSafeHandle config, string name)
+        public static unsafe bool git_config_delete(ConfigurationHandle config, string name)
         {
             int res = NativeMethods.git_config_delete_entry(config, name);
 
@@ -451,7 +451,7 @@ namespace LibGit2Sharp.Core
 
         const string anyValue = ".*";
 
-        public static bool git_config_delete_multivar(ConfigurationSafeHandle config, string name)
+        public static unsafe bool git_config_delete_multivar(ConfigurationHandle config, string name)
         {
             int res = NativeMethods.git_config_delete_multivar(config, name, anyValue);
 
@@ -479,12 +479,7 @@ namespace LibGit2Sharp.Core
             return ConvertPath(NativeMethods.git_config_find_xdg);
         }
 
-        public static void git_config_free(IntPtr config)
-        {
-            NativeMethods.git_config_free(config);
-        }
-
-        public static unsafe ConfigurationEntry<T> git_config_get_entry<T>(ConfigurationSafeHandle config, string key)
+        public static unsafe ConfigurationEntry<T> git_config_get_entry<T>(ConfigurationHandle config, string key)
         {
             if (!configurationParser.ContainsKey(typeof(T)))
             {
@@ -511,18 +506,18 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static ConfigurationSafeHandle git_config_new()
+        public static unsafe ConfigurationHandle git_config_new()
         {
-            ConfigurationSafeHandle handle;
+            git_config* handle;
             int res = NativeMethods.git_config_new(out handle);
             Ensure.ZeroResult(res);
 
-            return handle;
+            return new ConfigurationHandle(handle, true);
         }
 
-        public static ConfigurationSafeHandle git_config_open_level(ConfigurationSafeHandle parent, ConfigurationLevel level)
+        public static unsafe ConfigurationHandle git_config_open_level(ConfigurationHandle parent, ConfigurationLevel level)
         {
-            ConfigurationSafeHandle handle;
+            git_config* handle;
             int res = NativeMethods.git_config_open_level(out handle, parent, (uint)level);
 
             if (res == (int)GitErrorCode.NotFound)
@@ -532,7 +527,7 @@ namespace LibGit2Sharp.Core
 
             Ensure.ZeroResult(res);
 
-            return handle;
+            return new ConfigurationHandle(handle, true);
         }
 
         public static bool git_config_parse_bool(string value)
@@ -562,45 +557,45 @@ namespace LibGit2Sharp.Core
             return outVal;
         }
 
-        public static void git_config_set_bool(ConfigurationSafeHandle config, string name, bool value)
+        public static unsafe void git_config_set_bool(ConfigurationHandle config, string name, bool value)
         {
             int res = NativeMethods.git_config_set_bool(config, name, value);
             Ensure.ZeroResult(res);
         }
 
-        public static void git_config_set_int32(ConfigurationSafeHandle config, string name, int value)
+        public static unsafe void git_config_set_int32(ConfigurationHandle config, string name, int value)
         {
             int res = NativeMethods.git_config_set_int32(config, name, value);
             Ensure.ZeroResult(res);
         }
 
-        public static void git_config_set_int64(ConfigurationSafeHandle config, string name, long value)
+        public static unsafe void git_config_set_int64(ConfigurationHandle config, string name, long value)
         {
             int res = NativeMethods.git_config_set_int64(config, name, value);
             Ensure.ZeroResult(res);
         }
 
-        public static void git_config_set_string(ConfigurationSafeHandle config, string name, string value)
+        public static unsafe void git_config_set_string(ConfigurationHandle config, string name, string value)
         {
             int res = NativeMethods.git_config_set_string(config, name, value);
             Ensure.ZeroResult(res);
         }
 
-        public static ICollection<TResult> git_config_foreach<TResult>(
-            ConfigurationSafeHandle config,
+        public static unsafe ICollection<TResult> git_config_foreach<TResult>(
+            ConfigurationHandle config,
             Func<IntPtr, TResult> resultSelector)
         {
             return git_foreach(resultSelector, c => NativeMethods.git_config_foreach(config, (e, p) => c(e, p), IntPtr.Zero));
         }
 
         public static IEnumerable<ConfigurationEntry<string>> git_config_iterator_glob(
-            ConfigurationSafeHandle config,
+            ConfigurationHandle config,
             string regexp)
         {
-            ConfigurationIteratorSafeHandle iter;
-            var res = NativeMethods.git_config_iterator_glob_new(out iter, config, regexp);
+            IntPtr iter;
+            var res = NativeMethods.git_config_iterator_glob_new(out iter, config.AsIntPtr(), regexp);
             Ensure.ZeroResult(res);
-            using (iter)
+            try
             {
                 while (true)
                 {
@@ -615,20 +610,19 @@ namespace LibGit2Sharp.Core
                     yield return Configuration.BuildConfigEntry(entry);
                 }
             }
+            finally
+            {
+                NativeMethods.git_config_iterator_free(iter);
+            }
         }
 
-        public static void git_config_iterator_free(IntPtr iter)
+        public static unsafe ConfigurationHandle git_config_snapshot(ConfigurationHandle config)
         {
-            NativeMethods.git_config_iterator_free(iter);
-        }
-
-        public static ConfigurationSafeHandle git_config_snapshot(ConfigurationSafeHandle config)
-        {
-            ConfigurationSafeHandle handle;
+            git_config* handle;
             int res = NativeMethods.git_config_snapshot(out handle, config);
             Ensure.ZeroResult(res);
 
-            return handle;
+            return new ConfigurationHandle(handle, true);
         }
 
         #endregion
@@ -2478,7 +2472,7 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_repository_path(repo);
         }
 
-        public static unsafe void git_repository_set_config(RepositoryHandle repo, ConfigurationSafeHandle config)
+        public static unsafe void git_repository_set_config(RepositoryHandle repo, ConfigurationHandle config)
         {
             NativeMethods.git_repository_set_config(repo, config);
         }

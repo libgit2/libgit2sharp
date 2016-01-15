@@ -325,13 +325,13 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe git_oid* git_commit_tree_id(GitObjectSafeHandle commit);
 
         [DllImport(libgit2)]
-        internal static extern int git_config_delete_entry(
-            ConfigurationSafeHandle cfg,
+        internal static extern unsafe int git_config_delete_entry(
+            git_config* cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
 
         [DllImport(libgit2)]
-        internal static extern int git_config_delete_multivar(
-            ConfigurationSafeHandle cfg,
+        internal static extern unsafe int git_config_delete_multivar(
+            git_config* cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string regexp);
 
@@ -345,7 +345,7 @@ namespace LibGit2Sharp.Core
         internal static extern int git_config_find_xdg(GitBuf xdg_config_path);
 
         [DllImport(libgit2)]
-        internal static extern void git_config_free(IntPtr cfg);
+        internal static extern unsafe void git_config_free(git_config* cfg);
 
         [DllImport(libgit2)]
         internal static extern unsafe void git_config_entry_free(GitConfigEntry* entry);
@@ -353,23 +353,23 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern unsafe int git_config_get_entry(
             out GitConfigEntry* entry,
-            ConfigurationSafeHandle cfg,
+            git_config* cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
 
         [DllImport(libgit2)]
-        internal static extern int git_config_add_file_ondisk(
-            ConfigurationSafeHandle cfg,
+        internal static extern unsafe int git_config_add_file_ondisk(
+            git_config* cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path,
             uint level,
             [MarshalAs(UnmanagedType.Bool)] bool force);
 
         [DllImport(libgit2)]
-        internal static extern int git_config_new(out ConfigurationSafeHandle cfg);
+        internal static extern unsafe int git_config_new(out git_config* cfg);
 
         [DllImport(libgit2)]
-        internal static extern int git_config_open_level(
-            out ConfigurationSafeHandle cfg,
-            ConfigurationSafeHandle parent,
+        internal static extern unsafe int git_config_open_level(
+            out git_config* cfg,
+            git_config* parent,
             uint level);
 
         [DllImport(libgit2)]
@@ -388,26 +388,26 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string valueToParse);
 
         [DllImport(libgit2)]
-        internal static extern int git_config_set_bool(
-            ConfigurationSafeHandle cfg,
+        internal static extern unsafe int git_config_set_bool(
+            git_config* cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name,
             [MarshalAs(UnmanagedType.Bool)] bool value);
 
         [DllImport(libgit2)]
-        internal static extern int git_config_set_int32(
-            ConfigurationSafeHandle cfg,
+        internal static extern unsafe int git_config_set_int32(
+            git_config* cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name,
             int value);
 
         [DllImport(libgit2)]
-        internal static extern int git_config_set_int64(
-            ConfigurationSafeHandle cfg,
+        internal static extern unsafe int git_config_set_int64(
+            git_config* cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name,
             long value);
 
         [DllImport(libgit2)]
-        internal static extern int git_config_set_string(
-            ConfigurationSafeHandle cfg,
+        internal static extern unsafe int git_config_set_string(
+            git_config* cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string value);
 
@@ -416,27 +416,27 @@ namespace LibGit2Sharp.Core
             IntPtr payload);
 
         [DllImport(libgit2)]
-        internal static extern int git_config_foreach(
-            ConfigurationSafeHandle cfg,
+        internal static extern unsafe int git_config_foreach(
+            git_config* cfg,
             config_foreach_callback callback,
             IntPtr payload);
 
         [DllImport(libgit2)]
-        internal static extern int git_config_iterator_glob_new(
-            out ConfigurationIteratorSafeHandle iter,
-            ConfigurationSafeHandle cfg,
+        internal static extern unsafe int git_config_iterator_glob_new(
+            out IntPtr iter,
+            IntPtr cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string regexp);
 
         [DllImport(libgit2)]
         internal static extern int git_config_next(
             out IntPtr entry,
-            ConfigurationIteratorSafeHandle iter);
+            IntPtr iter);
 
         [DllImport(libgit2)]
         internal static extern void git_config_iterator_free(IntPtr iter);
 
         [DllImport(libgit2)]
-        internal static extern int git_config_snapshot(out ConfigurationSafeHandle @out, ConfigurationSafeHandle config);
+        internal static extern unsafe int git_config_snapshot(out git_config* @out, git_config* config);
 
         // Ordinarily we would decorate the `url` parameter with the StrictUtf8Marshaler like we do everywhere
         // else, but apparently doing a native->managed callback with the 64-bit version of CLR 2.0 can
@@ -1376,7 +1376,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern unsafe void git_repository_set_config(
             git_repository* repository,
-            ConfigurationSafeHandle config);
+            git_config* config);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_repository_set_ident(
