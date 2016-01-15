@@ -16,7 +16,7 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Index : IEnumerable<IndexEntry>
     {
-        private readonly IndexSafeHandle handle;
+        private readonly IndexHandle handle;
         private readonly Repository repo;
         private readonly ConflictCollection conflicts;
 
@@ -47,7 +47,7 @@ namespace LibGit2Sharp
             repo.RegisterForCleanup(handle);
         }
 
-        internal IndexSafeHandle Handle
+        internal IndexHandle Handle
         {
             get { return handle; }
         }

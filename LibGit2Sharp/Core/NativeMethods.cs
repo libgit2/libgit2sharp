@@ -490,7 +490,7 @@ namespace LibGit2Sharp.Core
             out git_diff* diff,
             git_repository* repo,
             GitObjectSafeHandle oldTree,
-            IndexSafeHandle index,
+            git_index* index,
             GitDiffOptions options);
 
         [DllImport(libgit2)]
@@ -502,7 +502,7 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe int git_diff_index_to_workdir(
             out git_diff* diff,
             git_repository* repo,
-            IndexSafeHandle index,
+            git_index* index,
             GitDiffOptions options);
 
         [DllImport(libgit2)]
@@ -624,13 +624,13 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path);
 
         [DllImport(libgit2)]
-        internal static extern int git_index_add_bypath(
-            IndexSafeHandle index,
+        internal static extern unsafe int git_index_add_bypath(
+            git_index* index,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_index_add(
-            IndexSafeHandle index,
+            git_index* index,
             git_index_entry* entry);
 
         [DllImport(libgit2)]
@@ -638,93 +638,93 @@ namespace LibGit2Sharp.Core
             out git_index_entry* ancestor,
             out git_index_entry* ours,
             out git_index_entry* theirs,
-            IndexSafeHandle index,
+            git_index* index,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path);
 
         [DllImport(libgit2)]
-        internal static extern int git_index_conflict_iterator_new(
-            out ConflictIteratorSafeHandle iterator,
-            IndexSafeHandle index);
+        internal static extern unsafe int git_index_conflict_iterator_new(
+            out git_index_conflict_iterator* iterator,
+            git_index* index);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_index_conflict_next(
             out git_index_entry* ancestor,
             out git_index_entry* ours,
             out git_index_entry* theirs,
-            ConflictIteratorSafeHandle iterator);
+            git_index_conflict_iterator* iterator);
 
         [DllImport(libgit2)]
-        internal static extern void git_index_conflict_iterator_free(
-            IntPtr iterator);
+        internal static extern unsafe void git_index_conflict_iterator_free(
+            git_index_conflict_iterator* iterator);
 
         [DllImport(libgit2)]
-        internal static extern UIntPtr git_index_entrycount(IndexSafeHandle index);
+        internal static extern unsafe UIntPtr git_index_entrycount(git_index* index);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_index_entry_stage(git_index_entry* indexentry);
 
         [DllImport(libgit2)]
-        internal static extern void git_index_free(IntPtr index);
+        internal static extern unsafe void git_index_free(git_index* index);
 
         [DllImport(libgit2)]
-        internal static extern unsafe git_index_entry* git_index_get_byindex(IndexSafeHandle index, UIntPtr n);
+        internal static extern unsafe git_index_entry* git_index_get_byindex(git_index* index, UIntPtr n);
 
         [DllImport(libgit2)]
         internal static extern unsafe git_index_entry* git_index_get_bypath(
-            IndexSafeHandle index,
+            git_index* index,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path,
             int stage);
 
         [DllImport(libgit2)]
-        internal static extern int git_index_has_conflicts(IndexSafeHandle index);
+        internal static extern unsafe int git_index_has_conflicts(git_index* index);
 
         [DllImport(libgit2)]
-        internal static extern UIntPtr git_index_name_entrycount(IndexSafeHandle handle);
+        internal static extern unsafe UIntPtr git_index_name_entrycount(git_index* handle);
 
         [DllImport(libgit2)]
-        internal static extern unsafe git_index_name_entry* git_index_name_get_byindex(IndexSafeHandle handle, UIntPtr n);
+        internal static extern unsafe git_index_name_entry* git_index_name_get_byindex(git_index* handle, UIntPtr n);
 
         [DllImport(libgit2)]
-        internal static extern int git_index_open(
-            out IndexSafeHandle index,
+        internal static extern unsafe int git_index_open(
+            out git_index* index,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath indexpath);
 
         [DllImport(libgit2)]
-        internal static extern int git_index_read(
-            IndexSafeHandle index,
+        internal static extern unsafe int git_index_read(
+            git_index* index,
             [MarshalAs(UnmanagedType.Bool)] bool force);
 
         [DllImport(libgit2)]
-        internal static extern int git_index_remove_bypath(
-            IndexSafeHandle index,
+        internal static extern unsafe int git_index_remove_bypath(
+            git_index* index,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path);
 
 
         [DllImport(libgit2)]
-        internal static extern UIntPtr git_index_reuc_entrycount(IndexSafeHandle handle);
+        internal static extern unsafe UIntPtr git_index_reuc_entrycount(git_index* handle);
 
         [DllImport(libgit2)]
-        internal static extern unsafe git_index_reuc_entry* git_index_reuc_get_byindex(IndexSafeHandle handle, UIntPtr n);
+        internal static extern unsafe git_index_reuc_entry* git_index_reuc_get_byindex(git_index* handle, UIntPtr n);
 
         [DllImport(libgit2)]
         internal static extern unsafe git_index_reuc_entry* git_index_reuc_get_bypath(
-            IndexSafeHandle handle,
+            git_index* handle,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path);
 
         [DllImport(libgit2)]
-        internal static extern int git_index_write(IndexSafeHandle index);
+        internal static extern unsafe int git_index_write(git_index* index);
 
         [DllImport(libgit2)]
-        internal static extern int git_index_write_tree(out GitOid treeOid, IndexSafeHandle index);
+        internal static extern unsafe int git_index_write_tree(out GitOid treeOid, git_index* index);
 
         [DllImport(libgit2)]
-        internal static extern unsafe int git_index_write_tree_to(out GitOid treeOid, IndexSafeHandle index, git_repository* repo);
+        internal static extern unsafe int git_index_write_tree_to(out GitOid treeOid, git_index* index, git_repository* repo);
 
         [DllImport(libgit2)]
-        internal static extern int git_index_read_tree(IndexSafeHandle index, GitObjectSafeHandle tree);
+        internal static extern unsafe int git_index_read_tree(git_index* index, GitObjectSafeHandle tree);
 
         [DllImport(libgit2)]
-        internal static extern int git_index_clear(IndexSafeHandle index);
+        internal static extern unsafe int git_index_clear(git_index* index);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_merge_base_many(
@@ -780,7 +780,7 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_merge_commits(
-            out IndexSafeHandle index,
+            out git_index* index,
             git_repository* repo,
             GitObjectSafeHandle our_commit,
             GitObjectSafeHandle their_commit,
@@ -1322,7 +1322,7 @@ namespace LibGit2Sharp.Core
             git_repository* repo);
 
         [DllImport(libgit2)]
-        internal static extern unsafe int git_repository_index(out IndexSafeHandle index, git_repository* repo);
+        internal static extern unsafe int git_repository_index(out git_index* index, git_repository* repo);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_repository_init_ext(
@@ -1388,7 +1388,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern unsafe void git_repository_set_index(
             git_repository* repository,
-            IndexSafeHandle index);
+            git_index* index);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_repository_set_workdir(

@@ -75,7 +75,6 @@
     <Compile Include="Core\GitSubmoduleIgnore.cs" />
     <Compile Include="Core\Handles\PackBuilderSafeHandle.cs" />
     <Compile Include="Core\Platform.cs" />
-    <Compile Include="Core\Handles\ConflictIteratorSafeHandle.cs" />
     <Compile Include="Core\GitWriteStream.cs" />
     <Compile Include="Core\WriteStream.cs" />
     <Compile Include="Core\GitRebaseOperation.cs" />
@@ -228,7 +227,6 @@
     <Compile Include="Core\GitSmartSubtransportRegistration.cs" />
     <Compile Include="Core\GitTransferProgress.cs" />
     <Compile Include="Core\Handles\NullGitObjectSafeHandle.cs" />
-    <Compile Include="Core\Handles\NullIndexSafeHandle.cs" />
     <Compile Include="Core\ILazy.cs" />
     <Compile Include="Core\LazyGroup.cs" />
     <Compile Include="Core\Proxy.cs" />
@@ -310,7 +308,6 @@
     <Compile Include="ICommitLog.cs" />
     <Compile Include="Index.cs" />
     <Compile Include="IndexEntry.cs" />
-    <Compile Include="Core\Handles\IndexSafeHandle.cs" />
     <Compile Include="IQueryableCommitLog.cs" />
     <Compile Include="Core\LookUpOptions.cs" />
     <Compile Include="Mode.cs" />

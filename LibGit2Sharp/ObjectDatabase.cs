@@ -623,7 +623,7 @@ namespace LibGit2Sharp
                     List<Conflict> conflicts = new List<Conflict>();
                     Conflict conflict;
 
-                    using (ConflictIteratorSafeHandle iterator = Proxy.git_index_conflict_iterator_new(indexHandle))
+                    using (ConflictIteratorHandle iterator = Proxy.git_index_conflict_iterator_new(indexHandle))
                     {
                         while ((conflict = Proxy.git_index_conflict_next(iterator)) != null)
                         {

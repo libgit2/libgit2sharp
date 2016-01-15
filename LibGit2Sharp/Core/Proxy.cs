@@ -728,7 +728,7 @@ namespace LibGit2Sharp.Core
 
         public static unsafe DiffHandle git_diff_tree_to_index(
             RepositoryHandle repo,
-            IndexSafeHandle index,
+            IndexHandle index,
             ObjectId oldTree,
             GitDiffOptions options)
         {
@@ -767,7 +767,7 @@ namespace LibGit2Sharp.Core
 
         public static unsafe DiffHandle git_diff_index_to_workdir(
             RepositoryHandle repo,
-            IndexSafeHandle index,
+            IndexHandle index,
             GitDiffOptions options)
         {
             git_diff* diff;
@@ -898,20 +898,20 @@ namespace LibGit2Sharp.Core
 
         #region git_index_
 
-        public static unsafe void git_index_add(IndexSafeHandle index, git_index_entry* entry)
+        public static unsafe void git_index_add(IndexHandle index, git_index_entry* entry)
         {
             int res = NativeMethods.git_index_add(index, entry);
             Ensure.ZeroResult(res);
         }
 
-        public static void git_index_add_bypath(IndexSafeHandle index, FilePath path)
+        public static unsafe void git_index_add_bypath(IndexHandle index, FilePath path)
         {
             int res = NativeMethods.git_index_add_bypath(index, path);
             Ensure.ZeroResult(res);
         }
 
         public static unsafe Conflict git_index_conflict_get(
-            IndexSafeHandle index,
+            IndexHandle index,
             FilePath path)
         {
             git_index_entry* ancestor, ours, theirs;
@@ -934,16 +934,16 @@ namespace LibGit2Sharp.Core
                                 IndexEntry.BuildFromPtr(theirs));
         }
 
-        public static ConflictIteratorSafeHandle git_index_conflict_iterator_new(IndexSafeHandle index)
+        public static unsafe ConflictIteratorHandle git_index_conflict_iterator_new(IndexHandle index)
         {
-            ConflictIteratorSafeHandle iter;
+            git_index_conflict_iterator* iter;
             int res = NativeMethods.git_index_conflict_iterator_new(out iter, index);
             Ensure.ZeroResult(res);
 
-            return iter;
+            return new ConflictIteratorHandle(iter, true);
         }
 
-        public static unsafe Conflict git_index_conflict_next(ConflictIteratorSafeHandle iterator)
+        public static unsafe Conflict git_index_conflict_next(ConflictIteratorHandle iterator)
         {
             git_index_entry* ancestor, ours, theirs;
 
@@ -961,12 +961,7 @@ namespace LibGit2Sharp.Core
                                 IndexEntry.BuildFromPtr(theirs));
         }
 
-        public static void git_index_conflict_iterator_free(IntPtr iterator)
-        {
-            NativeMethods.git_index_conflict_iterator_free(iterator);
-        }
-
-        public static int git_index_entrycount(IndexSafeHandle index)
+        public static unsafe int git_index_entrycount(IndexHandle index)
         {
             return NativeMethods.git_index_entrycount(index)
                 .ConvertToInt();
@@ -977,22 +972,17 @@ namespace LibGit2Sharp.Core
             return (StageLevel)NativeMethods.git_index_entry_stage(entry);
         }
 
-        public static void git_index_free(IntPtr index)
-        {
-            NativeMethods.git_index_free(index);
-        }
-
-        public static unsafe git_index_entry* git_index_get_byindex(IndexSafeHandle index, UIntPtr n)
+        public static unsafe git_index_entry* git_index_get_byindex(IndexHandle index, UIntPtr n)
         {
             return NativeMethods.git_index_get_byindex(index, n);
         }
 
-        public static unsafe git_index_entry* git_index_get_bypath(IndexSafeHandle index, FilePath path, int stage)
+        public static unsafe git_index_entry* git_index_get_bypath(IndexHandle index, FilePath path, int stage)
         {
             return NativeMethods.git_index_get_bypath(index, path, stage);
         }
 
-        public static bool git_index_has_conflicts(IndexSafeHandle index)
+        public static unsafe bool git_index_has_conflicts(IndexHandle index)
         {
             int res = NativeMethods.git_index_has_conflicts(index);
             Ensure.BooleanResult(res);
@@ -1000,61 +990,61 @@ namespace LibGit2Sharp.Core
             return res != 0;
         }
 
-        public static int git_index_name_entrycount(IndexSafeHandle index)
+        public static unsafe int git_index_name_entrycount(IndexHandle index)
         {
             return NativeMethods.git_index_name_entrycount(index)
                 .ConvertToInt();
         }
 
-        public static unsafe git_index_name_entry* git_index_name_get_byindex(IndexSafeHandle index, UIntPtr n)
+        public static unsafe git_index_name_entry* git_index_name_get_byindex(IndexHandle index, UIntPtr n)
         {
             return NativeMethods.git_index_name_get_byindex(index, n);
         }
 
-        public static IndexSafeHandle git_index_open(FilePath indexpath)
+        public static unsafe IndexHandle git_index_open(FilePath indexpath)
         {
-            IndexSafeHandle handle;
+            git_index* handle;
             int res = NativeMethods.git_index_open(out handle, indexpath);
             Ensure.ZeroResult(res);
 
-            return handle;
+            return new IndexHandle(handle, true);
         }
 
-        public static void git_index_read(IndexSafeHandle index)
+        public static unsafe void git_index_read(IndexHandle index)
         {
             int res = NativeMethods.git_index_read(index, false);
             Ensure.ZeroResult(res);
         }
 
-        public static void git_index_remove_bypath(IndexSafeHandle index, FilePath path)
+        public static unsafe void git_index_remove_bypath(IndexHandle index, FilePath path)
         {
             int res = NativeMethods.git_index_remove_bypath(index, path);
             Ensure.ZeroResult(res);
         }
 
-        public static int git_index_reuc_entrycount(IndexSafeHandle index)
+        public static unsafe int git_index_reuc_entrycount(IndexHandle index)
         {
             return NativeMethods.git_index_reuc_entrycount(index)
                 .ConvertToInt();
         }
 
-        public static unsafe git_index_reuc_entry* git_index_reuc_get_byindex(IndexSafeHandle index, UIntPtr n)
+        public static unsafe git_index_reuc_entry* git_index_reuc_get_byindex(IndexHandle index, UIntPtr n)
         {
             return NativeMethods.git_index_reuc_get_byindex(index, n);
         }
 
-        public static unsafe git_index_reuc_entry* git_index_reuc_get_bypath(IndexSafeHandle index, string path)
+        public static unsafe git_index_reuc_entry* git_index_reuc_get_bypath(IndexHandle index, string path)
         {
             return NativeMethods.git_index_reuc_get_bypath(index, path);
         }
 
-        public static void git_index_write(IndexSafeHandle index)
+        public static unsafe void git_index_write(IndexHandle index)
         {
             int res = NativeMethods.git_index_write(index);
             Ensure.ZeroResult(res);
         }
 
-        public static ObjectId git_index_write_tree(IndexSafeHandle index)
+        public static unsafe ObjectId git_index_write_tree(IndexHandle index)
         {
             GitOid treeOid;
             int res = NativeMethods.git_index_write_tree(out treeOid, index);
@@ -1063,7 +1053,7 @@ namespace LibGit2Sharp.Core
             return treeOid;
         }
 
-        public static unsafe ObjectId git_index_write_tree_to(IndexSafeHandle index, RepositoryHandle repo)
+        public static unsafe ObjectId git_index_write_tree_to(IndexHandle index, RepositoryHandle repo)
         {
             GitOid treeOid;
             int res = NativeMethods.git_index_write_tree_to(out treeOid, index, repo);
@@ -1072,13 +1062,13 @@ namespace LibGit2Sharp.Core
             return treeOid;
         }
 
-        public static void git_index_read_fromtree(Index index, GitObjectSafeHandle tree)
+        public static unsafe void git_index_read_fromtree(Index index, GitObjectSafeHandle tree)
         {
             int res = NativeMethods.git_index_read_tree(index.Handle, tree);
             Ensure.ZeroResult(res);
         }
 
-        public static void git_index_clear(Index index)
+        public static unsafe void git_index_clear(Index index)
         {
             int res = NativeMethods.git_index_clear(index.Handle);
             Ensure.ZeroResult(res);
@@ -1088,13 +1078,13 @@ namespace LibGit2Sharp.Core
 
         #region git_merge_
 
-        public static unsafe IndexSafeHandle git_merge_commits(RepositoryHandle repo, GitObjectSafeHandle ourCommit, GitObjectSafeHandle theirCommit, GitMergeOpts opts)
+        public static unsafe IndexHandle git_merge_commits(RepositoryHandle repo, GitObjectSafeHandle ourCommit, GitObjectSafeHandle theirCommit, GitMergeOpts opts)
         {
-            IndexSafeHandle index;
+            git_index* index;
             int res = NativeMethods.git_merge_commits(out index, repo, ourCommit, theirCommit, ref opts);
             Ensure.ZeroResult(res);
 
-            return index;
+            return new IndexHandle(index, true);
         }
 
         public static unsafe ObjectId git_merge_base_many(RepositoryHandle repo, GitOid[] commitIds)
@@ -2350,13 +2340,13 @@ namespace LibGit2Sharp.Core
             return RepositoryStateChecker(repo, NativeMethods.git_repository_head_unborn);
         }
 
-        public static unsafe IndexSafeHandle git_repository_index(RepositoryHandle repo)
+        public static unsafe IndexHandle git_repository_index(RepositoryHandle repo)
         {
-            IndexSafeHandle handle;
+            git_index* handle;
             int res = NativeMethods.git_repository_index(out handle, repo);
             Ensure.ZeroResult(res);
 
-            return handle;
+            return new IndexHandle(handle, true);
         }
 
         public static unsafe RepositoryHandle git_repository_init_ext(
@@ -2483,7 +2473,7 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
-        public static unsafe void git_repository_set_index(RepositoryHandle repo, IndexSafeHandle index)
+        public static unsafe void git_repository_set_index(RepositoryHandle repo, IndexHandle index)
         {
             NativeMethods.git_repository_set_index(repo, index);
         }

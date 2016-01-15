@@ -21,6 +21,8 @@ var cNames = new[] {
     "git_diff",
     "git_patch",
     "git_config",
+    "git_index_conflict_iterator",
+    "git_index",
 };
 
 var csNames = new[] {
@@ -33,6 +35,8 @@ var csNames = new[] {
     "DiffHandle",
     "PatchHandle",
     "ConfigurationHandle",
+    "ConflictIteratorHandle",
+    "IndexHandle",
 };
 
 for (var i = 0; i < cNames.Length; i++)

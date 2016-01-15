@@ -625,4 +625,142 @@ namespace LibGit2Sharp.Core
         }
     }
 
+    internal unsafe class ConflictIteratorHandle : IDisposable
+    {
+        git_index_conflict_iterator* ptr;
+        internal git_index_conflict_iterator* Handle
+        {
+            get
+            {
+                return ptr;
+            }
+        }
+
+        bool owned;
+        bool disposed;
+
+        public unsafe ConflictIteratorHandle(git_index_conflict_iterator* handle, bool owned)
+        {
+            this.ptr = handle;
+            this.owned = owned;
+        }
+
+        public unsafe ConflictIteratorHandle(IntPtr ptr, bool owned)
+        {
+            this.ptr = (git_index_conflict_iterator*) ptr.ToPointer();
+            this.owned = owned;
+        }
+
+        ~ConflictIteratorHandle()
+        {
+            Dispose(false);
+        }
+
+        internal bool IsNull
+        {
+            get
+            {
+                return ptr == null;
+            }
+        }
+
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (owned)
+                {
+                    NativeMethods.git_index_conflict_iterator_free(ptr);
+                    ptr = null;
+                }
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public static implicit operator git_index_conflict_iterator*(ConflictIteratorHandle handle)
+        {
+            return handle.Handle;
+        }
+    }
+
+    internal unsafe class IndexHandle : IDisposable
+    {
+        git_index* ptr;
+        internal git_index* Handle
+        {
+            get
+            {
+                return ptr;
+            }
+        }
+
+        bool owned;
+        bool disposed;
+
+        public unsafe IndexHandle(git_index* handle, bool owned)
+        {
+            this.ptr = handle;
+            this.owned = owned;
+        }
+
+        public unsafe IndexHandle(IntPtr ptr, bool owned)
+        {
+            this.ptr = (git_index*) ptr.ToPointer();
+            this.owned = owned;
+        }
+
+        ~IndexHandle()
+        {
+            Dispose(false);
+        }
+
+        internal bool IsNull
+        {
+            get
+            {
+                return ptr == null;
+            }
+        }
+
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (owned)
+                {
+                    NativeMethods.git_index_free(ptr);
+                    ptr = null;
+                }
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public static implicit operator git_index*(IndexHandle handle)
+        {
+            return handle.Handle;
+        }
+    }
+
 }
