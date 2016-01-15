@@ -39,7 +39,7 @@ namespace LibGit2Sharp
         // This overload lets public-facing methods avoid having to use the pointers directly
         internal static unsafe T BuildFromPtr<T>(ReferenceHandle handle, Repository repo) where T : Reference
         {
-            return BuildFromPtr<T>(handle.Handle, repo);
+            return BuildFromPtr<T>((git_reference*) handle.Handle, repo);
         }
 
         internal static unsafe T BuildFromPtr<T>(git_reference* handle, Repository repo) where T : Reference

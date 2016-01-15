@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -27,9 +28,8 @@ namespace LibGit2Sharp
         protected TreeEntry()
         { }
 
-        internal unsafe TreeEntry(TreeEntryHandle handle, ObjectId parentTreeId, Repository repo, FilePath parentPath)
+        internal unsafe TreeEntry(TreeEntryHandle entry, ObjectId parentTreeId, Repository repo, FilePath parentPath)
         {
-            var entry = handle.Handle;
             this.parentTreeId = parentTreeId;
             this.repo = repo;
             targetOid = Proxy.git_tree_entry_id(entry);

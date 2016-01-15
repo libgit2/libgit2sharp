@@ -1,5 +1,6 @@
 ﻿using System;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 using System.Globalization;
 
 namespace LibGit2Sharp

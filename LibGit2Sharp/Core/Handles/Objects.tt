@@ -7,7 +7,7 @@
 
 using System;
 
-namespace LibGit2Sharp.Core
+namespace LibGit2Sharp.Core.Handles
 {
 
 <#
@@ -68,72 +68,26 @@ var csNames = new[] {
 for (var i = 0; i < cNames.Length; i++)
 {
 #>
-    internal unsafe class <#= csNames[i] #> : IDisposable
+    internal unsafe class <#= csNames[i] #> : Libgit2Object
     {
-        <#= cNames[i] #>* ptr;
-        internal <#= cNames[i] #>* Handle
+        internal <#= csNames[i] #>(<#= cNames[i] #> *ptr, bool owned)
+            : base((void *) ptr, owned)
         {
-            get
-            {
-                return ptr;
-            }
         }
 
-        bool owned;
-        bool disposed;
-
-        public unsafe <#= csNames[i] #>(<#= cNames[i] #>* handle, bool owned)
+        internal <#= csNames[i] #>(IntPtr ptr, bool owned)
+            : base(ptr, owned)
         {
-            this.ptr = handle;
-            this.owned = owned;
         }
 
-        public unsafe <#= csNames[i] #>(IntPtr ptr, bool owned)
+        public override void Free()
         {
-            this.ptr = (<#= cNames[i] #>*) ptr.ToPointer();
-            this.owned = owned;
-        }
-
-        ~<#= csNames[i] #>()
-        {
-            Dispose(false);
-        }
-
-        internal bool IsNull
-        {
-            get
-            {
-                return ptr == null;
-            }
-        }
-
-        internal IntPtr AsIntPtr()
-        {
-            return new IntPtr(ptr);
-        }
-
-        void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (owned)
-                {
-                    NativeMethods.<#= cNames[i] #>_free(ptr);
-                    ptr = null;
-                }
-            }
-
-            disposed = true;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
+            NativeMethods.<#= cNames[i] #>_free((<#= cNames[i] #>*) ptr);
         }
 
         public static implicit operator <#= cNames[i] #>*(<#= csNames[i] #> handle)
         {
-            return handle.Handle;
+            return (<#= cNames[i] #>*) handle.Handle;
         }
     }
 

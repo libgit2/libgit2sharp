@@ -200,7 +200,7 @@ namespace LibGit2Sharp.Core
 
         public static unsafe void git_branch_delete(ReferenceHandle reference)
         {
-            int res = NativeMethods.git_branch_delete(reference.Handle);
+            int res = NativeMethods.git_branch_delete(reference);
             Ensure.ZeroResult(res);
         }
 
@@ -245,7 +245,7 @@ namespace LibGit2Sharp.Core
         public static unsafe ReferenceHandle git_branch_move(ReferenceHandle reference, string new_branch_name, bool force)
         {
             git_reference* ref_out;
-            int res = NativeMethods.git_branch_move(out ref_out, reference.Handle, new_branch_name, force);
+            int res = NativeMethods.git_branch_move(out ref_out, reference, new_branch_name, force);
             Ensure.ZeroResult(res);
             return new ReferenceHandle(ref_out, true);
         }
@@ -1140,7 +1140,7 @@ namespace LibGit2Sharp.Core
         {
             git_annotated_commit* commit;
 
-            int res = NativeMethods.git_annotated_commit_from_ref(out commit, repo, reference.Handle);
+            int res = NativeMethods.git_annotated_commit_from_ref(out commit, repo, reference);
 
             Ensure.ZeroResult(res);
 
@@ -1821,7 +1821,7 @@ namespace LibGit2Sharp.Core
         {
             git_reference* ref_out;
 
-            int res = NativeMethods.git_reference_rename(out ref_out, reference.Handle, newName, allowOverwrite, logMessage);
+            int res = NativeMethods.git_reference_rename(out ref_out, reference, newName, allowOverwrite, logMessage);
             Ensure.ZeroResult(res);
 
             return new ReferenceHandle(ref_out, true);
@@ -1832,7 +1832,7 @@ namespace LibGit2Sharp.Core
             GitOid oid = id.Oid;
             git_reference* ref_out;
 
-            int res = NativeMethods.git_reference_set_target(out ref_out, reference.Handle, ref oid, logMessage);
+            int res = NativeMethods.git_reference_set_target(out ref_out, reference, ref oid, logMessage);
             Ensure.ZeroResult(res);
 
             return new ReferenceHandle(ref_out, true);
@@ -1842,7 +1842,7 @@ namespace LibGit2Sharp.Core
         {
             git_reference* ref_out;
 
-            int res = NativeMethods.git_reference_symbolic_set_target(out ref_out, reference.Handle, target, logMessage);
+            int res = NativeMethods.git_reference_symbolic_set_target(out ref_out, reference, target, logMessage);
             Ensure.ZeroResult(res);
 
             return new ReferenceHandle(ref_out, true);
