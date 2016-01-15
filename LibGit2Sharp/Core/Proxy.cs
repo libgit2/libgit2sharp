@@ -1906,47 +1906,42 @@ namespace LibGit2Sharp.Core
 
         #region git_reflog_
 
-        public static void git_reflog_free(IntPtr reflog)
+        public static unsafe ReflogHandle git_reflog_read(RepositoryHandle repo, string canonicalName)
         {
-            NativeMethods.git_reflog_free(reflog);
-        }
-
-        public static unsafe ReflogSafeHandle git_reflog_read(RepositoryHandle repo, string canonicalName)
-        {
-            ReflogSafeHandle reflog_out;
+            git_reflog* reflog_out;
 
             int res = NativeMethods.git_reflog_read(out reflog_out, repo, canonicalName);
             Ensure.ZeroResult(res);
 
-            return reflog_out;
+            return new ReflogHandle(reflog_out, true);
         }
 
-        public static int git_reflog_entrycount(ReflogSafeHandle reflog)
+        public static unsafe int git_reflog_entrycount(ReflogHandle reflog)
         {
             return (int)NativeMethods.git_reflog_entrycount(reflog);
         }
 
-        public static ReflogEntrySafeHandle git_reflog_entry_byindex(ReflogSafeHandle reflog, int idx)
+        public static unsafe git_reflog_entry* git_reflog_entry_byindex(ReflogHandle reflog, int idx)
         {
             return NativeMethods.git_reflog_entry_byindex(reflog, (UIntPtr)idx);
         }
 
-        public static unsafe ObjectId git_reflog_entry_id_old(SafeHandle entry)
+        public static unsafe ObjectId git_reflog_entry_id_old(git_reflog_entry* entry)
         {
             return ObjectId.BuildFromPtr(NativeMethods.git_reflog_entry_id_old(entry));
         }
 
-        public static unsafe ObjectId git_reflog_entry_id_new(SafeHandle entry)
+        public static unsafe ObjectId git_reflog_entry_id_new(git_reflog_entry* entry)
         {
             return ObjectId.BuildFromPtr(NativeMethods.git_reflog_entry_id_new(entry));
         }
 
-        public static unsafe Signature git_reflog_entry_committer(SafeHandle entry)
+        public static unsafe Signature git_reflog_entry_committer(git_reflog_entry* entry)
         {
             return new Signature(NativeMethods.git_reflog_entry_committer(entry));
         }
 
-        public static string git_reflog_entry_message(SafeHandle entry)
+        public static unsafe string git_reflog_entry_message(git_reflog_entry* entry)
         {
             return NativeMethods.git_reflog_entry_message(entry);
         }

@@ -763,4 +763,73 @@ namespace LibGit2Sharp.Core
         }
     }
 
+    internal unsafe class ReflogHandle : IDisposable
+    {
+        git_reflog* ptr;
+        internal git_reflog* Handle
+        {
+            get
+            {
+                return ptr;
+            }
+        }
+
+        bool owned;
+        bool disposed;
+
+        public unsafe ReflogHandle(git_reflog* handle, bool owned)
+        {
+            this.ptr = handle;
+            this.owned = owned;
+        }
+
+        public unsafe ReflogHandle(IntPtr ptr, bool owned)
+        {
+            this.ptr = (git_reflog*) ptr.ToPointer();
+            this.owned = owned;
+        }
+
+        ~ReflogHandle()
+        {
+            Dispose(false);
+        }
+
+        internal bool IsNull
+        {
+            get
+            {
+                return ptr == null;
+            }
+        }
+
+        internal IntPtr AsIntPtr()
+        {
+            return new IntPtr(ptr);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (owned)
+                {
+                    NativeMethods.git_reflog_free(ptr);
+                    ptr = null;
+                }
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public static implicit operator git_reflog*(ReflogHandle handle)
+        {
+            return handle.Handle;
+        }
+    }
+
 }

@@ -1075,39 +1075,38 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string refname);
 
         [DllImport(libgit2)]
-        internal static extern void git_reflog_free(
-            IntPtr reflog);
+        internal static extern unsafe void git_reflog_free(git_reflog* reflog);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_reflog_read(
-            out ReflogSafeHandle ref_out,
+            out git_reflog* ref_out,
             git_repository* repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
 
         [DllImport(libgit2)]
-        internal static extern UIntPtr git_reflog_entrycount
-            (ReflogSafeHandle reflog);
+        internal static extern unsafe UIntPtr git_reflog_entrycount
+            (git_reflog* reflog);
 
         [DllImport(libgit2)]
-        internal static extern ReflogEntrySafeHandle git_reflog_entry_byindex(
-            ReflogSafeHandle reflog,
+        internal static extern unsafe git_reflog_entry* git_reflog_entry_byindex(
+            git_reflog* reflog,
             UIntPtr idx);
 
         [DllImport(libgit2)]
         internal static extern unsafe git_oid* git_reflog_entry_id_old(
-            SafeHandle entry);
+            git_reflog_entry* entry);
 
         [DllImport(libgit2)]
         internal static extern unsafe git_oid* git_reflog_entry_id_new(
-            SafeHandle entry);
+            git_reflog_entry* entry);
 
         [DllImport(libgit2)]
         internal static extern unsafe git_signature* git_reflog_entry_committer(
-            SafeHandle entry);
+            git_reflog_entry* entry);
 
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]
-        internal static extern string git_reflog_entry_message(SafeHandle entry);
+        internal static extern unsafe string git_reflog_entry_message(git_reflog_entry* entry);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_refspec_rtransform(
