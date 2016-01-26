@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
@@ -65,17 +66,42 @@ namespace LibGit2Sharp.Core
         {
             if (Platform.OperatingSystem == OperatingSystemType.Windows)
             {
-                string nativeLibraryPath = GlobalSettings.GetAndLockNativeLibraryPath();
+                CleanNativeLibraryDeployFolder();
+                string nativeLibraryPath = Path.Combine(
+                    GlobalSettings.GetAndLockNativeLibraryPath(),
+                    Guid.NewGuid().ToString());
+                Directory.CreateDirectory(nativeLibraryPath);
 
-                string path = Path.Combine(nativeLibraryPath, Platform.ProcessorArchitecture);
+                DeployWindowsNativeFile(nativeLibraryPath, "git2-821131f.dll");
+                DeployWindowsNativeFile(nativeLibraryPath, "git2-821131f.pdb");
 
                 const string pathEnvVariable = "PATH";
                 Environment.SetEnvironmentVariable(pathEnvVariable,
-                    String.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", path, Path.PathSeparator, Environment.GetEnvironmentVariable(pathEnvVariable)));
+                    String.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", nativeLibraryPath, Path.PathSeparator, Environment.GetEnvironmentVariable(pathEnvVariable)));
             }
 
             // See LibraryLifetimeObject description.
             lifetimeObject = new LibraryLifetimeObject();
+        }
+
+        private static void CleanNativeLibraryDeployFolder()
+        {
+            if (Directory.Exists(GlobalSettings.NativeLibraryPath))
+                try  {Directory.Delete(GlobalSettings.NativeLibraryPath); }
+                catch { }
+        }
+
+        private static void DeployWindowsNativeFile(string nativeLibraryPath, string fileName)
+        {
+            using (var dllStream = Assembly.GetCallingAssembly().GetManifestResourceStream(
+                string.Format(
+                    "LibGit2Sharp.NativeBinaries.windows.{0}.{1}",
+                    Platform.ProcessorArchitecture,
+                    fileName)))
+            using (var dllFileStream = File.Create(Path.Combine(nativeLibraryPath, fileName)))
+            {
+                dllStream.CopyTo(dllFileStream);
+            }
         }
 
         [DllImport(libgit2)]

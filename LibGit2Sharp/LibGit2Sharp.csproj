@@ -44,6 +44,18 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="..\packages\LibGit2Sharp.NativeBinaries.1.0.106\libgit2\windows\amd64\git2-821131f.dll">
+      <Link>NativeBinaries\windows\amd64\git2-821131f.dll</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\packages\LibGit2Sharp.NativeBinaries.1.0.106\libgit2\windows\amd64\git2-821131f.pdb">
+      <Link>NativeBinaries\windows\amd64\git2-821131f.pdb</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\packages\LibGit2Sharp.NativeBinaries.1.0.106\libgit2\windows\x86\git2-821131f.dll">
+      <Link>NativeBinaries\windows\x86\git2-821131f.dll</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\packages\LibGit2Sharp.NativeBinaries.1.0.106\libgit2\windows\x86\git2-821131f.pdb">
+      <Link>NativeBinaries\windows\x86\git2-821131f.pdb</Link>
+    </EmbeddedResource>
     <Compile Include="AfterRebaseStepInfo.cs" />
     <Compile Include="AmbiguousSpecificationException.cs" />
     <Compile Include="ArchiverBase.cs" />
