@@ -25,6 +25,7 @@
     <file src="LICENSE.md" target="App_Readme\LibGit2Sharp.LICENSE.md" />
     <file src="CHANGES.md" target="App_Readme\LibGit2Sharp.CHANGES.md" />
     <file src="build\Release\LibGit2Sharp-RedGate.dll" target="lib\net35" />
+    <file src="build\Release\LibGit2Sharp-RedGate.pdb" target="lib\net35" />    
     <file src="build\Release\LibGit2Sharp-RedGate.xml" target="lib\net35" />
     <file src="Lib\NativeBinaries\libgit2.license.txt" target="App_Readme" />
     <file src="Install\WiX2\Source Files\Export\RedGate.ThirdParty.LibGit2Sharp.Fork.wxs" target="wix2" />
