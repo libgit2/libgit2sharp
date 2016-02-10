@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
@@ -39,8 +40,8 @@ namespace LibGit2Sharp
                     value.GetType(), variable.GetType()));
             }
 
-            ulong num = Convert.ToUInt64(value);
-            return ((Convert.ToUInt64(variable) & num) == num);
+            long num = Convert.ToInt64(value);
+            return (Convert.ToInt64(variable) & num) == num;
 
         }
 
