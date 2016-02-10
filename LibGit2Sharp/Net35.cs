@@ -15,7 +15,7 @@ namespace LibGit2Sharp
         }
     }
 
-    internal static class EnumExt
+    public static class EnumExt
     {
         /// <summary>
         /// Check to see if a flags enumeration has a specific flag set.
