@@ -13,7 +13,7 @@ namespace LibGit2Sharp.Core
     {
         public static string ProcessorArchitecture
         {
-            get { return Is64BitProcess ? "amd64" : "x86"; }
+            get { return Is64BitProcess ? "x64" : "x86"; }
         }
 
         private static bool Is64BitProcess
