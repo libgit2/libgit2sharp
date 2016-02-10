@@ -167,5 +167,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <Import Project="$(RedGate_BuildTargetsPath)" Condition="'$(BuildingInsideVisualStudio)' == '' And '$(RedGate_BuildTargetsPath)' != ''" />
 </Project>
