@@ -49,7 +49,7 @@ namespace LibGit2Sharp.Core
         {
             ArgumentNotNull(argumentValue, argumentName);
 
-            if (string.IsNullOrEmpty(argumentValue) || argumentValue.Trim().Length == 0)
+            if (argumentValue.IsNullOrWhiteSpace ())
             {
                 throw new ArgumentException("String cannot be empty", argumentName);
             }
