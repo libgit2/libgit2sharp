@@ -16,7 +16,7 @@ namespace LibGit2Sharp
         }
     }
 
-    public static class EnumExt
+    internal static class EnumExt
     {
         /// <summary>
         /// Check to see if a flags enumeration has a specific flag set.
@@ -117,7 +117,7 @@ namespace LibGit2Sharp
         }
     }
 
-    public static class StreamExtensions
+    internal static class StreamExtensions
     {
         /// <summary>
         /// For .NET 3.5. Copied from http://stackoverflow.com/a/5730893
@@ -134,7 +134,7 @@ namespace LibGit2Sharp
         }
     }
 
-    public static class StringExtensions
+    internal static class StringExtensions
     {
         public static bool IsNullOrWhiteSpace(this string s)
         {
