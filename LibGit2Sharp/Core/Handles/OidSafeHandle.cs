@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp.Core.Handles
 {
@@ -6,10 +7,10 @@ namespace LibGit2Sharp.Core.Handles
     {
         private GitOid? MarshalAsGitOid()
         {
-            return IsInvalid ? null : (GitOid?)MarshalAsGitOid(handle);
+            return IsZero || IsInvalid ? null : (GitOid?)MarshalAsGitOid(handle);
         }
 
-        private static GitOid MarshalAsGitOid(System.IntPtr data)
+        private static GitOid MarshalAsGitOid(IntPtr data)
         {
             var gitOid = new GitOid { Id = new byte[GitOid.Size] };
             Marshal.Copy(data, gitOid.Id, 0, GitOid.Size);

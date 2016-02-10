@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
@@ -14,8 +13,7 @@ namespace LibGit2Sharp
         /// Initializes a new instance of the <see cref="UnmatchedPathException"/> class.
         /// </summary>
         public UnmatchedPathException()
-        {
-        }
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UnmatchedPathException"/> class with a specified error message.
@@ -23,8 +21,16 @@ namespace LibGit2Sharp
         /// <param name="message">A message that describes the error.</param>
         public UnmatchedPathException(string message)
             : base(message)
-        {
-        }
+        { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UnmatchedPathException"/> class with a specified error message.
+        /// </summary>
+        /// <param name="format">A composite format string for use in <see cref="String.Format(IFormatProvider, string, object[])"/>.</param>
+        /// <param name="args">An object array that contains zero or more objects to format.</param>
+        public UnmatchedPathException(string format, params object[] args)
+            : base(format, args)
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UnmatchedPathException"/> class with a specified error message and a reference to the inner exception that is the cause of this exception.
@@ -33,8 +39,7 @@ namespace LibGit2Sharp
         /// <param name="innerException">The exception that is the cause of the current exception. If the <paramref name="innerException"/> parameter is not a null reference, the current exception is raised in a catch block that handles the inner exception.</param>
         public UnmatchedPathException(string message, Exception innerException)
             : base(message, innerException)
-        {
-        }
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UnmatchedPathException"/> class with a serialized data.
@@ -43,7 +48,6 @@ namespace LibGit2Sharp
         /// <param name="context">The <see cref="StreamingContext"/> that contains contextual information about the source or destination.</param>
         protected UnmatchedPathException(SerializationInfo info, StreamingContext context)
             : base(info, context)
-        {
-        }
+        { }
     }
 }

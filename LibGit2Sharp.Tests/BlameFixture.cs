@@ -22,7 +22,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanBlameSimply()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 AssertCorrectHeadBlame(repo.Blame("README"));
             }
@@ -31,10 +32,11 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanBlameFromADifferentCommit()
         {
-            using (var repo = new Repository(MergedTestRepoWorkingDirPath))
+            string path = SandboxMergedTestRepo();
+            using (var repo = new Repository(path))
             {
                 // File doesn't exist at HEAD
-                Assert.Throws<LibGit2SharpException>(() => repo.Blame("ancestor-only.txt"));
+                Assert.Throws<NotFoundException>(() => repo.Blame("ancestor-only.txt"));
 
                 var blame = repo.Blame("ancestor-only.txt", new BlameOptions { StartingAt = "9107b30" });
                 Assert.Equal(1, blame.Count());
@@ -44,7 +46,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ValidatesLimits()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var blame = repo.Blame("README");
 
@@ -56,7 +59,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanBlameFromVariousTypes()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 AssertCorrectHeadBlame(repo.Blame("README", new BlameOptions {StartingAt = "HEAD" }));
                 AssertCorrectHeadBlame(repo.Blame("README", new BlameOptions {StartingAt = repo.Head }));
@@ -68,7 +72,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanStopBlame()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 // $ git blame .\new.txt
                 // 9fd738e8 (Scott Chacon 2010-05-24 10:19:19 -0700 1) my new file

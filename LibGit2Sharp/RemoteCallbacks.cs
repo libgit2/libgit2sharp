@@ -12,16 +12,38 @@ namespace LibGit2Sharp
     /// </summary>
     internal class RemoteCallbacks
     {
-        internal RemoteCallbacks(
-            ProgressHandler onProgress = null,
-            TransferProgressHandler onDownloadProgress = null,
-            UpdateTipsHandler onUpdateTips = null,
-            CredentialsHandler credentialsProvider = null)
+        internal RemoteCallbacks(CredentialsHandler credentialsProvider)
         {
-            Progress = onProgress;
-            DownloadTransferProgress = onDownloadProgress;
-            UpdateTips = onUpdateTips;
             CredentialsProvider = credentialsProvider;
+        }
+
+        internal RemoteCallbacks(PushOptions pushOptions)
+        {
+            if (pushOptions == null)
+            {
+                return;
+            }
+
+            PushTransferProgress = pushOptions.OnPushTransferProgress;
+            PackBuilderProgress = pushOptions.OnPackBuilderProgress;
+            CredentialsProvider = pushOptions.CredentialsProvider;
+            CertificateCheck = pushOptions.CertificateCheck;
+            PushStatusError = pushOptions.OnPushStatusError;
+            PrePushCallback = pushOptions.OnNegotiationCompletedBeforePush;
+        }
+
+        internal RemoteCallbacks(FetchOptionsBase fetchOptions)
+        {
+            if (fetchOptions == null)
+            {
+                return;
+            }
+
+            Progress = fetchOptions.OnProgress;
+            DownloadTransferProgress = fetchOptions.OnTransferProgress;
+            UpdateTips = fetchOptions.OnUpdateTips;
+            CredentialsProvider = fetchOptions.CredentialsProvider;
+            CertificateCheck = fetchOptions.CertificateCheck;
         }
 
         #region Delegates
@@ -37,10 +59,31 @@ namespace LibGit2Sharp
         private readonly UpdateTipsHandler UpdateTips;
 
         /// <summary>
+        /// PushStatusError callback. It will be called when the libgit2 push_update_reference returns a non null status message,
+        /// which means that the update was rejected by the remote server.
+        /// </summary>
+        private readonly PushStatusErrorHandler PushStatusError;
+
+        /// <summary>
         /// Managed delegate to be called in response to a git_transfer_progress_callback callback from libgit2.
         /// This will in turn call the user provided delegate.
         /// </summary>
         private readonly TransferProgressHandler DownloadTransferProgress;
+
+        /// <summary>
+        /// Push transfer progress callback.
+        /// </summary>
+        private readonly PushTransferProgressHandler PushTransferProgress;
+
+        /// <summary>
+        /// Pack builder creation progress callback.
+        /// </summary>
+        private readonly PackBuilderProgressHandler PackBuilderProgress;
+
+        /// <summary>
+        /// Called during remote push operation after negotiation, before upload
+        /// </summary>
+        private readonly PrePushHandler PrePushCallback;
 
         #endregion
 
@@ -49,9 +92,14 @@ namespace LibGit2Sharp
         /// </summary>
         private readonly CredentialsHandler CredentialsProvider;
 
+        /// <summary>
+        /// Callback to perform validation on the certificate
+        /// </summary>
+        private readonly CertificateCheckHandler CertificateCheck;
+
         internal GitRemoteCallbacks GenerateCallbacks()
         {
-            var callbacks = new GitRemoteCallbacks {version = 1};
+            var callbacks = new GitRemoteCallbacks { version = 1 };
 
             if (Progress != null)
             {
@@ -63,14 +111,39 @@ namespace LibGit2Sharp
                 callbacks.update_tips = GitUpdateTipsHandler;
             }
 
+            if (PushStatusError != null)
+            {
+                callbacks.push_update_reference = GitPushUpdateReference;
+            }
+
             if (CredentialsProvider != null)
             {
                 callbacks.acquire_credentials = GitCredentialHandler;
             }
 
+            if (CertificateCheck != null)
+            {
+                callbacks.certificate_check = GitCertificateCheck;
+            }
+
             if (DownloadTransferProgress != null)
             {
                 callbacks.download_progress = GitDownloadTransferProgressHandler;
+            }
+
+            if (PushTransferProgress != null)
+            {
+                callbacks.push_transfer_progress = GitPushTransferProgressHandler;
+            }
+
+            if (PackBuilderProgress != null)
+            {
+                callbacks.pack_progress = GitPackbuilderProgressHandler;
+            }
+
+            if (PrePushCallback != null)
+            {
+                callbacks.push_negotiation = GitPushNegotiationHandler;
             }
 
             return callbacks;
@@ -127,6 +200,30 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// The delegate with the signature that matches the native push_update_reference function's signature
+        /// </summary>
+        /// <param name="str">IntPtr to string, the name of the reference</param>
+        /// <param name="status">IntPtr to string, the update status message</param>
+        /// <param name="data">IntPtr to optional payload passed back to the callback.</param>
+        /// <returns>0 on success; a negative value to abort the process.</returns>
+        private int GitPushUpdateReference(IntPtr str, IntPtr status, IntPtr data)
+        {
+            PushStatusErrorHandler onPushError = PushStatusError;
+
+            if (onPushError != null)
+            {
+                string reference = LaxUtf8Marshaler.FromNative(str);
+                string message = LaxUtf8Marshaler.FromNative(status);
+                if (message != null)
+                {
+                    onPushError(new PushStatusError(reference, message));
+                }
+            }
+
+            return Proxy.ConvertResultToCancelFlag(true);
+        }
+
+        /// <summary>
         /// The delegate with the signature that matches the native git_transfer_progress_callback function's signature.
         /// </summary>
         /// <param name="progress"><see cref="GitTransferProgress"/> structure containing progress information.</param>
@@ -144,7 +241,36 @@ namespace LibGit2Sharp
             return Proxy.ConvertResultToCancelFlag(shouldContinue);
         }
 
-        private int GitCredentialHandler(out IntPtr ptr, IntPtr cUrl, IntPtr usernameFromUrl, GitCredentialType credTypes, IntPtr payload)
+        private int GitPushTransferProgressHandler(uint current, uint total, UIntPtr bytes, IntPtr payload)
+        {
+            bool shouldContinue = true;
+
+            if (PushTransferProgress != null)
+            {
+                shouldContinue = PushTransferProgress((int)current, (int)total, (long)bytes);
+            }
+
+            return Proxy.ConvertResultToCancelFlag(shouldContinue);
+        }
+
+        private int GitPackbuilderProgressHandler(int stage, uint current, uint total, IntPtr payload)
+        {
+            bool shouldContinue = true;
+
+            if (PackBuilderProgress != null)
+            {
+                shouldContinue = PackBuilderProgress((PackBuilderStage)stage, (int)current, (int)total);
+            }
+
+            return Proxy.ConvertResultToCancelFlag(shouldContinue);
+        }
+
+        private int GitCredentialHandler(
+            out IntPtr ptr,
+            IntPtr cUrl,
+            IntPtr usernameFromUrl,
+            GitCredentialType credTypes,
+            IntPtr payload)
         {
             string url = LaxUtf8Marshaler.FromNative(cUrl);
             string username = LaxUtf8Marshaler.FromNative(usernameFromUrl);
@@ -161,7 +287,79 @@ namespace LibGit2Sharp
 
             var cred = CredentialsProvider(url, username, types);
 
-            return cred.GitCredentialHandler(out ptr, cUrl, usernameFromUrl, credTypes, payload);
+            return cred.GitCredentialHandler(out ptr);
+        }
+
+        private int GitCertificateCheck(IntPtr certPtr, int valid, IntPtr cHostname, IntPtr payload)
+        {
+            string hostname = LaxUtf8Marshaler.FromNative(cHostname);
+            GitCertificate baseCert = certPtr.MarshalAs<GitCertificate>();
+            Certificate cert = null;
+
+            switch (baseCert.type)
+            {
+                case GitCertificateType.X509:
+                    cert = new CertificateX509(certPtr.MarshalAs<GitCertificateX509>());
+                    break;
+                case GitCertificateType.Hostkey:
+                    cert = new CertificateSsh(certPtr.MarshalAs<GitCertificateSsh>());
+                    break;
+            }
+
+            bool result = false;
+            try
+            {
+                result = CertificateCheck(cert, valid != 0, hostname);
+            }
+            catch (Exception exception)
+            {
+                Proxy.giterr_set_str(GitErrorCategory.Callback, exception);
+            }
+
+            return Proxy.ConvertResultToCancelFlag(result);
+        }
+
+        private int GitPushNegotiationHandler(IntPtr updates, UIntPtr len, IntPtr payload)
+        {
+            if (updates == IntPtr.Zero)
+            {
+                return (int)GitErrorCode.Error;
+            }
+
+            bool result = false;
+            try
+            {
+
+                int length = len.ConvertToInt();
+                PushUpdate[] pushUpdates = new PushUpdate[length];
+
+                unsafe
+                {
+                    IntPtr* ptr = (IntPtr*)updates.ToPointer();
+
+                    for (int i = 0; i < length; i++)
+                    {
+                        if (ptr[i] == IntPtr.Zero)
+                        {
+                            throw new NullReferenceException("Unexpected null git_push_update pointer was encountered");
+                        }
+
+                        GitPushUpdate gitPushUpdate = ptr[i].MarshalAs<GitPushUpdate>();
+                        PushUpdate pushUpdate = new PushUpdate(gitPushUpdate);
+                        pushUpdates[i] = pushUpdate;
+                    }
+
+                    result = PrePushCallback(pushUpdates);
+                }
+            }
+            catch (Exception exception)
+            {
+                Log.Write(LogLevel.Error, exception.ToString());
+                Proxy.giterr_set_str(GitErrorCategory.Callback, exception);
+                result = false;
+            }
+
+            return Proxy.ConvertResultToCancelFlag(result);
         }
 
         #endregion

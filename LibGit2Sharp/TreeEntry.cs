@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
@@ -8,6 +9,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// Representation of an entry in a <see cref="Tree"/>.
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class TreeEntry : IEquatable<TreeEntry>
     {
         private readonly ObjectId parentTreeId;
@@ -84,10 +86,9 @@ namespace LibGit2Sharp
                     return GitObject.BuildFrom(repo, targetOid, TargetType.ToGitObjectType(), Path);
 
                 default:
-                    throw new InvalidOperationException(
-                        string.Format(CultureInfo.InvariantCulture,
-                                      "TreeEntry target of type '{0}' is not supported.",
-                                      TargetType));
+                    throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+                                                                      "TreeEntry target of type '{0}' is not supported.",
+                                                                      TargetType));
             }
         }
 
@@ -140,6 +141,17 @@ namespace LibGit2Sharp
         public static bool operator !=(TreeEntry left, TreeEntry right)
         {
             return !Equals(left, right);
+        }
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                return string.Format(CultureInfo.InvariantCulture,
+                                     "TreeEntry: {0} => {1}",
+                                     Path,
+                                     TargetId);
+            }
         }
     }
 }

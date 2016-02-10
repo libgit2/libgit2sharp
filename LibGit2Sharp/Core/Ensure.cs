@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 
 namespace LibGit2Sharp.Core
 {
@@ -35,7 +34,7 @@ namespace LibGit2Sharp.Core
         {
             ArgumentNotNull(argumentValue, argumentName);
 
-            if (argumentValue.Count() == 0)
+            if (!argumentValue.Any())
             {
                 throw new ArgumentException("Enumerable cannot be empty", argumentName);
             }
@@ -50,7 +49,7 @@ namespace LibGit2Sharp.Core
         {
             ArgumentNotNull(argumentValue, argumentName);
 
-            if (argumentValue.Trim().Length == 0)
+            if (string.IsNullOrEmpty(argumentValue) || argumentValue.Trim().Length == 0)
             {
                 throw new ArgumentException("String cannot be empty", argumentName);
             }
@@ -88,6 +87,33 @@ namespace LibGit2Sharp.Core
                     "Zero bytes ('\\0') are not allowed. A zero byte has been found at position {0}.", zeroPos), argumentName);
         }
 
+        /// <summary>
+        /// Checks an argument to ensure it isn't a IntPtr.Zero (aka null).
+        /// </summary>
+        /// <param name="argumentValue">The argument value to check.</param>
+        /// <param name="argumentName">The name of the argument.</param>
+        public static void ArgumentNotZeroIntPtr(IntPtr argumentValue, string argumentName)
+        {
+            if (argumentValue == IntPtr.Zero)
+            {
+                throw new ArgumentNullException(argumentName);
+            }
+        }
+
+        /// <summary>
+        /// Checks a pointer argument to ensure it is the expected pointer value.
+        /// </summary>
+        /// <param name="argumentValue">The argument value to check.</param>
+        /// <param name="expectedValue">The expected value.</param>
+        /// <param name="argumentName">The name of the argument.</param>
+        public static void ArgumentIsExpectedIntPtr(IntPtr argumentValue, IntPtr expectedValue, string argumentName)
+        {
+            if (argumentValue != expectedValue)
+            {
+                throw new ArgumentException("Unexpected IntPtr value", argumentName);
+            }
+        }
+
         private static readonly Dictionary<GitErrorCode, Func<string, GitErrorCode, GitErrorCategory, LibGit2SharpException>>
             GitErrorsToLibGit2SharpExceptions =
                 new Dictionary<GitErrorCode, Func<string, GitErrorCode, GitErrorCategory, LibGit2SharpException>>
@@ -98,14 +124,22 @@ namespace LibGit2Sharp.Core
                     { GitErrorCode.InvalidSpecification, (m, r, c) => new InvalidSpecificationException(m, r, c) },
                     { GitErrorCode.UnmergedEntries, (m, r, c) => new UnmergedIndexEntriesException(m, r, c) },
                     { GitErrorCode.NonFastForward, (m, r, c) => new NonFastForwardException(m, r, c) },
-                    { GitErrorCode.MergeConflict, (m, r, c) => new MergeConflictException(m, r, c) },
+                    { GitErrorCode.Conflict, (m, r, c) => new CheckoutConflictException(m, r, c) },
                     { GitErrorCode.LockedFile, (m, r, c) => new LockedFileException(m, r, c) },
+                    { GitErrorCode.NotFound, (m, r, c) => new NotFoundException(m, r, c) },
+                    { GitErrorCode.Peel, (m, r, c) => new PeelException(m, r, c)  },
                 };
 
         private static void HandleError(int result)
         {
             string errorMessage;
-            GitError error = NativeMethods.giterr_last().MarshalAsGitError();
+            GitError error = null;
+            var errHandle = NativeMethods.giterr_last();
+
+            if (errHandle != null && !errHandle.IsInvalid)
+            {
+                error = errHandle.MarshalAsGitError();
+            }
 
             if (error == null)
             {
@@ -145,17 +179,15 @@ namespace LibGit2Sharp.Core
         }
 
         /// <summary>
-        /// Check that the result of a C call that returns a boolean value
-        /// was successful
+        /// Check that the result of a C call returns a boolean value.
         /// <para>
-        ///   The native function is expected to return strictly 0 for
-        ///   success or a negative value in the case of failure.
+        ///   The native function is expected to return strictly 0 or 1.
         /// </para>
         /// </summary>
         /// <param name="result">The result to examine.</param>
         public static void BooleanResult(int result)
         {
-            if (result == (int)GitErrorCode.Ok || result == 1)
+            if (result == 0 || result == 1)
             {
                 return;
             }
@@ -164,11 +196,11 @@ namespace LibGit2Sharp.Core
         }
 
         /// <summary>
-        /// Check that the result of a C call that returns an integer value
-        /// was successful
+        /// Check that the result of a C call that returns an integer
+        /// value was successful.
         /// <para>
-        ///   The native function is expected to return strictly 0 for
-        ///   success or a negative value in the case of failure.
+        ///   The native function is expected to return 0 or a positive
+        ///   value for success or a negative value in the case of failure.
         /// </para>
         /// </summary>
         /// <param name="result">The result to examine.</param>
@@ -180,16 +212,6 @@ namespace LibGit2Sharp.Core
             }
 
             HandleError(result);
-        }
-
-        public static void NotNullResult(Object result)
-        {
-            if (result != null)
-            {
-                return;
-            }
-
-            HandleError((int)GitErrorCode.Error);
         }
 
         /// <summary>
@@ -208,35 +230,45 @@ namespace LibGit2Sharp.Core
             throw new ArgumentException(argumentName);
         }
 
-        public static void GitObjectIsNotNull(GitObject gitObject, string identifier)
+        /// <summary>
+        /// Checks an argument is a positive integer.
+        /// </summary>
+        /// <param name="argumentValue">The argument value to check.</param>
+        /// <param name="argumentName">The name of the argument.</param>
+        public static void ArgumentPositiveInt32(long argumentValue, string argumentName)
         {
-            Func<string, LibGit2SharpException> exceptionBuilder;
-
-            if (string.Equals("HEAD", identifier, StringComparison.Ordinal))
+            if (argumentValue >= 0 && argumentValue <= uint.MaxValue)
             {
-                exceptionBuilder = m => new UnbornBranchException(m);
-            }
-            else
-            {
-                exceptionBuilder = m => new LibGit2SharpException(m);
+                return;
             }
 
-            GitObjectIsNotNull(gitObject, identifier, exceptionBuilder);
+            throw new ArgumentException(argumentName);
         }
 
-        public static void GitObjectIsNotNull(
-            GitObject gitObject,
-            string identifier,
-            Func<string, LibGit2SharpException> exceptionBuilder)
+        /// <summary>
+        /// Check that the result of a C call that returns a non-null GitObject
+        /// using the default exception builder.
+        /// <para>
+        ///   The native function is expected to return a valid object value.
+        /// </para>
+        /// </summary>
+        /// <param name="gitObject">The <see cref="GitObject"/> to examine.</param>
+        /// <param name="identifier">The <see cref="GitObject"/> identifier to examine.</param>
+        public static void GitObjectIsNotNull(GitObject gitObject, string identifier)
         {
             if (gitObject != null)
             {
                 return;
             }
 
-            throw exceptionBuilder(string.Format(CultureInfo.InvariantCulture,
-                                                     "No valid git object identified by '{0}' exists in the repository.",
-                                                     identifier));
+            var messageFormat = "No valid git object identified by '{0}' exists in the repository.";
+                                        
+            if (string.Equals("HEAD", identifier, StringComparison.Ordinal))
+            {
+                throw new UnbornBranchException(messageFormat, identifier);
+            }
+
+            throw new NotFoundException(messageFormat, identifier);
         }
     }
 }

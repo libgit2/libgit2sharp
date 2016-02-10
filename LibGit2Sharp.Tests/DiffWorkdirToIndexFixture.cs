@@ -30,7 +30,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareTheWorkDirAgainstTheIndex()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 var changes = repo.Diff.Compare<TreeChanges>();
 
@@ -41,11 +42,12 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("new_untracked_file.txt", FileStatus.Untracked)]
+        [InlineData("new_untracked_file.txt", FileStatus.NewInWorkdir)]
         [InlineData("really-i-cant-exist.txt", FileStatus.Nonexistent)]
         public void CanCompareTheWorkDirAgainstTheIndexWithLaxUnmatchedExplicitPathsValidation(string relativePath, FileStatus currentStatus)
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
@@ -58,11 +60,12 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("new_untracked_file.txt", FileStatus.Untracked)]
+        [InlineData("new_untracked_file.txt", FileStatus.NewInWorkdir)]
         [InlineData("really-i-cant-exist.txt", FileStatus.Nonexistent)]
         public void ComparingTheWorkDirAgainstTheIndexWithStrictUnmatchedExplicitPathsValidationAndANonExistentPathspecThrows(string relativePath, FileStatus currentStatus)
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
@@ -71,13 +74,14 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("new_untracked_file.txt", FileStatus.Untracked)]
+        [InlineData("new_untracked_file.txt", FileStatus.NewInWorkdir)]
         [InlineData("where-am-I.txt", FileStatus.Nonexistent)]
         public void CallbackForUnmatchedExplicitPathsIsCalledWhenSet(string relativePath, FileStatus currentStatus)
         {
             var callback = new AssertUnmatchedPathspecsCallbackIsCalled();
 
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
@@ -105,7 +109,7 @@ namespace LibGit2Sharp.Tests
         {
             const string file = "1/branch_file.txt";
 
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 TreeEntry entry = repo.Head[file];
@@ -171,7 +175,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareTheWorkDirAgainstTheIndexWithUntrackedFiles()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 var changes = repo.Diff.Compare<TreeChanges>(null, true);
 

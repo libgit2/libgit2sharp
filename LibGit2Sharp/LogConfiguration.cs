@@ -27,16 +27,24 @@ namespace LibGit2Sharp
 
             Level = level;
             Handler = handler;
+
+            // Explicitly create (and hold a reference to) a callback-delegate to wrap GitTraceHandler().
+            GitTraceCallback = GitTraceHandler;
         }
 
         private LogConfiguration()
-        {
-        }
+        { }
 
         internal LogLevel Level { get; private set; }
         internal LogHandler Handler { get; private set; }
+        internal NativeMethods.git_trace_cb GitTraceCallback { get; private set; }
 
-        internal void GitTraceHandler(LogLevel level, IntPtr msg)
+        /// <summary>
+        /// This private method will be called from LibGit2 (from C code via
+        /// the GitTraceCallback delegate) to route LibGit2 log messages to
+        /// the same LogHandler as LibGit2Sharp messages.
+        /// </summary>
+        private void GitTraceHandler(LogLevel level, IntPtr msg)
         {
             string message = LaxUtf8Marshaler.FromNative(msg);
             Handler(level, message);

@@ -36,7 +36,6 @@ namespace LibGit2Sharp.Core
             IntPtr buffer,
             UIntPtr len);
 
-        public delegate void free_callback(
-            IntPtr stream);
+        public delegate void free_callback(IntPtr stream);
     }
 }

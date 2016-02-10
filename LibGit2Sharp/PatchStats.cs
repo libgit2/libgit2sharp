@@ -13,7 +13,7 @@ namespace LibGit2Sharp
     /// <para>The individual patches for each file can be accessed through the indexer of this class.</para>
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class PatchStats : IEnumerable<ContentChangeStats>
+    public class PatchStats : IEnumerable<ContentChangeStats>, IDiffResult
     {
         private readonly IDictionary<FilePath, ContentChangeStats> changes = new Dictionary<FilePath, ContentChangeStats>();
         private readonly int totalLinesAdded;
@@ -75,7 +75,7 @@ namespace LibGit2Sharp
         /// <param name="path"></param>
         public virtual ContentChangeStats this[string path]
         {
-            get { return this[(FilePath) path]; }
+            get { return this[(FilePath)path]; }
         }
 
         private ContentChangeStats this[FilePath path]
@@ -111,8 +111,10 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format(CultureInfo.InvariantCulture, "+{0} -{1}",
-                    TotalLinesAdded, TotalLinesDeleted);
+                return string.Format(CultureInfo.InvariantCulture,
+                                     "+{0} -{1}",
+                                     TotalLinesAdded,
+                                     TotalLinesDeleted);
             }
         }
     }

@@ -16,7 +16,7 @@ namespace LibGit2Sharp
     /// deleted, modified, ..., then consider using a simpler <see cref="TreeChanges"/>.</para>
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class Patch : IEnumerable<PatchEntryChanges>
+    public class Patch : IEnumerable<PatchEntryChanges>, IDiffResult
     {
         private readonly StringBuilder fullPatchBuilder = new StringBuilder();
 
@@ -41,7 +41,6 @@ namespace LibGit2Sharp
                     AddFileChange(delta);
                     Proxy.git_patch_print(patch, PrintCallBack);
                 }
-
             }
         }
 
@@ -58,7 +57,9 @@ namespace LibGit2Sharp
 
             // Deleted files mean no "new file" path
 
-            var pathPtr = delta.NewFile.Path != IntPtr.Zero ? delta.NewFile.Path : delta.OldFile.Path;
+            var pathPtr = delta.NewFile.Path != IntPtr.Zero
+                ? delta.NewFile.Path
+                : delta.OldFile.Path;
             var filePath = LaxFilePathMarshaler.FromNative(pathPtr);
 
             PatchEntryChanges currentChange = this[filePath];
@@ -164,7 +165,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="patch"><see cref="Patch"/>.</param>
         /// <returns>The patch content as string.</returns>
-        public static implicit operator string(Patch patch)
+        public static implicit operator string (Patch patch)
         {
             return patch.fullPatchBuilder.ToString();
         }
@@ -174,7 +175,9 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    "+{0} -{1}", linesAdded, linesDeleted);
+                                     "+{0} -{1}",
+                                     linesAdded,
+                                     linesDeleted);
             }
         }
     }

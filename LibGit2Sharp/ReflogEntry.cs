@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -11,7 +12,7 @@ namespace LibGit2Sharp
     {
         private readonly ObjectId _from;
         private readonly ObjectId _to;
-        private readonly Signature _commiter;
+        private readonly Signature _committer;
         private readonly string message;
 
         /// <summary>
@@ -28,7 +29,7 @@ namespace LibGit2Sharp
         {
             _from = Proxy.git_reflog_entry_id_old(entryHandle);
             _to = Proxy.git_reflog_entry_id_new(entryHandle);
-            _commiter = Proxy.git_reflog_entry_committer(entryHandle);
+            _committer = Proxy.git_reflog_entry_committer(entryHandle);
             message = Proxy.git_reflog_entry_message(entryHandle);
         }
 
@@ -49,11 +50,20 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// <see cref="Signature"/> of the commiter of this reference update
+        /// <see cref="Signature"/> of the committer of this reference update
         /// </summary>
+        public virtual Signature Committer
+        {
+            get { return _committer; }
+        }
+
+        /// <summary>
+        /// <see cref="Signature"/> of the committer of this reference update
+        /// </summary>
+        [Obsolete("This property will be removed in the next release. Please use Committer instead.")]
         public virtual Signature Commiter
         {
-            get { return _commiter; }
+            get { return Committer; }
         }
 
         /// <summary>

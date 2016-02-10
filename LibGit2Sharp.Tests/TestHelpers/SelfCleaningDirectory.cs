@@ -28,7 +28,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
         protected static string BuildTempPath()
         {
-            return Path.Combine(Constants.TemporaryReposPath, Guid.NewGuid().ToString().Substring(0, 8));
+            return Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName());
         }
     }
 }

@@ -40,6 +40,7 @@ namespace LibGit2Sharp
             {
                 FinalSignature = new Signature(Proxy.git_signature_dup(rawHunk.FinalSignature));
             }
+
             if (rawHunk.OrigSignature != IntPtr.Zero)
             {
                 InitialSignature = new Signature(Proxy.git_signature_dup(rawHunk.OrigSignature));
@@ -49,7 +50,8 @@ namespace LibGit2Sharp
         /// <summary>
         /// For easier mocking
         /// </summary>
-        protected BlameHunk() { }
+        protected BlameHunk()
+        { }
 
         /// <summary>
         /// Determine if this hunk contains a given line.

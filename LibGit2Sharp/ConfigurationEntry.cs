@@ -48,8 +48,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format(CultureInfo.InvariantCulture,
-                    "{0} = \"{1}\"", Key, Value);
+                return string.Format(CultureInfo.InvariantCulture, "{0} = \"{1}\"", Key, Value);
             }
         }
     }

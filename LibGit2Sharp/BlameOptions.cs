@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace LibGit2Sharp
+﻿namespace LibGit2Sharp
 {
     /// <summary>
     /// Strategy used for blaming.

@@ -22,5 +22,4 @@
   <UseCPUArchitecture>AutoDetect</UseCPUArchitecture>
   <MSTestThreadApartmentState>STA</MSTestThreadApartmentState>
   <BuildProcessArchitecture>x86</BuildProcessArchitecture>
-  <AdditionalFilesToInclude>..\Lib\NativeBinaries\**.*</AdditionalFilesToInclude>
 </ProjectConfiguration>

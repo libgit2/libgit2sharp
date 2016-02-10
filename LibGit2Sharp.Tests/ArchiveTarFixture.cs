@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
@@ -11,7 +10,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanArchiveACommitWithDirectoryAsTar()
         {
-            var path = CloneBareTestRepo();
+            var path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 // This tests generates an archive of the bare test repo, and compares it with
@@ -26,7 +25,7 @@ namespace LibGit2Sharp.Tests
                 var commit = repo.Lookup<Commit>("4c062a6361ae6959e06292c1fa5e2822d9c96345");
 
                 var scd = BuildSelfCleaningDirectory();
-                var archivePath = Path.Combine(scd.RootedDirectoryPath, Guid.NewGuid() + ".tar");
+                var archivePath = Path.Combine(scd.RootedDirectoryPath, Path.GetRandomFileName() + ".tar");
                 Directory.CreateDirectory(scd.RootedDirectoryPath);
 
                 repo.ObjectDatabase.Archive(commit, archivePath);

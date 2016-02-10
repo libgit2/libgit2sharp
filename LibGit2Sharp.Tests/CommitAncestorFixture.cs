@@ -35,12 +35,13 @@ namespace LibGit2Sharp.Tests
         [InlineData(null, "be3563a", "-")]
         public void FindCommonAncestorForTwoCommits(string result, string sha1, string sha2)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var first = sha1 == "-" ? CreateOrphanedCommit(repo) : repo.Lookup<Commit>(sha1);
                 var second = sha2 == "-" ? CreateOrphanedCommit(repo) : repo.Lookup<Commit>(sha2);
 
-                Commit ancestor = repo.Commits.FindMergeBase(first, second);
+                Commit ancestor = repo.ObjectDatabase.FindMergeBase(first, second);
 
                 if (result == null)
                 {
@@ -65,11 +66,12 @@ namespace LibGit2Sharp.Tests
         [InlineData(null, new[] { "4c062a6", "-" }, MergeBaseFindingStrategy.Standard)]
         public void FindCommonAncestorForCommitsAsEnumerable(string result, string[] shas, MergeBaseFindingStrategy strategy)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var commits = shas.Select(sha => sha == "-" ? CreateOrphanedCommit(repo) : repo.Lookup<Commit>(sha)).ToArray();
 
-                Commit ancestor = repo.Commits.FindMergeBase(commits, strategy);
+                Commit ancestor = repo.ObjectDatabase.FindMergeBase(commits, strategy);
 
                 if (result == null)
                 {
@@ -88,12 +90,13 @@ namespace LibGit2Sharp.Tests
         [InlineData("0000000", "4c062a6")]
         public void FindCommonAncestorForTwoCommitsThrows(string sha1, string sha2)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var first = repo.Lookup<Commit>(sha1);
                 var second = repo.Lookup<Commit>(sha2);
 
-                Assert.Throws<ArgumentNullException>(() => repo.Commits.FindMergeBase(first, second));
+                Assert.Throws<ArgumentNullException>(() => repo.ObjectDatabase.FindMergeBase(first, second));
             }
         }
 
@@ -104,11 +107,12 @@ namespace LibGit2Sharp.Tests
         [InlineData(new[] { "4c062a6", "be3563a", "000000" }, MergeBaseFindingStrategy.Standard)]
         public void FindCommonAncestorForCommitsAsEnumerableThrows(string[] shas, MergeBaseFindingStrategy strategy)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var commits = shas.Select(sha => sha == "-" ? CreateOrphanedCommit(repo) : repo.Lookup<Commit>(sha)).ToArray();
 
-                Assert.Throws<ArgumentException>(() => repo.Commits.FindMergeBase(commits, strategy));
+                Assert.Throws<ArgumentException>(() => repo.ObjectDatabase.FindMergeBase(commits, strategy));
             }
         }
 

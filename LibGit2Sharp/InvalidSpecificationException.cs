@@ -5,7 +5,10 @@ using LibGit2Sharp.Core;
 namespace LibGit2Sharp
 {
     /// <summary>
-    /// The exception that is thrown when the provided specification is syntactically incorrect.
+    /// The exception that is thrown when a provided specification is bad. This
+    /// can happen if the provided specification is syntactically incorrect, or
+    /// if the spec refers to an object of an incorrect type (e.g. asking to
+    /// create a branch from a blob, or peeling a blob to a commit).
     /// </summary>
     [Serializable]
     public class InvalidSpecificationException : LibGit2SharpException
@@ -14,8 +17,7 @@ namespace LibGit2Sharp
         /// Initializes a new instance of the <see cref="InvalidSpecificationException"/> class.
         /// </summary>
         public InvalidSpecificationException()
-        {
-        }
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InvalidSpecificationException"/> class with a specified error message.
@@ -23,8 +25,16 @@ namespace LibGit2Sharp
         /// <param name="message">A message that describes the error.</param>
         public InvalidSpecificationException(string message)
             : base(message)
-        {
-        }
+        { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidSpecificationException"/> class with a specified error message.
+        /// </summary>
+        /// <param name="format">A composite format string for use in <see cref="String.Format(IFormatProvider, string, object[])"/>.</param>
+        /// <param name="args">An object array that contains zero or more objects to format.</param>
+        public InvalidSpecificationException(string format, params object[] args)
+            : base(format, args)
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InvalidSpecificationException"/> class with a specified error message and a reference to the inner exception that is the cause of this exception.
@@ -33,8 +43,7 @@ namespace LibGit2Sharp
         /// <param name="innerException">The exception that is the cause of the current exception. If the <paramref name="innerException"/> parameter is not a null reference, the current exception is raised in a catch block that handles the inner exception.</param>
         public InvalidSpecificationException(string message, Exception innerException)
             : base(message, innerException)
-        {
-        }
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InvalidSpecificationException"/> class with a serialized data.
@@ -43,12 +52,10 @@ namespace LibGit2Sharp
         /// <param name="context">The <see cref="StreamingContext"/> that contains contextual information about the source or destination.</param>
         protected InvalidSpecificationException(SerializationInfo info, StreamingContext context)
             : base(info, context)
-        {
-        }
+        { }
 
         internal InvalidSpecificationException(string message, GitErrorCode code, GitErrorCategory category)
             : base(message, code, category)
-        {
-        }
+        { }
     }
 }

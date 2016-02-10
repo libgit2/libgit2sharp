@@ -32,6 +32,7 @@
         ///   The path has either to lead to an existing valid configuration file,
         ///   or to a non existent configuration file which will be eventually created.
         /// </para>
+        /// <seealso cref="GlobalSettings.SetConfigSearchPaths"/>.
         /// </summary>
         public string GlobalConfigurationLocation { get; set; }
 
@@ -41,6 +42,7 @@
         ///   The path has either to lead to an existing valid configuration file,
         ///   or to a non existent configuration file which will be eventually created.
         /// </para>
+        /// <seealso cref="GlobalSettings.SetConfigSearchPaths"/>.
         /// </summary>
         public string XdgConfigurationLocation { get; set; }
 
@@ -50,7 +52,18 @@
         ///   The path has to lead to an existing valid configuration file,
         ///   or to a non existent configuration file which will be eventually created.
         /// </para>
+        /// <seealso cref="GlobalSettings.SetConfigSearchPaths"/>.
         /// </summary>
         public string SystemConfigurationLocation { get; set; }
+
+        /// <summary>
+        /// Overrides the default identity to be used when creating reflog entries.
+        /// <para>
+        ///   When unset the identity will be retreived from the repository's configuration.
+        ///   When no identity can be found in the repository configuration stores, a fake
+        ///   identity ("unknown" as both name and email), will be used.
+        /// </para>
+        /// </summary>
+        public Identity Identity { get; set; }
     }
 }

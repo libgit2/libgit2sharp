@@ -43,7 +43,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(name, "name");
 
-            using (RemoteSafeHandle handle = Proxy.git_remote_load(repository.Handle, name, shouldThrowIfNotFound))
+            using (RemoteSafeHandle handle = Proxy.git_remote_lookup(repository.Handle, name, shouldThrowIfNotFound))
             {
                 return handle == null ? null : Remote.BuildFromPtr(handle, this.repository);
             }
@@ -57,12 +57,11 @@ namespace LibGit2Sharp
         /// <returns>The updated remote.</returns>
         public virtual Remote Update(Remote remote, params Action<RemoteUpdater>[] actions)
         {
-            using (var updater = new RemoteUpdater(this.repository, remote))
+            var updater = new RemoteUpdater(repository, remote);
+
+            foreach (Action<RemoteUpdater> action in actions)
             {
-                foreach (Action<RemoteUpdater> action in actions)
-                {
-                    action(updater);
-                }
+                action(updater);
             }
 
             return this[remote.Name];
@@ -145,9 +144,20 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="name">The current remote name.</param>
         /// <param name="newName">The new name the existing remote should bear.</param>
+        /// <returns>A new <see cref="Remote"/>.</returns>
+        public virtual Remote Rename(string name, string newName)
+        {
+            return Rename(name, newName, null);
+        }
+
+        /// <summary>
+        /// Renames an existing <see cref="Remote"/>.
+        /// </summary>
+        /// <param name="name">The current remote name.</param>
+        /// <param name="newName">The new name the existing remote should bear.</param>
         /// <param name="callback">The callback to be used when problems with renaming occur. (e.g. non-default fetch refspecs)</param>
         /// <returns>A new <see cref="Remote"/>.</returns>
-        public virtual Remote Rename(string name, string newName, RemoteRenameFailureHandler callback = null)
+        public virtual Remote Rename(string name, string newName, RemoteRenameFailureHandler callback)
         {
             Ensure.ArgumentNotNull(name, "name");
             Ensure.ArgumentNotNull(newName, "newName");
@@ -160,8 +170,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format(CultureInfo.InvariantCulture,
-                    "Count = {0}", this.Count());
+                return string.Format(CultureInfo.InvariantCulture, "Count = {0}", this.Count());
             }
         }
     }

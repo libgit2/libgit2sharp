@@ -37,8 +37,9 @@ _ReSharper*/
 *.DotSettings
 #Ignore custom generated files
 LibGit2Sharp/Core/UniqueIdentifier.cs
-
 !Lib/NativeBinaries/*/*.pdb
+LibGit2Sharp/Core/NativeDllName.cs
+
 !nuget.package/build/
 _NCrunch_LibGit2Sharp/
 

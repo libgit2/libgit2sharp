@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
+using Moq;
 
 namespace LibGit2Sharp.Tests
 {
@@ -14,7 +17,7 @@ namespace LibGit2Sharp.Tests
     {
         private static readonly HashSet<Type> explicitOnlyInterfaces = new HashSet<Type>
         {
-            typeof(IBelongToARepository),
+            typeof(IBelongToARepository), typeof(IDiffResult),
         };
 
         [Fact]
@@ -87,7 +90,7 @@ namespace LibGit2Sharp.Tests
             var nonTestableTypes = new Dictionary<Type, IEnumerable<string>>();
 
             IEnumerable<Type> libGit2SharpTypes = Assembly.GetAssembly(typeof(IRepository)).GetExportedTypes()
-                .Where(t => !t.IsSealed && t.Namespace == typeof(IRepository).Namespace);
+                .Where(t => MustBeMockable(t) && t.Namespace == typeof(IRepository).Namespace);
 
             foreach (Type type in libGit2SharpTypes)
             {
@@ -105,12 +108,51 @@ namespace LibGit2Sharp.Tests
                 {
                     nonTestableTypes.Add(type, new List<string>());
                 }
+
+                if (type.IsAbstract)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    if (type.ContainsGenericParameters)
+                    {
+                        var constructType = type.MakeGenericType(Enumerable.Repeat(typeof(object), type.GetGenericArguments().Length).ToArray());
+                        Activator.CreateInstance(constructType, true);
+                    }
+                    else
+                    {
+                        Activator.CreateInstance(type, true);
+                    }
+                }
+                catch
+                {
+                    nonTestableTypes.Add(type, new List<string>());
+                }
             }
 
             if (nonTestableTypes.Any())
             {
                 Assert.True(false, Environment.NewLine + BuildNonTestableTypesMessage(nonTestableTypes));
             }
+        }
+
+        private static bool MustBeMockable(Type type)
+        {
+            if (type.IsSealed)
+            {
+                return false;
+            }
+
+            if (type.IsAbstract)
+            {
+                return !type.Assembly.GetExportedTypes()
+                            .Where(t => t.IsSubclassOf(type))
+                            .All(t => t.IsAbstract || t.IsSealed);
+            }
+
+            return true;
         }
 
         [Fact]
@@ -227,7 +269,7 @@ namespace LibGit2Sharp.Tests
             var nonVirtualGetEnumeratorMethods = Assembly.GetAssembly(typeof(IRepository))
                 .GetExportedTypes()
                 .Where(t =>
-                    t.Namespace == typeof (IRepository).Namespace &&
+                    t.Namespace == typeof(IRepository).Namespace &&
                     !t.IsSealed &&
                     !t.IsAbstract &&
                     t.GetInterfaces().Any(i => i.IsAssignableFrom(typeof(IEnumerable<>))))
@@ -237,12 +279,150 @@ namespace LibGit2Sharp.Tests
                     (!m.IsVirtual || m.IsFinal))
                 .ToList();
 
-            foreach (var method in nonVirtualGetEnumeratorMethods)
+            if (nonVirtualGetEnumeratorMethods.Any())
             {
-                Debug.WriteLine(String.Format("GetEnumerator in type '{0}' isn't virtual.", method.DeclaringType));
+                var sb = new StringBuilder();
+
+                foreach (var method in nonVirtualGetEnumeratorMethods)
+                {
+                    sb.AppendFormat("GetEnumerator in type '{0}' isn't virtual.{1}",
+                        method.DeclaringType, Environment.NewLine);
+                }
+
+                Assert.True(false, Environment.NewLine + sb.ToString());
+            }
+        }
+
+        [Fact]
+        public void NoPublicTypesUnderLibGit2SharpCoreNamespace()
+        {
+            const string coreNamespace = "LibGit2Sharp.Core";
+
+            var types = Assembly.GetAssembly(typeof(IRepository))
+                .GetExportedTypes()
+                .Where(t => t.FullName.StartsWith(coreNamespace + "."))
+
+                // Ugly hack to circumvent a Mono bug
+                // cf. https://bugzilla.xamarin.com/show_bug.cgi?id=27010
+                .Where(t => !t.FullName.Contains("+"))
+
+#if LEAKS_IDENTIFYING
+                .Where(t => t != typeof(LibGit2Sharp.Core.LeaksContainer))
+#endif
+                .ToList();
+
+            if (types.Any())
+            {
+                var sb = new StringBuilder();
+
+                foreach (var type in types)
+                {
+                    sb.AppendFormat("Public type '{0}' under the '{1}' namespace.{2}",
+                        type.FullName, coreNamespace, Environment.NewLine);
+                }
+
+                Assert.True(false, Environment.NewLine + sb.ToString());
+            }
+        }
+
+        [Fact]
+        public void NoOptionalParametersinMethods()
+        {
+            IEnumerable<string> mis =
+                from t in Assembly.GetAssembly(typeof(IRepository))
+                    .GetExportedTypes()
+                from m in t.GetMethods()
+                where !m.IsObsolete()
+                from p in m.GetParameters()
+                where p.IsOptional
+                select m.DeclaringType + "." + m.Name;
+
+            var sb = new StringBuilder();
+
+            foreach (var method in mis.Distinct())
+            {
+                sb.AppendFormat("At least one overload of method '{0}' accepts an optional parameter.{1}",
+                    method, Environment.NewLine);
             }
 
-            Assert.Empty(nonVirtualGetEnumeratorMethods);
+            Assert.Equal("", sb.ToString());
+        }
+
+        [Fact]
+        public void NoOptionalParametersinConstructors()
+        {
+            IEnumerable<string> mis =
+                from t in Assembly.GetAssembly(typeof(IRepository))
+                    .GetExportedTypes()
+                from c in t.GetConstructors()
+                from p in c.GetParameters()
+                where p.IsOptional
+                select c.DeclaringType.Name;
+
+            var sb = new StringBuilder();
+
+            foreach (var method in mis.Distinct())
+            {
+                sb.AppendFormat("At least one constructor of type '{0}' accepts an optional parameter.{1}",
+                    method, Environment.NewLine);
+            }
+
+            Assert.Equal("", sb.ToString());
+        }
+
+        [Fact]
+        public void PublicExtensionMethodsShouldonlyTargetInterfacesOrEnums()
+        {
+            IEnumerable<string> mis =
+                from m in GetInvalidPublicExtensionMethods()
+                select m.DeclaringType + "." + m.Name;
+
+            var sb = new StringBuilder();
+
+            foreach (var method in mis.Distinct())
+            {
+                sb.AppendFormat("'{0}' is a public extension method that doesn't target an interface or an enum.{1}",
+                    method, Environment.NewLine);
+            }
+
+            Assert.Equal("", sb.ToString());
+        }
+
+        // Inspired from http://stackoverflow.com/a/299526
+
+        static IEnumerable<MethodInfo> GetInvalidPublicExtensionMethods()
+        {
+            var query = from type in (Assembly.GetAssembly(typeof(IRepository))).GetTypes()
+                        where type.IsSealed && !type.IsGenericType && !type.IsNested && type.IsPublic
+                        from method in type.GetMethods(BindingFlags.Static | BindingFlags.Public)
+                        where method.IsDefined(typeof(ExtensionAttribute), false)
+                        let parameterType = method.GetParameters()[0].ParameterType
+                        where parameterType != null && !parameterType.IsInterface && !parameterType.IsEnum
+                        select method;
+            return query;
+        }
+
+        [Fact]
+        public void AllIDiffResultsAreInChangesBuilder()
+        {
+            var diff = typeof(Diff).GetField("ChangesBuilders", BindingFlags.NonPublic | BindingFlags.Static);
+            var changesBuilders = (System.Collections.IDictionary)diff.GetValue(null);
+
+            IEnumerable<Type> diffResults = typeof(Diff).Assembly.GetExportedTypes()
+                .Where(type => type.GetInterface("IDiffResult") != null);
+
+            var nonBuilderTypes = diffResults.Where(diffResult => !changesBuilders.Contains(diffResult));
+            Assert.False(nonBuilderTypes.Any(), "Classes which implement IDiffResult but are not registered under ChangesBuilders in Diff:" + Environment.NewLine +
+                string.Join(Environment.NewLine, nonBuilderTypes.Select(type => type.FullName).ToArray()));
+        }
+    }
+
+    internal static class TypeExtensions
+    {
+        internal static bool IsObsolete(this MethodInfo methodInfo)
+        {
+            var attributes = methodInfo.GetCustomAttributes(false);
+            return attributes.Any(a => a is ObsoleteAttribute);
         }
     }
 }

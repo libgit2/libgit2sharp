@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -42,6 +41,20 @@ namespace LibGit2Sharp
 
             this.name = name;
             this.email = email;
+            this.when = when;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Signature"/> class.
+        /// </summary>
+        /// <param name="identity">The identity.</param>
+        /// <param name="when">The when.</param>
+        public Signature(Identity identity, DateTimeOffset when)
+        {
+            Ensure.ArgumentNotNull(identity, "identity");
+
+            this.name = identity.Name;
+            this.email = identity.Email;
             this.when = when;
         }
 
@@ -132,6 +145,25 @@ namespace LibGit2Sharp
         public override string ToString()
         {
             return string.Format(CultureInfo.InvariantCulture, "{0} <{1}>", Name, Email);
+        }
+    }
+
+    internal static class SignatureHelpers
+    {
+        /// <summary>
+        /// Build the handle for the Signature, or return a handle
+        /// to an empty signature.
+        /// </summary>
+        /// <param name="signature"></param>
+        /// <returns></returns>
+        public static SignatureSafeHandle SafeBuildHandle(this Signature signature)
+        {
+            if (signature == null)
+            {
+                return new SignatureSafeHandle();
+            }
+
+            return signature.BuildHandle();
         }
     }
 }

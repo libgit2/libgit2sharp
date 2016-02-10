@@ -1,9 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
-using System;
 
 namespace LibGit2Sharp.Tests
 {
@@ -14,7 +14,7 @@ namespace LibGit2Sharp.Tests
         [InlineData(false)]
         public void CanCherryPick(bool fromDetachedHead)
         {
-            string path = CloneMergeTestRepo();
+            string path = SandboxMergeTestRepo();
             using (var repo = new Repository(path))
             {
                 if (fromDetachedHead)
@@ -42,11 +42,11 @@ namespace LibGit2Sharp.Tests
             const string secondBranchFileName = "second branch file.txt";
             const string sharedBranchFileName = "first+second branch file.txt";
 
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 var firstBranch = repo.CreateBranch("FirstBranch");
-                firstBranch.Checkout();
+                repo.Checkout(firstBranch);
 
                 // Commit with ONE new file to both first & second branch (SecondBranch is created on this commit).
                 AddFileCommitToRepo(repo, sharedBranchFileName);
@@ -56,7 +56,7 @@ namespace LibGit2Sharp.Tests
                 AddFileCommitToRepo(repo, firstBranchFileName);
                 AddFileCommitToRepo(repo, sharedBranchFileName, "The first branches comment");  // Change file in first branch
 
-                secondBranch.Checkout();
+                repo.Checkout(secondBranch);
                 // Commit with ONE new file to second branch (FirstBranch and SecondBranch now point to separate commits that both have the same parent commit).
                 AddFileCommitToRepo(repo, secondBranchFileName);
                 AddFileCommitToRepo(repo, sharedBranchFileName, "The second branches comment");  // Change file in second branch
@@ -83,7 +83,7 @@ namespace LibGit2Sharp.Tests
             const string conflictFile = "a.txt";
             const string conflictBranchName = "conflicts";
 
-            string path = CloneMergeTestRepo();
+            string path = SandboxMergeTestRepo();
             using (var repo = new Repository(path))
             {
                 Branch branch = repo.Branches[conflictBranchName];

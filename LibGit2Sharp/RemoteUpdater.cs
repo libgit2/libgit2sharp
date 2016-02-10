@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
@@ -8,11 +9,12 @@ namespace LibGit2Sharp
     /// <summary>
     /// Exposes properties of a remote that can be updated.
     /// </summary>
-    public class RemoteUpdater : IDisposable
+    public class RemoteUpdater
     {
         private readonly UpdatingCollection<string> fetchRefSpecs;
         private readonly UpdatingCollection<string> pushRefSpecs;
-        private readonly RemoteSafeHandle remoteHandle;
+        private readonly Repository repo;
+        private readonly Remote remote;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -25,32 +27,47 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(repo, "repo");
             Ensure.ArgumentNotNull(remote, "remote");
 
+            this.repo = repo;
+            this.remote = remote;
+
             fetchRefSpecs = new UpdatingCollection<string>(GetFetchRefSpecs, SetFetchRefSpecs);
             pushRefSpecs = new UpdatingCollection<string>(GetPushRefSpecs, SetPushRefSpecs);
-
-            remoteHandle = Proxy.git_remote_load(repo.Handle, remote.Name, true);
         }
 
         private IEnumerable<string> GetFetchRefSpecs()
         {
-            return Proxy.git_remote_get_fetch_refspecs(remoteHandle);
+            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repo.Handle, remote.Name, true))
+            {
+                return Proxy.git_remote_get_fetch_refspecs(remoteHandle);
+            }
         }
 
         private void SetFetchRefSpecs(IEnumerable<string> value)
         {
-            Proxy.git_remote_set_fetch_refspecs(remoteHandle, value);
-            Proxy.git_remote_save(remoteHandle);
+            repo.Config.UnsetMultivar(string.Format("remote.{0}.fetch", remote.Name), ConfigurationLevel.Local);
+
+            foreach (var url in value)
+            {
+                Proxy.git_remote_add_fetch(repo.Handle, remote.Name, url);
+            }
         }
 
         private IEnumerable<string> GetPushRefSpecs()
         {
-            return Proxy.git_remote_get_push_refspecs(remoteHandle);
+            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repo.Handle, remote.Name, true))
+            {
+                return Proxy.git_remote_get_push_refspecs(remoteHandle);
+            }
         }
 
         private void SetPushRefSpecs(IEnumerable<string> value)
         {
-            Proxy.git_remote_set_push_refspecs(remoteHandle, value);
-            Proxy.git_remote_save(remoteHandle);
+            repo.Config.UnsetMultivar(string.Format("remote.{0}.push", remote.Name), ConfigurationLevel.Local);
+
+            foreach (var url in value)
+            {
+                Proxy.git_remote_add_push(repo.Handle, remote.Name, url);
+            }
         }
 
         /// <summary>
@@ -58,11 +75,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual TagFetchMode TagFetchMode
         {
-            set
-            {
-                Proxy.git_remote_set_autotag(remoteHandle, value);
-                Proxy.git_remote_save(remoteHandle);
-            }
+            set { Proxy.git_remote_set_autotag(repo.Handle, remote.Name, value); }
         }
 
         /// <summary>
@@ -70,11 +83,15 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual string Url
         {
-            set
-            {
-                Proxy.git_remote_set_url(remoteHandle, value);
-                Proxy.git_remote_save(remoteHandle);
-            }
+            set { Proxy.git_remote_set_url(repo.Handle, remote.Name, value); }
+        }
+
+        /// <summary>
+        /// Sets the push url defined for this <see cref="Remote"/>
+        /// </summary>
+        public virtual string PushUrl
+        {
+            set { Proxy.git_remote_set_pushurl(repo.Handle, remote.Name, value); }
         }
 
         /// <summary>
@@ -157,7 +174,7 @@ namespace LibGit2Sharp
                 return list.Value.GetEnumerator();
             }
 
-            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+            IEnumerator IEnumerable.GetEnumerator()
             {
                 return list.Value.GetEnumerator();
             }
@@ -174,14 +191,6 @@ namespace LibGit2Sharp
             {
                 setter(list.Value);
             }
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            remoteHandle.Dispose();
         }
     }
 }
