@@ -61,12 +61,12 @@ namespace LibGit2Sharp.Tests
             {
                 // ...that this cache doesn't contain the `NativeBinaries` folder
                 string cachedAssemblyParentPath = Path.GetDirectoryName(cachedAssemblyLocation);
-            	Assert.False(Directory.Exists(Path.Combine(cachedAssemblyParentPath, "x64")));
+                Assert.False(Directory.Exists(Path.Combine(cachedAssemblyParentPath, "NativeBinaries")));
 
                 // ...whereas `NativeBinaries` of course exists next to the source assembly
                 string sourceAssemblyParentPath =
                     Path.GetDirectoryName(new Uri(sourceAssembly.EscapedCodeBase).LocalPath);
-            	Assert.True(Directory.Exists(Path.Combine(sourceAssemblyParentPath, "x64")));
+                Assert.True(Directory.Exists(Path.Combine(sourceAssemblyParentPath, "NativeBinaries")));
             }
 
             AppDomain.Unload(domain);
