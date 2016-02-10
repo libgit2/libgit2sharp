@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
-using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
-    public class Tuple<T, TS>
+    internal class Tuple<T, TS>
     {
         public T Item1 { get; private set; }
         public TS Item2 { get; private set; }
@@ -51,7 +50,7 @@ namespace LibGit2Sharp
     /// Provides support for lazy initialization.
     /// </summary>
     /// <typeparam name="T">Specifies the type of object that is being lazily initialized.</typeparam>
-    public class Lazy<T>
+    internal class Lazy<T>
     {
         private readonly object padlock = new object();
         private readonly Func<T> createValue;
