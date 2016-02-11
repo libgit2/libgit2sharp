@@ -67,7 +67,7 @@ namespace LibGit2Sharp.Core
             {
                 string nativeLibraryPath = GlobalSettings.GetAndLockNativeLibraryPath();
 
-                string path = Path.Combine(nativeLibraryPath, Platform.ProcessorArchitecture);
+                string path = Path.Combine(nativeLibraryPath, Platform.ProcessorArchitecture.ToString());
 
                 const string pathEnvVariable = "PATH";
                 Environment.SetEnvironmentVariable(pathEnvVariable,
