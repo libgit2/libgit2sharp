@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
@@ -67,15 +68,25 @@ namespace LibGit2Sharp.Core
             {
                 string nativeLibraryPath = GlobalSettings.GetAndLockNativeLibraryPath();
 
-                string path = Path.Combine(nativeLibraryPath, Platform.ProcessorArchitecture.ToString());
+                var pathStringToAdd = GetPathStringToAdd(nativeLibraryPath);
 
                 const string pathEnvVariable = "PATH";
                 Environment.SetEnvironmentVariable(pathEnvVariable,
-                    String.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", path, Path.PathSeparator, Environment.GetEnvironmentVariable(pathEnvVariable)));
+                    String.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", pathStringToAdd, Path.PathSeparator, Environment.GetEnvironmentVariable(pathEnvVariable)));
             }
 
             // See LibraryLifetimeObject description.
             lifetimeObject = new LibraryLifetimeObject();
+        }
+
+        private static string GetPathStringToAdd(string nativeLibraryPath)
+        {
+            var subFolders = Platform.ProcessorArchitecture == Architecture.x86
+                ? new[] { "x86" }
+                : new[] { "amd64", "x64" };
+            var pathsToAdd = subFolders.Select(f => Path.Combine(nativeLibraryPath, f));
+            var pathStringToAdd = string.Join(Path.PathSeparator.ToString(), pathsToAdd.ToArray());
+            return pathStringToAdd;
         }
 
         [DllImport(libgit2)]
