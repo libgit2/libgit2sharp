@@ -1,8 +1,9 @@
 ﻿using System;
+using System.IO;
 
 namespace LibGit2Sharp
 {
-    public class Tuple<T, TS>
+    internal class Tuple<T, TS>
     {
         public T Item1 { get; private set; }
         public TS Item2 { get; private set; }
@@ -14,7 +15,7 @@ namespace LibGit2Sharp
         }
     }
 
-    public static class EnumExt
+    internal static class EnumExt
     {
         /// <summary>
         /// Check to see if a flags enumeration has a specific flag set.
@@ -38,8 +39,8 @@ namespace LibGit2Sharp
                     value.GetType(), variable.GetType()));
             }
 
-            ulong num = Convert.ToUInt64(value);
-            return ((Convert.ToUInt64(variable) & num) == num);
+            long num = Convert.ToInt64(value);
+            return (Convert.ToInt64(variable) & num) == num;
 
         }
 
@@ -49,7 +50,7 @@ namespace LibGit2Sharp
     /// Provides support for lazy initialization.
     /// </summary>
     /// <typeparam name="T">Specifies the type of object that is being lazily initialized.</typeparam>
-    public class Lazy<T>
+    internal class Lazy<T>
     {
         private readonly object padlock = new object();
         private readonly Func<T> createValue;
@@ -112,6 +113,31 @@ namespace LibGit2Sharp
         public override string ToString()
         {
             return Value.ToString();
+        }
+    }
+
+    internal static class StreamExtensions
+    {
+        /// <summary>
+        /// For .NET 3.5. Copied from http://stackoverflow.com/a/5730893
+        /// </summary>
+        public static void CopyTo(this Stream input, Stream output)
+        {
+            byte[] buffer = new byte[16 * 1024]; // Fairly arbitrary size
+            int bytesRead;
+
+            while ((bytesRead = input.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                output.Write(buffer, 0, bytesRead);
+            }
+        }
+    }
+
+    internal static class StringExtensions
+    {
+        public static bool IsNullOrWhiteSpace(this string s)
+        {
+            return string.IsNullOrEmpty(s) || s.Trim().Length == 0;
         }
     }
 }

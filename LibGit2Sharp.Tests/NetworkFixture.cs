@@ -22,23 +22,26 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(repoPath))
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
-                IList<DirectReference> references = repo.Network.ListReferences(remote).ToList();
+                IList<Reference> references = repo.Network.ListReferences(remote).ToList();
 
-                foreach (var directReference in references)
+
+                foreach (var reference in references)
                 {
                     // None of those references point to an existing
                     // object in this brand new repository
-                    Assert.Null(directReference.Target);
+                    Assert.Null(reference.ResolveToDirectReference().Target);
                 }
 
                 List<Tuple<string, string>> actualRefs = references.
-                    Select(directRef => new Tuple<string, string>(directRef.CanonicalName, directRef.TargetIdentifier)).ToList();
+                    Select(directRef => new Tuple<string, string>(directRef.CanonicalName, directRef.ResolveToDirectReference()
+                        .TargetIdentifier)).ToList();
 
-                Assert.Equal(ExpectedRemoteRefs.Count, actualRefs.Count);
-                for (int i = 0; i < ExpectedRemoteRefs.Count; i++)
+                Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs.Count, actualRefs.Count);
+                Assert.True(references.Single(reference => reference.CanonicalName == "HEAD") is SymbolicReference);
+                for (int i = 0; i < TestRemoteRefs.ExpectedRemoteRefs.Count; i++)
                 {
-                    Assert.Equal(ExpectedRemoteRefs[i].Item2, actualRefs[i].Item2);
-                    Assert.Equal(ExpectedRemoteRefs[i].Item1, actualRefs[i].Item1);
+                    Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs[i].Item2, actualRefs[i].Item2);
+                    Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs[i].Item1, actualRefs[i].Item1);
                 }
             }
         }
@@ -53,23 +56,25 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                IList<DirectReference> references = repo.Network.ListReferences(url).ToList();
+                IList<Reference> references = repo.Network.ListReferences(url).ToList();
 
-                foreach (var directReference in references)
+                foreach (var reference in references)
                 {
                     // None of those references point to an existing
                     // object in this brand new repository
-                    Assert.Null(directReference.Target);
+                    Assert.Null(reference.ResolveToDirectReference().Target);
                 }
 
                 List<Tuple<string, string>> actualRefs = references.
-                    Select(directRef => new Tuple<string, string>(directRef.CanonicalName, directRef.TargetIdentifier)).ToList();
+                    Select(directRef => new Tuple<string, string>(directRef.CanonicalName, directRef.ResolveToDirectReference()
+                        .TargetIdentifier)).ToList();
 
-                Assert.Equal(ExpectedRemoteRefs.Count, actualRefs.Count);
-                for (int i = 0; i < ExpectedRemoteRefs.Count; i++)
+                Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs.Count, actualRefs.Count);
+                Assert.True(references.Single(reference => reference.CanonicalName == "HEAD") is SymbolicReference);
+                for (int i = 0; i < TestRemoteRefs.ExpectedRemoteRefs.Count; i++)
                 {
-                    Assert.Equal(ExpectedRemoteRefs[i].Item2, actualRefs[i].Item2);
-                    Assert.Equal(ExpectedRemoteRefs[i].Item1, actualRefs[i].Item1);
+                    Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs[i].Item2, actualRefs[i].Item2);
+                    Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs[i].Item1, actualRefs[i].Item1);
                 }
             }
         }
@@ -87,22 +92,26 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(clonedRepoPath))
             {
                 Remote remote = repo.Network.Remotes[remoteName];
-                IEnumerable<DirectReference> references = repo.Network.ListReferences(remote);
+                IEnumerable<Reference> references = repo.Network.ListReferences(remote).ToList();
 
                 var actualRefs = new List<Tuple<string,string>>();
 
-                foreach(DirectReference reference in references)
+                foreach(Reference reference in references)
                 {
                     Assert.NotNull(reference.CanonicalName);
-                    Assert.NotNull(reference.Target);
-                    actualRefs.Add(new Tuple<string, string>(reference.CanonicalName, reference.Target.Id.Sha));
+
+                    var directReference = reference.ResolveToDirectReference();
+
+                    Assert.NotNull(directReference.Target);
+                    actualRefs.Add(new Tuple<string, string>(reference.CanonicalName, directReference.Target.Id.Sha));
                 }
 
-                Assert.Equal(ExpectedRemoteRefs.Count, actualRefs.Count);
-                for (int i = 0; i < ExpectedRemoteRefs.Count; i++)
+                Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs.Count, actualRefs.Count);
+                Assert.True(references.Single(reference => reference.CanonicalName == "HEAD") is SymbolicReference);
+                for (int i = 0; i < TestRemoteRefs.ExpectedRemoteRefs.Count; i++)
                 {
-                    Assert.Equal(ExpectedRemoteRefs[i].Item1, actualRefs[i].Item1);
-                    Assert.Equal(ExpectedRemoteRefs[i].Item2, actualRefs[i].Item2);
+                    Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs[i].Item1, actualRefs[i].Item1);
+                    Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs[i].Item2, actualRefs[i].Item2);
                 }
             }
         }
@@ -123,16 +132,16 @@ namespace LibGit2Sharp.Tests
 
                 var references = repo.Network.ListReferences(remote, Constants.PrivateRepoCredentials);
 
-                foreach (var directReference in references)
+                foreach (var reference in references)
                 {
-                    Assert.NotNull(directReference);
+                    Assert.NotNull(reference);
                 }
             }
         }
 
         [Theory]
         [InlineData(FastForwardStrategy.Default)]
-        [InlineData(FastForwardStrategy.NoFastFoward)]
+        [InlineData(FastForwardStrategy.NoFastForward)]
         public void CanPull(FastForwardStrategy fastForwardStrategy)
         {
             string url = "https://github.com/libgit2/TestGitRepository";
@@ -180,7 +189,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(repoPath))
             {
                 // Set up remote
-                Remote remote = repo.Network.Remotes.Add(remoteName, url);
+                repo.Network.Remotes.Add(remoteName, url);
 
                 // Set up tracking information
                 repo.Branches.Update(repo.Head,
@@ -228,32 +237,31 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        /*
-        * git ls-remote http://github.com/libgit2/TestGitRepository
-        * 49322bb17d3acc9146f98c97d078513228bbf3c0        HEAD
-        * 0966a434eb1a025db6b71485ab63a3bfbea520b6        refs/heads/first-merge
-        * 49322bb17d3acc9146f98c97d078513228bbf3c0        refs/heads/master
-        * 42e4e7c5e507e113ebbb7801b16b52cf867b7ce1        refs/heads/no-parent
-        * d96c4e80345534eccee5ac7b07fc7603b56124cb        refs/tags/annotated_tag
-        * c070ad8c08840c8116da865b2d65593a6bb9cd2a        refs/tags/annotated_tag^{}
-        * 55a1a760df4b86a02094a904dfa511deb5655905        refs/tags/blob
-        * 8f50ba15d49353813cc6e20298002c0d17b0a9ee        refs/tags/commit_tree
-        * 6e0c7bdb9b4ed93212491ee778ca1c65047cab4e        refs/tags/nearly-dangling
-        */
-        /// <summary>
-        /// Expected references on http://github.com/libgit2/TestGitRepository
-        /// </summary>
-        private static List<Tuple<string, string>> ExpectedRemoteRefs = new List<Tuple<string, string>>()
+        [Fact]
+        public void CanMergeFetchedRefs()
         {
-            new Tuple<string, string>("HEAD", "49322bb17d3acc9146f98c97d078513228bbf3c0"),
-            new Tuple<string, string>("refs/heads/first-merge", "0966a434eb1a025db6b71485ab63a3bfbea520b6"),
-            new Tuple<string, string>("refs/heads/master", "49322bb17d3acc9146f98c97d078513228bbf3c0"),
-            new Tuple<string, string>("refs/heads/no-parent", "42e4e7c5e507e113ebbb7801b16b52cf867b7ce1"),
-            new Tuple<string, string>("refs/tags/annotated_tag", "d96c4e80345534eccee5ac7b07fc7603b56124cb"),
-            new Tuple<string, string>("refs/tags/annotated_tag^{}", "c070ad8c08840c8116da865b2d65593a6bb9cd2a"),
-            new Tuple<string, string>("refs/tags/blob", "55a1a760df4b86a02094a904dfa511deb5655905"),
-            new Tuple<string, string>("refs/tags/commit_tree", "8f50ba15d49353813cc6e20298002c0d17b0a9ee"),
-            new Tuple<string, string>("refs/tags/nearly-dangling", "6e0c7bdb9b4ed93212491ee778ca1c65047cab4e"),
-        };
+            string url = "https://github.com/libgit2/TestGitRepository";
+
+            var scd = BuildSelfCleaningDirectory();
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+
+            using (var repo = new Repository(clonedRepoPath))
+            {
+                repo.Reset(ResetMode.Hard, "HEAD~1");
+
+                Assert.False(repo.RetrieveStatus().Any());
+                Assert.Equal(repo.Lookup<Commit>("refs/remotes/origin/master~1"), repo.Head.Tip);
+
+                repo.Network.Fetch(repo.Head.Remote);
+
+                MergeOptions mergeOptions = new MergeOptions()
+                {
+                    FastForwardStrategy = FastForwardStrategy.NoFastForward
+                };
+
+                MergeResult mergeResult = repo.MergeFetchedRefs(Constants.Signature, mergeOptions);
+                Assert.Equal(mergeResult.Status, MergeStatus.NonFastForward);
+            }
+        }
     }
 }

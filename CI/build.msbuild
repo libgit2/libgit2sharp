@@ -6,17 +6,17 @@
     <DeployFolder>$(RootDir)\Build</DeployFolder>
   </PropertyGroup>
 
-  <UsingTask AssemblyFile="$(RootDir)\Lib\xUnit\xunit.runner.msbuild.dll"
+  <UsingTask AssemblyFile="$(RootDir)\packages\xunit.runner.msbuild.2.0.0\build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.runner.msbuild.dll"
                TaskName="Xunit.Runner.MSBuild.xunit" />
   <Target Name="Clean">
-	<Message Text="Commit SHA = $(CommitSha)" />
+    <Message Text="Commit SHA = $(CommitSha)" />
 
-	<WriteLinesToFile Condition="'$(CommitSha)' != ''"
-		File="$(RootDir)\LibGit2Sharp\libgit2sharp_hash.txt"
-		Lines="$(CommitSha)"
-		Overwrite="true" />
+    <WriteLinesToFile Condition="'$(CommitSha)' != ''"
+      File="$(RootDir)\LibGit2Sharp\libgit2sharp_hash.txt"
+      Lines="$(CommitSha)"
+      Overwrite="true" />
 
-	<!-- Workaround for xbuild -->
+    <!-- Workaround for xbuild -->
     <Exec Condition=" ('$(OS)' != 'Windows_NT') " Command=" rm -r -f $(DeployFolder) " />
     <Exec Condition=" ('$(OS)' != 'Windows_NT') " Command=" rm -r -f $(TestBuildDir) " />
 
@@ -29,26 +29,29 @@
   </Target>
 
   <Target Name="Build" DependsOnTargets="Init">
+    <Message Text="ExtraDefine = $(ExtraDefine)" />
     <MSBuild
       Projects="$(RootDir)\LibGit2Sharp.sln"
       Targets="Build"
-      Properties="Configuration=$(Configuration);TrackFileAccess=false" />
+      Properties="Configuration=$(Configuration);TrackFileAccess=false;ExtraDefine=$(ExtraDefine)" />
   </Target>
 
   <Target Name="Test" DependsOnTargets="Build">
-    <xunit Assembly="$(TestBuildDir)/LibGit2Sharp.Tests.dll" Xml="$(DeployFolder)/Test-result.xml" />
+    <xunit Assemblies="$(TestBuildDir)/LibGit2Sharp.Tests.dll" ShadowCopy="false" WorkingFolder="$(TestBuildDir)" Xml="$(DeployFolder)/Test-result.xml" />
   </Target>
 
   <Target Name="Deploy" DependsOnTargets="Test">
-    <CreateItem Include="$(TestBuildDir)\LibGit2*.*">
-        <Output TaskParameter="Include" ItemName="OutputFiles" />
-    </CreateItem>
+    <ItemGroup>
+      <OutputFiles Include="$(TestBuildDir)\LibGit2*.*" />
+    </ItemGroup>
+
     <Copy SourceFiles="@(OutputFiles)"
         DestinationFiles="@(OutputFiles->'$(DeployFolder)\%(RecursiveDir)%(Filename)%(Extension)')" />
 
-    <CreateItem Include="$(TestBuildDir)\NativeBinaries\**\*.*">
-        <Output TaskParameter="Include" ItemName="NativeBinaries" />
-    </CreateItem>
+    <ItemGroup>
+      <NativeBinaries Include="$(TestBuildDir)\NativeBinaries\**\*.*" />
+    </ItemGroup>
+
     <Copy SourceFiles="@(NativeBinaries)"
       DestinationFiles="@(NativeBinaries->'$(DeployFolder)\NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>

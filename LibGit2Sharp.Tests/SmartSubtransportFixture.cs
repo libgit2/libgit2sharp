@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Security;
 using LibGit2Sharp.Tests.TestHelpers;
@@ -39,7 +38,7 @@ namespace LibGit2Sharp.Tests
                 registration = GlobalSettings.RegisterSmartSubtransport<MockSmartSubtransport>(scheme);
                 Assert.NotNull(registration);
 
-                using (var repo = new Repository(scd.DirectoryPath))
+                using (var repo = new Repository(repoPath))
                 {
                     Remote remote = repo.Network.Remotes.Add(remoteName, url);
 
@@ -55,7 +54,7 @@ namespace LibGit2Sharp.Tests
                     }
 
                     // Add the expected tags
-                    string[] expectedTagNames = { "blob", "commit_tree" };
+                    string[] expectedTagNames = { "blob", "commit_tree", "annotated_tag" };
                     foreach (string tagName in expectedTagNames)
                     {
                         TestRemoteInfo.ExpectedTagInfo expectedTagInfo = expectedResults.Tags[tagName];

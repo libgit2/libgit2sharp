@@ -26,6 +26,7 @@ namespace LibGit2Sharp
         private readonly List<StatusEntry> ignored = new List<StatusEntry>();
         private readonly List<StatusEntry> renamedInIndex = new List<StatusEntry>();
         private readonly List<StatusEntry> renamedInWorkDir = new List<StatusEntry>();
+        private readonly List<StatusEntry> unaltered = new List<StatusEntry>();
         private readonly bool isDirty;
 
         private readonly IDictionary<FileStatus, Action<RepositoryStatus, StatusEntry>> dispatcher = Build();
@@ -33,17 +34,17 @@ namespace LibGit2Sharp
         private static IDictionary<FileStatus, Action<RepositoryStatus, StatusEntry>> Build()
         {
             return new Dictionary<FileStatus, Action<RepositoryStatus, StatusEntry>>
-                       {
-                           { FileStatus.Untracked, (rs, s) => rs.untracked.Add(s) },
-                           { FileStatus.Modified, (rs, s) => rs.modified.Add(s) },
-                           { FileStatus.Missing, (rs, s) => rs.missing.Add(s) },
-                           { FileStatus.Added, (rs, s) => rs.added.Add(s) },
-                           { FileStatus.Staged, (rs, s) => rs.staged.Add(s) },
-                           { FileStatus.Removed, (rs, s) => rs.removed.Add(s) },
-                           { FileStatus.RenamedInIndex, (rs, s) => rs.renamedInIndex.Add(s) },
-                           { FileStatus.Ignored, (rs, s) => rs.ignored.Add(s) },
-                           { FileStatus.RenamedInWorkDir, (rs, s) => rs.renamedInWorkDir.Add(s) }
-                       };
+            {
+                { FileStatus.NewInWorkdir, (rs, s) => rs.untracked.Add(s) },
+                { FileStatus.ModifiedInWorkdir, (rs, s) => rs.modified.Add(s) },
+                { FileStatus.DeletedFromWorkdir, (rs, s) => rs.missing.Add(s) },
+                { FileStatus.NewInIndex, (rs, s) => rs.added.Add(s) },
+                { FileStatus.ModifiedInIndex, (rs, s) => rs.staged.Add(s) },
+                { FileStatus.DeletedFromIndex, (rs, s) => rs.removed.Add(s) },
+                { FileStatus.RenamedInIndex, (rs, s) => rs.renamedInIndex.Add(s) },
+                { FileStatus.Ignored, (rs, s) => rs.ignored.Add(s) },
+                { FileStatus.RenamedInWorkdir, (rs, s) => rs.renamedInWorkDir.Add(s) },
+            };
         }
 
         /// <summary>
@@ -81,7 +82,7 @@ namespace LibGit2Sharp
                     AddStatusEntryForDelta(entry.Status, deltaHeadToIndex, deltaIndexToWorkDir);
                 }
 
-                isDirty = statusEntries.Any(entry => entry.State != FileStatus.Ignored);
+                isDirty = statusEntries.Any(entry => entry.State != FileStatus.Ignored && entry.State != FileStatus.Unaltered);
             }
         }
 
@@ -123,6 +124,23 @@ namespace LibGit2Sharp
                     GitStatusOptionFlags.RecurseIgnoredDirs;
             }
 
+            if (options.PathSpec != null)
+            {
+                coreOptions.PathSpec = GitStrArrayManaged.BuildFrom(options.PathSpec);
+            }
+
+            if (options.DisablePathSpecMatch)
+            {
+                coreOptions.Flags |=
+                    GitStatusOptionFlags.DisablePathspecMatch;
+            }
+
+            if (options.IncludeUnaltered)
+            {
+                coreOptions.Flags |=
+                    GitStatusOptionFlags.IncludeUnmodified;
+            }
+
             return coreOptions;
         }
 
@@ -133,34 +151,41 @@ namespace LibGit2Sharp
 
             if ((gitStatus & FileStatus.RenamedInIndex) == FileStatus.RenamedInIndex)
             {
-                headToIndexRenameDetails = new RenameDetails(
-                    LaxFilePathMarshaler.FromNative(deltaHeadToIndex.OldFile.Path).Native,
-                    LaxFilePathMarshaler.FromNative(deltaHeadToIndex.NewFile.Path).Native,
-                    (int)deltaHeadToIndex.Similarity);
+                headToIndexRenameDetails =
+                    new RenameDetails(LaxFilePathMarshaler.FromNative(deltaHeadToIndex.OldFile.Path).Native,
+                                      LaxFilePathMarshaler.FromNative(deltaHeadToIndex.NewFile.Path).Native,
+                                      (int)deltaHeadToIndex.Similarity);
             }
 
-            if ((gitStatus & FileStatus.RenamedInWorkDir) == FileStatus.RenamedInWorkDir)
+            if ((gitStatus & FileStatus.RenamedInWorkdir) == FileStatus.RenamedInWorkdir)
             {
-                indexToWorkDirRenameDetails = new RenameDetails(
-                    LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir.OldFile.Path).Native,
-                    LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir.NewFile.Path).Native,
-                    (int)deltaIndexToWorkDir.Similarity);
+                indexToWorkDirRenameDetails =
+                    new RenameDetails(LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir.OldFile.Path).Native,
+                                      LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir.NewFile.Path).Native,
+                                      (int)deltaIndexToWorkDir.Similarity);
             }
 
-            var filePath = (deltaIndexToWorkDir != null) ?
-                LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir.NewFile.Path).Native :
-                LaxFilePathMarshaler.FromNative(deltaHeadToIndex.NewFile.Path).Native;
+            var filePath = (deltaIndexToWorkDir != null)
+                ? LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir.NewFile.Path).Native
+                : LaxFilePathMarshaler.FromNative(deltaHeadToIndex.NewFile.Path).Native;
 
             StatusEntry statusEntry = new StatusEntry(filePath, gitStatus, headToIndexRenameDetails, indexToWorkDirRenameDetails);
 
-            foreach (KeyValuePair<FileStatus, Action<RepositoryStatus, StatusEntry>> kvp in dispatcher)
+            if (gitStatus == FileStatus.Unaltered)
             {
-                if (!gitStatus.HasFlag(kvp.Key))
+                unaltered.Add(statusEntry);
+            }
+            else
+            {
+                foreach (KeyValuePair<FileStatus, Action<RepositoryStatus, StatusEntry>> kvp in dispatcher)
                 {
-                    continue;
-                }
+                    if (!gitStatus.HasFlag(kvp.Key))
+                    {
+                        continue;
+                    }
 
-                kvp.Value(this, statusEntry);
+                    kvp.Value(this, statusEntry);
+                }
             }
 
             statusEntries.Add(statusEntry);
@@ -279,6 +304,14 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// List of files that were unmodified in the working directory.
+        /// </summary>
+        public virtual IEnumerable<StatusEntry> Unaltered
+        {
+            get { return unaltered; }
+        }
+
+        /// <summary>
         /// True if the index or the working directory has been altered since the last commit. False otherwise.
         /// </summary>
         public virtual bool IsDirty
@@ -290,12 +323,15 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format(
-                    CultureInfo.InvariantCulture,
-                    "+{0} ~{1} -{2} | +{3} ~{4} -{5} | i{6}",
-                    Added.Count(), Staged.Count(), Removed.Count(),
-                    Untracked.Count(), Modified.Count(), Missing.Count(),
-                    Ignored.Count());
+                return string.Format(CultureInfo.InvariantCulture,
+                                     "+{0} ~{1} -{2} | +{3} ~{4} -{5} | i{6}",
+                                     Added.Count(),
+                                     Staged.Count(),
+                                     Removed.Count(),
+                                     Untracked.Count(),
+                                     Modified.Count(),
+                                     Missing.Count(),
+                                     Ignored.Count());
             }
         }
     }

@@ -13,7 +13,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void StagingANewVersionOfAFileThenUnstagingItRevertsTheBlobToTheVersionOfHead()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 int count = repo.Index.Count;
@@ -40,7 +40,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanStageAndUnstageAnIgnoredFile()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Touch(repo.Info.WorkingDirectory, ".gitignore", "*.ign" + Environment.NewLine);
@@ -51,7 +51,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus(relativePath));
 
                 repo.Stage(relativePath, new StageOptions { IncludeIgnored = true });
-                Assert.Equal(FileStatus.Added, repo.RetrieveStatus(relativePath));
+                Assert.Equal(FileStatus.NewInIndex, repo.RetrieveStatus(relativePath));
 
                 repo.Unstage(relativePath);
                 Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus(relativePath));
@@ -60,16 +60,16 @@ namespace LibGit2Sharp.Tests
 
         [Theory]
         [InlineData("1/branch_file.txt", FileStatus.Unaltered, true, FileStatus.Unaltered, true, 0)]
-        [InlineData("deleted_unstaged_file.txt", FileStatus.Missing, true, FileStatus.Missing, true, 0)]
-        [InlineData("modified_unstaged_file.txt", FileStatus.Modified, true, FileStatus.Modified, true, 0)]
-        [InlineData("modified_staged_file.txt", FileStatus.Staged, true, FileStatus.Modified, true, 0)]
-        [InlineData("new_tracked_file.txt", FileStatus.Added, true, FileStatus.Untracked, false, -1)]
-        [InlineData("deleted_staged_file.txt", FileStatus.Removed, false, FileStatus.Missing, true, 1)]
+        [InlineData("deleted_unstaged_file.txt", FileStatus.DeletedFromWorkdir, true, FileStatus.DeletedFromWorkdir, true, 0)]
+        [InlineData("modified_unstaged_file.txt", FileStatus.ModifiedInWorkdir, true, FileStatus.ModifiedInWorkdir, true, 0)]
+        [InlineData("modified_staged_file.txt", FileStatus.ModifiedInIndex, true, FileStatus.ModifiedInWorkdir, true, 0)]
+        [InlineData("new_tracked_file.txt", FileStatus.NewInIndex, true, FileStatus.NewInWorkdir, false, -1)]
+        [InlineData("deleted_staged_file.txt", FileStatus.DeletedFromIndex, false, FileStatus.DeletedFromWorkdir, true, 1)]
         public void CanUnstage(
             string relativePath, FileStatus currentStatus, bool doesCurrentlyExistInTheIndex,
             FileStatus expectedStatusOnceStaged, bool doesExistInTheIndexOnceStaged, int expectedIndexCountVariation)
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 int count = repo.Index.Count;
@@ -85,11 +85,11 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("new_untracked_file.txt", FileStatus.Untracked)]
+        [InlineData("new_untracked_file.txt", FileStatus.NewInWorkdir)]
         [InlineData("where-am-I.txt", FileStatus.Nonexistent)]
         public void UnstagingUnknownPathsWithStrictUnmatchedExplicitPathsValidationThrows(string relativePath, FileStatus currentStatus)
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
@@ -98,11 +98,11 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("new_untracked_file.txt", FileStatus.Untracked)]
+        [InlineData("new_untracked_file.txt", FileStatus.NewInWorkdir)]
         [InlineData("where-am-I.txt", FileStatus.Nonexistent)]
         public void CanUnstageUnknownPathsWithLaxUnmatchedExplicitPathsValidation(string relativePath, FileStatus currentStatus)
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
@@ -114,7 +114,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanUnstageTheRemovalOfAFile()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 int count = repo.Index.Count;
@@ -124,12 +124,12 @@ namespace LibGit2Sharp.Tests
                 string fullPath = Path.Combine(repo.Info.WorkingDirectory, filename);
                 Assert.False(File.Exists(fullPath));
 
-                Assert.Equal(FileStatus.Removed, repo.RetrieveStatus(filename));
+                Assert.Equal(FileStatus.DeletedFromIndex, repo.RetrieveStatus(filename));
 
                 repo.Unstage(filename);
                 Assert.Equal(count + 1, repo.Index.Count);
 
-                Assert.Equal(FileStatus.Missing, repo.RetrieveStatus(filename));
+                Assert.Equal(FileStatus.DeletedFromWorkdir, repo.RetrieveStatus(filename));
             }
         }
 
@@ -155,11 +155,11 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("new_untracked_file.txt", FileStatus.Untracked)]
+        [InlineData("new_untracked_file.txt", FileStatus.NewInWorkdir)]
         [InlineData("where-am-I.txt", FileStatus.Nonexistent)]
         public void UnstagingUnknownPathsAgainstAnOrphanedHeadWithStrictUnmatchedExplicitPathsValidationThrows(string relativePath, FileStatus currentStatus)
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 repo.Refs.UpdateTarget("HEAD", "refs/heads/orphaned");
                 Assert.True(repo.Info.IsHeadUnborn);
@@ -171,11 +171,11 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("new_untracked_file.txt", FileStatus.Untracked)]
+        [InlineData("new_untracked_file.txt", FileStatus.NewInWorkdir)]
         [InlineData("where-am-I.txt", FileStatus.Nonexistent)]
         public void CanUnstageUnknownPathsAgainstAnOrphanedHeadWithLaxUnmatchedExplicitPathsValidation(string relativePath, FileStatus currentStatus)
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 repo.Refs.UpdateTarget("HEAD", "refs/heads/orphaned");
                 Assert.True(repo.Info.IsHeadUnborn);
@@ -192,7 +192,7 @@ namespace LibGit2Sharp.Tests
         public void UnstagingANewFileWithAFullPathWhichEscapesOutOfTheWorkingDirThrows()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 DirectoryInfo di = Directory.CreateDirectory(scd.DirectoryPath);
@@ -225,7 +225,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void UnstagingFileWithBadParamsThrows()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.Unstage(string.Empty));
                 Assert.Throws<ArgumentNullException>(() => repo.Unstage((string)null));
@@ -237,7 +238,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanUnstageSourceOfARename()
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 repo.Move("branch_file.txt", "renamed_branch_file.txt");
 
@@ -250,15 +251,15 @@ namespace LibGit2Sharp.Tests
 
                 RepositoryStatus newStatus = repo.RetrieveStatus();
                 Assert.Equal(0, newStatus.RenamedInIndex.Count());
-                Assert.Equal(FileStatus.Missing, newStatus["branch_file.txt"].State);
-                Assert.Equal(FileStatus.Added, newStatus["renamed_branch_file.txt"].State);
+                Assert.Equal(FileStatus.DeletedFromWorkdir, newStatus["branch_file.txt"].State);
+                Assert.Equal(FileStatus.NewInIndex, newStatus["renamed_branch_file.txt"].State);
             }
         }
 
         [Fact]
         public void CanUnstageTargetOfARename()
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 repo.Move("branch_file.txt", "renamed_branch_file.txt");
 
@@ -270,22 +271,22 @@ namespace LibGit2Sharp.Tests
 
                 RepositoryStatus newStatus = repo.RetrieveStatus();
                 Assert.Equal(0, newStatus.RenamedInIndex.Count());
-                Assert.Equal(FileStatus.Untracked, newStatus["renamed_branch_file.txt"].State);
-                Assert.Equal(FileStatus.Removed, newStatus["branch_file.txt"].State);
+                Assert.Equal(FileStatus.NewInWorkdir, newStatus["renamed_branch_file.txt"].State);
+                Assert.Equal(FileStatus.DeletedFromIndex, newStatus["branch_file.txt"].State);
             }
         }
 
         [Fact]
         public void CanUnstageBothSidesOfARename()
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 repo.Move("branch_file.txt", "renamed_branch_file.txt");
                 repo.Unstage(new string[] { "branch_file.txt", "renamed_branch_file.txt" });
 
                 RepositoryStatus status = repo.RetrieveStatus();
-                Assert.Equal(FileStatus.Missing, status["branch_file.txt"].State);
-                Assert.Equal(FileStatus.Untracked, status["renamed_branch_file.txt"].State);
+                Assert.Equal(FileStatus.DeletedFromWorkdir, status["branch_file.txt"].State);
+                Assert.Equal(FileStatus.NewInWorkdir, status["renamed_branch_file.txt"].State);
             }
         }
     }

@@ -13,8 +13,7 @@
 
         internal Tag(Repository repo, Reference reference, string canonicalName)
             : base(repo, reference, _ => canonicalName)
-        {
-        }
+        { }
 
         /// <summary>
         /// Gets the optional information associated to this tag.
@@ -37,6 +36,27 @@
                 var annotation = target as TagAnnotation;
 
                 return annotation == null ? target : annotation.Target;
+            }
+        }
+
+        /// <summary>
+        /// Gets the peeled <see cref="GitObject"/> that this tag points to.
+        /// </summary>
+        public virtual GitObject PeeledTarget
+        {
+            get
+            {
+                GitObject target = TargetObject;
+
+                var annotation = target as TagAnnotation;
+
+                while (annotation != null)
+                {
+                    target = annotation.Target;
+                    annotation = target as TagAnnotation;
+                }
+
+                return target;
             }
         }
 

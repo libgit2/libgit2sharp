@@ -1,7 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using LibGit2Sharp.Core;
-
-namespace LibGit2Sharp
+﻿namespace LibGit2Sharp
 {
     internal class Log
     {

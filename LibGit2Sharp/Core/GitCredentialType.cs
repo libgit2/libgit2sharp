@@ -6,7 +6,7 @@ namespace LibGit2Sharp.Core
     /// Authentication type requested.
     /// </summary>
     [Flags]
-    public enum GitCredentialType
+    internal enum GitCredentialType
     {
         /// <summary>
         /// A plaintext username and password.
@@ -32,5 +32,20 @@ namespace LibGit2Sharp.Core
         /// TODO
         /// </summary>
         SshInteractive = (1 << 4),
+
+        /// <summary>
+        /// Username-only information
+        ///
+        /// If the SSH transport does not know which username to use,
+        /// it will ask via this credential type.
+        /// </summary>
+        Username = (1 << 5),
+
+        /// <summary>
+        /// Credentials read from memory.
+        ///
+        /// Only available for libssh2+OpenSSL for now.
+        /// </summary>
+        SshMemory = (1 << 6),
     }
 }

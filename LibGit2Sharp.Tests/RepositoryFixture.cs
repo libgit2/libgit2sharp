@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -37,7 +38,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void AccessingTheIndexInABareRepoThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<BareRepositoryException>(() => repo.Index);
             }
@@ -53,6 +55,26 @@ namespace LibGit2Sharp.Tests
             Directory.CreateDirectory(scd.DirectoryPath);
 
             Assert.False(Repository.IsValid(scd.DirectoryPath));
+        }
+
+
+        [Fact]
+        public void IsValidWithNullPathThrows()
+        {
+            Assert.Throws<ArgumentNullException>(() => Repository.IsValid(null));
+        }
+
+        [Fact]
+        public void IsNotValidWithEmptyPath()
+        {
+            Assert.False(Repository.IsValid(string.Empty));
+        }
+
+        [Fact]
+        public void IsValidWithValidPath()
+        {
+            string repoPath = InitNewRepository();
+            Assert.True(Repository.IsValid(repoPath));
         }
 
         [Fact]
@@ -149,7 +171,7 @@ namespace LibGit2Sharp.Tests
             Assert.Equal(FileAttributes.Hidden, (attribs & FileAttributes.Hidden));
         }
 
-        [Fact(Skip = "Skipping due to recent github handling modification of --include-tag.")]
+        [Fact]
         public void CanFetchFromRemoteByName()
         {
             string remoteName = "testRemote";
@@ -242,10 +264,10 @@ namespace LibGit2Sharp.Tests
 
             Assert.Equal(0, repo.Commits.Count());
             Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter()).Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs.Head }).Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { Since = repo.Head }).Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { Since = "HEAD" }).Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { Since = expectedHeadTargetIdentifier }).Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { IncludeReachableFrom = repo.Refs.Head }).Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { IncludeReachableFrom = repo.Head }).Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { IncludeReachableFrom = "HEAD" }).Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { IncludeReachableFrom = expectedHeadTargetIdentifier }).Count());
 
             Assert.Null(repo.Head["subdir/I-do-not-exist"]);
 
@@ -257,7 +279,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanOpenBareRepositoryThroughAFullPathToTheGitDir()
         {
-            string path = Path.GetFullPath(BareTestRepoPath);
+            string relPath = SandboxBareTestRepo();
+            string path = Path.GetFullPath(relPath);
             using (var repo = new Repository(path))
             {
                 Assert.NotNull(repo);
@@ -268,7 +291,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanOpenStandardRepositoryThroughAWorkingDirPath()
         {
-            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.NotNull(repo);
                 Assert.NotNull(repo.Info.WorkingDirectory);
@@ -278,7 +302,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void OpeningStandardRepositoryThroughTheGitDirGuessesTheWorkingDirPath()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.NotNull(repo);
                 Assert.NotNull(repo.Info.WorkingDirectory);
@@ -288,7 +313,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanOpenRepository()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.NotNull(repo.Info.Path);
                 Assert.Null(repo.Info.WorkingDirectory);
@@ -313,7 +339,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanLookupACommitByTheNameOfABranch()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 GitObject gitObject = repo.Lookup("refs/heads/master");
                 Assert.NotNull(gitObject);
@@ -324,7 +351,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanLookupACommitByTheNameOfALightweightTag()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 GitObject gitObject = repo.Lookup("refs/tags/lw");
                 Assert.NotNull(gitObject);
@@ -335,7 +363,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanLookupATagAnnotationByTheNameOfAnAnnotatedTag()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 GitObject gitObject = repo.Lookup("refs/tags/e90810b");
                 Assert.NotNull(gitObject);
@@ -346,7 +375,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanLookupObjects()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.NotNull(repo.Lookup(commitSha));
                 Assert.NotNull(repo.Lookup<Commit>(commitSha));
@@ -357,7 +387,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanLookupSameObjectTwiceAndTheyAreEqual()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 GitObject commit = repo.Lookup(commitSha);
                 GitObject commit2 = repo.Lookup(commitSha);
@@ -369,7 +400,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void LookupObjectByWrongShaReturnsNull()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Null(repo.Lookup(Constants.UnknownSha));
                 Assert.Null(repo.Lookup<GitObject>(Constants.UnknownSha));
@@ -379,7 +411,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void LookupObjectByWrongTypeReturnsNull()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.NotNull(repo.Lookup(commitSha));
                 Assert.NotNull(repo.Lookup<Commit>(commitSha));
@@ -390,7 +423,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void LookupObjectByUnknownReferenceNameReturnsNull()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Null(repo.Lookup("refs/heads/chopped/off"));
                 Assert.Null(repo.Lookup<GitObject>(Constants.UnknownSha));
@@ -427,7 +461,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanLookupUsingRevparseSyntax()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Null(repo.Lookup<Tree>("master^"));
 
@@ -444,7 +479,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanResolveAmbiguousRevparseSpecs()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var o1 = repo.Lookup("e90810b"); // This resolves to a tag
                 Assert.Equal("7b4384978d2493e851f9cca7858815fac9b10980", o1.Sha);
@@ -456,7 +492,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void LookingUpWithBadParamsThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.Lookup(string.Empty));
                 Assert.Throws<ArgumentException>(() => repo.Lookup<GitObject>(string.Empty));
@@ -470,16 +507,33 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void LookingUpWithATooShortShaThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<AmbiguousSpecificationException>(() => repo.Lookup("e90"));
             }
         }
 
         [Fact]
+        public void LookingUpByAWrongRevParseExpressionThrows()
+        {
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Assert.Throws<InvalidSpecificationException>(() => repo.Lookup("tags/point_to_blob^{tree}"));
+                Assert.Throws<InvalidSpecificationException>(() => repo.Lookup("tags/point_to_blob^{commit}"));
+                Assert.Throws<InvalidSpecificationException>(() => repo.Lookup<Commit>("tags/point_to_blob^{commit}"));
+                Assert.Throws<InvalidSpecificationException>(() => repo.Lookup("master^{tree}^{blob}"));
+                Assert.Throws<InvalidSpecificationException>(() => repo.Lookup<Blob>("master^{blob}"));
+                Assert.Throws<PeelException>(() => repo.Lookup<Blob>("tags/e90810b^{blob}"));
+            }
+        }
+
+        [Fact]
         public void LookingUpAGitLinkThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.Lookup<GitLink>("e90810b"));
             }
@@ -516,27 +570,26 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanDiscoverAStandardRepoGivenTheWorkingDirPath()
         {
-            string path = Repository.Discover(StandardTestRepoWorkingDirPath);
-            Assert.Equal(Path.GetFullPath(StandardTestRepoPath + Path.DirectorySeparatorChar), path);
+            string path = Sandbox(StandardTestRepoWorkingDirPath);
+
+            string found = Repository.Discover(path);
+            Assert.Equal(Path.GetFullPath(string.Format("{0}{1}.git{1}", path, Path.DirectorySeparatorChar)), found);
         }
 
         [Fact]
         public void DiscoverReturnsNullWhenNoRepoCanBeFound()
         {
-            string path = Path.GetTempFileName();
-            string suffix = "." + Guid.NewGuid().ToString().Substring(0, 7);
+            string path = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory(path + suffix);
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory(path);
             Directory.CreateDirectory(scd.RootedDirectoryPath);
             Assert.Null(Repository.Discover(scd.RootedDirectoryPath));
-
-            File.Delete(path);
         }
 
         [Fact]
         public void CanDetectIfTheHeadIsOrphaned()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 string branchName = repo.Head.CanonicalName;
@@ -554,7 +607,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void QueryingTheRemoteForADetachedHeadBranchReturnsNull()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Checkout(repo.Head.Tip.Sha, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
@@ -607,14 +660,103 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanDetectShallowness()
         {
-            using (var repo = new Repository(ShallowTestRepoPath))
+            var path = Sandbox(ShallowTestRepoPath);
+            using (var repo = new Repository(path))
             {
                 Assert.True(repo.Info.IsShallow);
             }
 
-            using (var repo = new Repository(StandardTestRepoPath))
+            path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.False(repo.Info.IsShallow);
+            }
+        }
+
+        [SkippableFact]
+        public void CanListRemoteReferencesWithCredentials()
+        {
+            InconclusiveIf(() => string.IsNullOrEmpty(Constants.PrivateRepoUrl),
+                "Populate Constants.PrivateRepo* to run this test");
+
+            IEnumerable<Reference> references = Repository.ListRemoteReferences(Constants.PrivateRepoUrl,
+                Constants.PrivateRepoCredentials);
+
+            foreach (var reference in references)
+            {
+                Assert.NotNull(reference);
+            }
+        }
+
+        [Theory]
+        [InlineData("http://github.com/libgit2/TestGitRepository")]
+        [InlineData("https://github.com/libgit2/TestGitRepository")]
+        [InlineData("git://github.com/libgit2/TestGitRepository.git")]
+        public void CanListRemoteReferences(string url)
+        {
+            IEnumerable<Reference> references = Repository.ListRemoteReferences(url).ToList();
+
+            List<Tuple<string, string>> actualRefs = references.
+                Select(reference => new Tuple<string, string>(reference.CanonicalName, reference.ResolveToDirectReference().TargetIdentifier)).ToList();
+
+            Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs.Count, actualRefs.Count);
+            Assert.True(references.Single(reference => reference.CanonicalName == "HEAD") is SymbolicReference);
+            for (int i = 0; i < TestRemoteRefs.ExpectedRemoteRefs.Count; i++)
+            {
+                Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs[i].Item2, actualRefs[i].Item2);
+                Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs[i].Item1, actualRefs[i].Item1);
+            }
+        }
+
+        [Fact]
+        public void CanListRemoteReferencesWithDetachedRemoteHead()
+        {
+            string originalRepoPath = SandboxStandardTestRepo();
+
+            string detachedHeadSha;
+
+            using (var originalRepo = new Repository(originalRepoPath))
+            {
+                detachedHeadSha = originalRepo.Head.Tip.Sha;
+                originalRepo.Checkout(detachedHeadSha);
+
+                Assert.True(originalRepo.Info.IsHeadDetached);
+            }
+
+            IEnumerable<Reference> references = Repository.ListRemoteReferences(originalRepoPath);
+
+            Reference head = references.SingleOrDefault(reference => reference.CanonicalName == "HEAD");
+
+            Assert.NotNull(head);
+            Assert.True(head is DirectReference);
+            Assert.Equal(detachedHeadSha, head.TargetIdentifier);
+        }
+
+        [Theory]
+        [InlineData("http://github.com/libgit2/TestGitRepository")]
+        public void ReadingReferenceRepositoryThroughListRemoteReferencesThrows(string url)
+        {
+            IEnumerable<Reference> references = Repository.ListRemoteReferences(url);
+
+            foreach (var reference in references)
+            {
+                IBelongToARepository repositoryReference = reference;
+                Assert.Throws<InvalidOperationException>(() => repositoryReference.Repository);
+            }
+        }
+
+        [Theory]
+        [InlineData("http://github.com/libgit2/TestGitRepository")]
+        public void ReadingReferenceTargetFromListRemoteReferencesThrows(string url)
+        {
+            IEnumerable<Reference> references = Repository.ListRemoteReferences(url);
+
+            foreach (var reference in references)
+            {
+                Assert.Throws<InvalidOperationException>(() =>
+                {
+                    var target = reference.ResolveToDirectReference().Target;
+                });
             }
         }
     }

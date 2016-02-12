@@ -18,7 +18,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCountCommitsWithConcreteRepository()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var commitCounter = new CommitCounter(repo);
                 Assert.Equal(7, commitCounter.NumberOfCommits);
@@ -72,8 +73,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanFakeConfigurationBuildSignature()
         {
-            var name = "name";
-            var email = "email";
+            const string name = "name";
+            const string email = "email";
             var now = DateTimeOffset.UtcNow;
 
             var fakeConfig = new Mock<Configuration>();

@@ -64,5 +64,5 @@ namespace LibGit2Sharp.Core
             base.Dispose(disposing);
             Dispose(handle, linkedResources);
         }
-   }
+    }
 }

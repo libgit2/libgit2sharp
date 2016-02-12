@@ -66,7 +66,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareAMoreComplexTreeAgainstTheWorkdir()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Tree tree = repo.Head.Tip.Tree;
 
@@ -162,7 +163,7 @@ namespace LibGit2Sharp.Tests
                 File.Move(fullpath + ".bak", fullpath);
 
                 FileStatus state = repo.RetrieveStatus("file.txt");
-                Assert.Equal(FileStatus.Removed | FileStatus.Untracked, state);
+                Assert.Equal(FileStatus.DeletedFromIndex | FileStatus.NewInWorkdir, state);
 
                 var wrkDirToIdxToTree = repo.Diff.Compare<TreeChanges>(repo.Head.Tip.Tree,
                     DiffTargets.Index | DiffTargets.WorkingDirectory);
@@ -270,7 +271,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareAMoreComplexTreeAgainstTheIndex()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Tree tree = repo.Head.Tip.Tree;
 
@@ -297,7 +299,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareASubsetofTheTreeAgainstTheIndex()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Tree tree = repo.Head.Tip.Tree;
 
@@ -321,7 +324,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareASubsetofTheTreeAgainstTheIndexWithLaxExplicitPathsValidationAndANonExistentPath()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Tree tree = repo.Head.Tip.Tree;
 
@@ -338,7 +342,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ComparingASubsetofTheTreeAgainstTheIndexWithStrictExplicitPathsValidationAndANonExistentPathThrows()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Tree tree = repo.Head.Tip.Tree;
 
@@ -402,7 +407,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ComparingATreeInABareRepositoryAgainstTheWorkDirOrTheIndexThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<BareRepositoryException>(
                     () => repo.Diff.Compare<TreeChanges>(repo.Head.Tip.Tree, DiffTargets.WorkingDirectory));

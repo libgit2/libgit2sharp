@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -26,8 +25,7 @@ namespace LibGit2Sharp
         /// <param name="canonicalName">The full name of the reference</param>
         internal Branch(Repository repo, Reference reference, string canonicalName)
             : this(repo, reference, _ => canonicalName)
-        {
-        }
+        { }
 
         /// <summary>
         /// Initializes a new instance of an orphaned <see cref="Branch"/> class.
@@ -39,8 +37,7 @@ namespace LibGit2Sharp
         /// <param name="reference">The reference.</param>
         internal Branch(Repository repo, Reference reference)
             : this(repo, reference, r => r.TargetIdentifier)
-        {
-        }
+        { }
 
         private Branch(Repository repo, Reference reference, Func<Reference, string> canonicalNameSelector)
             : base(repo, reference, canonicalNameSelector)
@@ -125,7 +122,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual ICommitLog Commits
         {
-            get { return repo.Commits.QueryBy(new CommitFilter { Since = this }); }
+            get { return repo.Commits.QueryBy(new CommitFilter { IncludeReachableFrom = this }); }
         }
 
         /// <summary>
@@ -183,7 +180,7 @@ namespace LibGit2Sharp
 
         private string UpstreamBranchCanonicalNameFromLocalBranch()
         {
-            ConfigurationEntry<string> mergeRefEntry = repo.Config.Get<string>("branch", Name, "merge");
+            ConfigurationEntry<string> mergeRefEntry = repo.Config.Get<string>("branch", FriendlyName, "merge");
 
             if (mergeRefEntry == null)
             {
@@ -195,7 +192,7 @@ namespace LibGit2Sharp
 
         private string RemoteNameFromLocalBranch()
         {
-            ConfigurationEntry<string> remoteEntry = repo.Config.Get<string>("branch", Name, "remote");
+            ConfigurationEntry<string> remoteEntry = repo.Config.Get<string>("branch", FriendlyName, "remote");
 
             if (remoteEntry == null)
             {
@@ -217,32 +214,6 @@ namespace LibGit2Sharp
         private string RemoteNameFromRemoteTrackingBranch()
         {
             return Proxy.git_branch_remote_name(repo.Handle, CanonicalName, false);
-        }
-
-        /// <summary>
-        /// Checkout the tip commit of this <see cref="Branch"/> object.
-        /// If this commit is the current tip of the branch, will checkout
-        /// the named branch. Otherwise, will checkout the tip commit as a
-        /// detached HEAD.
-        /// </summary>
-        public virtual void Checkout()
-        {
-            repo.Checkout(this);
-        }
-
-        /// <summary>
-        /// Checkout the tip commit of this <see cref="Branch"/> object with
-        /// <see cref="CheckoutOptions"/> parameter specifying checkout
-        /// behavior. If this commit is the current tip of the branch, will
-        /// checkout the named branch. Otherwise, will checkout the tip
-        /// commit as a detached HEAD.
-        /// </summary>
-        /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
-        public virtual void Checkout(CheckoutOptions options, Signature signature = null)
-        {
-            Ensure.ArgumentNotNull(options, "options");
-            repo.Checkout(this, options, signature);
         }
 
         private Branch ResolveTrackedBranch()
@@ -291,9 +262,9 @@ namespace LibGit2Sharp
                 return CanonicalName.Substring(Reference.RemoteTrackingBranchPrefix.Length);
             }
 
-            throw new ArgumentException(
-                string.Format(CultureInfo.InvariantCulture,
-                    "'{0}' does not look like a valid branch name.", CanonicalName));
+            throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                                                      "'{0}' does not look like a valid branch name.",
+                                                      CanonicalName));
         }
     }
 }

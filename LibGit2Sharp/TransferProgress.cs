@@ -1,10 +1,13 @@
-﻿using LibGit2Sharp.Core;
+﻿using System.Diagnostics;
+using System.Globalization;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
     /// <summary>
     /// Expose progress values from a fetch operation.
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class TransferProgress
     {
         private GitTransferProgress gitTransferProgress;
@@ -28,10 +31,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual int TotalObjects
         {
-            get
-            {
-                return (int) gitTransferProgress.total_objects;
-            }
+            get { return (int)gitTransferProgress.total_objects; }
         }
 
         /// <summary>
@@ -39,10 +39,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual int IndexedObjects
         {
-            get
-            {
-                return (int) gitTransferProgress.indexed_objects;
-            }
+            get { return (int)gitTransferProgress.indexed_objects; }
         }
 
         /// <summary>
@@ -50,10 +47,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual int ReceivedObjects
         {
-            get
-            {
-                return (int) gitTransferProgress.received_objects;
-            }
+            get { return (int)gitTransferProgress.received_objects; }
         }
 
         /// <summary>
@@ -61,9 +55,18 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual long ReceivedBytes
         {
+            get { return (long)gitTransferProgress.received_bytes; }
+        }
+
+        private string DebuggerDisplay
+        {
             get
             {
-                return (long) gitTransferProgress.received_bytes;
+                return string.Format(CultureInfo.InvariantCulture,
+                                     "{0}/{1}, {2} bytes",
+                                     ReceivedObjects,
+                                     TotalObjects,
+                                     ReceivedBytes);
             }
         }
     }

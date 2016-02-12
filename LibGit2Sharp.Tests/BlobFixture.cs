@@ -12,7 +12,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanGetBlobAsText()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
 
@@ -30,7 +31,7 @@ namespace LibGit2Sharp.Tests
         {
             SkipIfNotSupported(autocrlf);
 
-            var path = CloneBareTestRepo();
+            var path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Config.Set("core.autocrlf", autocrlf);
@@ -52,7 +53,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("utf-32", 20, "FF FE 00 00 31 00 00 00 32 00 00 00 33 00 00 00 34 00 00 00")]
         public void CanGetBlobAsTextWithVariousEncodings(string encodingName, int expectedContentBytes, string expectedUtf7Chars)
         {
-            var path = CloneStandardTestRepo();
+            var path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 var bomFile = "bom.txt";
@@ -86,7 +87,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanGetBlobSize()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
                 Assert.Equal(10, blob.Size);
@@ -96,7 +98,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanLookUpBlob()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
                 Assert.NotNull(blob);
@@ -106,7 +109,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanReadBlobStream()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
 
@@ -129,7 +133,7 @@ namespace LibGit2Sharp.Tests
         {
             SkipIfNotSupported(autocrlf);
 
-            var path = CloneBareTestRepo();
+            var path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Config.Set("core.autocrlf", autocrlf);
@@ -153,7 +157,7 @@ namespace LibGit2Sharp.Tests
         {
             var binaryContent = new byte[] { 0, 1, 2, 3, 4, 5 };
 
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 using (var stream = new MemoryStream(binaryContent))
@@ -208,7 +212,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanTellIfTheBlobContentLooksLikeBinary()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
                 Assert.Equal(false, blob.IsBinary);
@@ -217,7 +222,7 @@ namespace LibGit2Sharp.Tests
 
         private static void SkipIfNotSupported(string autocrlf)
         {
-            InconclusiveIf(() => autocrlf == "true" && IsRunningOnLinux(), "Non-Windows does not support core.autocrlf = true");
+            InconclusiveIf(() => autocrlf == "true" && Constants.IsRunningOnUnix, "Non-Windows does not support core.autocrlf = true");
         }
     }
 }

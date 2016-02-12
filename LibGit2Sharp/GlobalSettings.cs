@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -10,18 +12,22 @@ namespace LibGit2Sharp
     public static class GlobalSettings
     {
         private static readonly Lazy<Version> version = new Lazy<Version>(Version.Build);
+        private static readonly Dictionary<Filter, FilterRegistration> registeredFilters;
 
         private static LogConfiguration logConfiguration = LogConfiguration.None;
 
-        /// <summary>
-        /// Returns all the optional features that were compiled into
-        /// libgit2.
-        /// </summary>
-        /// <returns>A <see cref="BuiltInFeatures"/> enumeration.</returns>
-        [Obsolete("This method will be removed in the next release. Use Version.Features instead.")]
-        public static BuiltInFeatures Features()
+        private static string nativeLibraryPath;
+        private static bool nativeLibraryPathLocked;
+
+        static GlobalSettings()
         {
-            return Version.Features;
+            if (Platform.OperatingSystem == OperatingSystemType.Windows)
+            {
+                string managedPath = new Uri(Assembly.GetExecutingAssembly().EscapedCodeBase).LocalPath;
+                nativeLibraryPath = Path.GetDirectoryName(managedPath);
+            }
+
+            registeredFilters = new Dictionary<Filter, FilterRegistration>();
         }
 
         /// <summary>
@@ -44,7 +50,7 @@ namespace LibGit2Sharp
         /// with the server This is not commonly
         /// used: some callers may want to re-use an existing connection to
         /// perform fetch / push operations to a remote.
-        /// 
+        ///
         /// Note that this configuration is global to an entire process
         /// and does not honor application domains.
         /// </summary>
@@ -59,10 +65,9 @@ namespace LibGit2Sharp
 
             try
             {
-                Proxy.git_transport_register(
-                    registration.Scheme,
-                    registration.FunctionPointer,
-                    registration.RegistrationPointer);
+                Proxy.git_transport_register(registration.Scheme,
+                                             registration.FunctionPointer,
+                                             registration.RegistrationPointer);
             }
             catch (Exception)
             {
@@ -109,7 +114,7 @@ namespace LibGit2Sharp
                 }
                 else
                 {
-                    Proxy.git_trace_set(value.Level, value.GitTraceHandler);
+                    Proxy.git_trace_set(value.Level, value.GitTraceCallback);
 
                     Log.Write(LogLevel.Info, "Logging enabled at level {0}", value.Level);
                 }
@@ -119,6 +124,180 @@ namespace LibGit2Sharp
             {
                 return logConfiguration;
             }
+        }
+
+        /// <summary>
+        /// Sets a hint path for searching for native binaries: when
+        /// specified, native binaries will first be searched in a
+        /// subdirectory of the given path corresponding to the architecture
+        /// (eg, "x86" or "amd64") before falling back to the default
+        /// path ("NativeBinaries\x86" or "NativeBinaries\amd64" next
+        /// to the application).
+        /// <para>
+        /// This must be set before any other calls to the library,
+        /// and is not available on Unix platforms: see your dynamic
+        /// library loader's documentation for details.
+        /// </para>
+        /// </summary>
+        public static string NativeLibraryPath
+        {
+            get
+            {
+                if (Platform.OperatingSystem != OperatingSystemType.Windows)
+                {
+                    throw new LibGit2SharpException("Querying the native hint path is only supported on Windows platforms");
+                }
+
+                return nativeLibraryPath;
+            }
+
+            set
+            {
+                if (Platform.OperatingSystem != OperatingSystemType.Windows)
+                {
+                    throw new LibGit2SharpException("Setting the native hint path is only supported on Windows platforms");
+                }
+
+                if (nativeLibraryPathLocked)
+                {
+                    throw new LibGit2SharpException("You cannot set the native library path after it has been loaded");
+                }
+
+                nativeLibraryPath = value;
+            }
+        }
+
+        internal static string GetAndLockNativeLibraryPath()
+        {
+            nativeLibraryPathLocked = true;
+            return nativeLibraryPath;
+        }
+
+        /// <summary>
+        /// Takes a snapshot of the currently registered filters.
+        /// </summary>
+        /// <returns>An array of <see cref="FilterRegistration"/>.</returns>
+        public static IEnumerable<FilterRegistration> GetRegisteredFilters()
+        {
+            lock (registeredFilters)
+            {
+                FilterRegistration[] array = new FilterRegistration[registeredFilters.Count];
+                registeredFilters.Values.CopyTo(array, 0);
+                return array;
+            }
+        }
+
+        /// <summary>
+        /// Register a filter globally with a default priority of 200 allowing the custom filter
+        /// to imitate a core Git filter driver. It will be run last on checkout and first on checkin.
+        /// </summary>
+        public static FilterRegistration RegisterFilter(Filter filter)
+        {
+            return RegisterFilter(filter, 200);
+        }
+
+        /// <summary>
+        /// Registers a <see cref="Filter"/> to be invoked when <see cref="Filter.Name"/> matches .gitattributes 'filter=name'
+        /// </summary>
+        /// <param name="filter">The filter to be invoked at run time.</param>
+        /// <param name="priority">The priroty of the filter to invoked.
+        /// A value of 0 (<see cref="FilterRegistration.FilterPriorityMin"/>) will be run first on checkout and last on checkin.
+        /// A value of 200 (<see cref="FilterRegistration.FilterPriorityMax"/>) will be run last on checkout and first on checkin.
+        /// </param>
+        /// <returns>A <see cref="FilterRegistration"/> object used to manage the lifetime of the registration.</returns>
+        public static FilterRegistration RegisterFilter(Filter filter, int priority)
+        {
+            Ensure.ArgumentNotNull(filter, "filter");
+            if (priority < FilterRegistration.FilterPriorityMin || priority > FilterRegistration.FilterPriorityMax)
+            {
+                throw new ArgumentOutOfRangeException("priority",
+                                                      priority,
+                                                      String.Format(System.Globalization.CultureInfo.InvariantCulture,
+                                                                    "Filter priorities must be within the inclusive range of [{0}, {1}].",
+                                                                    FilterRegistration.FilterPriorityMin,
+                                                                    FilterRegistration.FilterPriorityMax));
+            }
+
+            FilterRegistration registration = null;
+
+            lock (registeredFilters)
+            {
+                // if the filter has already been registered
+                if (registeredFilters.ContainsKey(filter))
+                {
+                    throw new EntryExistsException("The filter has already been registered.", GitErrorCode.Exists, GitErrorCategory.Filter);
+                }
+
+                // allocate the registration object
+                registration = new FilterRegistration(filter, priority);
+                // add the filter and registration object to the global tracking list
+                registeredFilters.Add(filter, registration);
+            }
+
+            return registration;
+        }
+
+        /// <summary>
+        /// Unregisters the associated filter.
+        /// </summary>
+        /// <param name="registration">Registration object with an associated filter.</param>
+        public static void DeregisterFilter(FilterRegistration registration)
+        {
+            Ensure.ArgumentNotNull(registration, "registration");
+
+            lock (registeredFilters)
+            {
+                var filter = registration.Filter;
+
+                // do nothing if the filter isn't registered
+                if (registeredFilters.ContainsKey(filter))
+                {
+                    // remove the register from the global tracking list
+                    registeredFilters.Remove(filter);
+                    // clean up native allocations
+                    registration.Free();
+                }
+            }
+        }
+
+        internal static void DeregisterFilter(Filter filter)
+        {
+            System.Diagnostics.Debug.Assert(filter != null);
+
+            // do nothing if the filter isn't registered
+            if (registeredFilters.ContainsKey(filter))
+            {
+                var registration = registeredFilters[filter];
+                // unregister the filter
+                DeregisterFilter(registration);
+            }
+        }
+
+        /// <summary>
+        /// Get the paths under which libgit2 searches for the configuration file of a given level.
+        /// </summary>
+        /// <param name="level">The level (global/system/XDG) of the config.</param>
+        /// <returns>The paths that are searched</returns>
+        public static IEnumerable<string> GetConfigSearchPaths(ConfigurationLevel level)
+        {
+            return Proxy.git_libgit2_opts_get_search_path(level).Split(Path.PathSeparator);
+        }
+
+        /// <summary>
+        /// Set the paths under which libgit2 searches for the configuration file of a given level.
+        ///
+        /// <seealso cref="RepositoryOptions"/>.
+        /// </summary>
+        /// <param name="level">The level (global/system/XDG) of the config.</param>
+        /// <param name="paths">
+        ///     The new search paths to set.
+        ///     Pass null to reset to the default.
+        ///     The special string "$PATH" will be substituted with the current search path.
+        /// </param>
+        public static void SetConfigSearchPaths(ConfigurationLevel level, params string[] paths)
+        {
+            var pathString = (paths == null) ? null : string.Join(Path.PathSeparator.ToString(), paths);
+            Proxy.git_libgit2_opts_set_search_path(level, pathString);
         }
     }
 }

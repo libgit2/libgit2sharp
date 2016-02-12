@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace LibGit2Sharp
+﻿namespace LibGit2Sharp
 {
     /// <summary>
     /// Flags controlling what files are reported by status.
@@ -66,5 +61,28 @@ namespace LibGit2Sharp
         /// Recurse into ignored directories
         /// </summary>
         public bool RecurseIgnoredDirs { get; set; }
+
+        /// <summary>
+        /// Limit the scope of paths to consider to the provided pathspecs
+        /// </summary>
+        /// <remarks>
+        /// If a PathSpec is given, the results from rename detection may
+        /// not be accurate.
+        /// </remarks>
+        public string[] PathSpec { get; set; }
+
+        /// <summary>
+        /// When set to <c>true</c>, the PathSpec paths will be considered
+        /// as explicit paths, and NOT as pathspecs containing globs.
+        /// </summary>
+        public bool DisablePathSpecMatch { get; set; }
+
+        /// <summary>
+        /// Include unaltered files when scanning for status
+        /// </summary>
+        /// <remarks>
+        /// Unaltered meaning the file is identical in the working directory, the index and HEAD.
+        /// </remarks>
+        public bool IncludeUnaltered { get; set; }
     }
 }

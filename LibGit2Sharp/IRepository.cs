@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -53,7 +52,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Provides access to diffing functionalities to show changes between the working tree and the index or a tree, changes between the index and a tree, changes between two trees, or changes between two files on disk.
         /// </summary>
-        Diff Diff {get;}
+        Diff Diff { get; }
 
         /// <summary>
         /// Gets the database.
@@ -79,9 +78,8 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="branch">The <see cref="Branch"/> to check out.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        Branch Checkout(Branch branch, CheckoutOptions options, Signature signature);
+        Branch Checkout(Branch branch, CheckoutOptions options);
 
         /// <summary>
         /// Checkout the specified branch, reference or SHA.
@@ -92,9 +90,8 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        Branch Checkout(string committishOrBranchSpec, CheckoutOptions options, Signature signature);
+        Branch Checkout(string committishOrBranchSpec, CheckoutOptions options);
 
         /// <summary>
         /// Checkout the specified <see cref="LibGit2Sharp.Commit"/>.
@@ -104,9 +101,8 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to check out.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        Branch Checkout(Commit commit, CheckoutOptions options, Signature signature);
+        Branch Checkout(Commit commit, CheckoutOptions options);
 
         /// <summary>
         /// Updates specifed paths in the index and working directory with the versions from the specified branch, reference, or SHA.
@@ -167,9 +163,16 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="resetMode">Flavor of reset operation to perform.</param>
         /// <param name="commit">The target commit object.</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
-        /// <param name="logMessage">Message to use when updating the reflog.</param>
-        void Reset(ResetMode resetMode, Commit commit, Signature signature, string logMessage);
+        void Reset(ResetMode resetMode, Commit commit);
+
+        /// <summary>
+        /// Sets <see cref="Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
+        /// the content of the working tree to match.
+        /// </summary>
+        /// <param name="resetMode">Flavor of reset operation to perform.</param>
+        /// <param name="commit">The target commit object.</param>
+        /// <param name="options">Collection of parameters controlling checkout behavior.</param>
+        void Reset(ResetMode resetMode, Commit commit, CheckoutOptions options);
 
         /// <summary>
         /// Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
@@ -180,6 +183,7 @@ namespace LibGit2Sharp
         /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method will be removed in the next release. Please use Index.Replace() instead.")]
         void Reset(Commit commit, IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions);
 
         /// <summary>
@@ -222,6 +226,23 @@ namespace LibGit2Sharp
         /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
         MergeResult Merge(string committish, Signature merger, MergeOptions options);
+
+        /// <summary>
+        /// Access to Rebase functionality.
+        /// </summary>
+        Rebase Rebase { get; }
+
+        /// <summary>
+        /// Merge the reference that was recently fetched. This will merge
+        /// the branch on the fetched remote that corresponded to the
+        /// current local branch when we did the fetch. This is the
+        /// second step in performing a pull operation (after having
+        /// performed said fetch).
+        /// </summary>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        MergeResult MergeFetchedRefs(Signature merger, MergeOptions options);
 
         /// <summary>
         /// Cherry picks changes from the commit into the branch pointed at by HEAD.
@@ -354,17 +375,35 @@ namespace LibGit2Sharp
         void Remove(IEnumerable<string> paths, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions);
 
         /// <summary>
-        /// Retrieves the state of a file in the working directory, comparing it against the staging area and the latest commmit.
+        /// Retrieves the state of a file in the working directory, comparing it against the staging area and the latest commit.
         /// </summary>
         /// <param name="filePath">The relative path within the working directory to the file.</param>
         /// <returns>A <see cref="FileStatus"/> representing the state of the <paramref name="filePath"/> parameter.</returns>
         FileStatus RetrieveStatus(string filePath);
 
         /// <summary>
-        /// Retrieves the state of all files in the working directory, comparing them against the staging area and the latest commmit.
+        /// Retrieves the state of all files in the working directory, comparing them against the staging area and the latest commit.
         /// </summary>
         /// <param name="options">If set, the options that control the status investigation.</param>
         /// <returns>A <see cref="RepositoryStatus"/> holding the state of all the files.</returns>
         RepositoryStatus RetrieveStatus(StatusOptions options);
+
+        /// <summary>
+        /// Finds the most recent annotated tag that is reachable from a commit.
+        /// <para>
+        ///   If the tag points to the commit, then only the tag is shown. Otherwise,
+        ///   it suffixes the tag name with the number of additional commits on top
+        ///   of the tagged object and the abbreviated object name of the most recent commit.
+        /// </para>
+        /// <para>
+        ///   Optionally, the <paramref name="options"/> parameter allow to tweak the
+        ///   search strategy (considering lightweith tags, or even branches as reference points)
+        ///   and the formatting of the returned identifier.
+        /// </para>
+        /// </summary>
+        /// <param name="commit">The commit to be described.</param>
+        /// <param name="options">Determines how the commit will be described.</param>
+        /// <returns>A descriptive identifier for the commit based on the nearest annotated tag.</returns>
+        string Describe(Commit commit, DescribeOptions options);
     }
 }

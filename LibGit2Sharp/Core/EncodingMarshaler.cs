@@ -43,8 +43,9 @@ namespace LibGit2Sharp.Core
 
             if (str == null)
             {
-                throw new MarshalDirectiveException(
-                    string.Format(CultureInfo.InvariantCulture, "{0} must be used on a string.", GetType().Name));
+                throw new MarshalDirectiveException(string.Format(CultureInfo.InvariantCulture,
+                                                                  "{0} must be used on a string.",
+                                                                  GetType().Name));
             }
 
             return FromManaged(encoding, str);
@@ -59,7 +60,7 @@ namespace LibGit2Sharp.Core
 
         public static unsafe IntPtr FromManaged(Encoding encoding, String value)
         {
-            if (value == null)
+            if (encoding == null || value == null)
             {
                 return IntPtr.Zero;
             }

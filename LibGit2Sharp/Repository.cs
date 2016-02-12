@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
@@ -23,7 +22,7 @@ namespace LibGit2Sharp
         private readonly CommitLog commits;
         private readonly Lazy<Configuration> config;
         private readonly RepositorySafeHandle handle;
-        private readonly Index index;
+        private readonly Lazy<Index> index;
         private readonly ReferenceCollection refs;
         private readonly TagCollection tags;
         private readonly StashCollection stashes;
@@ -32,13 +31,25 @@ namespace LibGit2Sharp
         private readonly NoteCollection notes;
         private readonly Lazy<ObjectDatabase> odb;
         private readonly Lazy<Network> network;
+        private readonly Lazy<Rebase> rebaseOperation;
         private readonly Stack<IDisposable> toCleanup = new Stack<IDisposable>();
         private readonly Ignore ignore;
         private readonly SubmoduleCollection submodules;
         private readonly Lazy<PathCase> pathCase;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Repository"/> class, providing ooptional behavioral overrides through <paramref name="options"/> parameter.
+        /// Initializes a new instance of the <see cref="Repository"/> class.
+        /// <para>For a standard repository, <paramref name="path"/> should either point to the ".git" folder or to the working directory. For a bare repository, <paramref name="path"/> should directly point to the repository folder.</para>
+        /// </summary>
+        /// <param name="path">
+        /// The path to the git repository to open, can be either the path to the git directory (for non-bare repositories this
+        /// would be the ".git" folder inside the working directory) or the path to the working directory.
+        /// </param>
+        public Repository(string path) : this(path, null)
+        { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Repository"/> class, providing optional behavioral overrides through <paramref name="options"/> parameter.
         /// <para>For a standard repository, <paramref name="path"/> should either point to the ".git" folder or to the working directory. For a bare repository, <paramref name="path"/> should directly point to the repository folder.</para>
         /// </summary>
         /// <param name="path">
@@ -48,7 +59,7 @@ namespace LibGit2Sharp
         /// <param name="options">
         /// Overrides to the way a repository is opened.
         /// </param>
-        public Repository(string path, RepositoryOptions options = null)
+        public Repository(string path, RepositoryOptions options)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
@@ -72,11 +83,13 @@ namespace LibGit2Sharp
 
                     if (isBare && (isWorkDirNull ^ isIndexNull))
                     {
-                        throw new ArgumentException(
-                            "When overriding the opening of a bare repository, both RepositoryOptions.WorkingDirectoryPath an RepositoryOptions.IndexPath have to be provided.");
+                        throw new ArgumentException("When overriding the opening of a bare repository, both RepositoryOptions.WorkingDirectoryPath an RepositoryOptions.IndexPath have to be provided.");
                     }
 
-                    isBare = false;
+                    if (!isWorkDirNull)
+                    {
+                        isBare = false;
+                    }
 
                     if (!isIndexNull)
                     {
@@ -91,11 +104,16 @@ namespace LibGit2Sharp
                     configurationGlobalFilePath = options.GlobalConfigurationLocation;
                     configurationXDGFilePath = options.XdgConfigurationLocation;
                     configurationSystemFilePath = options.SystemConfigurationLocation;
+
+                    if (options.Identity != null)
+                    {
+                        Proxy.git_repository_set_ident(handle, options.Identity.Name, options.Identity.Email);
+                    }
                 }
 
                 if (!isBare)
                 {
-                    index = indexBuilder();
+                    index = new Lazy<Index>(() => indexBuilder());
                 }
 
                 commits = new CommitLog(this);
@@ -104,20 +122,21 @@ namespace LibGit2Sharp
                 tags = new TagCollection(this);
                 stashes = new StashCollection(this);
                 info = new Lazy<RepositoryInformation>(() => new RepositoryInformation(this, isBare));
-                config =
-                    new Lazy<Configuration>(
-                        () =>
-                        RegisterForCleanup(new Configuration(this, configurationGlobalFilePath, configurationXDGFilePath,
-                                                             configurationSystemFilePath)));
+                config = new Lazy<Configuration>(() => RegisterForCleanup(new Configuration(this,
+                                                                                            null,
+                                                                                            configurationGlobalFilePath,
+                                                                                            configurationXDGFilePath,
+                                                                                            configurationSystemFilePath)));
                 odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
                 diff = new Diff(this);
                 notes = new NoteCollection(this);
                 ignore = new Ignore(this);
                 network = new Lazy<Network>(() => new Network(this));
+                rebaseOperation = new Lazy<Rebase>(() => new Rebase(this));
                 pathCase = new Lazy<PathCase>(() => new PathCase(this));
                 submodules = new SubmoduleCollection(this);
 
-                EagerlyLoadTheConfigIfAnyPathHaveBeenPassed(options);
+                EagerlyLoadComponentsWithSpecifiedPaths(options);
             }
             catch
             {
@@ -136,7 +155,12 @@ namespace LibGit2Sharp
         /// <returns>True if a repository can be resolved through this path; false otherwise</returns>
         static public bool IsValid(string path)
         {
-            Ensure.ArgumentNotNullOrEmptyString(path, "path");
+            Ensure.ArgumentNotNull(path, "path");
+
+            if (path.IsNullOrWhiteSpace())
+            {
+                return false;
+            }
 
             try
             {
@@ -150,26 +174,33 @@ namespace LibGit2Sharp
             return true;
         }
 
-        private void EagerlyLoadTheConfigIfAnyPathHaveBeenPassed(RepositoryOptions options)
+        private void EagerlyLoadComponentsWithSpecifiedPaths(RepositoryOptions options)
         {
             if (options == null)
             {
                 return;
             }
 
-            if (options.GlobalConfigurationLocation == null &&
-                options.XdgConfigurationLocation == null &&
-                options.SystemConfigurationLocation == null)
+            if (options.GlobalConfigurationLocation != null ||
+                options.XdgConfigurationLocation != null ||
+                options.SystemConfigurationLocation != null)
             {
-                return;
+                // Dirty hack to force the eager load of the configuration
+                // without Resharper pestering about useless code
+
+                if (!Config.HasConfig(ConfigurationLevel.Local))
+                {
+                    throw new InvalidOperationException("Unexpected state.");
+                }
             }
 
-            // Dirty hack to force the eager load of the configuration
-            // without Resharper pestering about useless code
-
-            if (!Config.HasConfig(ConfigurationLevel.Local))
+            if (!string.IsNullOrEmpty(options.IndexPath))
             {
-                throw new InvalidOperationException("Unexpected state.");
+                // Another dirty hack to avoid warnings
+                if (Index.Count < 0)
+                {
+                    throw new InvalidOperationException("Unexpected state.");
+                }
             }
         }
 
@@ -221,7 +252,7 @@ namespace LibGit2Sharp
                     throw new BareRepositoryException("Index is not available in a bare repository.");
                 }
 
-                return index;
+                return index.Value;
             }
         }
 
@@ -230,10 +261,7 @@ namespace LibGit2Sharp
         /// </summary>
         public Ignore Ignore
         {
-            get
-            {
-                return ignore;
-            }
+            get { return ignore; }
         }
 
         /// <summary>
@@ -241,9 +269,17 @@ namespace LibGit2Sharp
         /// </summary>
         public Network Network
         {
+            get { return network.Value; }
+        }
+
+        /// <summary>
+        /// Provides access to rebase functionality for a repository.
+        /// </summary>
+        public Rebase Rebase
+        {
             get
             {
-                return network.Value;
+                return rebaseOperation.Value;
             }
         }
 
@@ -252,10 +288,7 @@ namespace LibGit2Sharp
         /// </summary>
         public ObjectDatabase ObjectDatabase
         {
-            get
-            {
-                return odb.Value;
-            }
+            get { return odb.Value; }
         }
 
         /// <summary>
@@ -355,9 +388,19 @@ namespace LibGit2Sharp
         /// Initialize a repository at the specified <paramref name="path"/>.
         /// </summary>
         /// <param name="path">The path to the working folder when initializing a standard ".git" repository. Otherwise, when initializing a bare repository, the path to the expected location of this later.</param>
+        /// <returns>The path to the created repository.</returns>
+        public static string Init(string path)
+        {
+            return Init(path, false);
+        }
+
+        /// <summary>
+        /// Initialize a repository at the specified <paramref name="path"/>.
+        /// </summary>
+        /// <param name="path">The path to the working folder when initializing a standard ".git" repository. Otherwise, when initializing a bare repository, the path to the expected location of this later.</param>
         /// <param name="isBare">true to initialize a bare repository. False otherwise, to initialize a standard ".git" repository.</param>
         /// <returns>The path to the created repository.</returns>
-        public static string Init(string path, bool isBare = false)
+        public static string Init(string path, bool isBare)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
@@ -441,7 +484,7 @@ namespace LibGit2Sharp
 
             using (GitObjectSafeHandle obj = Proxy.git_object_lookup(handle, id, type))
             {
-                if (obj == null)
+                if (obj == null || obj.IsInvalid)
                 {
                     return null;
                 }
@@ -495,8 +538,7 @@ namespace LibGit2Sharp
 
             if (lookUpOptions.HasFlag(LookUpOptions.DereferenceResultToCommit))
             {
-                return obj.DereferenceToCommit(
-                    lookUpOptions.HasFlag(LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit));
+                return obj.DereferenceToCommit(lookUpOptions.HasFlag(LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit));
             }
 
             return obj;
@@ -504,10 +546,57 @@ namespace LibGit2Sharp
 
         internal Commit LookupCommit(string committish)
         {
-            return (Commit)Lookup(committish, GitObjectType.Any,
-                LookUpOptions.ThrowWhenNoGitObjectHasBeenFound |
-                LookUpOptions.DereferenceResultToCommit |
-                LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
+            return (Commit)Lookup(committish,
+                                  GitObjectType.Any,
+                                  LookUpOptions.ThrowWhenNoGitObjectHasBeenFound |
+                                  LookUpOptions.DereferenceResultToCommit |
+                                  LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
+        }
+
+        /// <summary>
+        /// Lists the Remote Repository References.
+        /// </summary>
+        /// <para>
+        /// Does not require a local Repository. The retrieved
+        /// <see cref="IBelongToARepository.Repository"/>
+        /// throws <see cref="InvalidOperationException"/> in this case.
+        /// </para>
+        /// <param name="url">The url to list from.</param>
+        /// <returns>The references in the remote repository.</returns>
+        public static IEnumerable<Reference> ListRemoteReferences(string url)
+        {
+            return ListRemoteReferences(url, null);
+        }
+
+        /// <summary>
+        /// Lists the Remote Repository References.
+        /// </summary>
+        /// <para>
+        /// Does not require a local Repository. The retrieved
+        /// <see cref="IBelongToARepository.Repository"/>
+        /// throws <see cref="InvalidOperationException"/> in this case.
+        /// </para>
+        /// <param name="url">The url to list from.</param>
+        /// <param name="credentialsProvider">The <see cref="Func{Credentials}"/> used to connect to remote repository.</param>
+        /// <returns>The references in the remote repository.</returns>
+        public static IEnumerable<Reference> ListRemoteReferences(string url, CredentialsHandler credentialsProvider)
+        {
+            Ensure.ArgumentNotNull(url, "url");
+
+            using (RepositorySafeHandle repositoryHandle = Proxy.git_repository_new())
+            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_create_anonymous(repositoryHandle, url))
+            {
+                var gitCallbacks = new GitRemoteCallbacks { version = 1 };
+
+                if (credentialsProvider != null)
+                {
+                    var callbacks = new RemoteCallbacks(credentialsProvider);
+                    gitCallbacks = callbacks.GenerateCallbacks();
+                }
+
+                Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch, ref gitCallbacks);
+                return Proxy.git_remote_ls(null, remoteHandle);
+            }
         }
 
         /// <summary>
@@ -515,7 +604,7 @@ namespace LibGit2Sharp
         /// <para>The lookup start from <paramref name="startingPath"/> and walk upward parent directories if nothing has been found.</para>
         /// </summary>
         /// <param name="startingPath">The base path where the lookup starts.</param>
-        /// <returns>The path to the git repository.</returns>
+        /// <returns>The path to the git repository, or null if no repository was found.</returns>
         public static string Discover(string startingPath)
         {
             FilePath discoveredPath = Proxy.git_repository_discover(startingPath);
@@ -529,22 +618,63 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Clone using default options.
+        /// </summary>
+        /// <exception cref="RecurseSubmodulesException">This exception is thrown when there
+        /// is an error is encountered while recursively cloning submodules. The inner exception
+        /// will contain the original exception. The initially cloned repository would
+        /// be reported through the <see cref="RecurseSubmodulesException.InitialRepositoryPath"/>
+        /// property.</exception>"
+        /// <exception cref="UserCancelledException">Exception thrown when the cancelling
+        /// the clone of the initial repository.</exception>"
+        /// <param name="sourceUrl">URI for the remote repository</param>
+        /// <param name="workdirPath">Local path to clone into</param>
+        /// <returns>The path to the created repository.</returns>
+        public static string Clone(string sourceUrl, string workdirPath)
+        {
+            return Clone(sourceUrl, workdirPath, null);
+        }
+
+        /// <summary>
         /// Clone with specified options.
         /// </summary>
+        /// <exception cref="RecurseSubmodulesException">This exception is thrown when there
+        /// is an error is encountered while recursively cloning submodules. The inner exception
+        /// will contain the original exception. The initially cloned repository would
+        /// be reported through the <see cref="RecurseSubmodulesException.InitialRepositoryPath"/>
+        /// property.</exception>"
+        /// <exception cref="UserCancelledException">Exception thrown when the cancelling
+        /// the clone of the initial repository.</exception>"
         /// <param name="sourceUrl">URI for the remote repository</param>
         /// <param name="workdirPath">Local path to clone into</param>
         /// <param name="options"><see cref="CloneOptions"/> controlling clone behavior</param>
         /// <returns>The path to the created repository.</returns>
         public static string Clone(string sourceUrl, string workdirPath,
-            CloneOptions options = null)
+            CloneOptions options)
         {
+            Ensure.ArgumentNotNull(sourceUrl, "sourceUrl");
+            Ensure.ArgumentNotNull(workdirPath, "workdirPath");
+
             options = options ?? new CloneOptions();
+
+            // context variable that contains information on the repository that
+            // we are cloning.
+            var context = new RepositoryOperationContext(Path.GetFullPath(workdirPath), sourceUrl);
+
+            // Notify caller that we are starting to work with the current repository.
+            bool continueOperation = OnRepositoryOperationStarting(options.RepositoryOperationStarting,
+                                                                   context);
+
+            if (!continueOperation)
+            {
+                throw new UserCancelledException("Clone cancelled by the user.");
+            }
 
             using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
             {
                 var gitCheckoutOptions = checkoutOptionsWrapper.Options;
 
-                var remoteCallbacks = new RemoteCallbacks(null, options.OnTransferProgress, null, options.CredentialsProvider);
+                var remoteCallbacks = new RemoteCallbacks(options);
                 var gitRemoteCallbacks = remoteCallbacks.GenerateCallbacks();
 
                 var cloneOpts = new GitCloneOptions
@@ -552,16 +682,141 @@ namespace LibGit2Sharp
                     Version = 1,
                     Bare = options.IsBare ? 1 : 0,
                     CheckoutOpts = gitCheckoutOptions,
-                    RemoteCallbacks = gitRemoteCallbacks,
+                    FetchOpts = new GitFetchOptions { RemoteCallbacks = gitRemoteCallbacks },
                 };
 
-                FilePath repoPath;
-                using (RepositorySafeHandle repo = Proxy.git_clone(sourceUrl, workdirPath, ref cloneOpts))
+                string clonedRepoPath;
+
+                try
                 {
-                    repoPath = Proxy.git_repository_path(repo);
+                    cloneOpts.CheckoutBranch = StrictUtf8Marshaler.FromManaged(options.BranchName);
+
+                    using (RepositorySafeHandle repo = Proxy.git_clone(sourceUrl, workdirPath, ref cloneOpts))
+                    {
+                        clonedRepoPath = Proxy.git_repository_path(repo).Native;
+                    }
+                }
+                finally
+                {
+                    EncodingMarshaler.Cleanup(cloneOpts.CheckoutBranch);
                 }
 
-                return repoPath.Native;
+                // Notify caller that we are done with the current repository.
+                OnRepositoryOperationCompleted(options.RepositoryOperationCompleted,
+                                               context);
+
+                // Recursively clone submodules if requested.
+                try
+                {
+                    RecursivelyCloneSubmodules(options, clonedRepoPath, 1);
+                }
+                catch (Exception ex)
+                {
+                    throw new RecurseSubmodulesException("The top level repository was cloned, but there was an error cloning its submodules.",
+                                                         ex,
+                                                         clonedRepoPath);
+                }
+
+                return clonedRepoPath;
+            }
+        }
+
+        /// <summary>
+        /// Recursively clone submodules if directed to do so by the clone options.
+        /// </summary>
+        /// <param name="options">Options controlling clone behavior.</param>
+        /// <param name="repoPath">Path of the parent repository.</param>
+        /// <param name="recursionDepth">The current depth of the recursion.</param>
+        private static void RecursivelyCloneSubmodules(CloneOptions options, string repoPath, int recursionDepth)
+        {
+            if (options.RecurseSubmodules)
+            {
+                List<string> submodules = new List<string>();
+
+                using (Repository repo = new Repository(repoPath))
+                {
+                    SubmoduleUpdateOptions updateOptions = new SubmoduleUpdateOptions()
+                    {
+                        Init = true,
+                        CredentialsProvider = options.CredentialsProvider,
+                        OnCheckoutProgress = options.OnCheckoutProgress,
+                        OnProgress = options.OnProgress,
+                        OnTransferProgress = options.OnTransferProgress,
+                        OnUpdateTips = options.OnUpdateTips,
+                    };
+
+                    string parentRepoWorkDir = repo.Info.WorkingDirectory;
+
+                    // Iterate through the submodules (where the submodule is in the index),
+                    // and clone them.
+                    foreach (var sm in repo.Submodules.Where(sm => sm.RetrieveStatus().HasFlag(SubmoduleStatus.InIndex)))
+                    {
+                        string fullSubmodulePath = Path.Combine(parentRepoWorkDir, sm.Path);
+
+                        // Resolve the URL in the .gitmodule file to the one actually used
+                        // to clone
+                        string resolvedUrl = Proxy.git_submodule_resolve_url(repo.Handle, sm.Url);
+
+                        var context = new RepositoryOperationContext(fullSubmodulePath,
+                                                                     resolvedUrl,
+                                                                     parentRepoWorkDir,
+                                                                     sm.Name,
+                                                                     recursionDepth);
+
+                        bool continueOperation = OnRepositoryOperationStarting(options.RepositoryOperationStarting,
+                                                                               context);
+
+                        if (!continueOperation)
+                        {
+                            throw new UserCancelledException("Recursive clone of submodules was cancelled.");
+                        }
+
+                        repo.Submodules.Update(sm.Name, updateOptions);
+
+                        OnRepositoryOperationCompleted(options.RepositoryOperationCompleted,
+                                                       context);
+
+                        submodules.Add(Path.Combine(repo.Info.WorkingDirectory, sm.Path));
+                    }
+                }
+
+                // If we are continuing the recursive operation, then
+                // recurse into nested submodules.
+                // Check submodules to see if they have their own submodules.
+                foreach (string submodule in submodules)
+                {
+                    RecursivelyCloneSubmodules(options, submodule, recursionDepth + 1);
+                }
+            }
+        }
+
+        /// <summary>
+        /// If a callback has been provided to notify callers that we are
+        /// either starting to work on a repository.
+        /// </summary>
+        /// <param name="repositoryChangedCallback">The callback to notify change.</param>
+        /// <param name="context">Context of the repository this operation affects.</param>
+        /// <returns>true to continue the operation, false to cancel.</returns>
+        private static bool OnRepositoryOperationStarting(
+            RepositoryOperationStarting repositoryChangedCallback,
+            RepositoryOperationContext context)
+        {
+            bool continueOperation = true;
+            if (repositoryChangedCallback != null)
+            {
+                continueOperation = repositoryChangedCallback(context);
+            }
+
+            return continueOperation;
+        }
+
+        private static void OnRepositoryOperationCompleted(
+            RepositoryOperationCompleted repositoryChangedCallback,
+            RepositoryOperationContext context)
+        {
+            if (repositoryChangedCallback != null)
+            {
+                repositoryChangedCallback(context);
             }
         }
 
@@ -585,9 +840,8 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        public Branch Checkout(string committishOrBranchSpec, CheckoutOptions options, Signature signature)
+        public Branch Checkout(string committishOrBranchSpec, CheckoutOptions options)
         {
             Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
             Ensure.ArgumentNotNull(options, "options");
@@ -606,15 +860,17 @@ namespace LibGit2Sharp
                 if (!refH.IsInvalid)
                 {
                     var reference = Reference.BuildFromPtr<Reference>(refH, this);
-                    if (reference.IsLocalBranch())
+                    if (reference.IsLocalBranch)
                     {
                         Branch branch = Branches[reference.CanonicalName];
-                        return Checkout(branch, options, signature);
+                        return Checkout(branch, options);
                     }
                 }
 
-                obj = GitObject.BuildFrom(this, Proxy.git_object_id(objH), Proxy.git_object_type(objH),
-                                              PathFromRevparseSpec(committishOrBranchSpec));
+                obj = GitObject.BuildFrom(this,
+                                          Proxy.git_object_id(objH),
+                                          Proxy.git_object_type(objH),
+                                          PathFromRevparseSpec(committishOrBranchSpec));
             }
             finally
             {
@@ -623,7 +879,7 @@ namespace LibGit2Sharp
             }
 
             Commit commit = obj.DereferenceToCommit(true);
-            Checkout(commit.Tree, options, commit.Id.Sha, committishOrBranchSpec, signature);
+            Checkout(commit.Tree, options, committishOrBranchSpec);
 
             return Head;
         }
@@ -635,9 +891,8 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="branch">The <see cref="Branch"/> to check out.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        public Branch Checkout(Branch branch, CheckoutOptions options, Signature signature)
+        public Branch Checkout(Branch branch, CheckoutOptions options)
         {
             Ensure.ArgumentNotNull(branch, "branch");
             Ensure.ArgumentNotNull(options, "options");
@@ -645,20 +900,19 @@ namespace LibGit2Sharp
             // Make sure this is not an unborn branch.
             if (branch.Tip == null)
             {
-                throw new UnbornBranchException(
-                    string.Format(CultureInfo.InvariantCulture,
-                    "The tip of branch '{0}' is null. There's nothing to checkout.", branch.Name));
+                throw new UnbornBranchException("The tip of branch '{0}' is null. There's nothing to checkout.",
+                                                branch.FriendlyName);
             }
 
             if (!branch.IsRemote && !(branch is DetachedHead) &&
                 string.Equals(Refs[branch.CanonicalName].TargetIdentifier, branch.Tip.Id.Sha,
                 StringComparison.OrdinalIgnoreCase))
             {
-                Checkout(branch.Tip.Tree, options, branch.CanonicalName, branch.Name, signature);
+                Checkout(branch.Tip.Tree, options, branch.CanonicalName);
             }
             else
             {
-                Checkout(branch.Tip.Tree, options, branch.Tip.Id.Sha, branch.Name, signature);
+                Checkout(branch.Tip.Tree, options, branch.Tip.Id.Sha);
             }
 
             return Head;
@@ -672,14 +926,13 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to check out.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        public Branch Checkout(Commit commit, CheckoutOptions options, Signature signature)
+        public Branch Checkout(Commit commit, CheckoutOptions options)
         {
             Ensure.ArgumentNotNull(commit, "commit");
             Ensure.ArgumentNotNull(options, "options");
 
-            Checkout(commit.Tree, options, commit.Id.Sha, commit.Id.Sha, signature);
+            Checkout(commit.Tree, options, commit.Id.Sha);
 
             return Head;
         }
@@ -690,22 +943,15 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="tree">The <see cref="Tree"/> to checkout.</param>
         /// <param name="checkoutOptions"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <param name="headTarget">Target for the new HEAD.</param>
         /// <param name="refLogHeadSpec">The spec which will be written as target in the reflog.</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
         private void Checkout(
             Tree tree,
             CheckoutOptions checkoutOptions,
-            string headTarget, string refLogHeadSpec, Signature signature)
+            string refLogHeadSpec)
         {
-            var previousHeadName = Info.IsHeadDetached ? Head.Tip.Sha : Head.Name;
-
             CheckoutTree(tree, null, checkoutOptions);
 
-            Refs.UpdateTarget("HEAD", headTarget, signature,
-                string.Format(
-                    CultureInfo.InvariantCulture,
-                    "checkout: moving from {0} to {1}", previousHeadName, refLogHeadSpec));
+            Refs.MoveHeadTarget(refLogHeadSpec);
         }
 
         /// <summary>
@@ -720,7 +966,7 @@ namespace LibGit2Sharp
             IConvertableToGitCheckoutOpts opts)
         {
 
-            using(GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(opts, ToFilePaths(paths)))
+            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(opts, ToFilePaths(paths)))
             {
                 var options = checkoutOptionsWrapper.Options;
                 Proxy.git_checkout_tree(Handle, tree.Id, ref options);
@@ -733,37 +979,27 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="resetMode">Flavor of reset operation to perform.</param>
         /// <param name="commit">The target commit object.</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
-        /// <param name="logMessage">Message to use when updating the reflog.</param>
-        public void Reset(ResetMode resetMode, Commit commit, Signature signature, string logMessage)
+        public void Reset(ResetMode resetMode, Commit commit)
         {
-            Reset(resetMode, commit, new CheckoutOptions(), signature, logMessage);
+            Reset(resetMode, commit, new CheckoutOptions());
         }
 
         /// <summary>
-        /// Sets the current <see cref="Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
+        /// Sets <see cref="Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
         /// the content of the working tree to match.
         /// </summary>
         /// <param name="resetMode">Flavor of reset operation to perform.</param>
         /// <param name="commit">The target commit object.</param>
         /// <param name="opts">Collection of parameters controlling checkout behavior.</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
-        /// <param name="logMessage">Message to use when updating the reflog.</param>
-        private void Reset(ResetMode resetMode, Commit commit, IConvertableToGitCheckoutOpts opts, Signature signature, string logMessage)
+        public void Reset(ResetMode resetMode, Commit commit, CheckoutOptions opts)
         {
             Ensure.ArgumentNotNull(commit, "commit");
-
-            if (logMessage == null)
-            {
-                logMessage = string.Format(
-                    CultureInfo.InvariantCulture,
-                    "reset: moving to {0}", commit.Sha);
-            }
+            Ensure.ArgumentNotNull(opts, "opts");
 
             using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(opts))
             {
                 var options = checkoutOptionsWrapper.Options;
-                Proxy.git_reset(handle, commit.Id, resetMode, ref options, signature.OrDefault(Config), logMessage);
+                Proxy.git_reset(handle, commit.Id, resetMode, ref options);
             }
         }
 
@@ -781,14 +1017,17 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
             Ensure.ArgumentNotNull(paths, "paths");
 
+            var listOfPaths = paths.ToList();
+
             // If there are no paths, then there is nothing to do.
-            if (!paths.Any())
+            if (listOfPaths.Count == 0)
             {
                 return;
             }
 
             Commit commit = LookupCommit(committishOrBranchSpec);
-            CheckoutTree(commit.Tree, paths.ToList(), checkoutOptions ?? new CheckoutOptions());
+
+            CheckoutTree(commit.Tree, listOfPaths, checkoutOptions ?? new CheckoutOptions());
         }
 
         /// <summary>
@@ -800,17 +1039,10 @@ namespace LibGit2Sharp
         /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method will be removed in the next release. Please use Index.Replace() instead.")]
         public void Reset(Commit commit, IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions)
         {
-            if (Info.IsBare)
-            {
-                throw new BareRepositoryException("Reset is not allowed in a bare repository");
-            }
-
-            Ensure.ArgumentNotNull(commit, "commit");
-
-            var changes = Diff.Compare<TreeChanges>(commit.Tree, DiffTargets.Index, paths, explicitPathsOptions, new CompareOptions { Similarity = SimilarityOptions.None });
-            Index.Replace(changes);
+            Index.Replace(commit, paths, explicitPathsOptions);
         }
 
         /// <summary>
@@ -837,7 +1069,7 @@ namespace LibGit2Sharp
                 throw new UnbornBranchException("Can not amend anything. The Head doesn't point at any commit.");
             }
 
-            var treeId = Proxy.git_tree_create_fromindex(Index);
+            var treeId = Proxy.git_index_write_tree(Index.Handle);
             var tree = this.Lookup<Tree>(treeId);
 
             var parents = RetrieveParentsOfTheCommitBeingCreated(options.AmendPreviousCommit).ToList();
@@ -849,11 +1081,9 @@ namespace LibGit2Sharp
 
                 if (treesame && !amendMergeCommit)
                 {
-                    throw new EmptyCommitException(
-                        options.AmendPreviousCommit ?
-                        String.Format(CultureInfo.InvariantCulture,
-                            "Amending this commit would produce a commit that is identical to its parent (id = {0})", parents[0].Id) :
-                        "No changes; nothing to commit.");
+                    throw (options.AmendPreviousCommit ? 
+                        new EmptyCommitException("Amending this commit would produce a commit that is identical to its parent (id = {0})", parents[0].Id) :
+                        new EmptyCommitException("No changes; nothing to commit."));
                 }
             }
 
@@ -894,17 +1124,17 @@ namespace LibGit2Sharp
             {
                 if (reference is DirectReference)
                 {
-                    Refs.UpdateTarget(reference, commit.Id, commit.Committer, reflogMessage);
+                    Refs.UpdateTarget(reference, commit.Id, reflogMessage);
                     return;
                 }
 
-                var symRef = (SymbolicReference) reference;
+                var symRef = (SymbolicReference)reference;
 
                 reference = symRef.Target;
 
                 if (reference == null)
                 {
-                    Refs.Add(symRef.TargetIdentifier, commit.Id, commit.Committer, reflogMessage);
+                    Refs.Add(symRef.TargetIdentifier, commit.Id, reflogMessage);
                     return;
                 }
             }
@@ -959,19 +1189,6 @@ namespace LibGit2Sharp
         {
             toCleanup.Push(disposable);
             return disposable;
-        }
-
-        /// <summary>
-        /// Gets the current LibGit2Sharp version.
-        /// <para>
-        ///   The format of the version number is as follows:
-        ///   <para>Major.Minor.Patch-LibGit2Sharp_abbrev_hash-libgit2_abbrev_hash (x86|amd64 - features)</para>
-        /// </para>
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Use GlobalSettings.Version instead.")]
-        public static string Version
-        {
-            get { return GlobalSettings.Version.ToString(); }
         }
 
         /// <summary>
@@ -1034,12 +1251,16 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Merge the current fetch heads into the branch pointed at by HEAD.
+        /// Merge the reference that was recently fetched. This will merge
+        /// the branch on the fetched remote that corresponded to the
+        /// current local branch when we did the fetch.  This is the
+        /// second step in performing a pull operation (after having
+        /// performed said fetch).
         /// </summary>
         /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
         /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        internal MergeResult MergeFetchHeads(Signature merger, MergeOptions options)
+        public MergeResult MergeFetchedRefs(Signature merger, MergeOptions options)
         {
             Ensure.ArgumentNotNull(merger, "merger");
 
@@ -1051,8 +1272,8 @@ namespace LibGit2Sharp
             if (fetchHeads.Length == 0)
             {
                 var expectedRef = this.Head.UpstreamBranchCanonicalName;
-                throw new MergeFetchHeadNotFoundException(string.Format(CultureInfo.InvariantCulture,
-                    "The current branch is configured to merge with the reference '{0}' from the remote, but this reference was not fetched.", expectedRef));
+                throw new MergeFetchHeadNotFoundException("The current branch is configured to merge with the reference '{0}' from the remote, but this reference was not fetched.", 
+                    expectedRef);
             }
 
             GitAnnotatedCommitHandle[] annotatedCommitHandles = fetchHeads.Select(fetchHead =>
@@ -1236,7 +1457,7 @@ namespace LibGit2Sharp
                 case GitMergePreference.GIT_MERGE_PREFERENCE_FASTFORWARD_ONLY:
                     return FastForwardStrategy.FastForwardOnly;
                 case GitMergePreference.GIT_MERGE_PREFERENCE_NO_FASTFORWARD:
-                    return FastForwardStrategy.NoFastFoward;
+                    return FastForwardStrategy.NoFastForward;
                 default:
                     throw new InvalidOperationException(String.Format("Unknown merge preference: {0}", preference));
             }
@@ -1266,7 +1487,7 @@ namespace LibGit2Sharp
             FastForwardStrategy fastForwardStrategy = (options.FastForwardStrategy != FastForwardStrategy.Default) ?
                 options.FastForwardStrategy : FastForwardStrategyFromMergePreference(mergePreference);
 
-            switch(fastForwardStrategy)
+            switch (fastForwardStrategy)
             {
                 case FastForwardStrategy.Default:
                     if (mergeAnalysis.HasFlag(GitMergeAnalysis.GIT_MERGE_ANALYSIS_FASTFORWARD))
@@ -1277,7 +1498,7 @@ namespace LibGit2Sharp
                             throw new LibGit2SharpException("Unable to perform Fast-Forward merge with mith multiple merge heads.");
                         }
 
-                        mergeResult = FastForwardMerge(annotatedCommits[0], merger, options);
+                        mergeResult = FastForwardMerge(annotatedCommits[0], options);
                     }
                     else if (mergeAnalysis.HasFlag(GitMergeAnalysis.GIT_MERGE_ANALYSIS_NORMAL))
                     {
@@ -1293,7 +1514,7 @@ namespace LibGit2Sharp
                             throw new LibGit2SharpException("Unable to perform Fast-Forward merge with mith multiple merge heads.");
                         }
 
-                        mergeResult = FastForwardMerge(annotatedCommits[0], merger, options);
+                        mergeResult = FastForwardMerge(annotatedCommits[0], options);
                     }
                     else
                     {
@@ -1302,7 +1523,7 @@ namespace LibGit2Sharp
                         throw new NonFastForwardException("Cannot perform fast-forward merge.");
                     }
                     break;
-                case FastForwardStrategy.NoFastFoward:
+                case FastForwardStrategy.NoFastForward:
                     if (mergeAnalysis.HasFlag(GitMergeAnalysis.GIT_MERGE_ANALYSIS_NORMAL))
                     {
                         mergeResult = NormalMerge(annotatedCommits, merger, options);
@@ -1332,16 +1553,15 @@ namespace LibGit2Sharp
         private MergeResult NormalMerge(GitAnnotatedCommitHandle[] annotatedCommits, Signature merger, MergeOptions options)
         {
             MergeResult mergeResult;
-
             var mergeOptions = new GitMergeOpts
-                {
-                    Version = 1,
-                    MergeFileFavorFlags = options.MergeFileFavor,
-                    MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES :
-                                                           GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
-                    RenameThreshold = (uint) options.RenameThreshold,
-                    TargetLimit = (uint) options.TargetLimit,
-                };
+            {
+                Version = 1,
+                MergeFileFavorFlags = options.MergeFileFavor,
+                MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES
+                                                     : GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
+                RenameThreshold = (uint)options.RenameThreshold,
+                TargetLimit = (uint)options.TargetLimit,
+            };
 
             using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
             {
@@ -1373,13 +1593,12 @@ namespace LibGit2Sharp
         /// Perform a fast-forward merge.
         /// </summary>
         /// <param name="annotatedCommit">The merge head handle to fast-forward merge.</param>
-        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
         /// <param name="options">Options controlling merge behavior.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        private MergeResult FastForwardMerge(GitAnnotatedCommitHandle annotatedCommit, Signature merger, MergeOptions options)
+        private MergeResult FastForwardMerge(GitAnnotatedCommitHandle annotatedCommit, MergeOptions options)
         {
             ObjectId id = Proxy.git_annotated_commit_id(annotatedCommit);
-            Commit fastForwardCommit = (Commit) Lookup(id, ObjectType.Commit);
+            Commit fastForwardCommit = (Commit)Lookup(id, ObjectType.Commit);
             Ensure.GitObjectIsNotNull(fastForwardCommit, id.Sha);
 
             CheckoutTree(fastForwardCommit.Tree, null, new FastForwardCheckoutOptionsAdapter(options));
@@ -1393,12 +1612,12 @@ namespace LibGit2Sharp
             if (reference == null)
             {
                 // Reference does not exist, create it.
-                Refs.Add(Refs.Head.TargetIdentifier, fastForwardCommit.Id, merger, refLogEntry);
+                Refs.Add(Refs.Head.TargetIdentifier, fastForwardCommit.Id, refLogEntry);
             }
             else
             {
                 // Update target reference.
-                Refs.UpdateTarget(reference, fastForwardCommit.Id.Sha, merger, refLogEntry);
+                Refs.UpdateTarget(reference, fastForwardCommit.Id.Sha, refLogEntry);
             }
 
             return new MergeResult(MergeStatus.FastForward, fastForwardCommit);
@@ -1487,28 +1706,64 @@ namespace LibGit2Sharp
                 diffModifiers |= DiffModifiers.IncludeIgnored;
             }
 
-            var changes = Diff.Compare<TreeChanges>(diffModifiers, paths, explicitPathsOptions);
+            var changes = Diff.Compare<TreeChanges>(diffModifiers, paths, explicitPathsOptions,
+                new CompareOptions { Similarity = SimilarityOptions.None });
 
-            foreach (var treeEntryChanges in changes)
+            var unexpectedTypesOfChanges = changes
+                .Where(
+                    tec => tec.Status != ChangeKind.Added &&
+                           tec.Status != ChangeKind.Modified &&
+                           tec.Status != ChangeKind.Conflicted &&
+                           tec.Status != ChangeKind.Unmodified &&
+                           tec.Status != ChangeKind.Deleted).ToList();
+
+            if (unexpectedTypesOfChanges.Count > 0)
+            {
+                throw new InvalidOperationException(
+                    string.Format(CultureInfo.InvariantCulture,
+                        "Entry '{0}' bears an unexpected ChangeKind '{1}'",
+                        unexpectedTypesOfChanges[0].Path, unexpectedTypesOfChanges[0].Status));
+            }
+
+            /* Remove files from the index that don't exist on disk */
+            foreach (TreeEntryChanges treeEntryChanges in changes)
             {
                 switch (treeEntryChanges.Status)
                 {
-                    case ChangeKind.Unmodified:
-                        continue;
+                    case ChangeKind.Conflicted:
+                        if (!treeEntryChanges.Exists)
+                        {
+                            RemoveFromIndex(treeEntryChanges.Path);
+                        }
+                        break;
 
                     case ChangeKind.Deleted:
                         RemoveFromIndex(treeEntryChanges.Path);
-                        continue;
-
-                    case ChangeKind.Added:
-                    /* Fall through */
-                    case ChangeKind.Modified:
-                        AddToIndex(treeEntryChanges.Path);
-                        continue;
+                        break;
 
                     default:
-                        throw new InvalidOperationException(
-                            string.Format(CultureInfo.InvariantCulture, "Entry '{0}' bears an unexpected ChangeKind '{1}'", treeEntryChanges.Path, treeEntryChanges.Status));
+                        continue;
+                }
+            }
+
+            foreach (TreeEntryChanges treeEntryChanges in changes)
+            {
+                switch (treeEntryChanges.Status)
+                {
+                    case ChangeKind.Added:
+                    case ChangeKind.Modified:
+                        AddToIndex(treeEntryChanges.Path);
+                        break;
+
+                    case ChangeKind.Conflicted:
+                        if (treeEntryChanges.Exists)
+                        {
+                            AddToIndex(treeEntryChanges.Path);
+                        }
+                        break;
+
+                    default:
+                        continue;
                 }
             }
 
@@ -1550,7 +1805,7 @@ namespace LibGit2Sharp
             }
             else
             {
-                this.Reset("HEAD", paths, explicitPathsOptions);
+                Index.Replace(Head.Tip, paths, explicitPathsOptions);
             }
         }
 
@@ -1599,18 +1854,22 @@ namespace LibGit2Sharp
                 }
 
                 FileStatus sourceStatus = keyValuePair.Key.Item2;
-                if (sourceStatus.HasAny(new Enum[] { FileStatus.Nonexistent, FileStatus.Removed, FileStatus.Untracked, FileStatus.Missing }))
+                if (sourceStatus.HasAny(new Enum[] { FileStatus.Nonexistent, FileStatus.DeletedFromIndex, FileStatus.NewInWorkdir, FileStatus.DeletedFromWorkdir }))
                 {
-                    throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unable to move file '{0}'. Its current status is '{1}'.", sourcePath, sourceStatus));
+                    throw new LibGit2SharpException("Unable to move file '{0}'. Its current status is '{1}'.",
+                                                    sourcePath,
+                                                    sourceStatus);
                 }
 
                 FileStatus desStatus = keyValuePair.Value.Item2;
-                if (desStatus.HasAny(new Enum[] { FileStatus.Nonexistent, FileStatus.Missing }))
+                if (desStatus.HasAny(new Enum[] { FileStatus.Nonexistent, FileStatus.DeletedFromWorkdir }))
                 {
                     continue;
                 }
 
-                throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unable to overwrite file '{0}'. Its current status is '{1}'.", destPath, desStatus));
+                throw new LibGit2SharpException("Unable to overwrite file '{0}'. Its current status is '{1}'.",
+                                                destPath,
+                                                desStatus);
             }
 
             string wd = Info.WorkingDirectory;
@@ -1713,7 +1972,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Retrieves the state of a file in the working directory, comparing it against the staging area and the latest commmit.
+        /// Retrieves the state of a file in the working directory, comparing it against the staging area and the latest commit.
         /// </summary>
         /// <param name="filePath">The relative path within the working directory to the file.</param>
         /// <returns>A <see cref="FileStatus"/> representing the state of the <paramref name="filePath"/> parameter.</returns>
@@ -1727,7 +1986,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Retrieves the state of all files in the working directory, comparing them against the staging area and the latest commmit.
+        /// Retrieves the state of all files in the working directory, comparing them against the staging area and the latest commit.
         /// </summary>
         /// <param name="options">If set, the options that control the status investigation.</param>
         /// <returns>A <see cref="RepositoryStatus"/> holding the state of all the files.</returns>
@@ -1840,36 +2099,61 @@ namespace LibGit2Sharp
 
                     case ChangeKind.Unmodified:
                         if (removeFromWorkingDirectory && (
-                            status.HasFlag(FileStatus.Staged) ||
-                            status.HasFlag(FileStatus.Added) ))
+                            status.HasFlag(FileStatus.ModifiedInIndex) ||
+                            status.HasFlag(FileStatus.NewInIndex)))
                         {
-                            throw new RemoveFromIndexException(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}', as it has changes staged in the index. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
-                                treeEntryChanges.Path));
+                            throw new RemoveFromIndexException("Unable to remove file '{0}', as it has changes staged in the index. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
+                                                               treeEntryChanges.Path);
                         }
                         removed.Add(RemoveFromIndex(treeEntryChanges.Path));
                         continue;
 
                     case ChangeKind.Modified:
-                        if (status.HasFlag(FileStatus.Modified) && status.HasFlag(FileStatus.Staged))
+                        if (status.HasFlag(FileStatus.ModifiedInWorkdir) && status.HasFlag(FileStatus.ModifiedInIndex))
                         {
-                            throw new RemoveFromIndexException(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}', as it has staged content different from both the working directory and the HEAD.",
-                                treeEntryChanges.Path));
+                            throw new RemoveFromIndexException("Unable to remove file '{0}', as it has staged content different from both the working directory and the HEAD.",
+                                                               treeEntryChanges.Path);
                         }
                         if (removeFromWorkingDirectory)
                         {
-                            throw new RemoveFromIndexException(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}', as it has local modifications. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
-                                treeEntryChanges.Path));
+                            throw new RemoveFromIndexException("Unable to remove file '{0}', as it has local modifications. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
+                                                               treeEntryChanges.Path);
                         }
                         removed.Add(RemoveFromIndex(treeEntryChanges.Path));
                         continue;
 
                     default:
-                        throw new RemoveFromIndexException(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}'. Its current status is '{1}'.",
-                            treeEntryChanges.Path, treeEntryChanges.Status));
+                        throw new RemoveFromIndexException("Unable to remove file '{0}'. Its current status is '{1}'.",
+                                                           treeEntryChanges.Path,
+                                                           treeEntryChanges.Status);
                 }
             }
 
             return removed;
+        }
+
+        /// <summary>
+        /// Finds the most recent annotated tag that is reachable from a commit.
+        /// <para>
+        ///   If the tag points to the commit, then only the tag is shown. Otherwise,
+        ///   it suffixes the tag name with the number of additional commits on top
+        ///   of the tagged object and the abbreviated object name of the most recent commit.
+        /// </para>
+        /// <para>
+        ///   Optionally, the <paramref name="options"/> parameter allow to tweak the
+        ///   search strategy (considering lightweith tags, or even branches as reference points)
+        ///   and the formatting of the returned identifier.
+        /// </para>
+        /// </summary>
+        /// <param name="commit">The commit to be described.</param>
+        /// <param name="options">Determines how the commit will be described.</param>
+        /// <returns>A descriptive identifier for the commit based on the nearest annotated tag.</returns>
+        public string Describe(Commit commit, DescribeOptions options)
+        {
+            Ensure.ArgumentNotNull(commit, "commit");
+            Ensure.ArgumentNotNull(options, "options");
+
+            return Proxy.git_describe_commit(handle, commit.Id, options);
         }
 
         private string DebuggerDisplay
@@ -1877,9 +2161,9 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    "{0} = \"{1}\"",
-                    Info.IsBare ? "Gitdir" : "Workdir",
-                    Info.IsBare ? Info.Path : Info.WorkingDirectory);
+                                     "{0} = \"{1}\"",
+                                     Info.IsBare ? "Gitdir" : "Workdir",
+                                     Info.IsBare ? Info.Path : Info.WorkingDirectory);
             }
         }
     }

@@ -13,6 +13,12 @@ namespace LibGit2Sharp
         public CredentialsHandler CredentialsProvider { get; set; }
 
         /// <summary>
+        /// This hanlder will be called to let the user make a decision on whether to allow
+        /// the connection to preoceed based on the certificate presented by the server.
+        /// </summary>
+        public CertificateCheckHandler CertificateCheck { get; set; }
+
+        /// <summary>
         /// If the transport being used to push to the remote requires the creation
         /// of a pack file, this controls the number of worker threads used by
         /// the packbuilder when creating that pack file to be sent to the remote.
@@ -39,5 +45,11 @@ namespace LibGit2Sharp
         /// be more than once every 0.5 seconds (in general).
         /// </summary>
         public PackBuilderProgressHandler OnPackBuilderProgress { get; set; }
+
+        /// <summary>
+        /// Called once between the negotiation step and the upload. It provides
+        /// information about what updates will be performed.
+        /// </summary>
+        public PrePushHandler OnNegotiationCompletedBeforePush { get; set; }
     }
 }

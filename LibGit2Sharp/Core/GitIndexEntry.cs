@@ -6,6 +6,8 @@ namespace LibGit2Sharp.Core
     [StructLayout(LayoutKind.Sequential)]
     internal class GitIndexEntry
     {
+        internal const ushort GIT_IDXENTRY_VALID = 0x8000;
+
         public GitIndexTime CTime;
         public GitIndexTime MTime;
         public uint Dev;
@@ -13,7 +15,7 @@ namespace LibGit2Sharp.Core
         public uint Mode;
         public uint Uid;
         public uint Gid;
-        public Int64 file_size;
+        public uint file_size;
         public GitOid Id;
         public ushort Flags;
         public ushort ExtendedFlags;

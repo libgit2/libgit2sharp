@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -38,8 +37,7 @@ namespace LibGit2Sharp
 
             if (!Reference.IsValidName(canonicalName))
             {
-                throw new InvalidSpecificationException(
-                    string.Format(CultureInfo.InvariantCulture, "The given reference name '{0}' is not valid", canonicalName));
+                throw new InvalidSpecificationException("The given reference name '{0}' is not valid", canonicalName);
             }
 
             this.repo = repo;
@@ -88,8 +86,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format(CultureInfo.InvariantCulture,
-                    "Count = {0}", this.Count());
+                return string.Format(CultureInfo.InvariantCulture, "Count = {0}", this.Count());
             }
         }
     }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 
@@ -28,23 +27,11 @@ namespace LibGit2Sharp
         /// <summary>
         /// The URI scheme (eg "http") for this transport.
         /// </summary>
-        public string Scheme
-        {
-            get;
-            private set;
-        }
+        public string Scheme { get; private set; }
 
-        internal IntPtr RegistrationPointer
-        {
-            get;
-            private set;
-        }
+        internal IntPtr RegistrationPointer { get; private set; }
 
-        internal IntPtr FunctionPointer
-        {
-            get;
-            private set;
-        }
+        internal IntPtr FunctionPointer { get; private set; }
 
         private IntPtr CreateRegistrationPointer()
         {
@@ -81,7 +68,8 @@ namespace LibGit2Sharp
 
             private static int Subtransport(
                 out IntPtr subtransport,
-                IntPtr transport)
+                IntPtr transport,
+                IntPtr payload)
             {
                 subtransport = IntPtr.Zero;
 

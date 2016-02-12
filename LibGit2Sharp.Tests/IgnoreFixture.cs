@@ -11,7 +11,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void TemporaryRulesShouldApplyUntilCleared()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Touch(repo.Info.WorkingDirectory, "Foo.cs", "Bar");
@@ -31,7 +31,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void IsPathIgnoredShouldVerifyWhetherPathIsIgnored()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Touch(repo.Info.WorkingDirectory, "Foo.cs", "Bar");
@@ -51,7 +51,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CallingIsPathIgnoredWithBadParamsThrows()
         {
-            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.Ignore.IsPathIgnored(string.Empty));
                 Assert.Throws<ArgumentNullException>(() => repo.Ignore.IsPathIgnored(null));
@@ -61,7 +62,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void AddingATemporaryRuleWithBadParamsThrows()
         {
-            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentNullException>(() => repo.Ignore.AddTemporaryRules(null));
             }
@@ -70,7 +72,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCheckIfAPathIsIgnoredUsingThePreferedPlatformDirectorySeparatorChar()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Touch(repo.Info.WorkingDirectory, ".gitignore", "/NewFolder\n/NewFolder/NewFolder");
@@ -79,6 +81,40 @@ namespace LibGit2Sharp.Tests
                 Assert.True(repo.Ignore.IsPathIgnored("NewFolder"));
                 Assert.True(repo.Ignore.IsPathIgnored(string.Format(@"NewFolder{0}NewFolder", Path.DirectorySeparatorChar)));
                 Assert.True(repo.Ignore.IsPathIgnored(string.Format(@"NewFolder{0}NewFolder{0}File.txt", Path.DirectorySeparatorChar)));
+            }
+        }
+
+        [Fact]
+        public void HonorDeeplyNestedGitIgnoreFile()
+        {
+            string path = InitNewRepository();
+            using (var repo = new Repository(path))
+            {
+                char pd = Path.DirectorySeparatorChar;
+
+                var gitIgnoreFile = string.Format("deeply{0}nested{0}.gitignore", pd);
+                Touch(repo.Info.WorkingDirectory, gitIgnoreFile, "SmtCounters.h");
+
+                repo.Stage(gitIgnoreFile);
+                repo.Commit("Add .gitignore", Constants.Signature, Constants.Signature);
+
+                Assert.False(repo.RetrieveStatus().IsDirty);
+
+                var ignoredFile = string.Format("deeply{0}nested{0}SmtCounters.h", pd);
+                Touch(repo.Info.WorkingDirectory, ignoredFile, "Content");
+                Assert.False(repo.RetrieveStatus().IsDirty);
+
+                var file = string.Format("deeply{0}nested{0}file.txt", pd);
+                Touch(repo.Info.WorkingDirectory, file, "Yeah!");
+
+                var repositoryStatus = repo.RetrieveStatus();
+                Assert.True(repositoryStatus.IsDirty);
+
+                Assert.Equal(FileStatus.Ignored, repositoryStatus[ignoredFile].State);
+                Assert.Equal(FileStatus.NewInWorkdir, repositoryStatus[file].State);
+
+                Assert.True(repo.Ignore.IsPathIgnored(ignoredFile));
+                Assert.False(repo.Ignore.IsPathIgnored(file));
             }
         }
     }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -14,7 +13,7 @@ namespace LibGit2Sharp
     /// </summary>
     public class IndexReucEntryCollection : IEnumerable<IndexReucEntry>
     {
-        private readonly Repository repo;
+        private readonly Index index;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -22,9 +21,9 @@ namespace LibGit2Sharp
         protected IndexReucEntryCollection()
         { }
 
-        internal IndexReucEntryCollection(Repository repo)
+        internal IndexReucEntryCollection(Index index)
         {
-            this.repo = repo;
+            this.index = index;
         }
 
         /// <summary>
@@ -36,16 +35,16 @@ namespace LibGit2Sharp
             {
                 Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-                IndexReucEntrySafeHandle entryHandle = Proxy.git_index_reuc_get_bypath(repo.Index.Handle, path);
+                IndexReucEntrySafeHandle entryHandle = Proxy.git_index_reuc_get_bypath(index.Handle, path);
                 return IndexReucEntry.BuildFromPtr(entryHandle);
             }
         }
 
-        private IndexReucEntry this[int index]
+        private IndexReucEntry this[int idx]
         {
             get
             {
-                IndexReucEntrySafeHandle entryHandle = Proxy.git_index_reuc_get_byindex(repo.Index.Handle, (UIntPtr)index);
+                IndexReucEntrySafeHandle entryHandle = Proxy.git_index_reuc_get_byindex(index.Handle, (UIntPtr)idx);
                 return IndexReucEntry.BuildFromPtr(entryHandle);
             }
         }
@@ -56,7 +55,7 @@ namespace LibGit2Sharp
         {
             var list = new List<IndexReucEntry>();
 
-            int count = Proxy.git_index_reuc_entrycount(repo.Index.Handle);
+            int count = Proxy.git_index_reuc_entrycount(index.Handle);
 
             for (int i = 0; i < count; i++)
             {
