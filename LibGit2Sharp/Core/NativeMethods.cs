@@ -81,10 +81,12 @@ namespace LibGit2Sharp.Core
 
         private static string GetPathStringToAdd(string nativeLibraryPath)
         {
+            const string nativeBinariesFolderSlash = "NativeBinaries\\";
             var subFolders = Platform.ProcessorArchitecture == Architecture.x86
                 ? new[] { "x86" }
                 : new[] { "amd64", "x64" };
-            var pathsToAdd = subFolders.Select(f => Path.Combine(nativeLibraryPath, f));
+            var pathsToAdd = subFolders.Select(f => Path.Combine(nativeLibraryPath, f))
+                .Concat(subFolders.Select(f => Path.Combine(nativeLibraryPath, nativeBinariesFolderSlash + f)));
             var pathStringToAdd = string.Join(Path.PathSeparator.ToString(), pathsToAdd.ToArray());
             return pathStringToAdd;
         }
