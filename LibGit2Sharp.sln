@@ -1,9 +1,20 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp", "LibGit2Sharp\LibGit2Sharp.csproj", "{EE6ED99F-CB12-4683-B055-D28FC7357A34}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp.Tests", "LibGit2Sharp.Tests\LibGit2Sharp.Tests.csproj", "{286E63EB-04DD-4ADE-88D6-041B57800761}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Misc", "Misc", "{004B66E5-1E40-4416-BA73-BBF84D36BDB2}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		LibGit2Sharp\CopyNativeDependencies.targets = LibGit2Sharp\CopyNativeDependencies.targets
+		nuget.package\LibGit2Sharp-RedGate.nuspec = nuget.package\LibGit2Sharp-RedGate.nuspec
+		LICENSE.md = LICENSE.md
+		README.md = README.md
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{19D079A4-A273-4630-B2D2-79EADE3E7CA1}"
 	ProjectSection(SolutionItems) = preProject

@@ -102,7 +102,7 @@ namespace LibGit2Sharp
                 return configPath;
             }
 
-            var gitConfigPath = Path.Combine(path.Native, ".git", "config");
+            var gitConfigPath = Path.Combine(path.Native, Path.Combine(".git", "config"));
 
             if (File.Exists(gitConfigPath))
             {

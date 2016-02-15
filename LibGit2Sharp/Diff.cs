@@ -114,7 +114,7 @@ namespace LibGit2Sharp
             if (!ChangesBuilders.TryGetValue(typeof(T), out builder))
             {
                 throw new LibGit2SharpException("User-defined types passed to Compare are not supported. Supported values are: {0}",
-                    string.Join(", ", ChangesBuilders.Keys.Select(x => x.Name)));
+                    string.Join(", ", ChangesBuilders.Keys.Select(x => x.Name).ToArray()));
             }
 
             return (T)builder(diff);

@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/01/nuspec.xsd">
+  <metadata minClientVersion="2.7">
+    <id>RedGate.ThirdParty.LibGit2Sharp.Fork</id>
+    <version>0.20.2.2</version>
+    <authors>Red Gate Software</authors>
+    <owners>nulltoken, Richard Mitchell</owners>
+    <licenseUrl>https://github.com/libgit2/libgit2sharp/raw/master/LICENSE.md</licenseUrl>
+    <projectUrl>https://github.com/libgit2/libgit2sharp/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>LibGit2Sharp fork for Red Gate, .net3.5 and strongly named</description>
+    <releaseNotes>https://github.com/libgit2/libgit2sharp/blob/master/CHANGES.md#libgit2sharp-changes</releaseNotes>
+    <iconUrl>https://github.com/libgit2/libgit2sharp/raw/master/square-logo.png</iconUrl>
+    <tags>libgit2 git wrapper bindings API dvcs vcs</tags>
+    <references>
+      <reference file="LibGit2Sharp-RedGate.dll" />
+    </references>
+  </metadata>
+  <files>
+    <file src="LibGit2Sharp\bin\Release\NativeBinaries\amd64\*.dll" target="lib\net35\x64" />
+    <file src="LibGit2Sharp\bin\Release\NativeBinaries\amd64\*.pdb" target="lib\net35\x64" />
+    <file src="LibGit2Sharp\bin\Release\NativeBinaries\x86\*.dll" target="lib\net35\x86" />
+    <file src="LibGit2Sharp\bin\Release\NativeBinaries\x86\*.pdb" target="lib\net35\x86" />
+    <file src="README.md" target="App_Readme\LibGit2Sharp.README.md" />
+    <file src="LICENSE.md" target="App_Readme\LibGit2Sharp.LICENSE.md" />
+    <file src="CHANGES.md" target="App_Readme\LibGit2Sharp.CHANGES.md" />
+    <file src="LibGit2Sharp\bin\Release\LibGit2Sharp-RedGate.dll" target="lib\net35" />
+    <file src="LibGit2Sharp\bin\Release\LibGit2Sharp-RedGate.pdb" target="lib\net35" />    
+    <file src="LibGit2Sharp\bin\Release\LibGit2Sharp.xml" target="lib\net35" />
+    <file src="packages\LibGit2Sharp.NativeBinaries.1.0.106\libgit2\libgit2.license.txt" target="App_Readme" />
+    <file src="Install\WiX2\Source Files\Export\RedGate.ThirdParty.LibGit2Sharp.Fork.wxs" target="wix2" />
+  </files>
+</package>

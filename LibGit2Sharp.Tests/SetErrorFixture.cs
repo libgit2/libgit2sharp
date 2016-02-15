@@ -43,7 +43,7 @@ namespace LibGit2Sharp.Tests
             AssertExpectedExceptionMessage(expectedMessage, exceptionToThrow);
         }
 
-        [Fact]
+        [Fact(Skip = "Redgate: we're building for .NET 3.5 so not handling AggregateExceptions")]
         public void FormatAggregateException()
         {
             Exception exceptionToThrow = new AggregateException(aggregateExceptionMessage, new Exception(innerExceptionMessage), new Exception(innerExceptionMessage2));

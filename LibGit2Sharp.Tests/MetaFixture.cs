@@ -413,7 +413,7 @@ namespace LibGit2Sharp.Tests
 
             var nonBuilderTypes = diffResults.Where(diffResult => !changesBuilders.Contains(diffResult));
             Assert.False(nonBuilderTypes.Any(), "Classes which implement IDiffResult but are not registered under ChangesBuilders in Diff:" + Environment.NewLine +
-                string.Join(Environment.NewLine, nonBuilderTypes.Select(type => type.FullName)));
+                string.Join(Environment.NewLine, nonBuilderTypes.Select(type => type.FullName).ToArray()));
         }
     }
 
