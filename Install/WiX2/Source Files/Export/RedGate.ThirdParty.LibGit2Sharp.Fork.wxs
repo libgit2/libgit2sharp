@@ -10,13 +10,13 @@
 	
 	<DirectoryRef Id="Arch32bit">
 		<Component Id="git2Sharp32" Guid="{6D93983D-2797-47A6-9486-51127D36C05F}" DiskId="1">
-			<File Id="Git2_Win32.dll" Name="git2-91f.dll" LongName="git2-91fa31f.dll" Source="..\Files\x86\git2-91fa31f.dll" />
+			<File Id="Git2_Win32.dll" Name="git2-821.dll" LongName="git2-821131f.dll" Source="..\Files\x86\git2-821131f.dll" />
 		</Component>
 	</DirectoryRef>
 
 	<DirectoryRef Id="Arch64bit">
 		<Component Id="git2Sharp64" Guid="{485CE328-5E75-4D7E-A583-353A0BFEE1B6}" DiskId="1" Win64="yes">
-			<File Id="Git2_Win64.dll" Name="git2-91f.dll" LongName="git2-91fa31f.dll" Source="..\Files\x64\git2-91fa31f.dll" />
+			<File Id="Git2_Win64.dll" Name="git2-821.dll" LongName="git2-821131f.dll" Source="..\Files\x64\git2-821131f.dll" />
 		</Component>
 	</DirectoryRef>
 
