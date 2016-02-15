@@ -10,6 +10,52 @@
   - Windows (x86/amd64): <https://ci.appveyor.com/project/libgit2/libgit2sharp>
   - Linux/Mac OS X: <https://travis-ci.org/libgit2/libgit2sharp>
 
+## v0.22 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.21.1...v0.22))
+
+### Additions
+
+ - Add CustomHeaders in the push options (#1217)
+ - Expose the minimal diff algorithm (#1229)
+ - Expose Reset() with checkout options (#1219)
+ - Add a prettify option to history rewrite options (#1185)
+ - Add option to describe to only follow the first parent (#1190)
+ - Allow setting the config search path (#1123)
+ - Provide access to the remote's host HTTPS certificate (#1134)
+ - Add support for rebase (#964)
+ - ListReferences() now accepts a credentials provider (#1099)
+ - Introduce FileStatus.Conflicted and introduce staging of conflicts (#1062)
+ - Support streaming filters written in C# (#1030)
+ - Add support for the pre-push callback (#1061)
+ - Add support for listing remote references without a Repository instance (#1065)
+ - Add StashCollection.Apply() and .Pop() (#1068)
+ - Support retrieving a configuration for a repository without instantiating it (#1042)
+ - Implement 'log --follow'-like functionality (#963)
+ - Introduce in-memory merging via Repository.MergeCommits() (#990)
+ - Allow setting whether to prune during a fetch (#1258)
+
+### Changes
+
+ - Deprecate MergeConflictException in a backwards-compatible way (#1243)
+ - Improve type safety in the generic type for Diff.Compare() (#1180)
+ - Obsolete Repository.Commit(), NoteCollection.Add() and
+   NoteCollection.Remove() overloads which do not require a signature (#1173)
+ - BuildSignature() no longer tries to build a signature from the
+   environment if there is none configured (#1171)
+ - Rename the commit walker's Since to IncludeReachableFrom and Until to ExcludeReachableFrom (#1069)
+ - Rename MergeConflictException to CheckoutConflictException to more
+   accurately reflect what it means (#1059)
+ - Specify the diff algorithm instead of setting a boolean to use patience (#1043)
+ - Remove optional parameters (#1031)
+ - Move Repository.Reset(paths) into Index (#959)
+ - Move FindMergeBase() overloads to ObjectDatabase (#957)
+
+### Fixes
+
+ - ListReferences() is now able to handle symbolic references (#1132)
+ - Repository.IsValid() returns false on empty paths (#1156)
+ - The included version of libgit2 includes racy-git support
+ - Fix a racy NRE in the filters (#1113)
+
 ## v0.21.1 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.21...v0.21.1))
 
 ### Changes
