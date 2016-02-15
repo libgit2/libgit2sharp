@@ -234,7 +234,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             if (LeaksContainer.TypeNames.Any())
             {
                 Assert.False(true, string.Format("Some handles of the following types haven't been properly released: {0}.{1}"
-                    + "In order to get some help fixing those leaks, uncomment the define LEAKS_TRACKING in SafeHandleBase.cs{1}"
+                    + "In order to get some help fixing those leaks, uncomment the define LEAKS_TRACKING in Libgit2Object.cs{1}"
                     + "and run the tests locally.", string.Join(", ", LeaksContainer.TypeNames), Environment.NewLine));
             }
 #endif

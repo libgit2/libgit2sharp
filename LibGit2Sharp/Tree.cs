@@ -77,7 +77,10 @@ namespace LibGit2Sharp
 
         unsafe TreeEntry byIndex(ObjectSafeWrapper obj, uint i, ObjectId parentTreeId, Repository repo, FilePath parentPath)
         {
-            return new TreeEntry(Proxy.git_tree_entry_byindex(obj.ObjectPtr, i), parentTreeId, repo, parentPath);
+            using (var entryHandle = Proxy.git_tree_entry_byindex(obj.ObjectPtr, i))
+            {
+                return new TreeEntry(entryHandle, parentTreeId, repo, parentPath);
+            }
         }
 
         /// <summary>
