@@ -93,12 +93,12 @@
     <Compile Include="EntryExistsException.cs" />
     <Compile Include="FetchOptionsBase.cs" />
     <Compile Include="Core\FetchPruneStrategy.cs" />
+    <Compile Include="FilterException.cs" />
     <Compile Include="LogEntry.cs" />
     <Compile Include="FollowFilter.cs" />
     <Compile Include="IBelongToARepository.cs" />
     <Compile Include="Identity.cs" />
     <Compile Include="Core\GitFilter.cs" />
-    <Compile Include="FilterAttributeEntry.cs" />
     <Compile Include="FilterMode.cs" />
     <Compile Include="FilterRegistration.cs" />
     <Compile Include="FilterSource.cs" />

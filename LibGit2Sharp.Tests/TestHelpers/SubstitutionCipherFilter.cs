@@ -1,30 +1,44 @@
-using System.Collections.Generic;
 using System.IO;
 
 namespace LibGit2Sharp.Tests.TestHelpers
 {
     public class SubstitutionCipherFilter : Filter
     {
-        public int CleanCalledCount = 0;
-        public int SmudgeCalledCount = 0;
+        public static int CleanCalledCount = 0;
+        public static int SmudgeCalledCount = 0;
+        public static int InitializeCount = 0;
 
-        public SubstitutionCipherFilter(string name, IEnumerable<FilterAttributeEntry> attributes)
-            : base(name, attributes)
+        public static void Initialize()
         {
+            InitializeCount++;
         }
 
-        protected override void Clean(string path, string root, Stream input, Stream output)
+        public static void Clear()
         {
-            CleanCalledCount++;
-            RotateByThirteenPlaces(input, output);
+            CleanCalledCount = 0;
+            SmudgeCalledCount = 0;
+            InitializeCount = 0;
         }
 
-        protected override void Smudge(string path, string root, Stream input, Stream output)
+        protected override void Apply(string root, string path, Stream input, Stream output, FilterMode mode, string verb)
         {
-            SmudgeCalledCount++;
-            RotateByThirteenPlaces(input, output);
-        }
+            switch (mode)
+            {
+                case FilterMode.Clean:
+                    {
+                        CleanCalledCount++;
+                        RotateByThirteenPlaces(input, output);
+                    }
+                    break;
 
+                case FilterMode.Smudge:
+                    {
+                        SmudgeCalledCount++;
+                        RotateByThirteenPlaces(input, output);
+                    }
+                    break;
+            }
+        }
         public static void RotateByThirteenPlaces(Stream input, Stream output)
         {
             int value;

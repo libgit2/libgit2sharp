@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -9,188 +8,139 @@ namespace LibGit2Sharp.Tests
 {
     public class FilterSubstitutionCipherFixture : BaseFixture
     {
-        [Fact]
-        public void SmugdeIsNotCalledForFileWhichDoesNotMatchAnAttributeEntry()
+        private const string AttrAny = "*";
+        private const string AttrValA = "real";
+        private const string AttrValB = "fake";
+        private const string DecodedInput = "This is a substitution cipher";
+        private const string EncodedInput = "Guvf vf n fhofgvghgvba pvcure";
+        private const string PathValA = ".yes";
+        private const string FileValB = ".not";
+        private const string FilterName = "cipher-filter";
+        private const string PathAny = "*";
+        private const string PathMatchA = "*" + PathValA;
+        private const string PathMatchB = "*" + FileValB;
+
+        [Theory]
+        [InlineData(AttrValA, AttrValA, PathValA, PathMatchA, false, 1)]
+        [InlineData(AttrValA, AttrValA, PathValA, PathMatchA, true, 1)]
+        [InlineData(AttrValA, AttrValA, PathValA, PathMatchB, false, 0)]
+        [InlineData(AttrValA, AttrValA, PathValA, PathMatchB, true, 0)]
+        [InlineData(AttrValA, AttrValB, PathValA, PathMatchA, false, 0)]
+        [InlineData(AttrValA, AttrValB, PathValA, PathMatchA, true, 0)]
+        [InlineData(AttrValA, AttrValB, PathValA, PathMatchB, false, 0)]
+        [InlineData(AttrValA, AttrValB, PathValA, PathMatchB, true, 0)]
+        [InlineData(AttrValA, AttrValA, PathValA, PathAny, false, 1)]
+        [InlineData(AttrValA, AttrValA, PathValA, PathAny, true, 1)]
+        [InlineData(AttrValA, AttrValB, PathValA, PathAny, false, 0)]
+        [InlineData(AttrValA, AttrValB, PathValA, PathAny, true, 0)]
+        [InlineData(AttrAny, AttrValA, PathValA, PathMatchA, false, 1)]
+        [InlineData(AttrAny, AttrValA, PathValA, PathMatchA, true, 1)]
+        [InlineData(AttrAny, AttrValA, PathValA, PathMatchB, false, 0)]
+        [InlineData(AttrAny, AttrValA, PathValA, PathMatchB, true, 0)]
+        [InlineData(AttrAny, AttrValB, PathValA, PathMatchA, false, 1)]
+        [InlineData(AttrAny, AttrValB, PathValA, PathMatchA, true, 1)]
+        [InlineData(AttrAny, AttrValB, PathValA, PathMatchB, false, 0)]
+        [InlineData(AttrAny, AttrValB, PathValA, PathMatchB, true, 0)]
+        [InlineData(AttrAny, AttrValA, PathValA, PathAny, false, 1)]
+        [InlineData(AttrAny, AttrValA, PathValA, PathAny, true, 1)]
+        public void CleanIsCalledWhenMatches(string attrValue, string attrMatch, string pathValue, string pathMatch, bool clrfTaint, int expectedCount)
         {
-            const string decodedInput = "This is a substitution cipher";
-            const string encodedInput = "Guvf vf n fhofgvghgvba pvcure";
+            SubstitutionCipherFilter.Clear();
 
-            var attributes = new List<FilterAttributeEntry> { new FilterAttributeEntry("rot13") };
-            var filter = new SubstitutionCipherFilter("cipher-filter", attributes);
-            var filterRegistration = GlobalSettings.RegisterFilter(filter);
+            var filterRegistration = GlobalSettings.RegisterFilter<SubstitutionCipherFilter>(FilterName, attrValue);
 
-            string repoPath = InitNewRepository();
-            string fileName = Guid.NewGuid() + ".rot13";
-            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
-            var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
-            using (var repo = new Repository(repoPath, repositoryOptions))
+            try
             {
-                CreateAttributesFile(repo, "*.rot13 filter=rot13");
+                string repoPath = InitNewRepository();
+                string fileName = Guid.NewGuid() + pathValue;
+                string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
+                var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
 
-                var blob = CommitOnBranchAndReturnDatabaseBlob(repo, fileName, decodedInput);
-                var textDetected = blob.GetContentText();
+                using (var repo = new Repository(repoPath, repositoryOptions))
+                {
+                    string format = clrfTaint
+                        ? "{0} filter={1} TEXT"
+                        : "{0} filter={1}";
 
-                Assert.Equal(encodedInput, textDetected);
-                Assert.Equal(1, filter.CleanCalledCount);
-                Assert.Equal(0, filter.SmudgeCalledCount);
+                    string attributeEntry = String.Format(format, pathMatch, attrMatch);
 
-                var branch = repo.CreateBranch("delete-files");
-                repo.Checkout(branch.FriendlyName);
+                    CreateAttributesFile(repo, attributeEntry);
 
-                DeleteFile(repo, fileName);
+                    Blob blob = CommitOnBranchAndReturnDatabaseBlob(repo, fileName, DecodedInput);
+                    Assert.Equal(expectedCount == 0 ? DecodedInput : EncodedInput, blob.GetContentText());
 
-                repo.Checkout("master");
-
-                var fileContents = ReadTextFromFile(repo, fileName);
-                Assert.Equal(1, filter.SmudgeCalledCount);
-                Assert.Equal(decodedInput, fileContents);
+                    Assert.Equal(expectedCount, SubstitutionCipherFilter.CleanCalledCount);
+                    Assert.Equal(expectedCount * 0, SubstitutionCipherFilter.SmudgeCalledCount);
+                }
             }
-
-            GlobalSettings.DeregisterFilter(filterRegistration);
-        }
-
-        [Fact]
-        public void CorrectlyEncodesAndDecodesInput()
-        {
-            const string decodedInput = "This is a substitution cipher";
-            const string encodedInput = "Guvf vf n fhofgvghgvba pvcure";
-
-            var attributes = new List<FilterAttributeEntry> { new FilterAttributeEntry("rot13") };
-            var filter = new SubstitutionCipherFilter("cipher-filter", attributes);
-            var filterRegistration = GlobalSettings.RegisterFilter(filter);
-
-            string repoPath = InitNewRepository();
-            string fileName = Guid.NewGuid() + ".rot13";
-            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
-            var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
-            using (var repo = new Repository(repoPath, repositoryOptions))
+            finally
             {
-                CreateAttributesFile(repo, "*.rot13 filter=rot13");
-
-                var blob = CommitOnBranchAndReturnDatabaseBlob(repo, fileName, decodedInput);
-                var textDetected = blob.GetContentText();
-
-                Assert.Equal(encodedInput, textDetected);
-                Assert.Equal(1, filter.CleanCalledCount);
-                Assert.Equal(0, filter.SmudgeCalledCount);
-
-                var branch = repo.CreateBranch("delete-files");
-                repo.Checkout(branch.FriendlyName);
-
-                DeleteFile(repo, fileName);
-
-                repo.Checkout("master");
-
-                var fileContents = ReadTextFromFile(repo, fileName);
-                Assert.Equal(1, filter.SmudgeCalledCount);
-                Assert.Equal(decodedInput, fileContents);
+                GlobalSettings.UnregisterFilter(filterRegistration);
             }
-
-            GlobalSettings.DeregisterFilter(filterRegistration);
         }
 
         [Theory]
-        [InlineData("*.txt", ".bat", 0, 0)]
-        [InlineData("*.txt", ".txt", 1, 0)]
-        public void WhenStagedFileDoesNotMatchPathSpecFileIsNotFiltered(string pathSpec, string fileExtension, int cleanCount, int smudgeCount)
+        [InlineData(AttrValA, AttrValA, PathValA, PathMatchA, false, 1)]
+        [InlineData(AttrValA, AttrValA, PathValA, PathMatchA, true, 1)]
+        [InlineData(AttrValA, AttrValA, PathValA, PathMatchB, false, 0)]
+        [InlineData(AttrValA, AttrValA, PathValA, PathMatchB, true, 0)]
+        [InlineData(AttrValA, AttrValB, PathValA, PathMatchA, false, 0)]
+        [InlineData(AttrValA, AttrValB, PathValA, PathMatchA, true, 0)]
+        [InlineData(AttrValA, AttrValB, PathValA, PathMatchB, false, 0)]
+        [InlineData(AttrValA, AttrValB, PathValA, PathMatchB, true, 0)]
+        [InlineData(AttrValA, AttrValA, PathValA, PathAny, false, 1)]
+        [InlineData(AttrValA, AttrValA, PathValA, PathAny, true, 1)]
+        [InlineData(AttrValA, AttrValB, PathValA, PathAny, false, 0)]
+        [InlineData(AttrValA, AttrValB, PathValA, PathAny, true, 0)]
+        [InlineData(AttrAny, AttrValA, PathValA, PathMatchA, false, 1)]
+        [InlineData(AttrAny, AttrValA, PathValA, PathMatchA, true, 1)]
+        [InlineData(AttrAny, AttrValA, PathValA, PathMatchB, false, 0)]
+        [InlineData(AttrAny, AttrValA, PathValA, PathMatchB, true, 0)]
+        [InlineData(AttrAny, AttrValB, PathValA, PathMatchA, false, 1)]
+        [InlineData(AttrAny, AttrValB, PathValA, PathMatchA, true, 1)]
+        [InlineData(AttrAny, AttrValB, PathValA, PathMatchB, false, 0)]
+        [InlineData(AttrAny, AttrValB, PathValA, PathMatchB, true, 0)]
+        [InlineData(AttrAny, AttrValA, PathValA, PathAny, false, 1)]
+        [InlineData(AttrAny, AttrValA, PathValA, PathAny, true, 1)]
+        public void SmudgeIsCalledWhenMatches(string attrValue, string attrMatch, string pathValue, string pathMatch, bool clrfTaint, int expectedCount)
         {
-            const string filterName = "rot13";
-            const string decodedInput = "This is a substitution cipher";
-            string attributeFileEntry = string.Format("{0} filter={1}", pathSpec, filterName);
+            SubstitutionCipherFilter.Clear();
 
-            var filterForAttributes = new List<FilterAttributeEntry> { new FilterAttributeEntry(filterName) };
-            var filter = new SubstitutionCipherFilter("cipher-filter", filterForAttributes);
+            var filterRegistration = GlobalSettings.RegisterFilter<SubstitutionCipherFilter>(FilterName, attrValue);
 
-            var filterRegistration = GlobalSettings.RegisterFilter(filter);
-
-            string repoPath = InitNewRepository();
-            string fileName = Guid.NewGuid() + fileExtension;
-
-            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
-            var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
-            using (var repo = new Repository(repoPath, repositoryOptions))
+            try
             {
-                CreateAttributesFile(repo, attributeFileEntry);
+                string repoPath = InitNewRepository();
+                string fileName = Guid.NewGuid() + pathValue;
+                string format = clrfTaint
+                    ? "{0} filter={1} TEXT"
+                    : "{0} filter={1}";
 
-                CommitOnBranchAndReturnDatabaseBlob(repo, fileName, decodedInput);
+                string attributeEntry = String.Format(format, pathMatch, attrMatch);
 
-                Assert.Equal(cleanCount, filter.CleanCalledCount);
-                Assert.Equal(smudgeCount, filter.SmudgeCalledCount);
+                string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
+                var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
+                using (var repo = new Repository(repoPath, repositoryOptions))
+                {
+                    CreateAttributesFile(repo, attributeEntry);
+
+                    CommitOnBranchAndReturnDatabaseBlob(repo, fileName, DecodedInput);
+
+                    var branch = repo.CreateBranch("delete-files");
+                    repo.Checkout(branch.FriendlyName);
+
+                    DeleteFile(repo, fileName);
+
+                    repo.Checkout("master");
+
+                    Assert.True(SubstitutionCipherFilter.CleanCalledCount >= expectedCount);
+                    Assert.Equal(expectedCount, SubstitutionCipherFilter.SmudgeCalledCount);
+                }
             }
-
-            GlobalSettings.DeregisterFilter(filterRegistration);
-        }
-
-        [Theory]
-        [InlineData("rot13", "*.txt filter=rot13", 1)]
-        [InlineData("rot13", "*.txt filter=fake", 0)]
-        [InlineData("rot13", "*.bat filter=rot13", 0)]
-        [InlineData("rot13", "*.txt filter=fake", 0)]
-        [InlineData("fake", "*.txt filter=fake", 1)]
-        [InlineData("fake", "*.bat filter=fake", 0)]
-        [InlineData("rot13", "*.txt filter=rot13 -crlf", 1)]
-        public void CleanIsCalledIfAttributeEntryMatches(string filterAttribute, string attributeEntry, int cleanCount)
-        {
-            const string decodedInput = "This is a substitution cipher";
-
-            var filterForAttributes = new List<FilterAttributeEntry> { new FilterAttributeEntry(filterAttribute) };
-            var filter = new SubstitutionCipherFilter("cipher-filter", filterForAttributes);
-
-            var filterRegistration = GlobalSettings.RegisterFilter(filter);
-
-            string repoPath = InitNewRepository();
-            string fileName = Guid.NewGuid() + ".txt";
-
-            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
-            var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
-            using (var repo = new Repository(repoPath, repositoryOptions))
+            finally
             {
-                CreateAttributesFile(repo, attributeEntry);
-
-                CommitOnBranchAndReturnDatabaseBlob(repo, fileName, decodedInput);
-
-                Assert.Equal(cleanCount, filter.CleanCalledCount);
+                GlobalSettings.UnregisterFilter(filterRegistration);
             }
-
-            GlobalSettings.DeregisterFilter(filterRegistration);
-        }
-
-        [Theory]
-
-        [InlineData("rot13", "*.txt filter=rot13", 1)]
-        [InlineData("rot13", "*.txt filter=fake", 0)]
-        [InlineData("rot13", "*.txt filter=rot13 -crlf", 1)]
-        public void SmudgeIsCalledIfAttributeEntryMatches(string filterAttribute, string attributeEntry, int smudgeCount)
-        {
-            const string decodedInput = "This is a substitution cipher";
-
-            var filterForAttributes = new List<FilterAttributeEntry> { new FilterAttributeEntry(filterAttribute) };
-            var filter = new SubstitutionCipherFilter("cipher-filter", filterForAttributes);
-
-            var filterRegistration = GlobalSettings.RegisterFilter(filter);
-
-            string repoPath = InitNewRepository();
-            string fileName = Guid.NewGuid() + ".txt";
-
-            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
-            var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
-            using (var repo = new Repository(repoPath, repositoryOptions))
-            {
-                CreateAttributesFile(repo, attributeEntry);
-
-                CommitOnBranchAndReturnDatabaseBlob(repo, fileName, decodedInput);
-
-                var branch = repo.CreateBranch("delete-files");
-                repo.Checkout(branch.FriendlyName);
-
-                DeleteFile(repo, fileName);
-
-                repo.Checkout("master");
-
-                Assert.Equal(smudgeCount, filter.SmudgeCalledCount);
-            }
-
-            GlobalSettings.DeregisterFilter(filterRegistration);
 
         }
 
