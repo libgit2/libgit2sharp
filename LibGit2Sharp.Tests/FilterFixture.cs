@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using System.Threading.Tasks;
 
 namespace LibGit2Sharp.Tests
 {
@@ -164,6 +165,49 @@ namespace LibGit2Sharp.Tests
 
                     var textDetected = blob.GetContentText();
                     Assert.Equal(encodedInput, textDetected);
+                }
+            }
+            finally
+            {
+                GlobalSettings.DeregisterFilter(registration);
+            }
+        }
+
+        [Fact]
+        public void CanHandleMultipleSmudgesConcurrently()
+        {
+            const string decodedInput = "This is a substitution cipher";
+            const string encodedInput = "Guvf vf n fhofgvghgvba pvcure";
+
+            const string branchName = "branch";
+
+            Action<Stream, Stream> smudgeCallback = SubstitutionCipherFilter.RotateByThirteenPlaces;
+
+            var filter = new FakeFilter(FilterName, attributes, null, smudgeCallback);
+            var registration = GlobalSettings.RegisterFilter(filter);
+
+            try
+            {
+                int count = 30;
+                var tasks = new Task<FileInfo>[count];
+
+                for (int i = 0; i < count; i++)
+                {
+                    tasks[i] = Task.Factory.StartNew(() =>
+                    {
+                        string repoPath = InitNewRepository();
+                        return CheckoutFileForSmudge(repoPath, branchName, encodedInput);
+                    });
+                }
+
+                Task.WaitAll(tasks);
+
+                foreach(var task in tasks)
+                {
+                    FileInfo expectedFile = task.Result;
+
+                    string readAllText = File.ReadAllText(expectedFile.FullName);
+                    Assert.Equal(decodedInput, readAllText);
                 }
             }
             finally
