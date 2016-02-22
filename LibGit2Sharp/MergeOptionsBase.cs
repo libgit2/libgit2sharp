@@ -23,6 +23,19 @@
         public bool FindRenames { get; set; }
 
         /// <summary>
+        /// If set, do not create or return conflict entries, but stop and return
+        /// an error result after finding the first conflict.
+        /// </summary>
+        public bool FailOnConflict { get; set; }
+
+        /// <summary>
+        /// Do not write the Resolve Undo Cache extension on the generated index. This can
+        /// be useful when no merge resolution will be presented to the user (e.g. a server-side
+        /// merge attempt).
+        /// </summary>
+        public bool SkipReuc { get; set; }
+
+        /// <summary>
         /// Similarity to consider a file renamed.
         /// </summary>
         public int RenameThreshold;

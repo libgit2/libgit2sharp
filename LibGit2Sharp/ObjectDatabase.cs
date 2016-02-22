@@ -522,7 +522,13 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(one, "one");
             Ensure.ArgumentNotNull(another, "another");
 
-            var result = repo.ObjectDatabase.MergeCommits(one, another, null);
+            var opts = new MergeTreeOptions()
+            {
+                SkipReuc = true,
+                FailOnConflict = true,
+            };
+
+            var result = repo.ObjectDatabase.MergeCommits(one, another, opts);
             return (result.Status == MergeTreeStatus.Succeeded);
         }
 
@@ -603,21 +609,40 @@ namespace LibGit2Sharp
 
             options = options ?? new MergeTreeOptions();
 
+            // We throw away the index after looking at the conflicts, so we'll never need the REUC
+            // entries to be there
+            GitMergeFlag mergeFlags = GitMergeFlag.GIT_MERGE_NORMAL | GitMergeFlag.GIT_MERGE_SKIP_REUC;
+            if (options.FindRenames)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_FIND_RENAMES;
+            }
+            if (options.FailOnConflict)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_FAIL_ON_CONFLICT;
+            }
+
+
             var mergeOptions = new GitMergeOpts
             {
                 Version = 1,
                 MergeFileFavorFlags = options.MergeFileFavor,
-                MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES
-                                                     : GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
+                MergeTreeFlags = mergeFlags,
                 RenameThreshold = (uint)options.RenameThreshold,
                 TargetLimit = (uint)options.TargetLimit,
             };
 
+            bool earlyStop;
             using (var oneHandle = Proxy.git_object_lookup(repo.Handle, ours.Id, GitObjectType.Commit))
             using (var twoHandle = Proxy.git_object_lookup(repo.Handle, theirs.Id, GitObjectType.Commit))
-            using (var indexHandle = Proxy.git_merge_commits(repo.Handle, oneHandle, twoHandle, mergeOptions))
+            using (var indexHandle = Proxy.git_merge_commits(repo.Handle, oneHandle, twoHandle, mergeOptions, out earlyStop))
             {
                 MergeTreeResult mergeResult;
+
+                // Stopped due to FailOnConflict so there's no index or conflict list
+                if (earlyStop)
+                {
+                    return new MergeTreeResult(new Conflict[] { });
+                }
 
                 if (Proxy.git_index_has_conflicts(indexHandle))
                 {

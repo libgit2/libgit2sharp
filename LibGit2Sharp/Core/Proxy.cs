@@ -1101,11 +1101,19 @@ namespace LibGit2Sharp.Core
 
         #region git_merge_
 
-        public static IndexSafeHandle git_merge_commits(RepositorySafeHandle repo, GitObjectSafeHandle ourCommit, GitObjectSafeHandle theirCommit, GitMergeOpts opts)
+        public static IndexSafeHandle git_merge_commits(RepositorySafeHandle repo, GitObjectSafeHandle ourCommit, GitObjectSafeHandle theirCommit, GitMergeOpts opts, out bool earlyStop)
         {
             IndexSafeHandle index;
             int res = NativeMethods.git_merge_commits(out index, repo, ourCommit, theirCommit, ref opts);
-            Ensure.ZeroResult(res);
+            if (res == (int)GitErrorCode.MergeConflict)
+            {
+                earlyStop = true;
+            }
+            else
+            {
+                earlyStop = false;
+                Ensure.ZeroResult(res);
+            }
 
             return index;
         }
@@ -1189,7 +1197,7 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_annotated_commit_id(mergeHead).MarshalAsObjectId();
         }
 
-        public static void git_merge(RepositorySafeHandle repo, GitAnnotatedCommitHandle[] heads, GitMergeOpts mergeOptions, GitCheckoutOpts checkoutOptions)
+        public static void git_merge(RepositorySafeHandle repo, GitAnnotatedCommitHandle[] heads, GitMergeOpts mergeOptions, GitCheckoutOpts checkoutOptions, out bool earlyStop)
         {
             IntPtr[] their_heads = heads.Select(head => head.DangerousGetHandle()).ToArray();
 
@@ -1199,7 +1207,15 @@ namespace LibGit2Sharp.Core
                                               ref mergeOptions,
                                               ref checkoutOptions);
 
-            Ensure.ZeroResult(res);
+            if (res == (int)GitErrorCode.MergeConflict)
+            {
+                earlyStop = true;
+            }
+            else
+            {
+                earlyStop = false;
+                Ensure.ZeroResult(res);
+            }
         }
 
         public static void git_merge_analysis(
