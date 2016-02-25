@@ -10,7 +10,11 @@ namespace LibGit2Sharp.Core
 
         public int quiet;
 
+        public int inmemory;
+
         public IntPtr rewrite_notes_ref;
+
+        public GitMergeOpts merge_options = new GitMergeOpts { Version = 1 };
 
         public GitCheckoutOpts checkout_options = new GitCheckoutOpts { version = 1 };
     }
