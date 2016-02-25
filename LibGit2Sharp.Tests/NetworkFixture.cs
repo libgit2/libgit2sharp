@@ -278,7 +278,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(clonedRepoPath))
             {
-                repo.Network.Remotes.Add("pruner", "file://" + clonedRepoPath2);
+                repo.Network.Remotes.Add("pruner", clonedRepoPath2);
                 var remote = repo.Network.Remotes["pruner"];
                 repo.Network.Fetch(remote);
                 Assert.NotNull(repo.Refs["refs/remotes/pruner/master"]);
