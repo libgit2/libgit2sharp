@@ -460,6 +460,9 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string password);
 
         [DllImport(libgit2)]
+        internal static extern void git_cred_free(IntPtr cred);
+
+        [DllImport(libgit2)]
         internal static extern int git_describe_commit(
             out DescribeResultSafeHandle describe,
             GitObjectSafeHandle committish,
@@ -1731,6 +1734,20 @@ namespace LibGit2Sharp.Core
             out IntPtr transport,
             IntPtr remote,
             IntPtr definition);
+
+        [DllImport(libgit2)]
+        internal static extern int git_transport_smart_certificate_check(
+            IntPtr transport,
+            IntPtr cert,
+            int valid,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string hostname);
+
+        [DllImport(libgit2)]
+        internal static extern int git_transport_smart_credentials(
+            out IntPtr cred_out,
+            IntPtr transport,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string user,
+            int methods);
 
         [DllImport(libgit2)]
         internal static extern int git_transport_unregister(
