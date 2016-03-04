@@ -189,6 +189,9 @@ namespace LibGit2Sharp.Core
             Reference newRef = updateTarget(repo.Refs, oldRef, newTarget, "filter-branch: rewrite");
             rollbackActions.Enqueue(() => updateTarget(repo.Refs, oldRef, oldRefTarget, "filter-branch: abort"));
 
+            // Make Coverity happy by validating reference in debug builds
+            Debug.Assert(newRef != null);
+
             if (newRef.CanonicalName == newRefName)
             {
                 return refMap[oldRef] = newRef;

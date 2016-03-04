@@ -79,6 +79,8 @@ namespace LibGit2Sharp
                         deltaIndexToWorkDir = entry.IndexToWorkDirPtr.MarshalAs<GitDiffDelta>();
                     }
 
+                    Debug.Assert(deltaHeadToIndex != null || deltaIndexToWorkDir != null);
+
                     AddStatusEntryForDelta(entry.Status, deltaHeadToIndex, deltaIndexToWorkDir);
                 }
 
@@ -151,6 +153,8 @@ namespace LibGit2Sharp
 
             if ((gitStatus & FileStatus.RenamedInIndex) == FileStatus.RenamedInIndex)
             {
+                Debug.Assert(deltaHeadToIndex != null);
+
                 headToIndexRenameDetails =
                     new RenameDetails(LaxFilePathMarshaler.FromNative(deltaHeadToIndex.OldFile.Path).Native,
                                       LaxFilePathMarshaler.FromNative(deltaHeadToIndex.NewFile.Path).Native,
@@ -164,6 +168,8 @@ namespace LibGit2Sharp
                                       LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir.NewFile.Path).Native,
                                       (int)deltaIndexToWorkDir.Similarity);
             }
+
+            Debug.Assert(deltaHeadToIndex != null || deltaIndexToWorkDir != null);
 
             var filePath = (deltaIndexToWorkDir != null)
                 ? LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir.NewFile.Path).Native
