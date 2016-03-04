@@ -1561,6 +1561,18 @@ namespace LibGit2Sharp.Core
             ref GitStrArray array);
 
         [DllImport(libgit2)]
+        internal static extern int git_submodule_add_setup(
+            out SubmoduleSafeHandle reference,
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string url,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path,
+            bool use_gitlink);
+
+        [DllImport(libgit2)]
+        internal static extern int git_submodule_add_finalize(
+            SubmoduleSafeHandle submodule);
+
+        [DllImport(libgit2)]
         internal static extern int git_submodule_lookup(
             out SubmoduleSafeHandle reference,
             RepositorySafeHandle repo,
