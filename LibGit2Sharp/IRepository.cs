@@ -175,18 +175,6 @@ namespace LibGit2Sharp
         void Reset(ResetMode resetMode, Commit commit, CheckoutOptions options);
 
         /// <summary>
-        /// Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
-        /// </summary>
-        /// <param name="commit">The target commit object.</param>
-        /// <param name="paths">The list of paths (either files or directories) that should be considered.</param>
-        /// <param name="explicitPathsOptions">
-        /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
-        /// Use these options to determine how unmatched explicit paths should be handled.
-        /// </param>
-        [Obsolete("This method will be removed in the next release. Please use Index.Replace() instead.")]
-        void Reset(Commit commit, IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions);
-
-        /// <summary>
         /// Clean the working tree by removing files that are not under version control.
         /// </summary>
         void RemoveUntrackedFiles();

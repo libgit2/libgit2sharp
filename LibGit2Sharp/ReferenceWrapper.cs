@@ -60,15 +60,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Gets the name of this reference.
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use FriendlyName instead.")]
-        public virtual string Name
-        {
-            get { return FriendlyName; }
-        }
-
-        /// <summary>
         /// Returns the <see cref="CanonicalName"/>, a <see cref="string"/> representation of the current reference.
         /// </summary>
         /// <returns>The <see cref="CanonicalName"/> that represents the current reference.</returns>
