@@ -23,7 +23,6 @@
     <DefineConstants>TRACE;DEBUG;NET40</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\Debug\LibGit2Sharp.xml</DocumentationFile>
@@ -36,7 +35,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <DocumentationFile>bin\Release\LibGit2Sharp.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
@@ -249,7 +247,6 @@
     <Compile Include="FetchHead.cs" />
     <Compile Include="Handlers.cs" />
     <Compile Include="Ignore.cs" />
-    <Compile Include="MergeConflictException.cs" />
     <Compile Include="MergeHead.cs" />
     <Compile Include="NameConflictException.cs" />
     <Compile Include="NonFastForwardException.cs" />
