@@ -525,10 +525,16 @@ namespace LibGit2Sharp
                 pushOptions = new PushOptions();
             }
 
+            // if there is a pre-push callback registered with the repository, honor it.
+            if (repository != null)
+            {
+                pushOptions.OnPrePush = repository.PrePushHandler;
+            }
+
             // Load the remote.
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, remote.Name, true))
             {
-                var callbacks = new RemoteCallbacks(pushOptions);
+                var callbacks = new RemoteCallbacks(pushOptions, remoteHandle);
                 GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
 
                 Proxy.git_remote_push(remoteHandle,

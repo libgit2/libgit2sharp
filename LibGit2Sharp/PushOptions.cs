@@ -50,6 +50,8 @@ namespace LibGit2Sharp
         /// Called once between the negotiation step and the upload. It provides
         /// information about what updates will be performed.
         /// </summary>
-        public PrePushHandler OnNegotiationCompletedBeforePush { get; set; }
+        public NegotiationCompletedBeforePushHandler OnNegotiationCompletedBeforePush { get; set; }
+
+        internal PrePushHandler OnPrePush { get; set; }
     }
 }

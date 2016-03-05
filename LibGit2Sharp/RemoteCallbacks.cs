@@ -1,5 +1,6 @@
 ﻿using System;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
@@ -17,11 +18,17 @@ namespace LibGit2Sharp
             CredentialsProvider = credentialsProvider;
         }
 
-        internal RemoteCallbacks(PushOptions pushOptions)
+        internal RemoteCallbacks(PushOptions pushOptions, RemoteSafeHandle remoteHandle)
         {
             if (pushOptions == null)
             {
                 return;
+            }
+
+            if (remoteHandle != null && !remoteHandle.IsInvalid)
+            {
+                RemoteName = Proxy.git_remote_name(remoteHandle);
+                RemoteUrl = Proxy.git_remote_url(remoteHandle);
             }
 
             PushTransferProgress = pushOptions.OnPushTransferProgress;
@@ -29,7 +36,8 @@ namespace LibGit2Sharp
             CredentialsProvider = pushOptions.CredentialsProvider;
             CertificateCheck = pushOptions.CertificateCheck;
             PushStatusError = pushOptions.OnPushStatusError;
-            PrePushCallback = pushOptions.OnNegotiationCompletedBeforePush;
+            NegotiationCompletedBeforePush = pushOptions.OnNegotiationCompletedBeforePush;
+            PrePush = pushOptions.OnPrePush;
         }
 
         internal RemoteCallbacks(FetchOptionsBase fetchOptions)
@@ -80,10 +88,12 @@ namespace LibGit2Sharp
         /// </summary>
         private readonly PackBuilderProgressHandler PackBuilderProgress;
 
+        private readonly NegotiationCompletedBeforePushHandler NegotiationCompletedBeforePush;
+
         /// <summary>
         /// Called during remote push operation after negotiation, before upload
         /// </summary>
-        private readonly PrePushHandler PrePushCallback;
+        private readonly PrePushHandler PrePush;
 
         #endregion
 
@@ -96,6 +106,10 @@ namespace LibGit2Sharp
         /// Callback to perform validation on the certificate
         /// </summary>
         private readonly CertificateCheckHandler CertificateCheck;
+
+        private readonly string RemoteName;
+
+        private readonly string RemoteUrl;
 
         internal GitRemoteCallbacks GenerateCallbacks()
         {
@@ -141,7 +155,7 @@ namespace LibGit2Sharp
                 callbacks.pack_progress = GitPackbuilderProgressHandler;
             }
 
-            if (PrePushCallback != null)
+            if (NegotiationCompletedBeforePush != null || PrePush != null)
             {
                 callbacks.push_negotiation = GitPushNegotiationHandler;
             }
@@ -326,10 +340,9 @@ namespace LibGit2Sharp
                 return (int)GitErrorCode.Error;
             }
 
-            bool result = false;
+            bool result = true;
             try
             {
-
                 int length = len.ConvertToInt();
                 PushUpdate[] pushUpdates = new PushUpdate[length];
 
@@ -349,7 +362,25 @@ namespace LibGit2Sharp
                         pushUpdates[i] = pushUpdate;
                     }
 
-                    result = PrePushCallback(pushUpdates);
+                    // call the per-invocation callback
+                    if (NegotiationCompletedBeforePush != null)
+                    {
+                        result = NegotiationCompletedBeforePush(pushUpdates);
+                    }
+
+                    // if the per-invocation did not fail the push
+                    // call the repository callback
+                    if (result && PrePush != null)
+                    {
+                        var args = new PrePushArguments()
+                        {
+                            RemoteName = RemoteName,
+                            RemoteUrl = RemoteUrl,
+                            Updates = pushUpdates,
+                        };
+
+                        result = PrePush(args);
+                    }
                 }
             }
             catch (Exception exception)

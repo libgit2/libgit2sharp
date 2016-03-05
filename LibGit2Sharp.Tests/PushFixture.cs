@@ -85,7 +85,7 @@ namespace LibGit2Sharp.Tests
             bool packBuilderCalled = false;
             bool prePushHandlerCalled = false;
             PackBuilderProgressHandler packBuilderCb = (x, y, z) => { packBuilderCalled = true; return true; };
-            PrePushHandler prePushHook = (IEnumerable<PushUpdate> updates) =>
+            NegotiationCompletedBeforePushHandler negotiationCompletedBeforePushHandler = (IEnumerable<PushUpdate> updates) =>
             {
                 Assert.True(updates.Count() == 1, "Expected 1 update, received " + updates.Count());
                 prePushHandlerCalled = true;
@@ -99,7 +99,7 @@ namespace LibGit2Sharp.Tests
             {
                 OnPushStatusError = OnPushStatusError,
                 OnPackBuilderProgress = packBuilderCb,
-                OnNegotiationCompletedBeforePush = prePushHook,
+                OnNegotiationCompletedBeforePush = negotiationCompletedBeforePushHandler,
             };
 
             AssertPush(repo => repo.Network.Push(repo.Network.Remotes["origin"], "HEAD", @"refs/heads/master", options));
@@ -113,7 +113,7 @@ namespace LibGit2Sharp.Tests
             bool packBuilderCalled = false;
             bool prePushHandlerCalled = false;
             PackBuilderProgressHandler packBuilderCb = (x, y, z) => { packBuilderCalled = true; return true; };
-            PrePushHandler prePushHook = (IEnumerable<PushUpdate> updates) =>
+            NegotiationCompletedBeforePushHandler negotiationCompletedBeforePushHandler = (IEnumerable<PushUpdate> updates) =>
             {
                 Assert.True(updates.Count() == 1, "Expected 1 update, received " + updates.Count());
                 prePushHandlerCalled = true;
@@ -127,7 +127,7 @@ namespace LibGit2Sharp.Tests
             {
                 OnPushStatusError = OnPushStatusError,
                 OnPackBuilderProgress = packBuilderCb,
-                OnNegotiationCompletedBeforePush = prePushHook
+                OnNegotiationCompletedBeforePush = negotiationCompletedBeforePushHandler
             };
 
             Assert.Throws<UserCancelledException>(() => { AssertPush(repo => repo.Network.Push(repo.Network.Remotes["origin"], "HEAD", @"refs/heads/master", options)); });

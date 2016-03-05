@@ -65,5 +65,10 @@
         /// </para>
         /// </summary>
         public Identity Identity { get; set; }
+
+        /// <summary>
+        /// Registers callback handlers with the repository.
+        /// </summary>
+        public RepositoryCallbacks Callbacks { get; set; }
     }
 }

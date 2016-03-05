@@ -109,6 +109,13 @@ namespace LibGit2Sharp
                     {
                         Proxy.git_repository_set_ident(handle, options.Identity.Name, options.Identity.Email);
                     }
+
+                    if (options.Callbacks != null)
+                    {
+                        postCheckoutCallback = options.Callbacks.PostCheckoutCallback;
+                        postCommitCallback = options.Callbacks.PostCommitCallback;
+                        prePushCallback = options.Callbacks.PrePushCallback;
+                    }
                 }
 
                 if (!isBare)
@@ -965,11 +972,19 @@ namespace LibGit2Sharp
             IList<string> paths,
             IConvertableToGitCheckoutOpts opts)
         {
+            var oldHead = Refs.Head;
 
             using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(opts, ToFilePaths(paths)))
             {
                 var options = checkoutOptionsWrapper.Options;
                 Proxy.git_checkout_tree(Handle, tree.Id, ref options);
+            }
+
+            var newHead = Refs.Head;
+
+            if (postCheckoutCallback != null)
+            {
+                postCheckoutCallback(this, oldHead, newHead, paths == null || paths.Count == 0);
             }
         }
 
@@ -1190,6 +1205,33 @@ namespace LibGit2Sharp
             toCleanup.Push(disposable);
             return disposable;
         }
+
+        /// <summary>
+        /// Gets the post-checkout handler registered with this repository
+        /// </summary>
+        public PostCheckoutDelegate PostCheckoutCallback
+        {
+            get { return postCheckoutCallback; }
+        }
+        private PostCheckoutDelegate postCheckoutCallback;
+
+        /// <summary>
+        /// Gets the post-commit handler registered with this repository
+        /// </summary>
+        public PostCommitDelegate PostCommitCallback
+        {
+            get { return postCommitCallback; }
+        }
+        private PostCommitDelegate postCommitCallback;
+
+        /// <summary>
+        /// Gets the pre-push handler registered with this repository
+        /// </summary>
+        public PrePushDelegate PrePushCallback
+        {
+            get { return prePushCallback; }
+        }
+        private PrePushDelegate prePushCallback;
 
         /// <summary>
         /// Merges changes from commit into the branch pointed at by HEAD.
@@ -2172,6 +2214,29 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(options, "options");
 
             return Proxy.git_describe_commit(handle, commit.Id, options);
+        }
+
+        internal bool PrePushHandler(PrePushArguments args)
+        {
+            if (prePushCallback != null)
+            {
+                return prePushCallback(this, args.RemoteName, args.RemoteUrl, args.Updates);
+            }
+
+            return true;
+        }
+        internal bool PrePushHandler(Remote remote, IEnumerable<PushUpdate> updates)
+        {
+            if (remote == null)
+                return false;
+
+            var args = new PrePushArguments()
+            {
+                RemoteName = remote.Name,
+                RemoteUrl = remote.Url,
+                Updates = updates,
+            };
+            return PrePushHandler(args);
         }
 
         private string DebuggerDisplay
