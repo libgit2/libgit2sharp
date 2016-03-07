@@ -196,36 +196,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Access configuration values without a repository. Generally you want to access configuration via an instance of <see cref="Repository"/> instead.
-        /// </summary>
-        /// <param name="globalConfigurationFileLocation">Path to a Global configuration file. If null, the default path for a global configuration file will be probed.</param>
-        [Obsolete("This method will be removed in the next release. Please use Configuration.BuildFrom(string, string) instead.")]
-        public Configuration(string globalConfigurationFileLocation)
-            : this(null, null, globalConfigurationFileLocation, null, null)
-        { }
-
-        /// <summary>
-        /// Access configuration values without a repository. Generally you want to access configuration via an instance of <see cref="Repository"/> instead.
-        /// </summary>
-        /// <param name="globalConfigurationFileLocation">Path to a Global configuration file. If null, the default path for a global configuration file will be probed.</param>
-        /// <param name="xdgConfigurationFileLocation">Path to a XDG configuration file. If null, the default path for a XDG configuration file will be probed.</param>
-        [Obsolete("This method will be removed in the next release. Please use Configuration.BuildFrom(string, string, string) instead.")]
-        public Configuration(string globalConfigurationFileLocation, string xdgConfigurationFileLocation)
-            : this(null, null, globalConfigurationFileLocation, xdgConfigurationFileLocation, null)
-        { }
-
-        /// <summary>
-        /// Access configuration values without a repository. Generally you want to access configuration via an instance of <see cref="Repository"/> instead.
-        /// </summary>
-        /// <param name="globalConfigurationFileLocation">Path to a Global configuration file. If null, the default path for a global configuration file will be probed.</param>
-        /// <param name="xdgConfigurationFileLocation">Path to a XDG configuration file. If null, the default path for a XDG configuration file will be probed.</param>
-        /// <param name="systemConfigurationFileLocation">Path to a System configuration file. If null, the default path for a system configuration file will be probed.</param>
-        [Obsolete("This method will be removed in the next release. Please use Configuration.BuildFrom(string, string, string, string) instead.")]
-        public Configuration(string globalConfigurationFileLocation, string xdgConfigurationFileLocation, string systemConfigurationFileLocation)
-            : this(null, null, globalConfigurationFileLocation, xdgConfigurationFileLocation, systemConfigurationFileLocation)
-        { }
-
-        /// <summary>
         /// Determines which configuration file has been found.
         /// </summary>
         public virtual bool HasConfig(ConfigurationLevel level)
