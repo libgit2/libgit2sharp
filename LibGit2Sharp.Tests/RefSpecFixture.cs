@@ -190,5 +190,43 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(oldRefSpecs, newRemote.RefSpecs.Select(r => r.Specification).ToList());
             }
         }
+
+        [Theory]
+        [InlineData("refs/heads/master", true, false)]
+        [InlineData("refs/heads/some/master", true, false)]
+        [InlineData("refs/remotes/foo/master", false, true)]
+        [InlineData("refs/tags/foo", false, false)]
+        public void CanCheckForMatches(string reference, bool shouldMatchSource, bool shouldMatchDest)
+        {
+            var path = SandboxStandardTestRepo();
+            using (var repo = InitIsolatedRepository(path))
+            {
+                var remote = repo.Network.Remotes.Add("foo", "blahblah", "refs/heads/*:refs/remotes/foo/*");
+                var refspec = remote.RefSpecs.Single();
+
+                Assert.Equal(shouldMatchSource, refspec.SourceMatches(reference));
+                Assert.Equal(shouldMatchDest, refspec.DestinationMatches(reference));
+            }
+        }
+
+        [Theory]
+        [InlineData("refs/heads/master", "refs/remotes/foo/master")]
+        [InlineData("refs/heads/bar/master", "refs/remotes/foo/bar/master")]
+        [InlineData("refs/heads/master", "refs/remotes/foo/master")]
+        public void CanTransformRefspecs(string lhs, string rhs)
+        {
+            var path = SandboxStandardTestRepo();
+            using (var repo = InitIsolatedRepository(path))
+            {
+                var remote = repo.Network.Remotes.Add("foo", "blahblah", "refs/heads/*:refs/remotes/foo/*");
+                var refspec = remote.RefSpecs.Single();
+
+                var actualTransformed = refspec.Transform(lhs);
+                var actualReverseTransformed = refspec.ReverseTransform(rhs);
+
+                Assert.Equal(rhs, actualTransformed);
+                Assert.Equal(lhs, actualReverseTransformed);
+            }
+        }
     }
 }

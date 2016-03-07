@@ -2017,6 +2017,17 @@ namespace LibGit2Sharp.Core
 
         #region git_refspec
 
+        public static string git_refspec_transform(GitRefSpecHandle refSpecPtr, string name)
+        {
+            using (var buf = new GitBuf())
+            {
+                int res = NativeMethods.git_refspec_transform(buf, refSpecPtr, name);
+                Ensure.ZeroResult(res);
+
+                return LaxUtf8Marshaler.FromNative(buf.ptr) ?? string.Empty;
+            }
+        }
+
         public static string git_refspec_rtransform(GitRefSpecHandle refSpecPtr, string name)
         {
             using (var buf = new GitBuf())
@@ -2051,6 +2062,16 @@ namespace LibGit2Sharp.Core
         public static bool git_refspec_force(GitRefSpecHandle refSpec)
         {
             return NativeMethods.git_refspec_force(refSpec);
+        }
+
+        public static bool git_refspec_src_matches(GitRefSpecHandle refspec, string reference)
+        {
+            return NativeMethods.git_refspec_src_matches(refspec, reference);
+        }
+
+        public static bool git_refspec_dst_matches(GitRefSpecHandle refspec, string reference)
+        {
+            return NativeMethods.git_refspec_dst_matches(refspec, reference);
         }
 
         #endregion
