@@ -285,9 +285,21 @@ namespace LibGit2Sharp
                 types |= SupportedCredentialTypes.Default;
             }
 
-            var cred = CredentialsProvider(url, username, types);
-
-            return cred.GitCredentialHandler(out ptr);
+            ptr = IntPtr.Zero;
+            try
+            {
+                var cred = CredentialsProvider(url, username, types);
+                if (cred == null)
+                {
+                    return (int)GitErrorCode.PassThrough;
+                }
+                return cred.GitCredentialHandler(out ptr);
+            }
+            catch (Exception exception)
+            {
+                Proxy.giterr_set_str(GitErrorCategory.Callback, exception);
+                return (int)GitErrorCode.Error;
+            }
         }
 
         private int GitCertificateCheck(IntPtr certPtr, int valid, IntPtr cHostname, IntPtr payload)
