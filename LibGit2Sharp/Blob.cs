@@ -13,12 +13,6 @@ namespace LibGit2Sharp
         private readonly ILazy<Int64> lazySize;
         private readonly ILazy<bool> lazyIsBinary;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected Blob()
-        { }
-
         internal Blob(Repository repo, ObjectId id)
             : base(repo, id)
         {

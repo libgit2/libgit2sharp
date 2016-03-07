@@ -15,11 +15,6 @@ namespace LibGit2Sharp
         private readonly IRepository repo;
         private readonly List<BlameHunk> hunks = new List<BlameHunk>();
 
-        /// <summary>
-        /// For easy mocking
-        /// </summary>
-        protected BlameHunkCollection() { }
-
         internal BlameHunkCollection(Repository repo, RepositorySafeHandle repoHandle, string path, BlameOptions options)
         {
             this.repo = repo;

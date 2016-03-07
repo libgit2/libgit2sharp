@@ -18,12 +18,6 @@ namespace LibGit2Sharp
         internal readonly Repository repo;
 
         /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected BranchCollection()
-        { }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="BranchCollection"/> class.
         /// </summary>
         /// <param name="repo">The repo.</param>

@@ -16,12 +16,6 @@ namespace LibGit2Sharp
         internal static readonly Enum[] BlobModes = new Enum[] { Mode.NonExecutableFile, Mode.ExecutableFile, Mode.NonExecutableGroupWritableFile, Mode.SymbolicLink };
 
         /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected TreeEntryDefinition()
-        { }
-
-        /// <summary>
         /// Gets file mode.
         /// </summary>
         public virtual Mode Mode { get; private set; }

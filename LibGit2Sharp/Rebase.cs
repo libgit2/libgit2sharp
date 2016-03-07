@@ -51,12 +51,6 @@ namespace LibGit2Sharp
     {
         internal readonly Repository repository;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected Rebase()
-        { }
-
         internal Rebase(Repository repo)
         {
             this.repository = repo;

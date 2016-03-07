@@ -19,12 +19,6 @@ namespace LibGit2Sharp
         private readonly Repository repo;
         private readonly ConflictCollection conflicts;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected Index()
-        { }
-
         internal Index(Repository repo)
         {
             this.repo = repo;

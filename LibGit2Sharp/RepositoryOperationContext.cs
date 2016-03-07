@@ -7,12 +7,6 @@
     public class RepositoryOperationContext
     {
         /// <summary>
-        /// Needed for mocking.
-        /// </summary>
-        protected RepositoryOperationContext()
-        { }
-
-        /// <summary>
         /// Constructor suitable for use on the repository the main
         /// operation is being run on (i.e. the super project, not a submodule).
         /// </summary>

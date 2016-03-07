@@ -13,12 +13,6 @@ namespace LibGit2Sharp
     {
         private readonly Assembly assembly = typeof(Repository).Assembly;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected Version()
-        { }
-
         internal static Version Build()
         {
             return new Version();

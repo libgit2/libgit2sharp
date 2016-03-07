@@ -16,12 +16,6 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<IndexNameEntry> equalityHelper =
             new LambdaEqualityHelper<IndexNameEntry>(x => x.Ancestor, x => x.Ours, x => x.Theirs);
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected IndexNameEntry()
-        { }
-
         internal static IndexNameEntry BuildFromPtr(IndexNameEntrySafeHandle handle)
         {
             if (handle == null || handle.IsZero)

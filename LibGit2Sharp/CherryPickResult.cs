@@ -5,12 +5,6 @@
     /// </summary>
     public class CherryPickResult
     {
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected CherryPickResult()
-        { }
-
         internal CherryPickResult(CherryPickStatus status, Commit commit = null)
         {
             Commit = commit;

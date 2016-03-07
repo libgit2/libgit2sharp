@@ -22,12 +22,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected RefSpec()
-        { }
-
-        /// <summary>
         /// Gets the pattern describing the mapping between remote and local references
         /// </summary>
         public virtual string Specification

@@ -19,12 +19,6 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<StatusEntry> equalityHelper =
             new LambdaEqualityHelper<StatusEntry>(x => x.FilePath, x => x.State, x => x.HeadToIndexRenameDetails, x => x.IndexToWorkDirRenameDetails);
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected StatusEntry()
-        { }
-
         internal StatusEntry(string filePath, FileStatus state, RenameDetails headToIndexRenameDetails = null, RenameDetails indexToWorkDirRenameDetails = null)
         {
             this.filePath = filePath;

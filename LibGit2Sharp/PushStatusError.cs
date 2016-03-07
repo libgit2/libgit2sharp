@@ -6,12 +6,6 @@
     public class PushStatusError
     {
         /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected PushStatusError()
-        { }
-
-        /// <summary>
         /// The reference this status refers to.
         /// </summary>
         public virtual string Reference { get; private set; }

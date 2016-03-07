@@ -20,12 +20,6 @@ namespace LibGit2Sharp
         private readonly string canonicalName;
 
         /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected ReflogCollection()
-        { }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="ReflogCollection"/> class.
         /// </summary>
         /// <param name="repo">The repo.</param>

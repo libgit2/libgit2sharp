@@ -18,12 +18,6 @@ namespace LibGit2Sharp
     {
         private readonly Repository repository;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected RemoteCollection()
-        { }
-
         internal RemoteCollection(Repository repository)
         {
             this.repository = repository;

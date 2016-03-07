@@ -13,12 +13,6 @@ namespace LibGit2Sharp
     {
         private readonly Repository repo;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected Ignore()
-        { }
-
         internal Ignore(Repository repo)
         {
             this.repo = repo;

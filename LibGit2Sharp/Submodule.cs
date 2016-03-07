@@ -25,12 +25,6 @@ namespace LibGit2Sharp
         private readonly ILazy<SubmoduleIgnore> ignoreRule;
         private readonly ILazy<SubmoduleUpdate> updateRule;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected Submodule()
-        { }
-
         internal Submodule(Repository repo, string name, string path, string url)
         {
             this.repo = repo;

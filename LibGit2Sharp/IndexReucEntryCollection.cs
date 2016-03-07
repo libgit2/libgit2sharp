@@ -15,12 +15,6 @@ namespace LibGit2Sharp
     {
         private readonly Index index;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected IndexReucEntryCollection()
-        { }
-
         internal IndexReucEntryCollection(Index index)
         {
             this.index = index;

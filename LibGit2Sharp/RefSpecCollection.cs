@@ -19,12 +19,6 @@ namespace LibGit2Sharp
         readonly RemoteSafeHandle handle;
         readonly Lazy<IList<RefSpec>> refspecs;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected RefSpecCollection()
-        { }
-
         internal RefSpecCollection(Remote remote, RemoteSafeHandle handle)
         {
             Ensure.ArgumentNotNull(handle, "handle");

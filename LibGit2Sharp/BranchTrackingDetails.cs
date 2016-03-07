@@ -7,12 +7,6 @@
     {
         private readonly HistoryDivergence historyDivergence;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected BranchTrackingDetails()
-        { }
-
         internal BranchTrackingDetails(Repository repo, Branch branch)
         {
             if (!branch.IsTracking || branch.Tip == null || branch.TrackedBranch.Tip == null)

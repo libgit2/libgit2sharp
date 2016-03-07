@@ -5,12 +5,6 @@
     /// </summary>
     public class MergeResult
     {
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected MergeResult()
-        { }
-
         internal MergeResult(MergeStatus status, Commit commit = null)
         {
             this.Status = status;

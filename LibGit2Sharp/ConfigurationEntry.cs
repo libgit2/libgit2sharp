@@ -26,12 +26,6 @@ namespace LibGit2Sharp
         public virtual ConfigurationLevel Level { get; private set; }
 
         /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected ConfigurationEntry()
-        { }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationEntry{T}"/> class with a given key and value
         /// </summary>
         /// <param name="key">The option name</param>

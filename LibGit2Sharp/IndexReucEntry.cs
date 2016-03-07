@@ -19,12 +19,6 @@ namespace LibGit2Sharp
                                                      x => x.OurId, x => x.OurMode,
                                                      x => x.TheirId, x => x.TheirMode);
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected IndexReucEntry()
-        { }
-
         internal static IndexReucEntry BuildFromPtr(IndexReucEntrySafeHandle handle)
         {
             if (handle == null || handle.IsZero)

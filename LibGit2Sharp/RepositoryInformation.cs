@@ -9,12 +9,6 @@ namespace LibGit2Sharp
     {
         private readonly Repository repo;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected RepositoryInformation()
-        { }
-
         internal RepositoryInformation(Repository repo, bool isBare)
         {
             this.repo = repo;

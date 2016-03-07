@@ -23,12 +23,6 @@ namespace LibGit2Sharp
 
         private readonly string canonicalName;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected ReferenceWrapper()
-        { }
-
         /// <param name="repo">The repository.</param>
         /// <param name="reference">The reference.</param>
         /// <param name="canonicalNameSelector">A function to construct the reference's canonical name.</param>

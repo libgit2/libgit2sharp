@@ -10,12 +10,6 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class TreeEntryChanges
     {
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected TreeEntryChanges()
-        { }
-
         internal TreeEntryChanges(GitDiffDelta delta)
         {
             Path = LaxFilePathMarshaler.FromNative(delta.NewFile.Path).Native;

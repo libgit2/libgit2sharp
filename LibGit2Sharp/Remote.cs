@@ -24,12 +24,6 @@ namespace LibGit2Sharp
 
         readonly RemoteSafeHandle handle;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected Remote()
-        { }
-
         internal Remote(RemoteSafeHandle handle, Repository repository)
         {
             this.repository = repository;

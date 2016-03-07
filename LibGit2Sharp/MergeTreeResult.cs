@@ -7,12 +7,6 @@ namespace LibGit2Sharp
     /// </summary>
     public class MergeTreeResult
     {
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected MergeTreeResult()
-        { }
-
         internal MergeTreeResult(IEnumerable<Conflict> conflicts)
         {
             this.Status = MergeTreeStatus.Conflicts;

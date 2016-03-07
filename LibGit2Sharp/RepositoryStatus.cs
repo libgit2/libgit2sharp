@@ -47,12 +47,6 @@ namespace LibGit2Sharp
             };
         }
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected RepositoryStatus()
-        { }
-
         internal RepositoryStatus(Repository repo, StatusOptions options)
         {
             statusEntries = new List<StatusEntry>();

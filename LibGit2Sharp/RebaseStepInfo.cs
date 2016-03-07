@@ -5,12 +5,6 @@
     /// </summary>
     public class RebaseStepInfo
     {
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected RebaseStepInfo()
-        { }
-
         internal RebaseStepInfo(RebaseStepOperation type, Commit commit, string exec)
         {
             Type = type;

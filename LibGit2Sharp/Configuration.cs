@@ -22,12 +22,6 @@ namespace LibGit2Sharp
 
         private ConfigurationSafeHandle configHandle;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected Configuration()
-        { }
-
         internal Configuration(
             Repository repository,
             string repositoryConfigurationFileLocation,

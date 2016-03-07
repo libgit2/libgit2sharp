@@ -5,12 +5,6 @@
     /// </summary>
     public class Tag : ReferenceWrapper<GitObject>
     {
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected Tag()
-        { }
-
         internal Tag(Repository repo, Reference reference, string canonicalName)
             : base(repo, reference, _ => canonicalName)
         { }

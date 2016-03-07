@@ -27,12 +27,6 @@ namespace LibGit2Sharp
         private readonly ParentsCollection parents;
         private readonly Lazy<IEnumerable<Note>> lazyNotes;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected Commit()
-        { }
-
         internal Commit(Repository repo, ObjectId id)
             : base(repo, id)
         {

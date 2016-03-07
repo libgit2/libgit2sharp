@@ -5,12 +5,6 @@
     /// </summary>
     public class RevertResult
     {
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected RevertResult()
-        { }
-
         internal RevertResult(RevertStatus status, Commit commit = null)
         {
             Commit = commit;

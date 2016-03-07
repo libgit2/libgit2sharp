@@ -9,7 +9,6 @@ using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
-using Moq;
 
 namespace LibGit2Sharp.Tests
 {
@@ -81,78 +80,6 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.True(false, Environment.NewLine + BuildMissingDebuggerDisplayPropertyMessage(typesWithDebuggerDisplayAndInvalidImplPattern));
             }
-        }
-
-        // Related to https://github.com/libgit2/libgit2sharp/pull/185
-        [Fact]
-        public void TypesInLibGit2SharpMustBeExtensibleInATestingContext()
-        {
-            var nonTestableTypes = new Dictionary<Type, IEnumerable<string>>();
-
-            IEnumerable<Type> libGit2SharpTypes = Assembly.GetAssembly(typeof(IRepository)).GetExportedTypes()
-                .Where(t => MustBeMockable(t) && t.Namespace == typeof(IRepository).Namespace);
-
-            foreach (Type type in libGit2SharpTypes)
-            {
-                if (type.IsInterface || type.IsEnum || IsStatic(type))
-                    continue;
-
-                var nonVirtualMethodNamesForType = GetNonVirtualPublicMethodsNames(type).ToList();
-                if (nonVirtualMethodNamesForType.Any())
-                {
-                    nonTestableTypes.Add(type, nonVirtualMethodNamesForType);
-                    continue;
-                }
-
-                if (!HasEmptyPublicOrProtectedConstructor(type))
-                {
-                    nonTestableTypes.Add(type, new List<string>());
-                }
-
-                if (type.IsAbstract)
-                {
-                    continue;
-                }
-
-                try
-                {
-                    if (type.ContainsGenericParameters)
-                    {
-                        var constructType = type.MakeGenericType(Enumerable.Repeat(typeof(object), type.GetGenericArguments().Length).ToArray());
-                        Activator.CreateInstance(constructType, true);
-                    }
-                    else
-                    {
-                        Activator.CreateInstance(type, true);
-                    }
-                }
-                catch
-                {
-                    nonTestableTypes.Add(type, new List<string>());
-                }
-            }
-
-            if (nonTestableTypes.Any())
-            {
-                Assert.True(false, Environment.NewLine + BuildNonTestableTypesMessage(nonTestableTypes));
-            }
-        }
-
-        private static bool MustBeMockable(Type type)
-        {
-            if (type.IsSealed)
-            {
-                return false;
-            }
-
-            if (type.IsAbstract)
-            {
-                return !type.Assembly.GetExportedTypes()
-                            .Where(t => t.IsSubclassOf(type))
-                            .All(t => t.IsAbstract || t.IsSealed);
-            }
-
-            return true;
         }
 
         [Fact]

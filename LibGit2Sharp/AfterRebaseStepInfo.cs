@@ -5,12 +5,6 @@
     /// </summary>
     public class AfterRebaseStepInfo
     {
-        /// <summary>
-        /// Needed for mocking.
-        /// </summary>
-        protected AfterRebaseStepInfo()
-        { }
-
         internal AfterRebaseStepInfo(RebaseStepInfo stepInfo, Commit commit, long completedStepIndex, long totalStepCount)
         {
             StepInfo = stepInfo;

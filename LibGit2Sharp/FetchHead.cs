@@ -9,12 +9,6 @@ namespace LibGit2Sharp
     /// </summary>
     internal class FetchHead : ReferenceWrapper<GitObject>
     {
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected FetchHead()
-        { }
-
         internal FetchHead(
             Repository repo,
             string remoteCanonicalName,

@@ -21,12 +21,6 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<TreeEntry> equalityHelper =
             new LambdaEqualityHelper<TreeEntry>(x => x.Name, x => x.parentTreeId);
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected TreeEntry()
-        { }
-
         internal TreeEntry(SafeHandle obj, ObjectId parentTreeId, Repository repo, FilePath parentPath)
         {
             this.parentTreeId = parentTreeId;

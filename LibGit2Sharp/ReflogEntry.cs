@@ -16,12 +16,6 @@ namespace LibGit2Sharp
         private readonly string message;
 
         /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected ReflogEntry()
-        { }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="ReflogEntry"/> class.
         /// </summary>
         /// <param name="entryHandle">a <see cref="SafeHandle"/> to the reflog entry</param>

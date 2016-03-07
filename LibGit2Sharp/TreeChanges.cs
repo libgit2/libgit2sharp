@@ -44,12 +44,6 @@ namespace LibGit2Sharp
             };
         }
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected TreeChanges()
-        { }
-
         internal TreeChanges(DiffSafeHandle diff)
         {
             Proxy.git_diff_foreach(diff, FileCallback, null, null);

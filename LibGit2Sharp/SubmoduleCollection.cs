@@ -18,12 +18,6 @@ namespace LibGit2Sharp
         internal readonly Repository repo;
 
         /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected SubmoduleCollection()
-        { }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2Sharp.SubmoduleCollection"/> class.
         /// </summary>
         /// <param name="repo">The repo.</param>

@@ -12,15 +12,6 @@ namespace LibGit2Sharp
     public abstract class OdbBackendStream
     {
         /// <summary>
-        /// This is to quiet the MetaFixture.TypesInLibGit2SharpMustBeExtensibleInATestingContext test.
-        /// Do not use this constructor.
-        /// </summary>
-        protected internal OdbBackendStream()
-        {
-            throw new InvalidOperationException();
-        }
-
-        /// <summary>
         /// Base constructor for OdbBackendStream. Make sure that your derived class calls this base constructor.
         /// </summary>
         /// <param name="backend">The backend to which this backend stream is attached.</param>

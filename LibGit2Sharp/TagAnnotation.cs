@@ -13,12 +13,6 @@ namespace LibGit2Sharp
         private readonly ILazy<string> lazyMessage;
         private readonly ILazy<Signature> lazyTagger;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected TagAnnotation()
-        { }
-
         internal TagAnnotation(Repository repo, ObjectId id)
             : base(repo, id)
         {

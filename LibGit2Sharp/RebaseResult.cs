@@ -32,12 +32,6 @@ namespace LibGit2Sharp
     /// </summary>
     public class RebaseResult
     {
-        /// <summary>
-        /// Needed for mocking.
-        /// </summary>
-        protected RebaseResult()
-        { }
-
         internal RebaseResult(RebaseStatus status,
                               long stepNumber,
                               long totalSteps,
