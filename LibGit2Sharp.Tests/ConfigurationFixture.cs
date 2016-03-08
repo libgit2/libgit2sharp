@@ -36,12 +36,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanUnsetAnEntryFromTheGlobalConfiguration()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-
-            var options = BuildFakeConfigs(scd);
-
             string path = SandboxBareTestRepo();
-            using (var repo = new Repository(path, options))
+            using (var repo = new Repository(path))
             {
                 Assert.True(repo.Config.HasConfig(ConfigurationLevel.Global));
                 Assert.Equal(42, repo.Config.Get<int>("Wow.Man-I-am-totally-global").Value);
@@ -331,12 +327,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanGetAnEntryFromASpecificStore()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-
-            var options = BuildFakeConfigs(scd);
-
             string path = SandboxStandardTestRepo();
-            using (var repo = new Repository(path, options))
+            using (var repo = new Repository(path))
             {
                 Assert.True(repo.Config.HasConfig(ConfigurationLevel.Local));
                 Assert.True(repo.Config.HasConfig(ConfigurationLevel.Global));
@@ -356,12 +348,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanTellIfASpecificStoreContainsAKey()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-
-            var options = BuildFakeConfigs(scd);
-
             string path = SandboxBareTestRepo();
-            using (var repo = new Repository(path, options))
+            using (var repo = new Repository(path))
             {
                 Assert.True(repo.Config.HasConfig(ConfigurationLevel.System));
 

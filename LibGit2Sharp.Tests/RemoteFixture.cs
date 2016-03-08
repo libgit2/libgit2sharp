@@ -377,9 +377,8 @@ namespace LibGit2Sharp.Tests
         public void ShoudlPruneOnFetchReflectsTheConfiguredSetting(bool? fetchPrune, bool? remotePrune, bool expectedFetchPrune)
         {
             var path = SandboxStandardTestRepo();
-            var scd = BuildSelfCleaningDirectory();
 
-            using (var repo = new Repository(path, BuildFakeConfigs(scd)))
+            using (var repo = new Repository(path))
             {
                 Assert.Null(repo.Config.Get<bool>("fetch.prune"));
                 Assert.Null(repo.Config.Get<bool>("remote.origin.prune"));

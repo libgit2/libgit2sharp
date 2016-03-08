@@ -213,9 +213,7 @@ namespace LibGit2Sharp.Tests
 
             string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
 
-            var options = BuildFakeConfigs(BuildSelfCleaningDirectory());
-
-            using (var clonedRepo = new Repository(clonedRepoPath, options))
+            using (var clonedRepo = new Repository(clonedRepoPath))
             {
                 Assert.Equal(5, clonedRepo.Branches.Count(b => b.IsRemote));
 
