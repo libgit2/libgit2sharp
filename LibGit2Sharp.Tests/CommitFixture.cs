@@ -542,11 +542,10 @@ namespace LibGit2Sharp.Tests
         public void CanCommitWithSignatureFromConfig()
         {
             string repoPath = InitNewRepository();
-            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
-            var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
 
-            using (var repo = new Repository(repoPath, options))
+            using (var repo = new Repository(repoPath))
             {
+                CreateConfigurationWithDummyUser(repo, Constants.Identity);
                 string dir = repo.Info.Path;
                 Assert.True(Path.IsPathRooted(dir));
                 Assert.True(Directory.Exists(dir));

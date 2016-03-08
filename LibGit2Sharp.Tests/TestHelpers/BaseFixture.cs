@@ -335,18 +335,14 @@ namespace LibGit2Sharp.Tests.TestHelpers
         /// <remarks>The configuration file will be removed automatically when the tests are finished</remarks>
         /// <param name="identity">The identity to use for user.name and user.email</param>
         /// <returns>The path to the configuration file</returns>
-        protected string CreateConfigurationWithDummyUser(Identity identity)
+        protected void CreateConfigurationWithDummyUser(Repository repo, Identity identity)
         {
-            return CreateConfigurationWithDummyUser(identity.Name, identity.Email);
+            CreateConfigurationWithDummyUser(repo, identity.Name, identity.Email);
         }
 
-        protected string CreateConfigurationWithDummyUser(string name, string email)
+        protected void CreateConfigurationWithDummyUser(Repository repo, string name, string email)
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-
-            string configFilePath = Touch(scd.DirectoryPath, "fake-config");
-
-            using (Configuration config = Configuration.BuildFrom(configFilePath))
+            Configuration config = repo.Config;
             {
                 if (name != null)
                 {
@@ -358,8 +354,6 @@ namespace LibGit2Sharp.Tests.TestHelpers
                     config.Set("user.email", email);
                 }
             }
-
-            return configFilePath;
         }
 
         /// <summary>
