@@ -163,7 +163,13 @@ namespace LibGit2Sharp
                 ? LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir.NewFile.Path).Native
                 : LaxFilePathMarshaler.FromNative(deltaHeadToIndex.NewFile.Path).Native;
 
-            StatusEntry statusEntry = new StatusEntry(filePath, gitStatus, headToIndexRenameDetails, indexToWorkDirRenameDetails);
+            StatusEntry statusEntry = new StatusEntry
+            {
+                FilePath = filePath,
+                State = gitStatus,
+                HeadToIndexRenameDetails = headToIndexRenameDetails,
+                IndexToWorkDirRenameDetails = indexToWorkDirRenameDetails
+            };
 
             if (gitStatus == FileStatus.Unaltered)
             {
@@ -200,7 +206,11 @@ namespace LibGit2Sharp
 
                 if (entries.Count == 0)
                 {
-                    return new StatusEntry(path, FileStatus.Nonexistent);
+                    return new StatusEntry
+                    {
+                        FilePath = path,
+                        State = FileStatus.Nonexistent
+                    };
                 }
 
                 return entries.Single();

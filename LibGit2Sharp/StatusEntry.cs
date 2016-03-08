@@ -11,53 +11,28 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class StatusEntry : IEquatable<StatusEntry>
     {
-        private readonly string filePath;
-        private readonly FileStatus state;
-        private readonly RenameDetails headToIndexRenameDetails;
-        private readonly RenameDetails indexToWorkDirRenameDetails;
-
         private static readonly LambdaEqualityHelper<StatusEntry> equalityHelper =
             new LambdaEqualityHelper<StatusEntry>(x => x.FilePath, x => x.State, x => x.HeadToIndexRenameDetails, x => x.IndexToWorkDirRenameDetails);
-
-        internal StatusEntry(string filePath, FileStatus state, RenameDetails headToIndexRenameDetails = null, RenameDetails indexToWorkDirRenameDetails = null)
-        {
-            this.filePath = filePath;
-            this.state = state;
-            this.headToIndexRenameDetails = headToIndexRenameDetails;
-            this.indexToWorkDirRenameDetails = indexToWorkDirRenameDetails;
-        }
 
         /// <summary>
         /// Gets the <see cref="FileStatus"/> of the file.
         /// </summary>
-        public virtual FileStatus State
-        {
-            get { return state; }
-        }
+        public virtual FileStatus State { get; set; }
 
         /// <summary>
         /// Gets the relative new filepath to the working directory of the file.
         /// </summary>
-        public virtual string FilePath
-        {
-            get { return filePath; }
-        }
+        public virtual string FilePath { get; set; }
 
         /// <summary>
         /// Gets the rename details from the HEAD to the Index, if this <see cref="FileStatus"/> contains <see cref="FileStatus.RenamedInIndex"/>
         /// </summary>
-        public virtual RenameDetails HeadToIndexRenameDetails
-        {
-            get { return headToIndexRenameDetails; }
-        }
+        public virtual RenameDetails HeadToIndexRenameDetails { get; set; }
 
         /// <summary>
         /// Gets the rename details from the Index to the working directory, if this <see cref="FileStatus"/> contains <see cref="FileStatus.RenamedInWorkdir"/>
         /// </summary>
-        public virtual RenameDetails IndexToWorkDirRenameDetails
-        {
-            get { return indexToWorkDirRenameDetails; }
-        }
+        public virtual RenameDetails IndexToWorkDirRenameDetails { get; set; }
 
         /// <summary>
         /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="StatusEntry"/>.

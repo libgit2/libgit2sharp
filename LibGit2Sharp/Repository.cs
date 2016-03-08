@@ -1365,11 +1365,15 @@ namespace LibGit2Sharp
                         }
                     }
 
-                    result = new RevertResult(revertStatus, revertCommit);
+                    result = new RevertResult
+                    {
+                        Status = revertStatus,
+                        Commit = revertCommit
+                    };
                 }
                 else
                 {
-                    result = new RevertResult(RevertStatus.Conflicts);
+                    result = new RevertResult { Status = RevertStatus.Conflicts };
                 }
             }
 
@@ -1422,11 +1426,18 @@ namespace LibGit2Sharp
                         cherryPickCommit = this.Commit(Info.Message, commit.Author, committer, null);
                     }
 
-                    result = new CherryPickResult(CherryPickStatus.CherryPicked, cherryPickCommit);
+                    result = new CherryPickResult
+                    {
+                        Status = CherryPickStatus.CherryPicked,
+                        Commit = cherryPickCommit
+                    };
                 }
                 else
                 {
-                    result = new CherryPickResult(CherryPickStatus.Conflicts);
+                    result = new CherryPickResult
+                    {
+                        Status = CherryPickStatus.Conflicts
+                    };
                 }
             }
 
@@ -1466,7 +1477,7 @@ namespace LibGit2Sharp
 
             if ((mergeAnalysis & GitMergeAnalysis.GIT_MERGE_ANALYSIS_UP_TO_DATE) == GitMergeAnalysis.GIT_MERGE_ANALYSIS_UP_TO_DATE)
             {
-                return new MergeResult(MergeStatus.UpToDate);
+                return new MergeResult { Status = MergeStatus.UpToDate };
             }
 
             FastForwardStrategy fastForwardStrategy = (options.FastForwardStrategy != FastForwardStrategy.Default) ?
@@ -1570,7 +1581,7 @@ namespace LibGit2Sharp
 
             if (earlyStop)
             {
-                return new MergeResult(MergeStatus.Conflicts);
+                return new MergeResult { Status = MergeStatus.Conflicts };
             }
 
             if (Index.IsFullyMerged)
@@ -1582,11 +1593,15 @@ namespace LibGit2Sharp
                     mergeCommit = Commit(Info.Message, author: merger, committer: merger, options: null);
                 }
 
-                mergeResult = new MergeResult(MergeStatus.NonFastForward, mergeCommit);
+                mergeResult = new MergeResult
+                {
+                    Status = MergeStatus.NonFastForward,
+                    Commit = mergeCommit
+                };
             }
             else
             {
-                mergeResult = new MergeResult(MergeStatus.Conflicts);
+                mergeResult = new MergeResult { Status = MergeStatus.Conflicts };
             }
 
             return mergeResult;
@@ -1623,7 +1638,11 @@ namespace LibGit2Sharp
                 Refs.UpdateTarget(reference, fastForwardCommit.Id.Sha, refLogEntry);
             }
 
-            return new MergeResult(MergeStatus.FastForward, fastForwardCommit);
+            return new MergeResult
+            {
+                Status = MergeStatus.FastForward,
+                Commit = fastForwardCommit
+            };
         }
 
         /// <summary>

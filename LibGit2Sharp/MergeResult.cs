@@ -5,31 +5,17 @@
     /// </summary>
     public class MergeResult
     {
-        internal MergeResult(MergeStatus status, Commit commit = null)
-        {
-            this.Status = status;
-            this.Commit = commit;
-        }
-
         /// <summary>
         /// The status of the merge.
         /// </summary>
-        public virtual MergeStatus Status
-        {
-            get;
-            private set;
-        }
+        public virtual MergeStatus Status { get; set; }
 
         /// <summary>
         /// The resulting commit of the merge. For fast-forward merges, this is the
         /// commit that merge was fast forwarded to.
         /// <para>This will return <code>null</code> if the merge has been unsuccessful due to conflicts.</para>
         /// </summary>
-        public virtual Commit Commit
-        {
-            get;
-            private set;
-        }
+        public virtual Commit Commit { get; set; }
     }
 
     /// <summary>

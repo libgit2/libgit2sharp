@@ -8,11 +8,11 @@
         /// <summary>
         /// The file's path relative to the repository's root.
         /// </summary>
-        public string Path { get; internal set; }
+        public string Path { get; set; }
 
         /// <summary>
         /// The commit in which the file was created or changed.
         /// </summary>
-        public Commit Commit { get; internal set; }
+        public Commit Commit { get; set; }
     }
 }

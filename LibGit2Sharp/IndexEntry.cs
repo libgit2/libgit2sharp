@@ -18,22 +18,22 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the relative path to the file within the working directory.
         /// </summary>
-        public virtual string Path { get; private set; }
+        public virtual string Path { get; set; }
 
         /// <summary>
         /// Gets the file mode.
         /// </summary>
-        public virtual Mode Mode { get; private set; }
+        public virtual Mode Mode { get; set; }
 
         /// <summary>
         /// Gets the stage number.
         /// </summary>
-        public virtual StageLevel StageLevel { get; private set; }
+        public virtual StageLevel StageLevel { get; set; }
 
         /// <summary>
         /// Whether the file is marked as assume-unchanged
         /// </summary>
-        public virtual bool AssumeUnchanged { get; private set; }
+        public virtual bool AssumeUnchanged { get; set; }
 
         /// <summary>
         /// Gets the id of the <see cref="Blob"/> pointed at by this index entry.

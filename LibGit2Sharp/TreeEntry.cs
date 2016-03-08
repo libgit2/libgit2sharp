@@ -15,17 +15,42 @@ namespace LibGit2Sharp
         private readonly ObjectId parentTreeId;
         private readonly Repository repo;
         private readonly Lazy<GitObject> target;
-        private readonly ObjectId targetOid;
+        private readonly ObjectId targetId;
         private readonly Lazy<string> path;
 
         private static readonly LambdaEqualityHelper<TreeEntry> equalityHelper =
             new LambdaEqualityHelper<TreeEntry>(x => x.Name, x => x.parentTreeId);
 
+        /// <summary>
+        /// Create a new <see cref="LibGit2Sharp.TreeEntry"/>.
+        /// </summary>
+        /// <param name="repo">The repository in which the entry's tree lives</param>
+        /// <param name="name">The filename</param>
+        /// <param name="targetId">ID of the object being pointed at</param>
+        /// <param name="mode">The file mode</param>
+        /// <param name="targetType">The type of target</param>
+        /// <param name="parentTreeId">The parent tree's ID</param>
+        /// <param name="parentPath">The parent tree's path</param>
+        public TreeEntry(Repository repo, string name, ObjectId targetId, Mode mode, TreeEntryTargetType targetType, ObjectId parentTreeId, string parentPath)
+        {
+            this.parentTreeId = parentTreeId;
+            this.repo = repo;
+            this.targetId = targetId;
+
+            TargetType = targetType;
+
+            target = new Lazy<GitObject>(RetrieveTreeEntryTarget);
+
+            Mode = mode;
+            Name = name;
+            path = new Lazy<string>(() => System.IO.Path.Combine(parentPath, Name));
+        }
+
         internal TreeEntry(SafeHandle obj, ObjectId parentTreeId, Repository repo, FilePath parentPath)
         {
             this.parentTreeId = parentTreeId;
             this.repo = repo;
-            targetOid = Proxy.git_tree_entry_id(obj);
+            targetId = Proxy.git_tree_entry_id(obj);
 
             GitObjectType treeEntryTargetType = Proxy.git_tree_entry_type(obj);
             TargetType = treeEntryTargetType.ToTreeEntryTargetType();
@@ -60,7 +85,7 @@ namespace LibGit2Sharp
 
         internal ObjectId TargetId
         {
-            get { return targetOid; }
+            get { return targetId; }
         }
 
         /// <summary>
@@ -73,11 +98,11 @@ namespace LibGit2Sharp
             switch (TargetType)
             {
                 case TreeEntryTargetType.GitLink:
-                    return new GitLink(repo, targetOid);
+                    return new GitLink(repo, targetId);
 
                 case TreeEntryTargetType.Blob:
                 case TreeEntryTargetType.Tree:
-                    return GitObject.BuildFrom(repo, targetOid, TargetType.ToGitObjectType(), Path);
+                    return GitObject.BuildFrom(repo, targetId, TargetType.ToGitObjectType(), Path);
 
                 default:
                     throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,

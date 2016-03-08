@@ -7,13 +7,21 @@ namespace LibGit2Sharp
     /// </summary>
     public class MergeTreeResult
     {
-        internal MergeTreeResult(IEnumerable<Conflict> conflicts)
+        /// <summary>
+        /// Create a <see cref="LibGit2Sharp.MergeTreeResult"/> which resulted in conflicts
+        /// </summary>
+        /// <param name="conflicts">The list of conflicts from the merge</param>
+        public MergeTreeResult(IEnumerable<Conflict> conflicts)
         {
             this.Status = MergeTreeStatus.Conflicts;
             this.Conflicts = conflicts;
         }
 
-        internal MergeTreeResult(Tree tree)
+        /// <summary>
+        /// Create a <see cref="LibGit2Sharp.MergeTreeResult"/> from a successful merge
+        /// </summary>
+        /// <param name="tree">The resulting tree</param>
+        public MergeTreeResult(Tree tree)
         {
             this.Status = MergeTreeStatus.Succeeded;
             this.Tree = tree;

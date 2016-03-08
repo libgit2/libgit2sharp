@@ -56,11 +56,12 @@ namespace LibGit2Sharp
 
             // Rebase is completed!
             Proxy.git_rebase_finish(rebaseOperationHandle, committer);
-            var rebaseResult = new RebaseResult(RebaseStatus.Complete,
-                                            totalStepCount,
-                                            totalStepCount,
-                                            null);
-            return rebaseResult;
+            return new RebaseResult
+            {
+                Status = RebaseStatus.Complete,
+                CompletedStepCount = totalStepCount,
+                TotalStepCount = totalStepCount,
+            };
         }
 
         /// <summary>
@@ -144,10 +145,12 @@ namespace LibGit2Sharp
             // running the rebase sequence operations, then report the result.
             if (rebaseStepResult.Status == RebaseStepStatus.Conflicts)
             {
-                rebaseSequenceResult = new RebaseResult(RebaseStatus.Conflicts,
-                                                        stepToApplyIndex,
-                                                        totalStepCount,
-                                                        null);
+                rebaseSequenceResult = new RebaseResult
+                {
+                    Status = RebaseStatus.Conflicts,
+                    CompletedStepCount = stepToApplyIndex,
+                    TotalStepCount = totalStepCount,
+                };
             }
 
             return rebaseSequenceResult;
