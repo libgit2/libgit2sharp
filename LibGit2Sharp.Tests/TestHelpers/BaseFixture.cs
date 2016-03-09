@@ -86,8 +86,8 @@ namespace LibGit2Sharp.Tests.TestHelpers
         {
             var scd = new SelfCleaningDirectory(dirRemover);
 
-            string global = null, xdg = null, system = null;
-            BuildFakeRepositoryOptions(scd, out global, out xdg, out system);
+            string global = null, xdg = null, system = null, programData = null;
+            BuildFakeRepositoryOptions(scd, out global, out xdg, out system, out programData);
 
             StringBuilder sb = new StringBuilder()
                 .AppendFormat("[Woot]{0}", Environment.NewLine)
@@ -106,9 +106,15 @@ namespace LibGit2Sharp.Tests.TestHelpers
                 .AppendFormat("this-rocks = xdg{0}", Environment.NewLine);
             File.WriteAllText(Path.Combine(xdg, "config"), sb.ToString());
 
+            sb = new StringBuilder()
+                .AppendFormat("[Woot]{0}", Environment.NewLine)
+                .AppendFormat("this-rocks = programdata{0}", Environment.NewLine);
+            File.WriteAllText(Path.Combine(programData, "config"), sb.ToString());
+
             GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, global);
             GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Xdg, xdg);
             GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.System, system);
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.ProgramData, programData);
         }
 
         private static void CleanupTestReposOlderThan(TimeSpan olderThan)
@@ -316,7 +322,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             Assert.True(r.Success, text);
         }
 
-        private static void BuildFakeRepositoryOptions(SelfCleaningDirectory scd, out string global, out string xdg, out string system)
+        private static void BuildFakeRepositoryOptions(SelfCleaningDirectory scd, out string global, out string xdg, out string system, out string programData)
         {
             string confs = Path.Combine(scd.DirectoryPath, "confs");
             Directory.CreateDirectory(confs);
@@ -327,6 +333,8 @@ namespace LibGit2Sharp.Tests.TestHelpers
             Directory.CreateDirectory(xdg);
             system = Path.Combine(confs, "my-system-config");
             Directory.CreateDirectory(system);
+            programData = Path.Combine(confs, "my-programdata-config");
+            Directory.CreateDirectory(programData);
         }
 
         /// <summary>
