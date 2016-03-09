@@ -345,6 +345,9 @@ namespace LibGit2Sharp.Core
         internal static extern int git_config_find_xdg(GitBuf xdg_config_path);
 
         [DllImport(libgit2)]
+        internal static extern int git_config_find_programdata(GitBuf programdata_config_path);
+
+        [DllImport(libgit2)]
         internal static extern void git_config_free(IntPtr cfg);
 
         [DllImport(libgit2)]
