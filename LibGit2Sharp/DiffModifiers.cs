@@ -36,5 +36,16 @@ namespace LibGit2Sharp
         /// diffing against the working directory.
         /// </summary>
         IncludeIgnored = (1 << 4),
+
+        /// <summary>
+        /// Specifies that no rename heuristics will be used when checking for
+        /// renames, renames being matched only on unmodified renamed files.
+        /// </summary>
+        FindExactRenames = (1 << 5),
+
+        /// <summary>
+        /// Specifies that no renames will be searched for when running blame.
+        /// </summary>
+        FindNoRenames = (1 << 6),
     }
 }

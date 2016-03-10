@@ -807,9 +807,15 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_diff_find_similar(DiffSafeHandle diff, GitDiffFindOptions options)
+        public static void git_diff_find_similar(DiffSafeHandle diff, IntPtr options)
         {
             int res = NativeMethods.git_diff_find_similar(diff, options);
+            Ensure.ZeroResult(res);
+        }
+
+        public static void git_diff_find_similar(DiffSafeHandle diff, GitDiffFindOptions options)
+        {
+            int res = NativeMethods.git_diff_find_similar(diff, ref options);
             Ensure.ZeroResult(res);
         }
 

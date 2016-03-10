@@ -6,7 +6,7 @@
     public enum BlameStrategy
     {
         /// <summary>
-        /// Track renames of the file, but no block movement.
+        /// Track renames of the file using diff rename detection, but no block movement.
         /// </summary>
         Default,
 
@@ -58,5 +58,15 @@
         /// If this is set to 0, blame ends with the last line in the file.
         /// </summary>
         public int MaxLine { get; set; }
+
+        /// <summary>
+        /// Disables rename heuristics, only matching renames on unmodified files.
+        /// </summary>
+        public bool FindExactRenames { get; set; }
+
+        /// <summary>
+        /// Fully disable rename checking.
+        /// </summary>
+        public bool FindNoRenames { get; set; }
     }
 }

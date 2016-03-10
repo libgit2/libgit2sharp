@@ -340,6 +340,9 @@ namespace LibGit2Sharp.Core
         // turn on all finding features
         GIT_DIFF_FIND_ALL = (0x0ff),
 
+        // does no work trying to find renames
+        GIT_DIFF_FIND_NO_RENAMES = (1 << 8),
+
         // measure similarity ignoring leading whitespace (default)
         GIT_DIFF_FIND_IGNORE_LEADING_WHITESPACE = 0,
         // measure similarity ignoring all whitespace
@@ -357,9 +360,9 @@ namespace LibGit2Sharp.Core
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal class GitDiffFindOptions
+    internal struct GitDiffFindOptions
     {
-        public uint Version = 1;
+        public uint Version;
         public GitDiffFindFlags Flags;
         public UInt16 RenameThreshold;
         public UInt16 RenameFromRewriteThreshold;

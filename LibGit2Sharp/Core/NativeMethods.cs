@@ -561,7 +561,12 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern int git_diff_find_similar(
             DiffSafeHandle diff,
-            GitDiffFindOptions options);
+            IntPtr options);
+
+        [DllImport(libgit2)]
+        internal static extern int git_diff_find_similar(
+            DiffSafeHandle diff,
+            ref GitDiffFindOptions options);
 
         [DllImport(libgit2)]
         internal static extern UIntPtr git_diff_num_deltas(DiffSafeHandle diff);
