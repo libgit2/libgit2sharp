@@ -15,8 +15,11 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class RefSpecCollection : IEnumerable<RefSpec>
     {
+        // These are here to keep the pointer alive
+        #pragma warning disable 0414
         readonly Remote remote;
         readonly RemoteSafeHandle handle;
+        #pragma warning restore 0414
         readonly Lazy<IList<RefSpec>> refspecs;
 
         /// <summary>

@@ -14,7 +14,10 @@ namespace LibGit2Sharp.Core
     {
         public const uint GIT_PATH_MAX = 4096;
         private const string libgit2 = NativeDllName.Name;
+        // This is here to keep the pointer alive
+        #pragma warning disable 0414
         private static readonly LibraryLifetimeObject lifetimeObject;
+        #pragma warning restore 0414
         private static int handlesCount;
 
         /// <summary>

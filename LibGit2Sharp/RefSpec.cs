@@ -12,7 +12,10 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class RefSpec
     {
+        // This is here to keep the pointer alive
+        #pragma warning disable 0414
         readonly Remote remote;
+        #pragma warning restore 0414
         readonly GitRefSpecHandle handle;
 
         internal RefSpec(Remote remote, GitRefSpecHandle handle)
