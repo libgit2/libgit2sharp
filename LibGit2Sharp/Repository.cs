@@ -538,7 +538,7 @@ namespace LibGit2Sharp
 
             if (lookUpOptions.HasFlag(LookUpOptions.DereferenceResultToCommit))
             {
-                return obj.DereferenceToCommit(lookUpOptions.HasFlag(LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit));
+                return obj.Peel<Commit>(lookUpOptions.HasFlag(LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit));
             }
 
             return obj;
@@ -878,7 +878,7 @@ namespace LibGit2Sharp
                 refH.Dispose();
             }
 
-            Commit commit = obj.DereferenceToCommit(true);
+            Commit commit = obj.Peel<Commit>(true);
             Checkout(commit.Tree, options, committishOrBranchSpec);
 
             return Head;

@@ -21,6 +21,14 @@ namespace LibGit2Sharp
                 { typeof(Blob), ObjectType.Blob },
                 { typeof(TagAnnotation), ObjectType.Tag },
             };
+        internal static IDictionary<Type, GitObjectType> TypeToGitKindMap =
+            new Dictionary<Type, GitObjectType>
+        {
+            { typeof(Commit), GitObjectType.Commit },
+            { typeof(Tree), GitObjectType.Tree },
+            { typeof(Blob), GitObjectType.Blob },
+            { typeof(TagAnnotation), GitObjectType.Tag },
+        };
 
         private static readonly LambdaEqualityHelper<GitObject> equalityHelper =
             new LambdaEqualityHelper<GitObject>(x => x.Id);
@@ -83,17 +91,30 @@ namespace LibGit2Sharp
             }
         }
 
-        internal Commit DereferenceToCommit(bool throwsIfCanNotBeDereferencedToACommit)
+        internal T Peel<T>(bool throwOnError) where T : GitObject
         {
-            using (GitObjectSafeHandle peeledHandle = Proxy.git_object_peel(repo.Handle, Id, GitObjectType.Commit, throwsIfCanNotBeDereferencedToACommit))
+            GitObjectType kind;
+            if (!TypeToGitKindMap.TryGetValue(typeof(T), out kind))
             {
-                if (peeledHandle == null)
-                {
-                    return null;
-                }
-
-                return (Commit)BuildFrom(repo, Proxy.git_object_id(peeledHandle), GitObjectType.Commit, null);
+                throw new ArgumentException("Invalid type passed to peel");
             }
+
+            using (var handle = Proxy.git_object_peel(repo.Handle, Id, kind, throwOnError))
+            {
+                return (T)BuildFrom(this.repo, Proxy.git_object_id(handle), kind, null);
+            }
+        }
+
+        /// <summary>
+        /// Peel this object to the specified type
+        ///
+        /// It will throw if the object cannot be peeled to the type.
+        /// </summary>
+        /// <typeparam name="T">The kind of <see cref="GitObject"/> to peel to.</typeparam>
+        /// <returns>The peeled object</returns>
+        public T Peel<T>() where T : GitObject
+        {
+            return Peel<T>(true);
         }
 
         /// <summary>
