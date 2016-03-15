@@ -352,7 +352,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="RepositoryInformation.cs" />
-    <Compile Include="RepositoryExtensions.cs" />
     <Compile Include="Core\Handles\RepositorySafeHandle.cs" />
     <Compile Include="RepositoryOptions.cs" />
     <Compile Include="RepositoryStatus.cs" />
@@ -388,6 +387,11 @@
     <Compile Include="IDiffResult.cs" />
     <Compile Include="Core\GitCredential.cs" />
     <Compile Include="Core\GitCredentialUserpass.cs" />
+    <Compile Include="Repository.Lookup.cs" />
+    <Compile Include="Repository.Checkout.cs" />
+    <Compile Include="Repository.Branch.cs" />
+    <Compile Include="Repository.Reset.cs" />
+    <Compile Include="Repository.Workdir.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
