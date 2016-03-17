@@ -52,7 +52,8 @@ namespace LibGit2Sharp
 
         internal unsafe TreeChanges(DiffHandle diff)
         {
-            Proxy.git_diff_foreach(diff, FileCallback, null, null);
+            using(diff)
+                Proxy.git_diff_foreach(diff, FileCallback, null, null);
         }
 
         private unsafe int FileCallback(git_diff_delta* delta, float progress, IntPtr payload)
@@ -168,6 +169,25 @@ namespace LibGit2Sharp
                                      Renamed.Count(),
                                      Copied.Count());
             }
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            // This doesn't do anything yet because it loads everything
+            // eagerly and disposes of the diff handle in the constructor.
         }
     }
 }
