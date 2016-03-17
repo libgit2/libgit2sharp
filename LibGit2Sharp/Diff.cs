@@ -76,12 +76,6 @@ namespace LibGit2Sharp
             return options;
         }
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected Diff()
-        { }
-
         internal Diff(Repository repo)
         {
             this.repo = repo;

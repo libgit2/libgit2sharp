@@ -10,12 +10,6 @@ namespace LibGit2Sharp
     /// </summary>
     public class BeforeRebaseStepInfo
     {
-        /// <summary>
-        /// Needed for mocking.
-        /// </summary>
-        protected BeforeRebaseStepInfo()
-        { }
-
         internal BeforeRebaseStepInfo(RebaseStepInfo stepInfo, long stepIndex, long totalStepCount)
         {
             StepInfo = stepInfo;

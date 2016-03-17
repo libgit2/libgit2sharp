@@ -10,12 +10,6 @@ namespace LibGit2Sharp
     public class CertificateSsh : Certificate
     {
         /// <summary>
-        /// For mocking purposes
-        /// </summary>
-        protected CertificateSsh()
-        { }
-
-        /// <summary>
         /// The MD5 hash of the host. Meaningful if <see cref="HasMD5"/> is true
         /// </summary>
         public readonly byte[] HashMD5;

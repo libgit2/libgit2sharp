@@ -8,12 +8,6 @@ namespace LibGit2Sharp
     public class PushResult
     {
         /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected PushResult()
-        { }
-
-        /// <summary>
         /// <see cref="PushStatusError"/>s that failed to update.
         /// </summary>
         public virtual IEnumerable<PushStatusError> FailedPushUpdates
@@ -30,7 +24,10 @@ namespace LibGit2Sharp
             get { return failedPushUpdates.Count > 0; }
         }
 
-        internal PushResult(List<PushStatusError> failedPushUpdates)
+        /// <summary>
+        /// <see cref="PushStatusError"/>s that failed to update.
+        /// </summary>
+        public PushResult(List<PushStatusError> failedPushUpdates)
         {
             this.failedPushUpdates = failedPushUpdates ?? new List<PushStatusError>();
         }

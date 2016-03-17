@@ -24,12 +24,6 @@ namespace LibGit2Sharp
         private int linesAdded;
         private int linesDeleted;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected Patch()
-        { }
-
         internal Patch(DiffSafeHandle diff)
         {
             int count = Proxy.git_diff_num_deltas(diff);

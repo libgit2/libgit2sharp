@@ -36,16 +36,9 @@ namespace LibGit2Sharp.Tests
 
         private class ObjectWithEquality : GitObject
         {
-            private readonly ObjectId id;
-
             public ObjectWithEquality(ObjectId id = null)
+                : base(null, id)
             {
-                this.id = id;
-            }
-
-            public override ObjectId Id
-            {
-                get { return id; }
             }
         }
     }

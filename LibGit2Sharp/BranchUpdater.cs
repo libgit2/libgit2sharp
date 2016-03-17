@@ -12,12 +12,6 @@ namespace LibGit2Sharp
         private readonly Repository repo;
         private readonly Branch branch;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected BranchUpdater()
-        { }
-
         internal BranchUpdater(Repository repo, Branch branch)
         {
             Ensure.ArgumentNotNull(repo, "repo");

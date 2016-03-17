@@ -20,12 +20,6 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<Conflict> equalityHelper =
             new LambdaEqualityHelper<Conflict>(x => x.Ancestor, x => x.Ours, x => x.Theirs);
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected Conflict()
-        { }
-
         internal Conflict(IndexEntry ancestor, IndexEntry ours, IndexEntry theirs)
         {
             this.ancestor = ancestor;

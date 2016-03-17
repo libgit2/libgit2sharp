@@ -16,12 +16,6 @@ namespace LibGit2Sharp
         private readonly Repository repo;
         private readonly Remote remote;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected RemoteUpdater()
-        { }
-
         internal RemoteUpdater(Repository repo, Remote remote)
         {
             Ensure.ArgumentNotNull(repo, "repo");

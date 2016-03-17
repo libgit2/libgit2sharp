@@ -17,12 +17,6 @@ namespace LibGit2Sharp
         internal readonly Repository repo;
 
         /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected StashCollection()
-        { }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="StashCollection"/> class.
         /// </summary>
         /// <param name="repo">The repo.</param>

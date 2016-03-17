@@ -9,12 +9,6 @@ namespace LibGit2Sharp
     {
         private readonly Lazy<GitObject> targetBuilder;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected DirectReference()
-        { }
-
         internal DirectReference(string canonicalName, IRepository repo, ObjectId targetId)
             : base(repo, canonicalName, targetId.Sha)
         {

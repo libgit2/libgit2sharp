@@ -10,13 +10,6 @@ namespace LibGit2Sharp
     /// </summary>
     public class CertificateX509 : Certificate
     {
-
-        /// <summary>
-        /// For mocking purposes
-        /// </summary>
-        protected CertificateX509()
-        { }
-
         /// <summary>
         /// The certificate.
         /// </summary>

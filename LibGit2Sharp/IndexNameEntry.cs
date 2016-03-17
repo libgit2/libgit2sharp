@@ -16,12 +16,6 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<IndexNameEntry> equalityHelper =
             new LambdaEqualityHelper<IndexNameEntry>(x => x.Ancestor, x => x.Ours, x => x.Theirs);
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected IndexNameEntry()
-        { }
-
         internal static IndexNameEntry BuildFromPtr(IndexNameEntrySafeHandle handle)
         {
             if (handle == null || handle.IsZero)
@@ -52,17 +46,17 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the path of the ancestor side of the conflict.
         /// </summary>
-        public virtual string Ancestor { get; private set; }
+        public virtual string Ancestor { get; set; }
 
         /// <summary>
         /// Gets the path of the "ours" side of the conflict.
         /// </summary>
-        public virtual string Ours { get; private set; }
+        public virtual string Ours { get; set; }
 
         /// <summary>
         /// Gets the path of the "theirs" side of the conflict.
         /// </summary>
-        public virtual string Theirs { get; private set; }
+        public virtual string Theirs { get; set; }
 
         /// <summary>
         /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="IndexNameEntry"/>.

@@ -31,12 +31,6 @@ namespace LibGit2Sharp
         protected readonly Repository repo;
 
         /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected GitObject()
-        { }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="GitObject"/> class.
         /// </summary>
         /// <param name="repo">The <see cref="Repository"/> containing the object.</param>

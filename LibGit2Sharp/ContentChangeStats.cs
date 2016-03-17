@@ -15,12 +15,6 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual int LinesDeleted { get; private set; }
 
-        /// <summary>
-        /// For mocking.
-        /// </summary>
-        protected ContentChangeStats()
-        { }
-
         internal ContentChangeStats(int added, int deleted)
         {
             LinesAdded = added;

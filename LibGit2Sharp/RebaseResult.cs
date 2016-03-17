@@ -33,44 +33,27 @@ namespace LibGit2Sharp
     public class RebaseResult
     {
         /// <summary>
-        /// Needed for mocking.
-        /// </summary>
-        protected RebaseResult()
-        { }
-
-        internal RebaseResult(RebaseStatus status,
-                              long stepNumber,
-                              long totalSteps,
-                              RebaseStepInfo currentStepInfo)
-        {
-            Status = status;
-            CompletedStepCount = stepNumber;
-            TotalStepCount = totalSteps;
-            CurrentStepInfo = currentStepInfo;
-        }
-
-        /// <summary>
         /// Information on the operation to be performed in the current step.
         /// If the overall Rebase operation has completed successfully, this will
         /// be null.
         /// </summary>
-        public virtual RebaseStepInfo CurrentStepInfo { get; private set; }
+        public virtual RebaseStepInfo CurrentStepInfo { get; set; }
 
         /// <summary>
         /// Did the rebase operation run until it should stop
         /// (completed the rebase, or the operation for the current step
         /// is one that sequencing should stop.
         /// </summary>
-        public virtual RebaseStatus Status { get; protected set; }
+        public virtual RebaseStatus Status { get; set; }
 
         /// <summary>
         /// The number of completed steps.
         /// </summary>
-        public virtual long CompletedStepCount { get; protected set; }
+        public virtual long CompletedStepCount { get; set; }
 
         /// <summary>
         /// The total number of steps in the rebase.
         /// </summary>
-        public virtual long TotalStepCount { get; protected set; }
+        public virtual long TotalStepCount { get; set; }
     }
 }

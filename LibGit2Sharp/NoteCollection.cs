@@ -18,12 +18,6 @@ namespace LibGit2Sharp
         internal readonly Repository repo;
         private readonly Lazy<string> defaultNamespace;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected NoteCollection()
-        { }
-
         internal NoteCollection(Repository repo)
         {
             this.repo = repo;

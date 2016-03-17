@@ -19,12 +19,6 @@ namespace LibGit2Sharp
         private readonly string canonicalName;
         private readonly string targetIdentifier;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected Reference()
-        { }
-
         /// <remarks>
         /// This would be protected+internal, were that supported by C#.
         /// Do not use except in subclasses.

@@ -22,12 +22,6 @@ namespace LibGit2Sharp
         #pragma warning restore 0414
         readonly Lazy<IList<RefSpec>> refspecs;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected RefSpecCollection()
-        { }
-
         internal RefSpecCollection(Remote remote, RemoteSafeHandle handle)
         {
             Ensure.ArgumentNotNull(handle, "handle");

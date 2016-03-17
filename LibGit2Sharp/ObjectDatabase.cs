@@ -19,12 +19,6 @@ namespace LibGit2Sharp
         private readonly Repository repo;
         private readonly ObjectDatabaseSafeHandle handle;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected ObjectDatabase()
-        { }
-
         internal ObjectDatabase(Repository repo)
         {
             this.repo = repo;

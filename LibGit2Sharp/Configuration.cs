@@ -23,12 +23,6 @@ namespace LibGit2Sharp
 
         private ConfigurationSafeHandle configHandle;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected Configuration()
-        { }
-
         internal Configuration(
             Repository repository,
             string repositoryConfigurationFileLocation,
@@ -713,9 +707,12 @@ namespace LibGit2Sharp
         {
             var entry = entryPtr.MarshalAs<GitConfigEntry>();
 
-            return new ConfigurationEntry<string>(LaxUtf8Marshaler.FromNative(entry.namePtr),
-                                                  LaxUtf8Marshaler.FromNative(entry.valuePtr),
-                                                  (ConfigurationLevel)entry.level);
+            return new ConfigurationEntry<string>
+            {
+                Key = LaxUtf8Marshaler.FromNative(entry.namePtr),
+                Value = LaxUtf8Marshaler.FromNative(entry.valuePtr),
+                Level = (ConfigurationLevel)entry.level,
+            };
         }
 
         /// <summary>

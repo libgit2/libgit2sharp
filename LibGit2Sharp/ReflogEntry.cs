@@ -10,16 +10,25 @@ namespace LibGit2Sharp
     /// </summary>
     public class ReflogEntry
     {
-        private readonly ObjectId _from;
-        private readonly ObjectId _to;
-        private readonly Signature _committer;
-        private readonly string message;
+        /// <summary>
+        /// <see cref="ObjectId"/> targeted before the reference update described by this <see cref="ReflogEntry"/>
+        /// </summary>
+        public ObjectId From { get; set; }
 
         /// <summary>
-        /// Needed for mocking purposes.
+        /// <see cref="ObjectId"/> targeted after the reference update described by this <see cref="ReflogEntry"/>
         /// </summary>
-        protected ReflogEntry()
-        { }
+        public ObjectId To { get; set; }
+
+        /// <summary>
+        /// <see cref="Signature"/> of the committer of this reference update
+        /// </summary>
+        public Signature Committer { get; set; }
+
+        /// <summary>
+        /// the message assiocated to this reference update
+        /// </summary>
+        public string Message { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReflogEntry"/> class.
@@ -27,42 +36,10 @@ namespace LibGit2Sharp
         /// <param name="entryHandle">a <see cref="SafeHandle"/> to the reflog entry</param>
         public ReflogEntry(SafeHandle entryHandle)
         {
-            _from = Proxy.git_reflog_entry_id_old(entryHandle);
-            _to = Proxy.git_reflog_entry_id_new(entryHandle);
-            _committer = Proxy.git_reflog_entry_committer(entryHandle);
-            message = Proxy.git_reflog_entry_message(entryHandle);
-        }
-
-        /// <summary>
-        /// <see cref="ObjectId"/> targeted before the reference update described by this <see cref="ReflogEntry"/>
-        /// </summary>
-        public virtual ObjectId From
-        {
-            get { return _from; }
-        }
-
-        /// <summary>
-        /// <see cref="ObjectId"/> targeted after the reference update described by this <see cref="ReflogEntry"/>
-        /// </summary>
-        public virtual ObjectId To
-        {
-            get { return _to; }
-        }
-
-        /// <summary>
-        /// <see cref="Signature"/> of the committer of this reference update
-        /// </summary>
-        public virtual Signature Committer
-        {
-            get { return _committer; }
-        }
-
-        /// <summary>
-        /// the message assiocated to this reference update
-        /// </summary>
-        public virtual string Message
-        {
-            get { return message; }
+            From = Proxy.git_reflog_entry_id_old(entryHandle);
+            To = Proxy.git_reflog_entry_id_new(entryHandle);
+            Committer = Proxy.git_reflog_entry_committer(entryHandle);
+            Message = Proxy.git_reflog_entry_message(entryHandle);
         }
     }
 }

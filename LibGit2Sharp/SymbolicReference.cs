@@ -11,12 +11,6 @@ namespace LibGit2Sharp
     {
         private readonly Reference target;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected SymbolicReference()
-        { }
-
         internal SymbolicReference(IRepository repo, string canonicalName, string targetIdentifier, Reference target)
             : base(repo, canonicalName, targetIdentifier)
         {

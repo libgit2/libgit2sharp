@@ -18,12 +18,6 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<RenameDetails> equalityHelper =
             new LambdaEqualityHelper<RenameDetails>(x => x.OldFilePath, x => x.NewFilePath, x => x.Similarity);
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected RenameDetails()
-        { }
-
         internal RenameDetails(string oldFilePath, string newFilePath, int similarity)
         {
             this.oldFilePath = oldFilePath;

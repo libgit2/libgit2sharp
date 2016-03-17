@@ -8,12 +8,6 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class GitLink : GitObject
     {
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected GitLink()
-        { }
-
         internal GitLink(Repository repo, ObjectId id)
             : base(repo, id)
         { }

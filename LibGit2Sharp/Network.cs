@@ -17,12 +17,6 @@ namespace LibGit2Sharp
         private readonly Repository repository;
         private readonly Lazy<RemoteCollection> remotes;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected Network()
-        { }
-
         internal Network(Repository repository)
         {
             this.repository = repository;

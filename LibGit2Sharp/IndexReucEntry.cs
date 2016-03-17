@@ -19,12 +19,6 @@ namespace LibGit2Sharp
                                                      x => x.OurId, x => x.OurMode,
                                                      x => x.TheirId, x => x.TheirMode);
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected IndexReucEntry()
-        { }
-
         internal static IndexReucEntry BuildFromPtr(IndexReucEntrySafeHandle handle)
         {
             if (handle == null || handle.IsZero)
@@ -51,43 +45,43 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the path of this conflict.
         /// </summary>
-        public virtual string Path { get; private set; }
+        public virtual string Path { get; set; }
 
         /// <summary>
         /// Gets the <see cref="ObjectId"/> that was the ancestor of this
         /// conflict.
         /// </summary>
-        public virtual ObjectId AncestorId { get; private set; }
+        public virtual ObjectId AncestorId { get; set; }
 
         /// <summary>
         /// Gets the <see cref="Mode"/> of the file that was the ancestor of
         /// conflict.
         /// </summary>
-        public virtual Mode AncestorMode { get; private set; }
+        public virtual Mode AncestorMode { get; set; }
 
         /// <summary>
         /// Gets the <see cref="ObjectId"/> that was "our" side of this
         /// conflict.
         /// </summary>
-        public virtual ObjectId OurId { get; private set; }
+        public virtual ObjectId OurId { get; set; }
 
         /// <summary>
         /// Gets the <see cref="Mode"/> of the file that was "our" side of
         /// the conflict.
         /// </summary>
-        public virtual Mode OurMode { get; private set; }
+        public virtual Mode OurMode { get; set; }
 
         /// <summary>
         /// Gets the <see cref="ObjectId"/> that was "their" side of this
         /// conflict.
         /// </summary>
-        public virtual ObjectId TheirId { get; private set; }
+        public virtual ObjectId TheirId { get; set; }
 
         /// <summary>
         /// Gets the <see cref="Mode"/> of the file that was "their" side of
         /// the conflict.
         /// </summary>
-        public virtual Mode TheirMode { get; private set; }
+        public virtual Mode TheirMode { get; set; }
 
         /// <summary>
         /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="IndexReucEntry"/>.

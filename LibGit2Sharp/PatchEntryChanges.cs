@@ -7,12 +7,6 @@
     {
         private readonly TreeEntryChanges treeEntryChanges;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected PatchEntryChanges()
-        { }
-
         internal PatchEntryChanges(bool isBinaryComparison, TreeEntryChanges treeEntryChanges)
             : base(isBinaryComparison)
         {

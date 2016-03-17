@@ -511,9 +511,12 @@ namespace LibGit2Sharp.Core
                 handle.SafeDispose();
             }
 
-            return new ConfigurationEntry<T>(LaxUtf8Marshaler.FromNative(entry.namePtr),
-                                             (T)configurationParser[typeof(T)](LaxUtf8Marshaler.FromNative(entry.valuePtr)),
-                                             (ConfigurationLevel)entry.level);
+            return new ConfigurationEntry<T>
+            {
+                Key = LaxUtf8Marshaler.FromNative(entry.namePtr),
+                Value = (T)configurationParser[typeof(T)](LaxUtf8Marshaler.FromNative(entry.valuePtr)),
+                Level = (ConfigurationLevel)entry.level,
+            };
         }
 
         public static ConfigurationSafeHandle git_config_new()

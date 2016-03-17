@@ -9,12 +9,6 @@ namespace LibGit2Sharp
     ///</summary>
     public class Stash : ReferenceWrapper<Commit>
     {
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected Stash()
-        { }
-
         internal Stash(Repository repo, ObjectId targetId, int index)
             : base(repo, new DirectReference(string.Format(CultureInfo.InvariantCulture, "stash@{{{0}}}", index), repo, targetId), r => r.CanonicalName)
         { }

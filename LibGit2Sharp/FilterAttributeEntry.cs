@@ -17,11 +17,6 @@ namespace LibGit2Sharp
         private readonly string filterDefinition;
 
         /// <summary>
-        /// For testing purposes
-        /// </summary>
-        protected FilterAttributeEntry() { }
-
-        /// <summary>
         /// The name of the filter found in a .gitattributes file.
         /// </summary>
         /// <param name="filterName">The name of the filter as found in the .gitattributes file without the "filter=" prefix</param>

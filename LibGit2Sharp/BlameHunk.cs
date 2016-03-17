@@ -48,12 +48,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// For easier mocking
-        /// </summary>
-        protected BlameHunk()
-        { }
-
-        /// <summary>
         /// Determine if this hunk contains a given line.
         /// </summary>
         /// <param name="line">Line number to test</param>

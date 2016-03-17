@@ -19,12 +19,6 @@ namespace LibGit2Sharp
         private readonly int totalLinesAdded;
         private readonly int totalLinesDeleted;
 
-        /// <summary>
-        /// For mocking.
-        /// </summary>
-        protected PatchStats()
-        { }
-
         internal PatchStats(DiffSafeHandle diff)
         {
             int count = Proxy.git_diff_num_deltas(diff);

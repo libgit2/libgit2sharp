@@ -14,12 +14,6 @@ namespace LibGit2Sharp
     {
         private readonly StringBuilder patchBuilder = new StringBuilder();
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected ContentChanges()
-        { }
-
         internal ContentChanges(Repository repo, Blob oldBlob, Blob newBlob, GitDiffOptions options)
         {
             Proxy.git_diff_blobs(repo.Handle,

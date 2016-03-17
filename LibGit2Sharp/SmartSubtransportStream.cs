@@ -11,15 +11,6 @@ namespace LibGit2Sharp
     public abstract class SmartSubtransportStream
     {
         /// <summary>
-        /// This is to quiet the MetaFixture.TypesInLibGit2SharpMustBeExtensibleInATestingContext test.
-        /// Do not use this constructor.
-        /// </summary>
-        protected internal SmartSubtransportStream()
-        {
-            throw new InvalidOperationException();
-        }
-
-        /// <summary>
         /// Base constructor for SmartTransportStream. Make sure that your derived class calls this base constructor.
         /// </summary>
         /// <param name="subtransport">The subtransport that this stream represents a connection over.</param>

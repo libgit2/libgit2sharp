@@ -16,12 +16,6 @@ namespace LibGit2Sharp
         internal readonly Repository repo;
 
         /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected TagCollection()
-        { }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="TagCollection"/> class.
         /// </summary>
         /// <param name="repo">The repo.</param>

@@ -6,18 +6,6 @@
     public class RevertResult
     {
         /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected RevertResult()
-        { }
-
-        internal RevertResult(RevertStatus status, Commit commit = null)
-        {
-            Commit = commit;
-            Status = status;
-        }
-
-        /// <summary>
         /// The resulting commit of the revert.
         /// <para>
         ///   This will return <code>null</code> if the revert was not committed.
@@ -26,12 +14,12 @@
         ///       2) The option to not commit on success is set.
         ///   </para>
         /// </summary>
-        public virtual Commit Commit { get; private set; }
+        public virtual Commit Commit { get; set; }
 
         /// <summary>
         /// The status of the revert.
         /// </summary>
-        public virtual RevertStatus Status { get; private set; }
+        public virtual RevertStatus Status { get; set; }
     }
 
      /// <summary>

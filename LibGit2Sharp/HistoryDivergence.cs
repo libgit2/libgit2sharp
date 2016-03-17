@@ -11,10 +11,7 @@ namespace LibGit2Sharp
     {
         private readonly Lazy<Commit> commonAncestor;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected HistoryDivergence()
+        internal HistoryDivergence()
         { }
 
         internal HistoryDivergence(Repository repo, Commit one, Commit another)

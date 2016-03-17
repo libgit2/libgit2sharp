@@ -7,12 +7,6 @@ namespace LibGit2Sharp
     /// </summary>
     internal class MergeHead : ReferenceWrapper<Commit>
     {
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected MergeHead()
-        { }
-
         internal MergeHead(Repository repo, ObjectId targetId, int index)
             : base(repo, new DirectReference(string.Format(CultureInfo.InvariantCulture, "MERGE_HEAD[{0}]", index), repo, targetId), r => r.CanonicalName)
         { }

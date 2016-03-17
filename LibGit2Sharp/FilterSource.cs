@@ -8,11 +8,6 @@ namespace LibGit2Sharp
     /// </summary>
     public class FilterSource
     {
-        /// <summary>
-        /// Needed for mocking purposes
-        /// </summary>
-        protected FilterSource() { }
-
         internal FilterSource(FilePath path, FilterMode mode, GitFilterSource source)
         {
             SourceMode = mode;

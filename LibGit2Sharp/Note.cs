@@ -15,12 +15,6 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<Note> equalityHelper =
             new LambdaEqualityHelper<Note>(x => x.BlobId, x => x.TargetObjectId, x => x.Namespace);
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected Note()
-        { }
-
         private Note(ObjectId blobId, string message, ObjectId targetObjectId, string @namespace)
         {
             BlobId = blobId;

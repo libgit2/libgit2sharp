@@ -18,12 +18,6 @@ namespace LibGit2Sharp
 
         private readonly ILazy<int> lazyCount;
 
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected Tree()
-        { }
-
         internal Tree(Repository repo, ObjectId id, FilePath path)
             : base(repo, id)
         {

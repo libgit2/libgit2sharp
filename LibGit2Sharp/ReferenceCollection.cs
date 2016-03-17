@@ -18,12 +18,6 @@ namespace LibGit2Sharp
         internal readonly Repository repo;
 
         /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected ReferenceCollection()
-        { }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="ReferenceCollection"/> class.
         /// </summary>
         /// <param name="repo">The repo.</param>

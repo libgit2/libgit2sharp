@@ -12,12 +12,6 @@ namespace LibGit2Sharp
         private readonly Lazy<Branch> trackedBranch;
 
         /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected Branch()
-        { }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="Branch"/> class.
         /// </summary>
         /// <param name="repo">The repo.</param>

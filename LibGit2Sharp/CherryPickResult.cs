@@ -6,18 +6,6 @@
     public class CherryPickResult
     {
         /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected CherryPickResult()
-        { }
-
-        internal CherryPickResult(CherryPickStatus status, Commit commit = null)
-        {
-            Commit = commit;
-            Status = status;
-        }
-
-        /// <summary>
         /// The resulting commit of the cherry pick.
         /// <para>
         ///   This will return <code>null</code> if the cherry pick was not committed.
@@ -26,12 +14,12 @@
         ///       2) The option to not commit on success is set.
         ///   </para>
         /// </summary>
-        public virtual Commit Commit { get; private set; }
+        public virtual Commit Commit { get; set; }
 
         /// <summary>
         /// The status of the cherry pick.
         /// </summary>
-        public virtual CherryPickStatus Status { get; private set; }
+        public virtual CherryPickStatus Status { get; set; }
     }
 
     /// <summary>

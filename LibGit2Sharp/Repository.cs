@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -15,7 +16,7 @@ namespace LibGit2Sharp
     /// A Repository is the primary interface into a git repository
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public sealed class Repository : IRepository
+    public partial class Repository : IRepository
     {
         private readonly bool isBare;
         private readonly BranchCollection branches;
@@ -143,6 +144,57 @@ namespace LibGit2Sharp
                 CleanupDisposableDependencies();
                 throw;
             }
+        }
+
+        private Commit RetrieveHeadCommit(IRepository repository)
+        {
+            Commit commit = repository.Head.Tip;
+
+            Ensure.GitObjectIsNotNull(commit, "HEAD");
+
+            return commit;
+        }
+
+        /// <summary>
+        /// Creates a lightweight tag with the specified name. This tag will point at the commit pointed at by the <see cref="Repository.Head"/>.
+        /// </summary>
+        /// <param name="tagName">The name of the tag to create.</param>
+        public Tag ApplyTag(string tagName)
+        {
+            return Tags.Add(tagName, RetrieveHeadCommit(this));
+        }
+
+        /// <summary>
+        /// Creates a lightweight tag with the specified name. This tag will point at the <paramref name="objectish"/>.
+        /// </summary>
+        /// <param name="tagName">The name of the tag to create.</param>
+        /// <param name="objectish">The revparse spec for the target object.</param>
+        public Tag ApplyTag(string tagName, string objectish)
+        {
+            return Tags.Add(tagName, objectish);
+        }
+
+        /// <summary>
+        /// Creates an annotated tag with the specified name. This tag will point at the commit pointed at by the <see cref="Repository.Head"/>.
+        /// </summary>
+        /// <param name="tagName">The name of the tag to create.</param>
+        /// <param name="tagger">The identity of the creator of this tag.</param>
+        /// <param name="message">The annotation message.</param>
+        public Tag ApplyTag(string tagName, Signature tagger, string message)
+        {
+            return Tags.Add(tagName, RetrieveHeadCommit(this), tagger, message);
+        }
+
+        /// <summary>
+        /// Creates an annotated tag with the specified name. This tag will point at the <paramref name="objectish"/>.
+        /// </summary>
+        /// <param name="tagName">The name of the tag to create.</param>
+        /// <param name="objectish">The revparse spec for the target object.</param>
+        /// <param name="tagger">The identity of the creator of this tag.</param>
+        /// <param name="message">The annotation message.</param>
+        public Tag ApplyTag(string tagName, string objectish, Signature tagger, string message)
+        {
+            return Tags.Add(tagName, objectish, tagger, message);
         }
 
         /// <summary>
@@ -436,63 +488,6 @@ namespace LibGit2Sharp
             }
         }
 
-        /// <summary>
-        /// Try to lookup an object by its <see cref="ObjectId"/>. If no matching object is found, null will be returned.
-        /// </summary>
-        /// <param name="id">The id to lookup.</param>
-        /// <returns>The <see cref="GitObject"/> or null if it was not found.</returns>
-        public GitObject Lookup(ObjectId id)
-        {
-            return LookupInternal(id, GitObjectType.Any, null);
-        }
-
-        /// <summary>
-        /// Try to lookup an object by its sha or a reference canonical name. If no matching object is found, null will be returned.
-        /// </summary>
-        /// <param name="objectish">A revparse spec for the object to lookup.</param>
-        /// <returns>The <see cref="GitObject"/> or null if it was not found.</returns>
-        public GitObject Lookup(string objectish)
-        {
-            return Lookup(objectish, GitObjectType.Any, LookUpOptions.None);
-        }
-
-        /// <summary>
-        /// Try to lookup an object by its <see cref="ObjectId"/> and <see cref="ObjectType"/>. If no matching object is found, null will be returned.
-        /// </summary>
-        /// <param name="id">The id to lookup.</param>
-        /// <param name="type">The kind of GitObject being looked up</param>
-        /// <returns>The <see cref="GitObject"/> or null if it was not found.</returns>
-        public GitObject Lookup(ObjectId id, ObjectType type)
-        {
-            return LookupInternal(id, type.ToGitObjectType(), null);
-        }
-
-        /// <summary>
-        /// Try to lookup an object by its sha or a reference canonical name and <see cref="ObjectType"/>. If no matching object is found, null will be returned.
-        /// </summary>
-        /// <param name="objectish">A revparse spec for the object to lookup.</param>
-        /// <param name="type">The kind of <see cref="GitObject"/> being looked up</param>
-        /// <returns>The <see cref="GitObject"/> or null if it was not found.</returns>
-        public GitObject Lookup(string objectish, ObjectType type)
-        {
-            return Lookup(objectish, type.ToGitObjectType(), LookUpOptions.None);
-        }
-
-        internal GitObject LookupInternal(ObjectId id, GitObjectType type, FilePath knownPath)
-        {
-            Ensure.ArgumentNotNull(id, "id");
-
-            using (GitObjectSafeHandle obj = Proxy.git_object_lookup(handle, id, type))
-            {
-                if (obj == null || obj.IsInvalid)
-                {
-                    return null;
-                }
-
-                return GitObject.BuildFrom(this, id, Proxy.git_object_type(obj), knownPath);
-            }
-        }
-
         private static string PathFromRevparseSpec(string spec)
         {
             if (spec.StartsWith(":/", StringComparison.Ordinal))
@@ -507,50 +502,6 @@ namespace LibGit2Sharp
 
             var m = Regex.Match(spec, @"[^@^ ]*:(.*)");
             return (m.Groups.Count > 1) ? m.Groups[1].Value : null;
-        }
-
-        internal GitObject Lookup(string objectish, GitObjectType type, LookUpOptions lookUpOptions)
-        {
-            Ensure.ArgumentNotNullOrEmptyString(objectish, "objectish");
-
-            GitObject obj;
-            using (GitObjectSafeHandle sh = Proxy.git_revparse_single(handle, objectish))
-            {
-                if (sh == null)
-                {
-                    if (lookUpOptions.HasFlag(LookUpOptions.ThrowWhenNoGitObjectHasBeenFound))
-                    {
-                        Ensure.GitObjectIsNotNull(null, objectish);
-                    }
-
-                    return null;
-                }
-
-                GitObjectType objType = Proxy.git_object_type(sh);
-
-                if (type != GitObjectType.Any && objType != type)
-                {
-                    return null;
-                }
-
-                obj = GitObject.BuildFrom(this, Proxy.git_object_id(sh), objType, PathFromRevparseSpec(objectish));
-            }
-
-            if (lookUpOptions.HasFlag(LookUpOptions.DereferenceResultToCommit))
-            {
-                return obj.DereferenceToCommit(lookUpOptions.HasFlag(LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit));
-            }
-
-            return obj;
-        }
-
-        internal Commit LookupCommit(string committish)
-        {
-            return (Commit)Lookup(committish,
-                                  GitObjectType.Any,
-                                  LookUpOptions.ThrowWhenNoGitObjectHasBeenFound |
-                                  LookUpOptions.DereferenceResultToCommit |
-                                  LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
         }
 
         /// <summary>
@@ -615,6 +566,28 @@ namespace LibGit2Sharp
             }
 
             return discoveredPath.Native;
+        }
+
+        /// <summary>
+        /// Fetch from the specified remote.
+        /// </summary>
+        /// <param name="remoteName">The name of the <see cref="Remote"/> to fetch from.</param>
+        public void Fetch(string remoteName)
+        {
+            Fetch(remoteName, null);
+        }
+
+        /// <summary>
+        /// Fetch from the specified remote.
+        /// </summary>
+        /// <param name="remoteName">The name of the <see cref="Remote"/> to fetch from.</param>
+        /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
+        public void Fetch(string remoteName, FetchOptions options)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(remoteName, "remoteName");
+
+            Remote remote = Network.Remotes.RemoteForName(remoteName, true);
+            Network.Fetch(remote, options);
         }
 
         /// <summary>
@@ -824,6 +797,16 @@ namespace LibGit2Sharp
         /// Find where each line of a file originated.
         /// </summary>
         /// <param name="path">Path of the file to blame.</param>
+        /// <returns>The blame for the file.</returns>
+        public BlameHunkCollection Blame(string path)
+        {
+            return Blame(path, null);
+        }
+
+        /// <summary>
+        /// Find where each line of a file originated.
+        /// </summary>
+        /// <param name="path">Path of the file to blame.</param>
         /// <param name="options">Specifies optional parameters; if null, the defaults are used.</param>
         /// <returns>The blame for the file.</returns>
         public BlameHunkCollection Blame(string path, BlameOptions options)
@@ -831,203 +814,136 @@ namespace LibGit2Sharp
             return new BlameHunkCollection(this, Handle, path, options ?? new BlameOptions());
         }
 
-        /// <summary>
-        /// Checkout the specified <see cref="Branch"/>, reference or SHA.
-        /// <para>
-        ///   If the committishOrBranchSpec parameter resolves to a branch name, then the checked out HEAD will
-        ///   will point to the branch. Otherwise, the HEAD will be detached, pointing at the commit sha.
-        /// </para>
-        /// </summary>
-        /// <param name="committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
-        /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        public Branch Checkout(string committishOrBranchSpec, CheckoutOptions options)
+        private ObjectId DereferenceToCommit(Repository repo, string identifier)
         {
-            Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
-            Ensure.ArgumentNotNull(options, "options");
+            var options = LookUpOptions.DereferenceResultToCommit;
 
-            var handles = Proxy.git_revparse_ext(Handle, committishOrBranchSpec);
-            if (handles == null)
+            if (!AllowOrphanReference(repo, identifier))
             {
-                Ensure.GitObjectIsNotNull(null, committishOrBranchSpec);
+                options |= LookUpOptions.ThrowWhenNoGitObjectHasBeenFound;
             }
 
-            var objH = handles.Item1;
-            var refH = handles.Item2;
-            GitObject obj;
-            try
+            // TODO: Should we check the type? Git-log allows TagAnnotation oid as parameter. But what about Blobs and Trees?
+            GitObject commit = repo.Lookup(identifier, GitObjectType.Any, options);
+
+            return commit != null ? commit.Id : null;
+        }
+
+        private bool AllowOrphanReference(IRepository repo, string identifier)
+        {
+            return string.Equals(identifier, "HEAD", StringComparison.Ordinal)
+                || string.Equals(identifier, repo.Head.CanonicalName, StringComparison.Ordinal);
+        }
+
+        private ObjectId SingleCommittish(object identifier)
+        {
+            if (ReferenceEquals(identifier, null))
             {
-                if (!refH.IsInvalid)
+                return null;
+            }
+
+            if (identifier is string)
+            {
+                return DereferenceToCommit(this, (string)identifier);
+            }
+
+            if (identifier is ObjectId)
+            {
+                return DereferenceToCommit(this, ((ObjectId)identifier).Sha);
+            }
+
+            if (identifier is Commit)
+            {
+                return ((Commit)identifier).Id;
+            }
+
+            if (identifier is TagAnnotation)
+            {
+                return DereferenceToCommit(this, ((TagAnnotation)identifier).Target.Id.Sha);
+            }
+
+            if (identifier is Tag)
+            {
+                return DereferenceToCommit(this, ((Tag)identifier).Target.Id.Sha);
+            }
+
+            var branch = identifier as Branch;
+            if (branch != null)
+            {
+                if (branch.Tip != null || !branch.IsCurrentRepositoryHead)
                 {
-                    var reference = Reference.BuildFromPtr<Reference>(refH, this);
-                    if (reference.IsLocalBranch)
+                    Ensure.GitObjectIsNotNull(branch.Tip, branch.CanonicalName);
+                    return branch.Tip.Id;
+                }
+            }
+
+            if (identifier is Reference)
+            {
+                return DereferenceToCommit(this, ((Reference)identifier).CanonicalName);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Dereferences the passed identifier to a commit. If the identifier is enumerable, all items are dereferenced.
+        /// </summary>
+        /// <param name="identifier">Committish to dereference</param>
+        /// <param name="throwIfNotFound">If true, allow thrown exceptions to propagate. If false, exceptions will be swallowed and null returned.</param>
+        /// <returns>A series of commit <see cref="ObjectId"/>s which identify commit objects.</returns>
+        internal IEnumerable<ObjectId> Committishes(object identifier, bool throwIfNotFound = false)
+        {
+            var singleReturnValue = SingleCommittish(identifier);
+
+            if (singleReturnValue != null)
+            {
+                yield return singleReturnValue;
+                yield break;
+            }
+
+            if (identifier is IEnumerable)
+            {
+                foreach (object entry in (IEnumerable)identifier)
+                {
+                    foreach (ObjectId oid in Committishes(entry))
                     {
-                        Branch branch = Branches[reference.CanonicalName];
-                        return Checkout(branch, options);
+                        yield return oid;
                     }
                 }
 
-                obj = GitObject.BuildFrom(this,
-                                          Proxy.git_object_id(objH),
-                                          Proxy.git_object_type(objH),
-                                          PathFromRevparseSpec(committishOrBranchSpec));
+                yield break;
             }
-            finally
+
+            if (throwIfNotFound)
             {
-                objH.Dispose();
-                refH.Dispose();
+                throw new LibGit2SharpException("Unexpected kind of identifier '{0}'.", identifier);
             }
 
-            Commit commit = obj.DereferenceToCommit(true);
-            Checkout(commit.Tree, options, committishOrBranchSpec);
-
-            return Head;
+            yield return null;
         }
 
         /// <summary>
-        /// Checkout the tip commit of the specified <see cref="Branch"/> object. If this commit is the
-        /// current tip of the branch, will checkout the named branch. Otherwise, will checkout the tip commit
-        /// as a detached HEAD.
+        /// Dereference the identifier to a commit. If the identifier is enumerable, dereference the first element.
         /// </summary>
-        /// <param name="branch">The <see cref="Branch"/> to check out.</param>
-        /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        public Branch Checkout(Branch branch, CheckoutOptions options)
+        /// <param name="identifier">Committish to dereference</param>
+        /// <returns>An <see cref="ObjectId"/> for a commit object.</returns>
+        internal ObjectId Committish(object identifier)
         {
-            Ensure.ArgumentNotNull(branch, "branch");
-            Ensure.ArgumentNotNull(options, "options");
-
-            // Make sure this is not an unborn branch.
-            if (branch.Tip == null)
-            {
-                throw new UnbornBranchException("The tip of branch '{0}' is null. There's nothing to checkout.",
-                                                branch.FriendlyName);
-            }
-
-            if (!branch.IsRemote && !(branch is DetachedHead) &&
-                string.Equals(Refs[branch.CanonicalName].TargetIdentifier, branch.Tip.Id.Sha,
-                StringComparison.OrdinalIgnoreCase))
-            {
-                Checkout(branch.Tip.Tree, options, branch.CanonicalName);
-            }
-            else
-            {
-                Checkout(branch.Tip.Tree, options, branch.Tip.Id.Sha);
-            }
-
-            return Head;
+            return Committishes(identifier, true).First();
         }
 
         /// <summary>
-        /// Checkout the specified <see cref="LibGit2Sharp.Commit"/>.
-        /// <para>
-        ///   Will detach the HEAD and make it point to this commit sha.
-        /// </para>
+        /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="LibGit2Sharp.Commit"/> into the repository.
+        /// The tip of the <see cref="Repository.Head"/> will be used as the parent of this new Commit.
+        /// Once the commit is created, the <see cref="Repository.Head"/> will move forward to point at it.
         /// </summary>
-        /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to check out.</param>
-        /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        public Branch Checkout(Commit commit, CheckoutOptions options)
+        /// <param name="message">The description of why a change was made to the repository.</param>
+        /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
+        /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
+        /// <returns>The generated <see cref="LibGit2Sharp.Commit"/>.</returns>
+        public Commit Commit(string message, Signature author, Signature committer)
         {
-            Ensure.ArgumentNotNull(commit, "commit");
-            Ensure.ArgumentNotNull(options, "options");
-
-            Checkout(commit.Tree, options, commit.Id.Sha);
-
-            return Head;
-        }
-
-        /// <summary>
-        /// Internal implementation of Checkout that expects the ID of the checkout target
-        /// to already be in the form of a canonical branch name or a commit ID.
-        /// </summary>
-        /// <param name="tree">The <see cref="Tree"/> to checkout.</param>
-        /// <param name="checkoutOptions"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <param name="refLogHeadSpec">The spec which will be written as target in the reflog.</param>
-        private void Checkout(
-            Tree tree,
-            CheckoutOptions checkoutOptions,
-            string refLogHeadSpec)
-        {
-            CheckoutTree(tree, null, checkoutOptions);
-
-            Refs.MoveHeadTarget(refLogHeadSpec);
-        }
-
-        /// <summary>
-        /// Checkout the specified tree.
-        /// </summary>
-        /// <param name="tree">The <see cref="Tree"/> to checkout.</param>
-        /// <param name="paths">The paths to checkout.</param>
-        /// <param name="opts">Collection of parameters controlling checkout behavior.</param>
-        private void CheckoutTree(
-            Tree tree,
-            IList<string> paths,
-            IConvertableToGitCheckoutOpts opts)
-        {
-
-            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(opts, ToFilePaths(paths)))
-            {
-                var options = checkoutOptionsWrapper.Options;
-                Proxy.git_checkout_tree(Handle, tree.Id, ref options);
-            }
-        }
-
-        /// <summary>
-        /// Sets the current <see cref="Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
-        /// the content of the working tree to match.
-        /// </summary>
-        /// <param name="resetMode">Flavor of reset operation to perform.</param>
-        /// <param name="commit">The target commit object.</param>
-        public void Reset(ResetMode resetMode, Commit commit)
-        {
-            Reset(resetMode, commit, new CheckoutOptions());
-        }
-
-        /// <summary>
-        /// Sets <see cref="Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
-        /// the content of the working tree to match.
-        /// </summary>
-        /// <param name="resetMode">Flavor of reset operation to perform.</param>
-        /// <param name="commit">The target commit object.</param>
-        /// <param name="opts">Collection of parameters controlling checkout behavior.</param>
-        public void Reset(ResetMode resetMode, Commit commit, CheckoutOptions opts)
-        {
-            Ensure.ArgumentNotNull(commit, "commit");
-            Ensure.ArgumentNotNull(opts, "opts");
-
-            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(opts))
-            {
-                var options = checkoutOptionsWrapper.Options;
-                Proxy.git_reset(handle, commit.Id, resetMode, ref options);
-            }
-        }
-
-        /// <summary>
-        /// Updates specifed paths in the index and working directory with the versions from the specified branch, reference, or SHA.
-        /// <para>
-        /// This method does not switch branches or update the current repository HEAD.
-        /// </para>
-        /// </summary>
-        /// <param name = "committishOrBranchSpec">A revparse spec for the commit or branch to checkout paths from.</param>
-        /// <param name="paths">The paths to checkout. Will throw if null is passed in. Passing an empty enumeration results in nothing being checked out.</param>
-        /// <param name="checkoutOptions">Collection of parameters controlling checkout behavior.</param>
-        public void CheckoutPaths(string committishOrBranchSpec, IEnumerable<string> paths, CheckoutOptions checkoutOptions)
-        {
-            Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
-            Ensure.ArgumentNotNull(paths, "paths");
-
-            var listOfPaths = paths.ToList();
-
-            // If there are no paths, then there is nothing to do.
-            if (listOfPaths.Count == 0)
-            {
-                return;
-            }
-
-            Commit commit = LookupCommit(committishOrBranchSpec);
-
-            CheckoutTree(commit.Tree, listOfPaths, checkoutOptions ?? new CheckoutOptions());
+            return Commit(message, author, committer, default(CommitOptions));
         }
 
         /// <summary>
@@ -1147,21 +1063,6 @@ namespace LibGit2Sharp
             return parents;
         }
 
-        /// <summary>
-        /// Clean the working tree by removing files that are not under version control.
-        /// </summary>
-        public void RemoveUntrackedFiles()
-        {
-            var options = new GitCheckoutOpts
-            {
-                version = 1,
-                checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_REMOVE_UNTRACKED
-                                     | CheckoutStrategy.GIT_CHECKOUT_ALLOW_CONFLICTS,
-            };
-
-            Proxy.git_checkout_index(Handle, new NullGitObjectSafeHandle(), ref options);
-        }
-
         private void CleanupDisposableDependencies()
         {
             while (toCleanup.Count > 0)
@@ -1174,6 +1075,39 @@ namespace LibGit2Sharp
         {
             toCleanup.Push(disposable);
             return disposable;
+        }
+
+        /// <summary>
+        /// Merges changes from branch into the branch pointed at by HEAD.
+        /// </summary>
+        /// <param name="branch">The branch to merge into the branch pointed at by HEAD.</param>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        public MergeResult Merge(Branch branch, Signature merger)
+        {
+            return Merge(branch, merger, null);
+        }
+
+        /// <summary>
+        /// Merges changes from the commit into the branch pointed at by HEAD.
+        /// </summary>
+        /// <param name="committish">The commit to merge into the branch pointed at by HEAD.</param>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        public MergeResult Merge(string committish, Signature merger)
+        {
+            return Merge(committish, merger, null);
+        }
+
+        /// <summary>
+        /// Merges changes from commit into the branch pointed at by HEAD.
+        /// </summary>
+        /// <param name="commit">The commit to merge into the branch pointed at by HEAD.</param>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        public MergeResult Merge(Commit commit, Signature merger)
+        {
+            return Merge(commit, merger, null);
         }
 
         /// <summary>
@@ -1281,6 +1215,17 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Revert the specified commit.
+        /// </summary>
+        /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to revert.</param>
+        /// <param name="reverter">The <see cref="Signature"/> of who is performing the revert.</param>
+        /// <returns>The result of the revert.</returns>
+        public RevertResult Revert(Commit commit, Signature reverter)
+        {
+            return Revert(commit, reverter, null);
+        }
+
+        /// <summary>
+        /// Revert the specified commit.
         /// <para>
         ///  If the revert is successful but there are no changes to commit,
         ///  then the <see cref="RevertStatus"/> will be <see cref="RevertStatus.NothingToRevert"/>.
@@ -1365,15 +1310,30 @@ namespace LibGit2Sharp
                         }
                     }
 
-                    result = new RevertResult(revertStatus, revertCommit);
+                    result = new RevertResult
+                    {
+                        Status = revertStatus,
+                        Commit = revertCommit
+                    };
                 }
                 else
                 {
-                    result = new RevertResult(RevertStatus.Conflicts);
+                    result = new RevertResult { Status = RevertStatus.Conflicts };
                 }
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Cherry-picks the specified commit.
+        /// </summary>
+        /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to cherry-pick.</param>
+        /// <param name="committer">The <see cref="Signature"/> of who is performing the cherry pick.</param>
+        /// <returns>The result of the cherry pick.</returns>
+        public CherryPickResult CherryPick(Commit commit, Signature committer)
+        {
+            return CherryPick(commit, committer, null);
         }
 
         /// <summary>
@@ -1422,11 +1382,18 @@ namespace LibGit2Sharp
                         cherryPickCommit = this.Commit(Info.Message, commit.Author, committer, null);
                     }
 
-                    result = new CherryPickResult(CherryPickStatus.CherryPicked, cherryPickCommit);
+                    result = new CherryPickResult
+                    {
+                        Status = CherryPickStatus.CherryPicked,
+                        Commit = cherryPickCommit
+                    };
                 }
                 else
                 {
-                    result = new CherryPickResult(CherryPickStatus.Conflicts);
+                    result = new CherryPickResult
+                    {
+                        Status = CherryPickStatus.Conflicts
+                    };
                 }
             }
 
@@ -1466,7 +1433,7 @@ namespace LibGit2Sharp
 
             if ((mergeAnalysis & GitMergeAnalysis.GIT_MERGE_ANALYSIS_UP_TO_DATE) == GitMergeAnalysis.GIT_MERGE_ANALYSIS_UP_TO_DATE)
             {
-                return new MergeResult(MergeStatus.UpToDate);
+                return new MergeResult { Status = MergeStatus.UpToDate };
             }
 
             FastForwardStrategy fastForwardStrategy = (options.FastForwardStrategy != FastForwardStrategy.Default) ?
@@ -1570,7 +1537,7 @@ namespace LibGit2Sharp
 
             if (earlyStop)
             {
-                return new MergeResult(MergeStatus.Conflicts);
+                return new MergeResult { Status = MergeStatus.Conflicts };
             }
 
             if (Index.IsFullyMerged)
@@ -1582,11 +1549,15 @@ namespace LibGit2Sharp
                     mergeCommit = Commit(Info.Message, author: merger, committer: merger, options: null);
                 }
 
-                mergeResult = new MergeResult(MergeStatus.NonFastForward, mergeCommit);
+                mergeResult = new MergeResult
+                {
+                    Status = MergeStatus.NonFastForward,
+                    Commit = mergeCommit
+                };
             }
             else
             {
-                mergeResult = new MergeResult(MergeStatus.Conflicts);
+                mergeResult = new MergeResult { Status = MergeStatus.Conflicts };
             }
 
             return mergeResult;
@@ -1623,7 +1594,11 @@ namespace LibGit2Sharp
                 Refs.UpdateTarget(reference, fastForwardCommit.Id.Sha, refLogEntry);
             }
 
-            return new MergeResult(MergeStatus.FastForward, fastForwardCommit);
+            return new MergeResult
+            {
+                Status = MergeStatus.FastForward,
+                Commit = fastForwardCommit
+            };
         }
 
         /// <summary>
@@ -1677,465 +1652,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Promotes to the staging area the latest modifications of a file in the working directory (addition, updation or removal).
-        ///
-        /// If this path is ignored by configuration then it will not be staged unless <see cref="StageOptions.IncludeIgnored"/> is unset.
-        /// </summary>
-        /// <param name="path">The path of the file within the working directory.</param>
-        /// <param name="stageOptions">Determines how paths will be staged.</param>
-        public void Stage(string path, StageOptions stageOptions)
-        {
-            Ensure.ArgumentNotNull(path, "path");
-
-            Stage(new[] { path }, stageOptions);
-        }
-
-        /// <summary>
-        /// Promotes to the staging area the latest modifications of a collection of files in the working directory (addition, updation or removal).
-        ///
-        /// Any paths (even those listed explicitly) that are ignored by configuration will not be staged unless <see cref="StageOptions.IncludeIgnored"/> is unset.
-        /// </summary>
-        /// <param name="paths">The collection of paths of the files within the working directory.</param>
-        /// <param name="stageOptions">Determines how paths will be staged.</param>
-        public void Stage(IEnumerable<string> paths, StageOptions stageOptions)
-        {
-            Ensure.ArgumentNotNull(paths, "paths");
-
-            DiffModifiers diffModifiers = DiffModifiers.IncludeUntracked;
-            ExplicitPathsOptions explicitPathsOptions = stageOptions != null ? stageOptions.ExplicitPathsOptions : null;
-
-            if (stageOptions != null && stageOptions.IncludeIgnored)
-            {
-                diffModifiers |= DiffModifiers.IncludeIgnored;
-            }
-
-            var changes = Diff.Compare<TreeChanges>(diffModifiers, paths, explicitPathsOptions,
-                new CompareOptions { Similarity = SimilarityOptions.None });
-
-            var unexpectedTypesOfChanges = changes
-                .Where(
-                    tec => tec.Status != ChangeKind.Added &&
-                           tec.Status != ChangeKind.Modified &&
-                           tec.Status != ChangeKind.Conflicted &&
-                           tec.Status != ChangeKind.Unmodified &&
-                           tec.Status != ChangeKind.Deleted).ToList();
-
-            if (unexpectedTypesOfChanges.Count > 0)
-            {
-                throw new InvalidOperationException(
-                    string.Format(CultureInfo.InvariantCulture,
-                        "Entry '{0}' bears an unexpected ChangeKind '{1}'",
-                        unexpectedTypesOfChanges[0].Path, unexpectedTypesOfChanges[0].Status));
-            }
-
-            /* Remove files from the index that don't exist on disk */
-            foreach (TreeEntryChanges treeEntryChanges in changes)
-            {
-                switch (treeEntryChanges.Status)
-                {
-                    case ChangeKind.Conflicted:
-                        if (!treeEntryChanges.Exists)
-                        {
-                            RemoveFromIndex(treeEntryChanges.Path);
-                        }
-                        break;
-
-                    case ChangeKind.Deleted:
-                        RemoveFromIndex(treeEntryChanges.Path);
-                        break;
-
-                    default:
-                        continue;
-                }
-            }
-
-            foreach (TreeEntryChanges treeEntryChanges in changes)
-            {
-                switch (treeEntryChanges.Status)
-                {
-                    case ChangeKind.Added:
-                    case ChangeKind.Modified:
-                        AddToIndex(treeEntryChanges.Path);
-                        break;
-
-                    case ChangeKind.Conflicted:
-                        if (treeEntryChanges.Exists)
-                        {
-                            AddToIndex(treeEntryChanges.Path);
-                        }
-                        break;
-
-                    default:
-                        continue;
-                }
-            }
-
-            UpdatePhysicalIndex();
-        }
-
-        /// <summary>
-        /// Removes from the staging area all the modifications of a file since the latest commit (addition, updation or removal).
-        /// </summary>
-        /// <param name="path">The path of the file within the working directory.</param>
-        /// <param name="explicitPathsOptions">
-        /// The passed <paramref name="path"/> will be treated as explicit paths.
-        /// Use these options to determine how unmatched explicit paths should be handled.
-        /// </param>
-        public void Unstage(string path, ExplicitPathsOptions explicitPathsOptions)
-        {
-            Ensure.ArgumentNotNull(path, "path");
-
-            Unstage(new[] { path }, explicitPathsOptions);
-        }
-
-        /// <summary>
-        /// Removes from the staging area all the modifications of a collection of file since the latest commit (addition, updation or removal).
-        /// </summary>
-        /// <param name="paths">The collection of paths of the files within the working directory.</param>
-        /// <param name="explicitPathsOptions">
-        /// The passed <paramref name="paths"/> will be treated as explicit paths.
-        /// Use these options to determine how unmatched explicit paths should be handled.
-        /// </param>
-        public void Unstage(IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions)
-        {
-            Ensure.ArgumentNotNull(paths, "paths");
-
-            if (Info.IsHeadUnborn)
-            {
-                var changes = Diff.Compare<TreeChanges>(null, DiffTargets.Index, paths, explicitPathsOptions, new CompareOptions { Similarity = SimilarityOptions.None });
-
-                Index.Replace(changes);
-            }
-            else
-            {
-                Index.Replace(Head.Tip, paths, explicitPathsOptions);
-            }
-        }
-
-        /// <summary>
-        /// Moves and/or renames a file in the working directory and promotes the change to the staging area.
-        /// </summary>
-        /// <param name="sourcePath">The path of the file within the working directory which has to be moved/renamed.</param>
-        /// <param name="destinationPath">The target path of the file within the working directory.</param>
-        public void Move(string sourcePath, string destinationPath)
-        {
-            Move(new[] { sourcePath }, new[] { destinationPath });
-        }
-
-        /// <summary>
-        /// Moves and/or renames a collection of files in the working directory and promotes the changes to the staging area.
-        /// </summary>
-        /// <param name="sourcePaths">The paths of the files within the working directory which have to be moved/renamed.</param>
-        /// <param name="destinationPaths">The target paths of the files within the working directory.</param>
-        public void Move(IEnumerable<string> sourcePaths, IEnumerable<string> destinationPaths)
-        {
-            Ensure.ArgumentNotNull(sourcePaths, "sourcePaths");
-            Ensure.ArgumentNotNull(destinationPaths, "destinationPaths");
-
-            //TODO: Move() should support following use cases:
-            // - Moving a file under a directory ('file' and 'dir' -> 'dir/file')
-            // - Moving a directory (and its content) under another directory ('dir1' and 'dir2' -> 'dir2/dir1/*')
-
-            //TODO: Move() should throw when:
-            // - Moving a directory under a file
-
-            IDictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>> batch = PrepareBatch(sourcePaths, destinationPaths);
-
-            if (batch.Count == 0)
-            {
-                throw new ArgumentNullException("sourcePaths");
-            }
-
-            foreach (KeyValuePair<Tuple<string, FileStatus>, Tuple<string, FileStatus>> keyValuePair in batch)
-            {
-                string sourcePath = keyValuePair.Key.Item1;
-                string destPath = keyValuePair.Value.Item1;
-
-                if (Directory.Exists(sourcePath) || Directory.Exists(destPath))
-                {
-                    throw new NotImplementedException();
-                }
-
-                FileStatus sourceStatus = keyValuePair.Key.Item2;
-                if (sourceStatus.HasAny(new Enum[] { FileStatus.Nonexistent, FileStatus.DeletedFromIndex, FileStatus.NewInWorkdir, FileStatus.DeletedFromWorkdir }))
-                {
-                    throw new LibGit2SharpException("Unable to move file '{0}'. Its current status is '{1}'.",
-                                                    sourcePath,
-                                                    sourceStatus);
-                }
-
-                FileStatus desStatus = keyValuePair.Value.Item2;
-                if (desStatus.HasAny(new Enum[] { FileStatus.Nonexistent, FileStatus.DeletedFromWorkdir }))
-                {
-                    continue;
-                }
-
-                throw new LibGit2SharpException("Unable to overwrite file '{0}'. Its current status is '{1}'.",
-                                                destPath,
-                                                desStatus);
-            }
-
-            string wd = Info.WorkingDirectory;
-            foreach (KeyValuePair<Tuple<string, FileStatus>, Tuple<string, FileStatus>> keyValuePair in batch)
-            {
-                string from = keyValuePair.Key.Item1;
-                string to = keyValuePair.Value.Item1;
-
-                RemoveFromIndex(from);
-                File.Move(Path.Combine(wd, from), Path.Combine(wd, to));
-                AddToIndex(to);
-            }
-
-            UpdatePhysicalIndex();
-        }
-
-        /// <summary>
-        /// Removes a file from the staging area, and optionally removes it from the working directory as well.
-        /// <para>
-        ///   If the file has already been deleted from the working directory, this method will only deal
-        ///   with promoting the removal to the staging area.
-        /// </para>
-        /// <para>
-        ///   The default behavior is to remove the file from the working directory as well.
-        /// </para>
-        /// <para>
-        ///   When not passing a <paramref name="explicitPathsOptions"/>, the passed path will be treated as
-        ///   a pathspec. You can for example use it to pass the relative path to a folder inside the working directory,
-        ///   so that all files beneath this folders, and the folder itself, will be removed.
-        /// </para>
-        /// </summary>
-        /// <param name="path">The path of the file within the working directory.</param>
-        /// <param name="removeFromWorkingDirectory">True to remove the file from the working directory, False otherwise.</param>
-        /// <param name="explicitPathsOptions">
-        /// The passed <paramref name="path"/> will be treated as an explicit path.
-        /// Use these options to determine how unmatched explicit paths should be handled.
-        /// </param>
-        public void Remove(string path, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions)
-        {
-            Ensure.ArgumentNotNull(path, "path");
-
-            Remove(new[] { path }, removeFromWorkingDirectory, explicitPathsOptions);
-        }
-
-        /// <summary>
-        /// Removes a collection of fileS from the staging, and optionally removes them from the working directory as well.
-        /// <para>
-        ///   If a file has already been deleted from the working directory, this method will only deal
-        ///   with promoting the removal to the staging area.
-        /// </para>
-        /// <para>
-        ///   The default behavior is to remove the files from the working directory as well.
-        /// </para>
-        /// <para>
-        ///   When not passing a <paramref name="explicitPathsOptions"/>, the passed paths will be treated as
-        ///   a pathspec. You can for example use it to pass the relative paths to folders inside the working directory,
-        ///   so that all files beneath these folders, and the folders themselves, will be removed.
-        /// </para>
-        /// </summary>
-        /// <param name="paths">The collection of paths of the files within the working directory.</param>
-        /// <param name="removeFromWorkingDirectory">True to remove the files from the working directory, False otherwise.</param>
-        /// <param name="explicitPathsOptions">
-        /// The passed <paramref name="paths"/> will be treated as explicit paths.
-        /// Use these options to determine how unmatched explicit paths should be handled.
-        /// </param>
-        public void Remove(IEnumerable<string> paths, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions)
-        {
-            Ensure.ArgumentNotNullOrEmptyEnumerable<string>(paths, "paths");
-
-            var pathsToDelete = paths.Where(p => Directory.Exists(Path.Combine(Info.WorkingDirectory, p))).ToList();
-            var notConflictedPaths = new List<string>();
-
-            foreach (var path in paths)
-            {
-                Ensure.ArgumentNotNullOrEmptyString(path, "path");
-
-                var conflict = Index.Conflicts[path];
-
-                if (conflict != null)
-                {
-                    pathsToDelete.Add(RemoveFromIndex(path));
-                }
-                else
-                {
-                    notConflictedPaths.Add(path);
-                }
-            }
-
-            if (notConflictedPaths.Count > 0)
-            {
-                pathsToDelete.AddRange(RemoveStagedItems(notConflictedPaths, removeFromWorkingDirectory, explicitPathsOptions));
-            }
-
-            if (removeFromWorkingDirectory)
-            {
-                RemoveFilesAndFolders(pathsToDelete);
-            }
-
-            UpdatePhysicalIndex();
-        }
-
-        /// <summary>
-        /// Retrieves the state of a file in the working directory, comparing it against the staging area and the latest commit.
-        /// </summary>
-        /// <param name="filePath">The relative path within the working directory to the file.</param>
-        /// <returns>A <see cref="FileStatus"/> representing the state of the <paramref name="filePath"/> parameter.</returns>
-        public FileStatus RetrieveStatus(string filePath)
-        {
-            Ensure.ArgumentNotNullOrEmptyString(filePath, "filePath");
-
-            string relativePath = this.BuildRelativePathFrom(filePath);
-
-            return Proxy.git_status_file(Handle, relativePath);
-        }
-
-        /// <summary>
-        /// Retrieves the state of all files in the working directory, comparing them against the staging area and the latest commit.
-        /// </summary>
-        /// <param name="options">If set, the options that control the status investigation.</param>
-        /// <returns>A <see cref="RepositoryStatus"/> holding the state of all the files.</returns>
-        public RepositoryStatus RetrieveStatus(StatusOptions options)
-        {
-            ReloadFromDisk();
-
-            return new RepositoryStatus(this, options);
-        }
-
-        internal void ReloadFromDisk()
-        {
-            Proxy.git_index_read(Index.Handle);
-        }
-
-        private void AddToIndex(string relativePath)
-        {
-            if (!Submodules.TryStage(relativePath, true))
-            {
-                Proxy.git_index_add_bypath(Index.Handle, relativePath);
-            }
-        }
-
-        private string RemoveFromIndex(string relativePath)
-        {
-            Proxy.git_index_remove_bypath(Index.Handle, relativePath);
-
-            return relativePath;
-        }
-
-        private void UpdatePhysicalIndex()
-        {
-            Proxy.git_index_write(Index.Handle);
-        }
-
-        private Tuple<string, FileStatus> BuildFrom(string path)
-        {
-            string relativePath = this.BuildRelativePathFrom(path);
-            return new Tuple<string, FileStatus>(relativePath, RetrieveStatus(relativePath));
-        }
-
-        private static bool Enumerate(IEnumerator<string> leftEnum, IEnumerator<string> rightEnum)
-        {
-            bool isLeftEoF = leftEnum.MoveNext();
-            bool isRightEoF = rightEnum.MoveNext();
-
-            if (isLeftEoF == isRightEoF)
-            {
-                return isLeftEoF;
-            }
-
-            throw new ArgumentException("The collection of paths are of different lengths.");
-        }
-
-        private IDictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>> PrepareBatch(IEnumerable<string> leftPaths, IEnumerable<string> rightPaths)
-        {
-            IDictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>> dic = new Dictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>>();
-
-            IEnumerator<string> leftEnum = leftPaths.GetEnumerator();
-            IEnumerator<string> rightEnum = rightPaths.GetEnumerator();
-
-            while (Enumerate(leftEnum, rightEnum))
-            {
-                Tuple<string, FileStatus> from = BuildFrom(leftEnum.Current);
-                Tuple<string, FileStatus> to = BuildFrom(rightEnum.Current);
-                dic.Add(from, to);
-            }
-
-            return dic;
-        }
-
-        private void RemoveFilesAndFolders(IEnumerable<string> pathsList)
-        {
-            string wd = Info.WorkingDirectory;
-
-            foreach (string path in pathsList)
-            {
-                string fileName = Path.Combine(wd, path);
-
-                if (Directory.Exists(fileName))
-                {
-                    Directory.Delete(fileName, true);
-                    continue;
-                }
-
-                if (!File.Exists(fileName))
-                {
-                    continue;
-                }
-
-                File.Delete(fileName);
-            }
-        }
-
-        private IEnumerable<string> RemoveStagedItems(IEnumerable<string> paths, bool removeFromWorkingDirectory = true, ExplicitPathsOptions explicitPathsOptions = null)
-        {
-            var removed = new List<string>();
-            var changes = Diff.Compare<TreeChanges>(DiffModifiers.IncludeUnmodified | DiffModifiers.IncludeUntracked, paths, explicitPathsOptions);
-
-            foreach (var treeEntryChanges in changes)
-            {
-                var status = RetrieveStatus(treeEntryChanges.Path);
-
-                switch (treeEntryChanges.Status)
-                {
-                    case ChangeKind.Added:
-                    case ChangeKind.Deleted:
-                        removed.Add(RemoveFromIndex(treeEntryChanges.Path));
-                        break;
-
-                    case ChangeKind.Unmodified:
-                        if (removeFromWorkingDirectory && (
-                            status.HasFlag(FileStatus.ModifiedInIndex) ||
-                            status.HasFlag(FileStatus.NewInIndex)))
-                        {
-                            throw new RemoveFromIndexException("Unable to remove file '{0}', as it has changes staged in the index. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
-                                                               treeEntryChanges.Path);
-                        }
-                        removed.Add(RemoveFromIndex(treeEntryChanges.Path));
-                        continue;
-
-                    case ChangeKind.Modified:
-                        if (status.HasFlag(FileStatus.ModifiedInWorkdir) && status.HasFlag(FileStatus.ModifiedInIndex))
-                        {
-                            throw new RemoveFromIndexException("Unable to remove file '{0}', as it has staged content different from both the working directory and the HEAD.",
-                                                               treeEntryChanges.Path);
-                        }
-                        if (removeFromWorkingDirectory)
-                        {
-                            throw new RemoveFromIndexException("Unable to remove file '{0}', as it has local modifications. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
-                                                               treeEntryChanges.Path);
-                        }
-                        removed.Add(RemoveFromIndex(treeEntryChanges.Path));
-                        continue;
-
-                    default:
-                        throw new RemoveFromIndexException("Unable to remove file '{0}'. Its current status is '{1}'.",
-                                                           treeEntryChanges.Path,
-                                                           treeEntryChanges.Status);
-                }
-            }
-
-            return removed;
-        }
-
-        /// <summary>
         /// Finds the most recent annotated tag that is reachable from a commit.
         /// <para>
         ///   If the tag points to the commit, then only the tag is shown. Otherwise,
@@ -2157,6 +1673,21 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(options, "options");
 
             return Proxy.git_describe_commit(handle, commit.Id, options);
+        }
+
+        /// <summary>
+        /// Finds the most recent annotated tag that is reachable from a commit.
+        /// <para>
+        ///   If the tag points to the commit, then only the tag is shown. Otherwise,
+        ///   it suffixes the tag name with the number of additional commits on top
+        ///   of the tagged object and the abbreviated object name of the most recent commit.
+        /// </para>
+        /// </summary>
+        /// <param name="commit">The commit to be described.</param>
+        /// <returns>A descriptive identifier for the commit based on the nearest annotated tag.</returns>
+        public string Describe(Commit commit)
+        {
+            return Describe(commit, new DescribeOptions());
         }
 
         private string DebuggerDisplay
