@@ -468,6 +468,11 @@ namespace LibGit2Sharp.Core
             return ConvertPath(NativeMethods.git_config_find_xdg);
         }
 
+        public static FilePath git_config_find_programdata()
+        {
+            return ConvertPath(NativeMethods.git_config_find_programdata);
+        }
+
         public static void git_config_free(IntPtr config)
         {
             NativeMethods.git_config_free(config);

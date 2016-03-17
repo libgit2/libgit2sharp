@@ -11,7 +11,7 @@ namespace LibGit2Sharp.Tests
         public void CanCountRefSpecs()
         {
             var path = SandboxStandardTestRepo();
-            using (var repo = InitIsolatedRepository(path))
+            using (var repo = new Repository(path))
             {
                 var remote = repo.Network.Remotes["origin"];
                 Assert.Equal(1, remote.RefSpecs.Count());
@@ -22,7 +22,7 @@ namespace LibGit2Sharp.Tests
         public void CanIterateOverRefSpecs()
         {
             var path = SandboxStandardTestRepo();
-            using (var repo = InitIsolatedRepository(path))
+            using (var repo = new Repository(path))
             {
                 var remote = repo.Network.Remotes["origin"];
                 int count = 0;
@@ -39,7 +39,7 @@ namespace LibGit2Sharp.Tests
         public void FetchAndPushRefSpecsComposeRefSpecs()
         {
             var path = SandboxStandardTestRepo();
-            using (var repo = InitIsolatedRepository(path))
+            using (var repo = new Repository(path))
             {
                 var remote = repo.Network.Remotes["origin"];
 
@@ -53,7 +53,7 @@ namespace LibGit2Sharp.Tests
         public void CanReadRefSpecDetails()
         {
             var path = SandboxStandardTestRepo();
-            using (var repo = InitIsolatedRepository(path))
+            using (var repo = new Repository(path))
             {
                 var remote = repo.Network.Remotes["origin"];
 
@@ -73,7 +73,7 @@ namespace LibGit2Sharp.Tests
         public void CanReplaceRefSpecs(string[] newFetchRefSpecs, string[] newPushRefSpecs)
         {
             var path = SandboxStandardTestRepo();
-            using (var repo = InitIsolatedRepository(path))
+            using (var repo = new Repository(path))
             {
                 var remote = repo.Network.Remotes["origin"];
                 var oldRefSpecs = remote.RefSpecs.ToList();
@@ -101,15 +101,15 @@ namespace LibGit2Sharp.Tests
         public void RemoteUpdaterSavesRefSpecsPermanently()
         {
             var fetchRefSpecs = new string[] { "refs/their/heads/*:refs/my/heads/*", "+refs/their/tag:refs/my/tag" };
-
             var path = SandboxStandardTestRepo();
-            using (var repo = InitIsolatedRepository(path))
+
+            using (var repo = new Repository(path))
             {
                 var remote = repo.Network.Remotes["origin"];
                 repo.Network.Remotes.Update(remote, r => r.FetchRefSpecs = fetchRefSpecs);
             }
 
-            using (var repo = InitIsolatedRepository(path))
+            using (var repo = new Repository(path))
             {
                 var remote = repo.Network.Remotes["origin"];
                 var actualRefSpecs = remote.RefSpecs
@@ -124,9 +124,9 @@ namespace LibGit2Sharp.Tests
         public void CanAddAndRemoveRefSpecs()
         {
             string newRefSpec = "+refs/heads/test:refs/heads/other-test";
-
             var path = SandboxStandardTestRepo();
-            using (var repo = InitIsolatedRepository(path))
+
+            using (var repo = new Repository(path))
             {
                 var remote = repo.Network.Remotes["origin"];
 
@@ -150,7 +150,7 @@ namespace LibGit2Sharp.Tests
         public void CanClearRefSpecs()
         {
             var path = SandboxStandardTestRepo();
-            using (var repo = InitIsolatedRepository(path))
+            using (var repo = new Repository(path))
             {
                 var remote = repo.Network.Remotes["origin"];
 
@@ -178,7 +178,7 @@ namespace LibGit2Sharp.Tests
         public void SettingInvalidRefSpecsThrows(string refSpec)
         {
             var path = SandboxStandardTestRepo();
-            using (var repo = InitIsolatedRepository(path))
+            using (var repo = new Repository(path))
             {
                 var remote = repo.Network.Remotes["origin"];
                 var oldRefSpecs = remote.RefSpecs.Select(r => r.Specification).ToList();
@@ -198,8 +198,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("refs/tags/foo", false, false)]
         public void CanCheckForMatches(string reference, bool shouldMatchSource, bool shouldMatchDest)
         {
-            var path = SandboxStandardTestRepo();
-            using (var repo = InitIsolatedRepository(path))
+            using (var repo = new Repository(InitNewRepository()))
             {
                 var remote = repo.Network.Remotes.Add("foo", "blahblah", "refs/heads/*:refs/remotes/foo/*");
                 var refspec = remote.RefSpecs.Single();
@@ -215,8 +214,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("refs/heads/master", "refs/remotes/foo/master")]
         public void CanTransformRefspecs(string lhs, string rhs)
         {
-            var path = SandboxStandardTestRepo();
-            using (var repo = InitIsolatedRepository(path))
+            using (var repo = new Repository(InitNewRepository()))
             {
                 var remote = repo.Network.Remotes.Add("foo", "blahblah", "refs/heads/*:refs/remotes/foo/*");
                 var refspec = remote.RefSpecs.Single();

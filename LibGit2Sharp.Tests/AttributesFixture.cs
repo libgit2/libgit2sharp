@@ -9,7 +9,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void StagingHonorsTheAttributesFiles()
         {
-            using (var repo = InitIsolatedRepository())
+            using (var repo = new Repository(InitNewRepository()))
             {
                 CreateAttributesFile(repo);
 

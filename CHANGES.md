@@ -16,6 +16,8 @@
 
 ### Changes
 
+ - Obsolete the config paths in RepositoryOptions
+
 ### Fixes
 
 ## v0.22 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.21.1...v0.22))

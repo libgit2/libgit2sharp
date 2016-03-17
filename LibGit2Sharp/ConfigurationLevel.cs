@@ -24,5 +24,10 @@
         /// The system wide .gitconfig.
         /// </summary>
         System = 2,
+
+        /// <summary>
+        /// Another system-wide configuration on Windows.
+        /// </summary>
+        ProgramData = 1,
     }
 }

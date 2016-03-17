@@ -109,7 +109,7 @@ namespace LibGit2Sharp.Tests
                 sb.Append("libgit2\n\r\n");
             }
 
-            using (var repo = InitIsolatedRepository())
+            using (var repo = new Repository(InitNewRepository()))
             {
                 CreateAttributesFiles(Path.Combine(repo.Info.Path, "info"), "attributes");
 
