@@ -39,8 +39,7 @@ namespace LibGit2Sharp
         private IEnumerable<TreeEntryChanges> GetChangesOfKind(ChangeKind changeKind)
         {
             TreeEntryChanges entry;
-
-            for (int i = 0; i < count.Value; i++)
+            for (int i = 0; i < Count; i++)
             {
                 if (TryGetEntryWithChangeTypeAt(i, changeKind, out entry))
                 {
@@ -78,7 +77,7 @@ namespace LibGit2Sharp
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<TreeEntryChanges> GetEnumerator()
         {
-            for (int i = 0; i < count.Value; i++)
+            for (int i = 0; i < Count; i++)
             {
                 yield return GetEntryAt(i);
             }
@@ -169,6 +168,14 @@ namespace LibGit2Sharp
         public virtual IEnumerable<TreeEntryChanges> Conflicted
         {
             get { return GetChangesOfKind(ChangeKind.Conflicted); }
+        }
+
+        /// <summary>
+        /// Gets the number of <see cref="TreeEntryChanges"/> in this comparison.
+        /// </summary>
+        public virtual int Count
+        {
+            get { return count.Value; }
         }
 
         private string DebuggerDisplay
