@@ -72,7 +72,7 @@ namespace LibGit2Sharp.Tests
                     Assert.Equal("1.txt", treeEntryChanges.Path);
                     Assert.Equal(ChangeKind.Added, treeEntryChanges.Status);
 
-                    Assert.Equal(treeEntryChanges, changes.Added.Single());
+                    Assert.Equal(treeEntryChanges.Path, changes.Added.Single().Path);
 
                     Assert.Equal(Mode.Nonexistent, treeEntryChanges.OldMode);
                 }
