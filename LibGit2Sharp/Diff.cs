@@ -516,14 +516,25 @@ namespace LibGit2Sharp
             ExplicitPathsOptions explicitPathsOptions,
             CompareOptions compareOptions)
         {
-            var matchedPaths = new MatchedPathsAggregator();
             var filePaths = repo.ToFilePaths(paths);
+
+            MatchedPathsAggregator matchedPaths = null;
+
+            // We can't match paths unless we've got something to match 
+            // against and we're told to do so.
+            if (filePaths != null && explicitPathsOptions != null)
+            {
+                if (explicitPathsOptions.OnUnmatchedPath != null || explicitPathsOptions.ShouldFailOnUnmatchedPath)
+                {
+                    matchedPaths = new MatchedPathsAggregator();
+                }
+            }
 
             using (GitDiffOptions options = BuildOptions(diffOptions, filePaths, matchedPaths, compareOptions))
             {
                 var diffList = comparisonHandleRetriever(oldTreeId, newTreeId, options);
 
-                if (explicitPathsOptions != null)
+                if (matchedPaths != null)
                 {
                     try
                     {
