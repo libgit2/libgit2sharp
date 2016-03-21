@@ -1116,7 +1116,6 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe string git_reflog_entry_message(git_reflog_entry* entry);
 
         [DllImport(libgit2)]
-        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]
         internal static extern int git_refspec_transform(
             GitBuf buf,
             IntPtr refspec,
@@ -1124,7 +1123,6 @@ namespace LibGit2Sharp.Core
             
 
         [DllImport(libgit2)]
-        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]
         internal static extern int git_refspec_rtransform(
             GitBuf buf,
             IntPtr refspec,

@@ -45,7 +45,6 @@ namespace LibGit2Sharp
 
             for (int i = 0; i < count; i++)
             {
-                git_refspec* handle = Proxy.git_remote_get_refspec(remoteHandle, i);
                 refSpecs.Add(new RefSpec(remote, Proxy.git_remote_get_refspec(remoteHandle, i)));
             }
 
