@@ -99,7 +99,7 @@ namespace LibGit2Sharp
                        };
         }
 
-        private static readonly IDictionary<Type, Func<DiffSafeHandle, object>> ChangesBuilders = new Dictionary<Type, Func<DiffSafeHandle, object>>
+        private static readonly IDictionary<Type, Func<DiffHandle, object>> ChangesBuilders = new Dictionary<Type, Func<DiffHandle, object>>
         {
             { typeof(Patch), diff => new Patch(diff) },
             { typeof(TreeChanges), diff => new TreeChanges(diff) },
@@ -107,9 +107,9 @@ namespace LibGit2Sharp
         };
 
 
-        private static T BuildDiffResult<T>(DiffSafeHandle diff) where T : class, IDiffResult
+        private static T BuildDiffResult<T>(DiffHandle diff) where T : class, IDiffResult
         {
-            Func<DiffSafeHandle, object> builder;
+            Func<DiffHandle, object> builder;
 
             if (!ChangesBuilders.TryGetValue(typeof(T), out builder))
             {
@@ -241,7 +241,7 @@ namespace LibGit2Sharp
                 }
             }
 
-            using (DiffSafeHandle diff = BuildDiffList(oldTreeId, newTreeId, comparer, diffOptions, paths, explicitPathsOptions, compareOptions))
+            using (DiffHandle diff = BuildDiffList(oldTreeId, newTreeId, comparer, diffOptions, paths, explicitPathsOptions, compareOptions))
             {
                 return BuildDiffResult<T>(diff);
             }
@@ -343,7 +343,7 @@ namespace LibGit2Sharp
                 }
             }
 
-            using (DiffSafeHandle diff = BuildDiffList(oldTreeId, null, comparer, diffOptions, paths, explicitPathsOptions, compareOptions))
+            using (DiffHandle diff = BuildDiffList(oldTreeId, null, comparer, diffOptions, paths, explicitPathsOptions, compareOptions))
             {
                 return BuildDiffResult<T>(diff);
             }
@@ -462,13 +462,13 @@ namespace LibGit2Sharp
                 }
             }
 
-            using (DiffSafeHandle diff = BuildDiffList(null, null, comparer, diffOptions, paths, explicitPathsOptions, compareOptions))
+            using (DiffHandle diff = BuildDiffList(null, null, comparer, diffOptions, paths, explicitPathsOptions, compareOptions))
             {
                 return BuildDiffResult<T>(diff);
             }
         }
 
-        internal delegate DiffSafeHandle TreeComparisonHandleRetriever(ObjectId oldTreeId, ObjectId newTreeId, GitDiffOptions options);
+        internal delegate DiffHandle TreeComparisonHandleRetriever(ObjectId oldTreeId, ObjectId newTreeId, GitDiffOptions options);
 
         private static TreeComparisonHandleRetriever TreeToTree(Repository repo)
         {
@@ -489,9 +489,9 @@ namespace LibGit2Sharp
         {
             TreeComparisonHandleRetriever comparisonHandleRetriever = (oh, nh, o) =>
             {
-                DiffSafeHandle diff = Proxy.git_diff_tree_to_index(repo.Handle, repo.Index.Handle, oh, o);
+                DiffHandle diff = Proxy.git_diff_tree_to_index(repo.Handle, repo.Index.Handle, oh, o);
 
-                using (DiffSafeHandle diff2 = Proxy.git_diff_index_to_workdir(repo.Handle, repo.Index.Handle, o))
+                using (DiffHandle diff2 = Proxy.git_diff_index_to_workdir(repo.Handle, repo.Index.Handle, o))
                 {
                     Proxy.git_diff_merge(diff, diff2);
                 }
@@ -507,7 +507,7 @@ namespace LibGit2Sharp
             return (oh, nh, o) => Proxy.git_diff_tree_to_index(repo.Handle, repo.Index.Handle, oh, o);
         }
 
-        private DiffSafeHandle BuildDiffList(
+        private DiffHandle BuildDiffList(
             ObjectId oldTreeId,
             ObjectId newTreeId,
             TreeComparisonHandleRetriever comparisonHandleRetriever,
@@ -542,7 +542,7 @@ namespace LibGit2Sharp
             }
         }
 
-        private static void DetectRenames(DiffSafeHandle diffList, CompareOptions compareOptions)
+        private static void DetectRenames(DiffHandle diffList, CompareOptions compareOptions)
         {
             var similarityOptions = (compareOptions == null) ? null : compareOptions.Similarity;
             if (similarityOptions == null || similarityOptions.RenameDetectionMode == RenameDetectionMode.Default)

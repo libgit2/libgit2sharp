@@ -21,7 +21,7 @@ namespace LibGit2Sharp
         private readonly BranchCollection branches;
         private readonly CommitLog commits;
         private readonly Lazy<Configuration> config;
-        private readonly RepositorySafeHandle handle;
+        private readonly RepositoryHandle handle;
         private readonly Lazy<Index> index;
         private readonly ReferenceCollection refs;
         private readonly TagCollection tags;
@@ -204,7 +204,7 @@ namespace LibGit2Sharp
             }
         }
 
-        internal RepositorySafeHandle Handle
+        internal RepositoryHandle Handle
         {
             get { return handle; }
         }
@@ -404,7 +404,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            using (RepositorySafeHandle repo = Proxy.git_repository_init_ext(null, path, isBare))
+            using (RepositoryHandle repo = Proxy.git_repository_init_ext(null, path, isBare))
             {
                 FilePath repoPath = Proxy.git_repository_path(repo);
                 return repoPath.Native;
@@ -429,7 +429,7 @@ namespace LibGit2Sharp
 
             // TODO: Shouldn't we ensure that the working folder isn't under the gitDir?
 
-            using (RepositorySafeHandle repo = Proxy.git_repository_init_ext(wd, gitDirectoryPath, false))
+            using (RepositoryHandle repo = Proxy.git_repository_init_ext(wd, gitDirectoryPath, false))
             {
                 FilePath repoPath = Proxy.git_repository_path(repo);
                 return repoPath.Native;
@@ -482,9 +482,9 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(id, "id");
 
-            using (GitObjectSafeHandle obj = Proxy.git_object_lookup(handle, id, type))
+            using (ObjectHandle obj = Proxy.git_object_lookup(handle, id, type))
             {
-                if (obj == null || obj.IsInvalid)
+                if (obj == null || obj.IsNull)
                 {
                     return null;
                 }
@@ -514,7 +514,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(objectish, "objectish");
 
             GitObject obj;
-            using (GitObjectSafeHandle sh = Proxy.git_revparse_single(handle, objectish))
+            using (ObjectHandle sh = Proxy.git_revparse_single(handle, objectish))
             {
                 if (sh == null)
                 {
@@ -583,8 +583,8 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(url, "url");
 
-            using (RepositorySafeHandle repositoryHandle = Proxy.git_repository_new())
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_create_anonymous(repositoryHandle, url))
+            using (RepositoryHandle repositoryHandle = Proxy.git_repository_new())
+            using (RemoteHandle remoteHandle = Proxy.git_remote_create_anonymous(repositoryHandle, url))
             {
                 var gitCallbacks = new GitRemoteCallbacks { version = 1 };
 
@@ -691,7 +691,7 @@ namespace LibGit2Sharp
                 {
                     cloneOpts.CheckoutBranch = StrictUtf8Marshaler.FromManaged(options.BranchName);
 
-                    using (RepositorySafeHandle repo = Proxy.git_clone(sourceUrl, workdirPath, ref cloneOpts))
+                    using (RepositoryHandle repo = Proxy.git_clone(sourceUrl, workdirPath, ref cloneOpts))
                     {
                         clonedRepoPath = Proxy.git_repository_path(repo).Native;
                     }
@@ -857,7 +857,7 @@ namespace LibGit2Sharp
             GitObject obj;
             try
             {
-                if (!refH.IsInvalid)
+                if (!refH.IsNull)
                 {
                     var reference = Reference.BuildFromPtr<Reference>(refH, this);
                     if (reference.IsLocalBranch)
@@ -1031,21 +1031,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
-        /// </summary>
-        /// <param name="commit">The target commit object.</param>
-        /// <param name="paths">The list of paths (either files or directories) that should be considered.</param>
-        /// <param name="explicitPathsOptions">
-        /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
-        /// Use these options to determine how unmatched explicit paths should be handled.
-        /// </param>
-        [Obsolete("This method will be removed in the next release. Please use Index.Replace() instead.")]
-        public void Reset(Commit commit, IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions)
-        {
-            Index.Replace(commit, paths, explicitPathsOptions);
-        }
-
-        /// <summary>
         /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="LibGit2Sharp.Commit"/> into the repository.
         /// The tip of the <see cref="Repository.Head"/> will be used as the parent of this new Commit.
         /// Once the commit is created, the <see cref="Repository.Head"/> will move forward to point at it.
@@ -1165,7 +1150,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Clean the working tree by removing files that are not under version control.
         /// </summary>
-        public void RemoveUntrackedFiles()
+        public unsafe void RemoveUntrackedFiles()
         {
             var options = new GitCheckoutOpts
             {
@@ -1174,7 +1159,7 @@ namespace LibGit2Sharp
                                      | CheckoutStrategy.GIT_CHECKOUT_ALLOW_CONFLICTS,
             };
 
-            Proxy.git_checkout_index(Handle, new NullGitObjectSafeHandle(), ref options);
+            Proxy.git_checkout_index(Handle, new ObjectHandle(null, false), ref options);
         }
 
         private void CleanupDisposableDependencies()
@@ -1205,7 +1190,7 @@ namespace LibGit2Sharp
 
             options = options ?? new MergeOptions();
 
-            using (GitAnnotatedCommitHandle annotatedCommitHandle = Proxy.git_annotated_commit_lookup(Handle, commit.Id.Oid))
+            using (AnnotatedCommitHandle annotatedCommitHandle = Proxy.git_annotated_commit_lookup(Handle, commit.Id.Oid))
             {
                 return Merge(new[] { annotatedCommitHandle }, merger, options);
             }
@@ -1225,8 +1210,8 @@ namespace LibGit2Sharp
 
             options = options ?? new MergeOptions();
 
-            using (ReferenceSafeHandle referencePtr = Refs.RetrieveReferencePtr(branch.CanonicalName))
-            using (GitAnnotatedCommitHandle annotatedCommitHandle = Proxy.git_annotated_commit_from_ref(Handle, referencePtr))
+            using (ReferenceHandle referencePtr = Refs.RetrieveReferencePtr(branch.CanonicalName))
+            using (AnnotatedCommitHandle annotatedCommitHandle = Proxy.git_annotated_commit_from_ref(Handle, referencePtr))
             {
                 return Merge(new[] { annotatedCommitHandle }, merger, options);
             }
@@ -1276,7 +1261,7 @@ namespace LibGit2Sharp
                     expectedRef);
             }
 
-            GitAnnotatedCommitHandle[] annotatedCommitHandles = fetchHeads.Select(fetchHead =>
+            AnnotatedCommitHandle[] annotatedCommitHandles = fetchHeads.Select(fetchHead =>
                 Proxy.git_annotated_commit_from_fetchhead(Handle, fetchHead.RemoteCanonicalName, fetchHead.Url, fetchHead.Target.Id.Oid)).ToArray();
 
             try
@@ -1287,7 +1272,7 @@ namespace LibGit2Sharp
             finally
             {
                 // Cleanup.
-                foreach (GitAnnotatedCommitHandle annotatedCommitHandle in annotatedCommitHandles)
+                foreach (AnnotatedCommitHandle annotatedCommitHandle in annotatedCommitHandles)
                 {
                     annotatedCommitHandle.Dispose();
                 }
@@ -1470,7 +1455,7 @@ namespace LibGit2Sharp
         /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
         /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        private MergeResult Merge(GitAnnotatedCommitHandle[] annotatedCommits, Signature merger, MergeOptions options)
+        private MergeResult Merge(AnnotatedCommitHandle[] annotatedCommits, Signature merger, MergeOptions options)
         {
             GitMergeAnalysis mergeAnalysis;
             GitMergePreference mergePreference;
@@ -1550,7 +1535,7 @@ namespace LibGit2Sharp
         /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
         /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        private MergeResult NormalMerge(GitAnnotatedCommitHandle[] annotatedCommits, Signature merger, MergeOptions options)
+        private MergeResult NormalMerge(AnnotatedCommitHandle[] annotatedCommits, Signature merger, MergeOptions options)
         {
             MergeResult mergeResult;
             GitMergeFlag treeFlags = options.FindRenames ? GitMergeFlag.GIT_MERGE_FIND_RENAMES
@@ -1613,7 +1598,7 @@ namespace LibGit2Sharp
         /// <param name="annotatedCommit">The merge head handle to fast-forward merge.</param>
         /// <param name="options">Options controlling merge behavior.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        private MergeResult FastForwardMerge(GitAnnotatedCommitHandle annotatedCommit, MergeOptions options)
+        private MergeResult FastForwardMerge(AnnotatedCommitHandle annotatedCommit, MergeOptions options)
         {
             ObjectId id = Proxy.git_annotated_commit_id(annotatedCommit);
             Commit fastForwardCommit = (Commit)Lookup(id, ObjectType.Commit);

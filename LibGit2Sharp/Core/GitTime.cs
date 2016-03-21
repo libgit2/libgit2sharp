@@ -3,9 +3,9 @@
 namespace LibGit2Sharp.Core
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal class GitTime
+    internal unsafe struct git_time
     {
-        public long Time;
-        public int Offset;
+        public long time;
+        public int offset;
     }
 }

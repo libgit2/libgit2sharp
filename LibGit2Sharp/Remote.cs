@@ -12,7 +12,7 @@ namespace LibGit2Sharp
     /// A remote repository whose branches are tracked.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class Remote : IEquatable<Remote>, IBelongToARepository
+    public class Remote : IEquatable<Remote>, IBelongToARepository, IDisposable
     {
         private static readonly LambdaEqualityHelper<Remote> equalityHelper =
             new LambdaEqualityHelper<Remote>(x => x.Name, x => x.Url, x => x.PushUrl);
@@ -22,28 +22,58 @@ namespace LibGit2Sharp
         private readonly RefSpecCollection refSpecs;
         private string pushUrl;
 
+        readonly RemoteHandle handle;
+
         /// <summary>
         /// Needed for mocking purposes.
         /// </summary>
         protected Remote()
         { }
 
-        private Remote(RemoteSafeHandle handle, Repository repository)
+        internal Remote(RemoteHandle handle, Repository repository)
         {
             this.repository = repository;
+            this.handle = handle;
             Name = Proxy.git_remote_name(handle);
             Url = Proxy.git_remote_url(handle);
             PushUrl = Proxy.git_remote_pushurl(handle);
             TagFetchMode = Proxy.git_remote_autotag(handle);
-            refSpecs = new RefSpecCollection(handle);
+            refSpecs = new RefSpecCollection(this, handle);
+            repository.RegisterForCleanup(this);
         }
 
-        internal static Remote BuildFromPtr(RemoteSafeHandle handle, Repository repo)
+        ~Remote()
         {
-            var remote = new Remote(handle, repo);
-
-            return remote;
+            Dispose(false);
         }
+
+        #region IDisposable
+
+        bool disposedValue = false; // To detect redundant calls
+
+        /// <summary>
+        /// Release the unmanaged remote object
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (handle != null)
+                {
+                    handle.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        #endregion
 
         /// <summary>
         /// Gets the alias of this remote repository.
@@ -98,12 +128,12 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="reference">The reference to transform.</param>
         /// <returns>The transformed reference.</returns>
-        internal string FetchSpecTransformToSource(string reference)
+        internal unsafe string FetchSpecTransformToSource(string reference)
         {
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, Name, true))
+            using (RemoteHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, Name, true))
             {
-                GitRefSpecHandle fetchSpecPtr = Proxy.git_remote_get_refspec(remoteHandle, 0);
-                return Proxy.git_refspec_rtransform(fetchSpecPtr, reference);
+                git_refspec* fetchSpecPtr = Proxy.git_remote_get_refspec(remoteHandle, 0);
+                return Proxy.git_refspec_rtransform(new IntPtr(fetchSpecPtr), reference);
             }
         }
 

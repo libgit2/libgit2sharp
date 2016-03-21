@@ -106,7 +106,15 @@ namespace LibGit2Sharp
         /// </value>
         public virtual bool IsCurrentRepositoryHead
         {
-            get { return repo.Head == this; }
+            get
+            {
+                if (this is DetachedHead)
+                {
+                    return repo.Head.reference.TargetIdentifier == this.reference.TargetIdentifier;
+                }
+
+                return repo.Head.reference.TargetIdentifier == this.CanonicalName;
+            }
         }
 
         /// <summary>

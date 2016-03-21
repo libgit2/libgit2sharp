@@ -678,7 +678,7 @@ namespace LibGit2Sharp.Tests
             const string conflictBranchName = "conflicts";
 
             string path = SandboxMergeTestRepo();
-            using (var repo = InitIsolatedRepository(path))
+            using (var repo = new Repository(path))
             {
                 Branch branch = repo.Branches[conflictBranchName];
                 Assert.NotNull(branch);

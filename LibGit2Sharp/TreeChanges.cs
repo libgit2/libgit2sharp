@@ -50,18 +50,18 @@ namespace LibGit2Sharp
         protected TreeChanges()
         { }
 
-        internal TreeChanges(DiffSafeHandle diff)
+        internal unsafe TreeChanges(DiffHandle diff)
         {
             Proxy.git_diff_foreach(diff, FileCallback, null, null);
         }
 
-        private int FileCallback(GitDiffDelta delta, float progress, IntPtr payload)
+        private unsafe int FileCallback(git_diff_delta* delta, float progress, IntPtr payload)
         {
             AddFileChange(delta);
             return 0;
         }
 
-        private void AddFileChange(GitDiffDelta delta)
+        private unsafe void AddFileChange(git_diff_delta* delta)
         {
             var treeEntryChanges = new TreeEntryChanges(delta);
 

@@ -447,11 +447,10 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void QueryUnresolvableRemoteForRemoteBranch()
         {
-            var path = SandboxStandardTestRepo();
-
             var fetchRefSpecs = new string[] { "+refs/heads/notfound/*:refs/remotes/origin/notfound/*" };
 
-            using (var repo = InitIsolatedRepository(path))
+            var path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 // Update the remote config such that the remote for a
                 // remote branch cannot be resolved
@@ -472,12 +471,11 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void QueryAmbigousRemoteForRemoteBranch()
         {
-            var path = SandboxStandardTestRepo();
-
             const string fetchRefSpec = "+refs/heads/*:refs/remotes/origin/*";
             const string url = "http://github.com/libgit2/TestGitRepository";
 
-            using (var repo = InitIsolatedRepository(path))
+            var path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 // Add a second remote so that it is ambiguous which remote
                 // the remote-tracking branch tracks.

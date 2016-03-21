@@ -130,25 +130,19 @@ namespace LibGit2Sharp.Core
                     { GitErrorCode.Peel, (m, r, c) => new PeelException(m, r, c)  },
                 };
 
-        private static void HandleError(int result)
+        private static unsafe void HandleError(int result)
         {
             string errorMessage;
-            GitError error = null;
-            var errHandle = NativeMethods.giterr_last();
-
-            if (errHandle != null && !errHandle.IsInvalid)
-            {
-                error = errHandle.MarshalAsGitError();
-            }
+            GitErrorCategory errorCategory = GitErrorCategory.Unknown;
+            GitError* error = NativeMethods.giterr_last();
 
             if (error == null)
             {
-                error = new GitError { Category = GitErrorCategory.Unknown, Message = IntPtr.Zero };
                 errorMessage = "No error message has been provided by the native library";
             }
             else
             {
-                errorMessage = LaxUtf8Marshaler.FromNative(error.Message);
+                errorMessage = LaxUtf8Marshaler.FromNative(error->Message);
             }
 
             Func<string, GitErrorCode, GitErrorCategory, LibGit2SharpException> exceptionBuilder;
@@ -157,7 +151,7 @@ namespace LibGit2Sharp.Core
                 exceptionBuilder = (m, r, c) => new LibGit2SharpException(m, r, c);
             }
 
-            throw exceptionBuilder(errorMessage, (GitErrorCode)result, error.Category);
+            throw exceptionBuilder(errorMessage, (GitErrorCode)result, errorCategory);
         }
 
         /// <summary>

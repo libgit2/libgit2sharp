@@ -16,10 +16,11 @@ namespace LibGit2Sharp
         /// The repository.
         /// </summary>
         protected readonly Repository repo;
+        protected readonly Reference reference;
         private readonly Lazy<TObject> objectBuilder;
 
         private static readonly LambdaEqualityHelper<ReferenceWrapper<TObject>> equalityHelper =
-            new LambdaEqualityHelper<ReferenceWrapper<TObject>>(x => x.CanonicalName, x => x.TargetObject);
+            new LambdaEqualityHelper<ReferenceWrapper<TObject>>(x => x.CanonicalName, x => x.reference.TargetIdentifier);
 
         private readonly string canonicalName;
 
@@ -40,6 +41,7 @@ namespace LibGit2Sharp
 
             this.repo = repo;
             canonicalName = canonicalNameSelector(reference);
+            this.reference = reference;
             objectBuilder = new Lazy<TObject>(() => RetrieveTargetObject(reference));
         }
 
@@ -57,15 +59,6 @@ namespace LibGit2Sharp
         public virtual string FriendlyName
         {
             get { return Shorten(); }
-        }
-
-        /// <summary>
-        /// Gets the name of this reference.
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use FriendlyName instead.")]
-        public virtual string Name
-        {
-            get { return FriendlyName; }
         }
 
         /// <summary>

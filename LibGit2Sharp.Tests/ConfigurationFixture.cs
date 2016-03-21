@@ -36,12 +36,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanUnsetAnEntryFromTheGlobalConfiguration()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-
-            var options = BuildFakeConfigs(scd);
-
             string path = SandboxBareTestRepo();
-            using (var repo = new Repository(path, options))
+            using (var repo = new Repository(path))
             {
                 Assert.True(repo.Config.HasConfig(ConfigurationLevel.Global));
                 Assert.Equal(42, repo.Config.Get<int>("Wow.Man-I-am-totally-global").Value);
@@ -143,12 +139,10 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanEnumerateGlobalConfig()
         {
-            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
-            var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
-
             var path = SandboxStandardTestRepoGitDir();
-            using (var repo = new Repository(path, options))
+            using (var repo = new Repository(path))
             {
+                CreateConfigurationWithDummyUser(repo, Constants.Identity);
                 var entry = repo.Config.FirstOrDefault<ConfigurationEntry<string>>(e => e.Key == "user.name");
                 Assert.NotNull(entry);
                 Assert.Equal(Constants.Signature.Name, entry.Value);
@@ -200,16 +194,14 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanFindInGlobalConfig()
         {
-            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
-            var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
 
             var path = SandboxStandardTestRepoGitDir();
-            using (var repo = new Repository(path, options))
+            using (var repo = new Repository(path))
             {
-                var matches = repo.Config.Find(@"\.name", ConfigurationLevel.Global);
+                var matches = repo.Config.Find("-rocks", ConfigurationLevel.Global);
 
                 Assert.NotNull(matches);
-                Assert.Equal(new[] { "user.name" },
+                Assert.Equal(new[] { "woot.this-rocks" },
                              matches.Select(m => m.Key).ToArray());
             }
         }
@@ -331,12 +323,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanGetAnEntryFromASpecificStore()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-
-            var options = BuildFakeConfigs(scd);
-
             string path = SandboxStandardTestRepo();
-            using (var repo = new Repository(path, options))
+            using (var repo = new Repository(path))
             {
                 Assert.True(repo.Config.HasConfig(ConfigurationLevel.Local));
                 Assert.True(repo.Config.HasConfig(ConfigurationLevel.Global));
@@ -356,12 +344,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanTellIfASpecificStoreContainsAKey()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-
-            var options = BuildFakeConfigs(scd);
-
             string path = SandboxBareTestRepo();
-            using (var repo = new Repository(path, options))
+            using (var repo = new Repository(path))
             {
                 Assert.True(repo.Config.HasConfig(ConfigurationLevel.System));
 
@@ -387,16 +371,14 @@ namespace LibGit2Sharp.Tests
         {
             var path = SandboxStandardTestRepoGitDir();
 
-            string globalConfigPath = CreateConfigurationWithDummyUser(Constants.Identity);
-            var options = new RepositoryOptions { GlobalConfigurationLocation = globalConfigPath };
-
-            using (var repo = new Repository(path, options))
+            using (var repo = new Repository(path))
             {
                 repo.Config.Set("my.key", "local");
                 repo.Config.Set("my.key", "mouse", ConfigurationLevel.Global);
             }
 
-            using (var config = Configuration.BuildFrom(localConfigurationPathProvider(path), globalConfigPath))
+            var globalPath = Path.Combine(GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Global).Single(), ".gitconfig");
+            using (var config = Configuration.BuildFrom(localConfigurationPathProvider(path), globalPath))
             {
                 Assert.Equal("local", config.Get<string>("my.key").Value);
                 Assert.Equal("mouse", config.Get<string>("my.key", ConfigurationLevel.Global).Value);
@@ -418,11 +400,10 @@ namespace LibGit2Sharp.Tests
         public void CannotBuildAProperSignatureFromConfigWhenFullIdentityCannotBeFoundInTheConfig(string name, string email)
         {
             string repoPath = InitNewRepository();
-            string configPath = CreateConfigurationWithDummyUser(name, email);
-            var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
 
-            using (var repo = new Repository(repoPath, options))
+            using (var repo = new Repository(repoPath))
             {
+                CreateConfigurationWithDummyUser(repo, name, email);
                 Assert.Equal(name, repo.Config.GetValueOrDefault<string>("user.name"));
                 Assert.Equal(email, repo.Config.GetValueOrDefault<string>("user.email"));
 

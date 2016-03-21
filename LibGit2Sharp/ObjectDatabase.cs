@@ -17,7 +17,7 @@ namespace LibGit2Sharp
     public class ObjectDatabase : IEnumerable<GitObject>
     {
         private readonly Repository repo;
-        private readonly ObjectDatabaseSafeHandle handle;
+        private readonly ObjectDatabaseHandle handle;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -41,11 +41,10 @@ namespace LibGit2Sharp
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<GitObject> GetEnumerator()
         {
-            ICollection<GitOid> oids = Proxy.git_odb_foreach(handle,
-                                                             ptr => ptr.MarshalAs<GitOid>());
+            ICollection<ObjectId> oids = Proxy.git_odb_foreach(handle);
 
             return oids
-                .Select(gitOid => repo.Lookup<GitObject>(new ObjectId(gitOid)))
+                .Select(gitOid => repo.Lookup<GitObject>(gitOid))
                 .GetEnumerator();
         }
 
@@ -649,7 +648,7 @@ namespace LibGit2Sharp
                     List<Conflict> conflicts = new List<Conflict>();
                     Conflict conflict;
 
-                    using (ConflictIteratorSafeHandle iterator = Proxy.git_index_conflict_iterator_new(indexHandle))
+                    using (ConflictIteratorHandle iterator = Proxy.git_index_conflict_iterator_new(indexHandle))
                     {
                         while ((conflict = Proxy.git_index_conflict_next(iterator)) != null)
                         {

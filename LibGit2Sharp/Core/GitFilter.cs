@@ -110,12 +110,12 @@ namespace LibGit2Sharp.Core
     /// The file source being filtered
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    internal class GitFilterSource
+    internal unsafe struct git_filter_source
     {
-        public IntPtr repository;
+        public git_repository* repository;
 
-        public IntPtr path;
+        public char* path;
 
-        public GitOid oid;
+        public git_oid oid;
     }
 }

@@ -117,6 +117,11 @@ namespace LibGit2Sharp.Core
             return LaxUtf8Marshaler.FromNative(pNativeData);
         }
 
+        public new static unsafe FilePath FromNative(char* buffer)
+        {
+            return LaxUtf8Marshaler.FromNative(buffer);
+        }
+
         public new static FilePath FromBuffer(byte[] buffer)
         {
             return LaxUtf8Marshaler.FromBuffer(buffer);

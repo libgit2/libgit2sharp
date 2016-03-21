@@ -112,6 +112,11 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
+        public static unsafe string FromNative(char* pNativeData)
+        {
+            return FromNative(Encoding, (byte*)pNativeData);
+        }
+
         public static string FromNative(IntPtr pNativeData)
         {
             return FromNative(Encoding, pNativeData);

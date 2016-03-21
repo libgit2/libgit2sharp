@@ -84,7 +84,7 @@ namespace LibGit2Sharp.Tests
             string remoteName = "testRemote";
 
             var scd = BuildSelfCleaningDirectory();
-            var repoPath = Repository.Init(scd.RootedDirectoryPath);
+            Repository.Init(scd.RootedDirectoryPath);
 
             SmartSubtransportRegistration<MockSmartSubtransport> registration = null;
 

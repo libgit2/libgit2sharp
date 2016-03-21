@@ -22,23 +22,23 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual X509Certificate Certificate { get; private set; }
 
-        internal CertificateX509(GitCertificateX509 cert)
+        internal unsafe CertificateX509(git_certificate_x509* cert)
         {
-            int len = checked((int) cert.len.ToUInt32());
+            int len = checked((int) cert->len.ToUInt32());
             byte[] data = new byte[len];
-            Marshal.Copy(cert.data, data, 0, len);
+            Marshal.Copy(new IntPtr(cert->data), data, 0, len);
             Certificate = new X509Certificate(data);
         }
 
-        internal IntPtr ToPointers(out IntPtr dataPtr)
+        internal unsafe IntPtr ToPointers(out IntPtr dataPtr)
         {
             var certData = Certificate.Export(X509ContentType.Cert);
             dataPtr = Marshal.AllocHGlobal(certData.Length);
             Marshal.Copy(certData, 0, dataPtr, certData.Length);
-            var gitCert = new GitCertificateX509()
+            var gitCert = new git_certificate_x509()
             {
                 cert_type = GitCertificateType.X509,
-                data = dataPtr,
+                data = (byte*) dataPtr.ToPointer(),
                 len = (UIntPtr)certData.LongLength,
             };
 
