@@ -263,5 +263,40 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(mergeResult.Status, MergeStatus.NonFastForward);
             }
         }
+
+        [Fact]
+        public void CanPruneRefs()
+        {
+            string url = "https://github.com/libgit2/TestGitRepository";
+
+            var scd = BuildSelfCleaningDirectory();
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+
+            var scd2 = BuildSelfCleaningDirectory();
+            string clonedRepoPath2 = Repository.Clone(url, scd2.DirectoryPath);
+
+
+            using (var repo = new Repository(clonedRepoPath))
+            {
+                repo.Network.Remotes.Add("pruner", clonedRepoPath2);
+                var remote = repo.Network.Remotes["pruner"];
+                repo.Network.Fetch(remote);
+                Assert.NotNull(repo.Refs["refs/remotes/pruner/master"]);
+
+                // Remove the branch from the source repository
+                using (var repo2 = new Repository(clonedRepoPath2))
+                {
+                    repo2.Refs.Remove("refs/heads/master");
+                }
+
+                // and by default we don't prune it
+                repo.Network.Fetch(remote);
+                Assert.NotNull(repo.Refs["refs/remotes/pruner/master"]);
+
+                // but we do when asked by the user
+                repo.Network.Fetch(remote, new FetchOptions { Prune = true} );
+                Assert.Null(repo.Refs["refs/remotes/pruner/master"]);
+            }
+        }
     }
 }

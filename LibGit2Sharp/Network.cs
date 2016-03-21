@@ -206,6 +206,15 @@ namespace LibGit2Sharp
                 fetchOptions.download_tags = options.TagFetchMode.Value;
             }
 
+            if (options.Prune.HasValue)
+            {
+                fetchOptions.Prune = options.Prune.Value ? FetchPruneStrategy.Prune : FetchPruneStrategy.NoPrune;
+            }
+            else
+            {
+                fetchOptions.Prune = FetchPruneStrategy.FromConfigurationOrDefault;
+            }
+
             Proxy.git_remote_fetch(remoteHandle, refspecs, fetchOptions, logMessage);
         }
 

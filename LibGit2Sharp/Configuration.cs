@@ -19,6 +19,7 @@ namespace LibGit2Sharp
         private readonly FilePath globalConfigPath;
         private readonly FilePath xdgConfigPath;
         private readonly FilePath systemConfigPath;
+        private readonly FilePath programDataConfigPath;
 
         private ConfigurationHandle configHandle;
 
@@ -43,6 +44,7 @@ namespace LibGit2Sharp
             globalConfigPath = globalConfigurationFileLocation ?? Proxy.git_config_find_global();
             xdgConfigPath = xdgConfigurationFileLocation ?? Proxy.git_config_find_xdg();
             systemConfigPath = systemConfigurationFileLocation ?? Proxy.git_config_find_system();
+            programDataConfigPath = Proxy.git_config_find_programdata();
 
             Init(repository);
         }
@@ -80,6 +82,11 @@ namespace LibGit2Sharp
             if (systemConfigPath != null)
             {
                 Proxy.git_config_add_file_ondisk(configHandle, systemConfigPath, ConfigurationLevel.System);
+            }
+
+            if (programDataConfigPath != null)
+            {
+                Proxy.git_config_add_file_ondisk(configHandle, programDataConfigPath, ConfigurationLevel.ProgramData);
             }
         }
 
@@ -194,36 +201,6 @@ namespace LibGit2Sharp
         {
             return new Configuration(null, repositoryConfigurationFileLocation, globalConfigurationFileLocation, xdgConfigurationFileLocation, systemConfigurationFileLocation);
         }
-
-        /// <summary>
-        /// Access configuration values without a repository. Generally you want to access configuration via an instance of <see cref="Repository"/> instead.
-        /// </summary>
-        /// <param name="globalConfigurationFileLocation">Path to a Global configuration file. If null, the default path for a global configuration file will be probed.</param>
-        [Obsolete("This method will be removed in the next release. Please use Configuration.BuildFrom(string, string) instead.")]
-        public Configuration(string globalConfigurationFileLocation)
-            : this(null, null, globalConfigurationFileLocation, null, null)
-        { }
-
-        /// <summary>
-        /// Access configuration values without a repository. Generally you want to access configuration via an instance of <see cref="Repository"/> instead.
-        /// </summary>
-        /// <param name="globalConfigurationFileLocation">Path to a Global configuration file. If null, the default path for a global configuration file will be probed.</param>
-        /// <param name="xdgConfigurationFileLocation">Path to a XDG configuration file. If null, the default path for a XDG configuration file will be probed.</param>
-        [Obsolete("This method will be removed in the next release. Please use Configuration.BuildFrom(string, string, string) instead.")]
-        public Configuration(string globalConfigurationFileLocation, string xdgConfigurationFileLocation)
-            : this(null, null, globalConfigurationFileLocation, xdgConfigurationFileLocation, null)
-        { }
-
-        /// <summary>
-        /// Access configuration values without a repository. Generally you want to access configuration via an instance of <see cref="Repository"/> instead.
-        /// </summary>
-        /// <param name="globalConfigurationFileLocation">Path to a Global configuration file. If null, the default path for a global configuration file will be probed.</param>
-        /// <param name="xdgConfigurationFileLocation">Path to a XDG configuration file. If null, the default path for a XDG configuration file will be probed.</param>
-        /// <param name="systemConfigurationFileLocation">Path to a System configuration file. If null, the default path for a system configuration file will be probed.</param>
-        [Obsolete("This method will be removed in the next release. Please use Configuration.BuildFrom(string, string, string, string) instead.")]
-        public Configuration(string globalConfigurationFileLocation, string xdgConfigurationFileLocation, string systemConfigurationFileLocation)
-            : this(null, null, globalConfigurationFileLocation, xdgConfigurationFileLocation, systemConfigurationFileLocation)
-        { }
 
         /// <summary>
         /// Determines which configuration file has been found.

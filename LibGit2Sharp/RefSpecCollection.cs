@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -14,7 +15,12 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class RefSpecCollection : IEnumerable<RefSpec>
     {
-        readonly IList<RefSpec> refspecs;
+        // These are here to keep the pointer alive
+        #pragma warning disable 0414
+        readonly Remote remote;
+        readonly RemoteHandle handle;
+        #pragma warning restore 0414
+        readonly Lazy<IList<RefSpec>> refspecs;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -22,14 +28,17 @@ namespace LibGit2Sharp
         protected RefSpecCollection()
         { }
 
-        internal RefSpecCollection(RemoteHandle handle)
+        internal RefSpecCollection(Remote remote, RemoteHandle handle)
         {
             Ensure.ArgumentNotNull(handle, "handle");
 
-            refspecs = RetrieveRefSpecs(handle);
+            this.remote = remote;
+            this.handle = handle;
+
+            refspecs = new Lazy<IList<RefSpec>>(() => RetrieveRefSpecs(remote, handle));
         }
 
-        static unsafe IList<RefSpec> RetrieveRefSpecs(RemoteHandle remoteHandle)
+        static unsafe IList<RefSpec> RetrieveRefSpecs(Remote remote, RemoteHandle remoteHandle)
         {
             int count = Proxy.git_remote_refspec_count(remoteHandle);
             List<RefSpec> refSpecs = new List<RefSpec>();
@@ -37,11 +46,10 @@ namespace LibGit2Sharp
             for (int i = 0; i < count; i++)
             {
                 git_refspec* handle = Proxy.git_remote_get_refspec(remoteHandle, i);
-                refSpecs.Add(RefSpec.BuildFromPtr(handle));
+                refSpecs.Add(new RefSpec(remote, Proxy.git_remote_get_refspec(remoteHandle, i)));
             }
 
             return refSpecs;
-
         }
 
         /// <summary>
@@ -50,7 +58,7 @@ namespace LibGit2Sharp
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<RefSpec> GetEnumerator()
         {
-            return refspecs.GetEnumerator();
+            return refspecs.Value.GetEnumerator();
         }
 
         /// <summary>

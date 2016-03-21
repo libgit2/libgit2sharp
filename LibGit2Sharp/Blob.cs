@@ -29,7 +29,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the size in bytes of the raw content of a blob.
         /// <para> Please note that this would load entire blob content in the memory to compute the Size.
-        /// In order to read blob size from header, Repository.ObjectMetadata.RetrieveObjectMetadata(Blob.Id).Size
+        /// In order to read blob size from header, Repository.ObjectDatabase.RetrieveObjectMetadata(Blob.Id).Size
         /// can be used.
         /// </para>
         /// </summary>

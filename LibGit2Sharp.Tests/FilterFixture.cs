@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using System.Threading.Tasks;
 
 namespace LibGit2Sharp.Tests
 {
@@ -173,6 +174,49 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanHandleMultipleSmudgesConcurrently()
+        {
+            const string decodedInput = "This is a substitution cipher";
+            const string encodedInput = "Guvf vf n fhofgvghgvba pvcure";
+
+            const string branchName = "branch";
+
+            Action<Stream, Stream> smudgeCallback = SubstitutionCipherFilter.RotateByThirteenPlaces;
+
+            var filter = new FakeFilter(FilterName, attributes, null, smudgeCallback);
+            var registration = GlobalSettings.RegisterFilter(filter);
+
+            try
+            {
+                int count = 30;
+                var tasks = new Task<FileInfo>[count];
+
+                for (int i = 0; i < count; i++)
+                {
+                    tasks[i] = Task.Factory.StartNew(() =>
+                    {
+                        string repoPath = InitNewRepository();
+                        return CheckoutFileForSmudge(repoPath, branchName, encodedInput);
+                    });
+                }
+
+                Task.WaitAll(tasks);
+
+                foreach(var task in tasks)
+                {
+                    FileInfo expectedFile = task.Result;
+
+                    string readAllText = File.ReadAllText(expectedFile.FullName);
+                    Assert.Equal(decodedInput, readAllText);
+                }
+            }
+            finally
+            {
+                GlobalSettings.DeregisterFilter(registration);
+            }
+        }
+
+        [Fact]
         public void WhenCheckingOutAFileFileSmudgeWritesCorrectFileToWorkingDirectory()
         {
             const string decodedInput = "This is a substitution cipher";
@@ -232,11 +276,9 @@ namespace LibGit2Sharp.Tests
                 string attributesPath = Path.Combine(Directory.GetParent(repoPath).Parent.FullName, ".gitattributes");
                 FileInfo attributesFile = new FileInfo(attributesPath);
 
-                string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
-                var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
-
-                using (Repository repo = new Repository(repoPath, repositoryOptions))
+                using (Repository repo = new Repository(repoPath))
                 {
+                    CreateConfigurationWithDummyUser(repo, Constants.Identity);
                     File.WriteAllText(attributesPath, "*.blob filter=test");
                     repo.Stage(attributesFile.Name);
                     repo.Stage(contentFile.Name);
@@ -377,9 +419,8 @@ namespace LibGit2Sharp.Tests
 
         private Repository CreateTestRepository(string path)
         {
-            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
-            var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
-            var repository = new Repository(path, repositoryOptions);
+            var repository = new Repository(path);
+            CreateConfigurationWithDummyUser(repository, Constants.Identity);
             CreateAttributesFile(repository, "* filter=test");
             return repository;
         }

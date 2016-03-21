@@ -21,10 +21,9 @@ namespace LibGit2Sharp.Tests
 
             string repoPath = InitNewRepository();
             string fileName = Guid.NewGuid() + ".rot13";
-            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
-            var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
-            using (var repo = new Repository(repoPath, repositoryOptions))
+            using (var repo = new Repository(repoPath))
             {
+                CreateConfigurationWithDummyUser(repo, Constants.Identity);
                 CreateAttributesFile(repo, "*.rot13 filter=rot13");
 
                 var blob = CommitOnBranchAndReturnDatabaseBlob(repo, fileName, decodedInput);
@@ -61,10 +60,9 @@ namespace LibGit2Sharp.Tests
 
             string repoPath = InitNewRepository();
             string fileName = Guid.NewGuid() + ".rot13";
-            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
-            var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
-            using (var repo = new Repository(repoPath, repositoryOptions))
+            using (var repo = new Repository(repoPath))
             {
+                CreateConfigurationWithDummyUser(repo, Constants.Identity);
                 CreateAttributesFile(repo, "*.rot13 filter=rot13");
 
                 var blob = CommitOnBranchAndReturnDatabaseBlob(repo, fileName, decodedInput);
@@ -106,10 +104,9 @@ namespace LibGit2Sharp.Tests
             string repoPath = InitNewRepository();
             string fileName = Guid.NewGuid() + fileExtension;
 
-            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
-            var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
-            using (var repo = new Repository(repoPath, repositoryOptions))
+            using (var repo = new Repository(repoPath))
             {
+                CreateConfigurationWithDummyUser(repo, Constants.Identity);
                 CreateAttributesFile(repo, attributeFileEntry);
 
                 CommitOnBranchAndReturnDatabaseBlob(repo, fileName, decodedInput);
@@ -141,10 +138,9 @@ namespace LibGit2Sharp.Tests
             string repoPath = InitNewRepository();
             string fileName = Guid.NewGuid() + ".txt";
 
-            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
-            var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
-            using (var repo = new Repository(repoPath, repositoryOptions))
+            using (var repo = new Repository(repoPath))
             {
+                CreateConfigurationWithDummyUser(repo, Constants.Identity);
                 CreateAttributesFile(repo, attributeEntry);
 
                 CommitOnBranchAndReturnDatabaseBlob(repo, fileName, decodedInput);
@@ -172,10 +168,9 @@ namespace LibGit2Sharp.Tests
             string repoPath = InitNewRepository();
             string fileName = Guid.NewGuid() + ".txt";
 
-            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
-            var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
-            using (var repo = new Repository(repoPath, repositoryOptions))
+            using (var repo = new Repository(repoPath))
             {
+                CreateConfigurationWithDummyUser(repo, Constants.Identity);
                 CreateAttributesFile(repo, attributeEntry);
 
                 CommitOnBranchAndReturnDatabaseBlob(repo, fileName, decodedInput);

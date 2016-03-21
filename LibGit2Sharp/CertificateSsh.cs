@@ -59,9 +59,49 @@ namespace LibGit2Sharp
             {
                 for (var i = 0; i < HashSHA1.Length; i++)
                 {
-                    HashMD5[i] = p[i];
+                    HashSHA1[i] = p[i];
                 }
             }
+        }
+
+        internal unsafe IntPtr ToPointer()
+        {
+            GitCertificateSshType sshCertType = 0;
+            if (HasMD5)
+            {
+                sshCertType |= GitCertificateSshType.MD5;
+            }
+            if (HasSHA1)
+            {
+                sshCertType |= GitCertificateSshType.SHA1;
+            }
+
+            var gitCert = new git_certificate_ssh()
+            {
+                cert_type = GitCertificateType.Hostkey,
+                type = sshCertType,
+            };
+
+            fixed (byte *p = &HashMD5[0])
+            {
+                for (var i = 0; i < HashMD5.Length; i++)
+                {
+                    gitCert.HashMD5[i] = p[i];
+                }
+            }
+
+            fixed (byte *p = &HashSHA1[0])
+            {
+                for (var i = 0; i < HashSHA1.Length; i++)
+                {
+                    gitCert.HashSHA1[i] = p[i];
+                }
+            }
+
+            var ptr = Marshal.AllocHGlobal(Marshal.SizeOf(gitCert));
+            Marshal.StructureToPtr(gitCert, ptr, false);
+
+            return ptr;
         }
     }
 }

@@ -29,8 +29,8 @@ namespace LibGit2Sharp
             {
                 version = 1,
                 flags = options.Strategy.ToGitBlameOptionFlags(),
-                min_line = (uint)options.MinLine,
-                max_line = (uint)options.MaxLine,
+                min_line = new UIntPtr((uint)options.MinLine),
+                max_line = new UIntPtr((uint)options.MaxLine),
             };
 
             if (options.StartingAt != null)

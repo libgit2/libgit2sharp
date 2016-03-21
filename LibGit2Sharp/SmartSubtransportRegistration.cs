@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -75,7 +76,9 @@ namespace LibGit2Sharp
 
                 try
                 {
-                    subtransport = new T().GitSmartSubtransportPointer;
+                    var obj = new T();
+                    obj.Transport = transport;
+                    subtransport = obj.GitSmartSubtransportPointer;
 
                     return 0;
                 }

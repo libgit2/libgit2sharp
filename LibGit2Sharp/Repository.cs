@@ -1031,21 +1031,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
-        /// </summary>
-        /// <param name="commit">The target commit object.</param>
-        /// <param name="paths">The list of paths (either files or directories) that should be considered.</param>
-        /// <param name="explicitPathsOptions">
-        /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
-        /// Use these options to determine how unmatched explicit paths should be handled.
-        /// </param>
-        [Obsolete("This method will be removed in the next release. Please use Index.Replace() instead.")]
-        public void Reset(Commit commit, IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions)
-        {
-            Index.Replace(commit, paths, explicitPathsOptions);
-        }
-
-        /// <summary>
         /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="LibGit2Sharp.Commit"/> into the repository.
         /// The tip of the <see cref="Repository.Head"/> will be used as the parent of this new Commit.
         /// Once the commit is created, the <see cref="Repository.Head"/> will move forward to point at it.
@@ -1329,8 +1314,8 @@ namespace LibGit2Sharp
                 {
                     Version = 1,
                     MergeFileFavorFlags = options.MergeFileFavor,
-                    MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES :
-                                                           GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
+                    MergeTreeFlags = options.FindRenames ? GitMergeFlag.GIT_MERGE_FIND_RENAMES :
+                                                           GitMergeFlag.GIT_MERGE_NORMAL,
                     RenameThreshold = (uint)options.RenameThreshold,
                     TargetLimit = (uint)options.TargetLimit,
                 };
@@ -1413,8 +1398,8 @@ namespace LibGit2Sharp
                 {
                     Version = 1,
                     MergeFileFavorFlags = options.MergeFileFavor,
-                    MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES :
-                                                           GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
+                    MergeTreeFlags = options.FindRenames ? GitMergeFlag.GIT_MERGE_FIND_RENAMES :
+                                                           GitMergeFlag.GIT_MERGE_NORMAL,
                     RenameThreshold = (uint)options.RenameThreshold,
                     TargetLimit = (uint)options.TargetLimit,
                 };
@@ -1553,21 +1538,39 @@ namespace LibGit2Sharp
         private MergeResult NormalMerge(AnnotatedCommitHandle[] annotatedCommits, Signature merger, MergeOptions options)
         {
             MergeResult mergeResult;
+            GitMergeFlag treeFlags = options.FindRenames ? GitMergeFlag.GIT_MERGE_FIND_RENAMES
+                                                              : GitMergeFlag.GIT_MERGE_NORMAL;
+
+            if (options.FailOnConflict)
+            {
+                treeFlags |= GitMergeFlag.GIT_MERGE_FAIL_ON_CONFLICT;
+            }
+
+            if (options.SkipReuc)
+            {
+                treeFlags |= GitMergeFlag.GIT_MERGE_SKIP_REUC;
+            }
+
             var mergeOptions = new GitMergeOpts
             {
                 Version = 1,
                 MergeFileFavorFlags = options.MergeFileFavor,
-                MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES
-                                                     : GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
+                MergeTreeFlags = treeFlags,
                 RenameThreshold = (uint)options.RenameThreshold,
                 TargetLimit = (uint)options.TargetLimit,
             };
 
+            bool earlyStop;
             using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
             {
                 var checkoutOpts = checkoutOptionsWrapper.Options;
 
-                Proxy.git_merge(Handle, annotatedCommits, mergeOptions, checkoutOpts);
+                Proxy.git_merge(Handle, annotatedCommits, mergeOptions, checkoutOpts, out earlyStop);
+            }
+
+            if (earlyStop)
+            {
+                return new MergeResult(MergeStatus.Conflicts);
             }
 
             if (Index.IsFullyMerged)

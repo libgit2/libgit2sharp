@@ -29,5 +29,23 @@ namespace LibGit2Sharp
             Marshal.Copy(new IntPtr(cert->data), data, 0, len);
             Certificate = new X509Certificate(data);
         }
+
+        internal unsafe IntPtr ToPointers(out IntPtr dataPtr)
+        {
+            var certData = Certificate.Export(X509ContentType.Cert);
+            dataPtr = Marshal.AllocHGlobal(certData.Length);
+            Marshal.Copy(certData, 0, dataPtr, certData.Length);
+            var gitCert = new git_certificate_x509()
+            {
+                cert_type = GitCertificateType.X509,
+                data = (byte*) dataPtr.ToPointer(),
+                len = (UIntPtr)certData.LongLength,
+            };
+
+            var ptr = Marshal.AllocHGlobal(Marshal.SizeOf(gitCert));
+            Marshal.StructureToPtr(gitCert, ptr, false);
+
+            return ptr;
+        }
     }
 }

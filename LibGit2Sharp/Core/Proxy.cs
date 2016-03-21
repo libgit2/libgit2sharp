@@ -479,6 +479,16 @@ namespace LibGit2Sharp.Core
             return ConvertPath(NativeMethods.git_config_find_xdg);
         }
 
+        public static FilePath git_config_find_programdata()
+        {
+            return ConvertPath(NativeMethods.git_config_find_programdata);
+        }
+        
+        public static unsafe void git_config_free(git_config *config)
+        {
+            NativeMethods.git_config_free(config);
+        }
+
         public static unsafe ConfigurationEntry<T> git_config_get_entry<T>(ConfigurationHandle config, string key)
         {
             if (!configurationParser.ContainsKey(typeof(T)))
@@ -623,6 +633,15 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
 
             return new ConfigurationHandle(handle, true);
+        }
+
+        #endregion
+
+        #region git_cred_
+
+        public static void git_cred_free(IntPtr cred)
+        {
+            NativeMethods.git_cred_free(cred);
         }
 
         #endregion
@@ -1075,11 +1094,19 @@ namespace LibGit2Sharp.Core
 
         #region git_merge_
 
-        public static unsafe IndexHandle git_merge_commits(RepositoryHandle repo, ObjectHandle ourCommit, ObjectHandle theirCommit, GitMergeOpts opts)
+        public static unsafe IndexHandle git_merge_commits(RepositoryHandle repo, ObjectHandle ourCommit, ObjectHandle theirCommit, GitMergeOpts opts, out bool earlyStop)
         {
             git_index* index;
             int res = NativeMethods.git_merge_commits(out index, repo, ourCommit, theirCommit, ref opts);
-            Ensure.ZeroResult(res);
+            if (res == (int)GitErrorCode.MergeConflict)
+            {
+                earlyStop = true;
+            }
+            else
+            {
+                earlyStop = false;
+                Ensure.ZeroResult(res);
+            }
 
             return new IndexHandle(index, true);
         }
@@ -1163,7 +1190,7 @@ namespace LibGit2Sharp.Core
             return ObjectId.BuildFromPtr(NativeMethods.git_annotated_commit_id(mergeHead));
         }
 
-        public static unsafe void git_merge(RepositoryHandle repo, AnnotatedCommitHandle[] heads, GitMergeOpts mergeOptions, GitCheckoutOpts checkoutOptions)
+        public static unsafe void git_merge(RepositoryHandle repo, AnnotatedCommitHandle[] heads, GitMergeOpts mergeOptions, GitCheckoutOpts checkoutOptions, out bool earlyStop)
         {
             IntPtr[] their_heads = heads.Select(head => head.AsIntPtr()).ToArray();
 
@@ -1173,7 +1200,15 @@ namespace LibGit2Sharp.Core
                                               ref mergeOptions,
                                               ref checkoutOptions);
 
-            Ensure.ZeroResult(res);
+            if (res == (int)GitErrorCode.MergeConflict)
+            {
+                earlyStop = true;
+            }
+            else
+            {
+                earlyStop = false;
+                Ensure.ZeroResult(res);
+            }
         }
 
         public static unsafe void git_merge_analysis(
@@ -1912,7 +1947,18 @@ namespace LibGit2Sharp.Core
 
         #region git_refspec
 
-        public static unsafe string git_refspec_rtransform(git_refspec* refSpecPtr, string name)
+        public static unsafe string git_refspec_transform(IntPtr refSpecPtr, string name)
+        {
+            using (var buf = new GitBuf())
+            {
+                int res = NativeMethods.git_refspec_transform(buf, refSpecPtr, name);
+                Ensure.ZeroResult(res);
+
+                return LaxUtf8Marshaler.FromNative(buf.ptr) ?? string.Empty;
+            }
+        }
+
+        public static unsafe string git_refspec_rtransform(IntPtr refSpecPtr, string name)
         {
             using (var buf = new GitBuf())
             {
@@ -1923,29 +1969,39 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static unsafe string git_refspec_string(git_refspec* refSpec)
+        public static unsafe string git_refspec_string(IntPtr refspec)
         {
-            return NativeMethods.git_refspec_string(refSpec);
+            return NativeMethods.git_refspec_string(refspec);
         }
 
-        public static unsafe string git_refspec_src(git_refspec* refSpec)
+        public static unsafe string git_refspec_src(IntPtr refSpec)
         {
             return NativeMethods.git_refspec_src(refSpec);
         }
 
-        public static unsafe string git_refspec_dst(git_refspec* refSpec)
+        public static unsafe string git_refspec_dst(IntPtr refSpec)
         {
             return NativeMethods.git_refspec_dst(refSpec);
         }
 
-        public static unsafe RefSpecDirection git_refspec_direction(git_refspec* refSpec)
+        public static unsafe RefSpecDirection git_refspec_direction(IntPtr refSpec)
         {
             return NativeMethods.git_refspec_direction(refSpec);
         }
 
-        public static unsafe bool git_refspec_force(git_refspec* refSpec)
+        public static unsafe bool git_refspec_force(IntPtr refSpec)
         {
             return NativeMethods.git_refspec_force(refSpec);
+        }
+
+        public static bool git_refspec_src_matches(IntPtr refspec, string reference)
+        {
+            return NativeMethods.git_refspec_src_matches(refspec, reference);
+        }
+
+        public static bool git_refspec_dst_matches(IntPtr refspec, string reference)
+        {
+            return NativeMethods.git_refspec_dst_matches(refspec, reference);
         }
 
         #endregion
@@ -3040,6 +3096,15 @@ namespace LibGit2Sharp.Core
             }
 
             Ensure.ZeroResult(res);
+        }
+
+        #endregion
+
+        #region git_transport_smart_
+
+        public static int git_transport_smart_credentials(out IntPtr cred, IntPtr transport, string user, int methods)
+        {
+            return NativeMethods.git_transport_smart_credentials(out cred, transport, user, methods);
         }
 
         #endregion

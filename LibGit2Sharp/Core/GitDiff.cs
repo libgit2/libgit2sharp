@@ -197,6 +197,12 @@ namespace LibGit2Sharp.Core
         IntPtr matched_pathspec,
         IntPtr payload);
 
+    internal delegate int diff_progress_cb(
+        IntPtr diff_so_far,
+        IntPtr old_path,
+        IntPtr new_path,
+        IntPtr payload);
+
     [StructLayout(LayoutKind.Sequential)]
     internal class GitDiffOptions : IDisposable
     {
@@ -208,7 +214,8 @@ namespace LibGit2Sharp.Core
         public SubmoduleIgnore IgnoreSubmodules;
         public GitStrArrayManaged PathSpec;
         public diff_notify_cb NotifyCallback;
-        public IntPtr NotifyPayload;
+        public diff_progress_cb ProgressCallback;
+        public IntPtr Payload;
 
         /* options controlling how to diff text is generated */
 

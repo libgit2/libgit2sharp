@@ -21,30 +21,12 @@ namespace LibGit2Sharp
         /// <summary>
         /// New file has been added to the Index. It's unknown from the Head.
         /// </summary>
-        [Obsolete("This enum member will be removed in the next release. Please use NewInIndex instead.")]
-        Added = (1 << 0), /* GIT_STATUS_INDEX_NEW */
-
-        /// <summary>
-        /// New file has been added to the Index. It's unknown from the Head.
-        /// </summary>
         NewInIndex = (1 << 0), /* GIT_STATUS_INDEX_NEW */
 
         /// <summary>
         /// New version of a file has been added to the Index. A previous version exists in the Head.
         /// </summary>
-        [Obsolete("This enum member will be removed in the next release. Please use ModifiedInIndex instead.")]
-        Staged = (1 << 1), /* GIT_STATUS_INDEX_MODIFIED */
-
-        /// <summary>
-        /// New version of a file has been added to the Index. A previous version exists in the Head.
-        /// </summary>
         ModifiedInIndex = (1 << 1), /* GIT_STATUS_INDEX_MODIFIED */
-
-        /// <summary>
-        /// The deletion of a file has been promoted from the working directory to the Index. A previous version exists in the Head.
-        /// </summary>
-        [Obsolete("This enum member will be removed in the next release. Please use DeletedFromIndex instead.")]
-        Removed = (1 << 2), /* GIT_STATUS_INDEX_DELETED */
 
         /// <summary>
         /// The deletion of a file has been promoted from the working directory to the Index. A previous version exists in the Head.
@@ -59,19 +41,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// A change in type for a file has been promoted from the working directory to the Index. A previous version exists in the Head.
         /// </summary>
-        [Obsolete("This enum member will be removed in the next release. Please use TypeChangeInIndex instead.")]
-        StagedTypeChange = (1 << 4), /* GIT_STATUS_INDEX_TYPECHANGE */
-
-        /// <summary>
-        /// A change in type for a file has been promoted from the working directory to the Index. A previous version exists in the Head.
-        /// </summary>
         TypeChangeInIndex = (1 << 4), /* GIT_STATUS_INDEX_TYPECHANGE */
-
-        /// <summary>
-        /// New file in the working directory, unknown from the Index and the Head.
-        /// </summary>
-        [Obsolete("This enum member will be removed in the next release. Please use NewInWorkdir instead.")]
-        Untracked = (1 << 7), /* GIT_STATUS_WT_NEW */
 
         /// <summary>
         /// New file in the working directory, unknown from the Index and the Head.
@@ -81,30 +51,12 @@ namespace LibGit2Sharp
         /// <summary>
         /// The file has been updated in the working directory. A previous version exists in the Index.
         /// </summary>
-        [Obsolete("This enum member will be removed in the next release. Please use ModifiedInWorkdir instead.")]
-        Modified = (1 << 8), /* GIT_STATUS_WT_MODIFIED */
-
-        /// <summary>
-        /// The file has been updated in the working directory. A previous version exists in the Index.
-        /// </summary>
         ModifiedInWorkdir = (1 << 8), /* GIT_STATUS_WT_MODIFIED */
 
         /// <summary>
         /// The file has been deleted from the working directory. A previous version exists in the Index.
         /// </summary>
-        [Obsolete("This enum member will be removed in the next release. Please use DeletedFromWorkdir instead.")]
-        Missing = (1 << 9), /* GIT_STATUS_WT_DELETED */
-
-        /// <summary>
-        /// The file has been deleted from the working directory. A previous version exists in the Index.
-        /// </summary>
         DeletedFromWorkdir = (1 << 9), /* GIT_STATUS_WT_DELETED */
-
-        /// <summary>
-        /// The file type has been changed in the working directory. A previous version exists in the Index.
-        /// </summary>
-        [Obsolete("This enum member will be removed in the next release. Please use TypeChangeInWorkdir instead.")]
-        TypeChanged = (1 << 10), /* GIT_STATUS_WT_TYPECHANGE */
 
         /// <summary>
         /// The file type has been changed in the working directory. A previous version exists in the Index.

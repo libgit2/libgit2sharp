@@ -58,15 +58,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// <see cref="Signature"/> of the committer of this reference update
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use Committer instead.")]
-        public virtual Signature Commiter
-        {
-            get { return Committer; }
-        }
-
-        /// <summary>
         /// the message assiocated to this reference update
         /// </summary>
         public virtual string Message
