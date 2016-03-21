@@ -138,16 +138,16 @@ namespace LibGit2Sharp
             if ((gitStatus & FileStatus.RenamedInIndex) == FileStatus.RenamedInIndex)
             {
                 headToIndexRenameDetails =
-                    new RenameDetails(LaxFilePathMarshaler.FromNative(deltaHeadToIndex->old_file.Path),
-                                      LaxFilePathMarshaler.FromNative(deltaHeadToIndex->new_file.Path),
+                    new RenameDetails(LaxFilePathMarshaler.FromNative(deltaHeadToIndex->old_file.Path).Native,
+                                      LaxFilePathMarshaler.FromNative(deltaHeadToIndex->new_file.Path).Native,
                                       (int)deltaHeadToIndex->similarity);
             }
 
             if ((gitStatus & FileStatus.RenamedInWorkdir) == FileStatus.RenamedInWorkdir)
             {
                 indexToWorkDirRenameDetails =
-                    new RenameDetails(LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir->old_file.Path),
-                                      LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir->new_file.Path),
+                    new RenameDetails(LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir->old_file.Path).Native,
+                                      LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir->new_file.Path).Native,
                                       (int)deltaIndexToWorkDir->similarity);
             }
 
@@ -155,7 +155,7 @@ namespace LibGit2Sharp
                 ? LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir->new_file.Path)
                 : LaxFilePathMarshaler.FromNative(deltaHeadToIndex->new_file.Path);
 
-            StatusEntry statusEntry = new StatusEntry(filePath, gitStatus, headToIndexRenameDetails, indexToWorkDirRenameDetails);
+            StatusEntry statusEntry = new StatusEntry(filePath.Native, gitStatus, headToIndexRenameDetails, indexToWorkDirRenameDetails);
 
             if (gitStatus == FileStatus.Unaltered)
             {

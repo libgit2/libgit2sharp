@@ -18,8 +18,8 @@ namespace LibGit2Sharp
 
         internal unsafe TreeEntryChanges(git_diff_delta* delta)
         {
-            Path = LaxFilePathMarshaler.FromNative(delta->new_file.Path);
-            OldPath = LaxFilePathMarshaler.FromNative(delta->old_file.Path);
+            Path = LaxFilePathMarshaler.FromNative(delta->new_file.Path).Native;
+            OldPath = LaxFilePathMarshaler.FromNative(delta->old_file.Path).Native;
 
             Mode = (Mode)delta->new_file.Mode;
             OldMode = (Mode)delta->old_file.Mode;

@@ -30,13 +30,13 @@ namespace LibGit2Sharp
             }
 
             string ancestor = entry->ancestor != null
-                ? LaxFilePathMarshaler.FromNative(entry->ancestor)
+                ? LaxFilePathMarshaler.FromNative(entry->ancestor).Native
                 : null;
             string ours = entry->ours != null
-                ? LaxFilePathMarshaler.FromNative(entry->ours)
+                ? LaxFilePathMarshaler.FromNative(entry->ours).Native
                 : null;
             string theirs = entry->theirs != null
-                ? LaxFilePathMarshaler.FromNative(entry->theirs)
+                ? LaxFilePathMarshaler.FromNative(entry->theirs).Native
                 : null;
 
             return new IndexNameEntry
