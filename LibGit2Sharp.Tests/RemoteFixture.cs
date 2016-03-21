@@ -124,28 +124,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanCheckEqualityOfRemote()
-        {
-            string path = SandboxStandardTestRepo();
-            using (var repo = new Repository(path))
-            {
-                Remote oneOrigin = repo.Network.Remotes["origin"];
-                Assert.NotNull(oneOrigin);
-
-                Remote otherOrigin = repo.Network.Remotes["origin"];
-                Assert.Equal(oneOrigin, otherOrigin);
-
-                Remote createdRemote = repo.Network.Remotes.Add("origin2", oneOrigin.Url);
-
-                Remote loadedRemote = repo.Network.Remotes["origin2"];
-                Assert.NotNull(loadedRemote);
-                Assert.Equal(createdRemote, loadedRemote);
-
-                Assert.NotEqual(oneOrigin, loadedRemote);
-            }
-        }
-
-        [Fact]
         public void CreatingANewRemoteAddsADefaultRefSpec()
         {
             string path = SandboxStandardTestRepo();

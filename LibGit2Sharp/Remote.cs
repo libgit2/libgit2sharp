@@ -12,11 +12,8 @@ namespace LibGit2Sharp
     /// A remote repository whose branches are tracked.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class Remote : IEquatable<Remote>, IBelongToARepository, IDisposable
+    public class Remote : IBelongToARepository, IDisposable
     {
-        private static readonly LambdaEqualityHelper<Remote> equalityHelper =
-            new LambdaEqualityHelper<Remote>(x => x.Name, x => x.Url, x => x.PushUrl);
-
         internal readonly Repository repository;
 
         private readonly RefSpecCollection refSpecs;
@@ -180,25 +177,6 @@ namespace LibGit2Sharp
         public override bool Equals(object obj)
         {
             return Equals(obj as Remote);
-        }
-
-        /// <summary>
-        /// Determines whether the specified <see cref="Remote"/> is equal to the current <see cref="Remote"/>.
-        /// </summary>
-        /// <param name="other">The <see cref="Remote"/> to compare with the current <see cref="Remote"/>.</param>
-        /// <returns>True if the specified <see cref="Remote"/> is equal to the current <see cref="Remote"/>; otherwise, false.</returns>
-        public bool Equals(Remote other)
-        {
-            return equalityHelper.Equals(this, other);
-        }
-
-        /// <summary>
-        /// Returns the hash code for this instance.
-        /// </summary>
-        /// <returns>A 32-bit signed integer hash code.</returns>
-        public override int GetHashCode()
-        {
-            return equalityHelper.GetHashCode(this);
         }
 
         /// <summary>
