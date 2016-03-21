@@ -39,6 +39,7 @@ namespace LibGit2Sharp
             PushUrl = Proxy.git_remote_pushurl(handle);
             TagFetchMode = Proxy.git_remote_autotag(handle);
             refSpecs = new RefSpecCollection(this, handle);
+            repository.RegisterForCleanup(this);
         }
 
         ~Remote()
