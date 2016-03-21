@@ -25,7 +25,7 @@ namespace LibGit2Sharp
         protected PatchStats()
         { }
 
-        internal PatchStats(DiffSafeHandle diff)
+        internal unsafe PatchStats(DiffHandle diff)
         {
             int count = Proxy.git_diff_num_deltas(diff);
             for (int i = 0; i < count; i++)
@@ -33,7 +33,7 @@ namespace LibGit2Sharp
                 using (var patch = Proxy.git_patch_from_diff(diff, i))
                 {
                     var delta = Proxy.git_diff_get_delta(diff, i);
-                    var pathPtr = delta.NewFile.Path != IntPtr.Zero ? delta.NewFile.Path : delta.OldFile.Path;
+                    var pathPtr = delta->new_file.Path != null ? delta->new_file.Path : delta->old_file.Path;
                     var newFilePath = LaxFilePathMarshaler.FromNative(pathPtr);
 
                     var stats = Proxy.git_patch_line_stats(patch);

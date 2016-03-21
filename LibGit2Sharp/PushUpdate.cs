@@ -15,12 +15,13 @@ namespace LibGit2Sharp
             SourceObjectId = srcOid;
             SourceRefName = srcRefName;
         }
-        internal PushUpdate(GitPushUpdate update)
+
+        internal unsafe PushUpdate(git_push_update* update)
         {
-            DestinationObjectId = update.dst;
-            DestinationRefName = LaxUtf8Marshaler.FromNative(update.dst_refname);
-            SourceObjectId = update.src;
-            SourceRefName = LaxUtf8Marshaler.FromNative(update.src_refname);
+            DestinationObjectId = ObjectId.BuildFromPtr(&update->dst);
+            DestinationRefName = LaxUtf8Marshaler.FromNative(update->dst_refname);
+            SourceObjectId = ObjectId.BuildFromPtr(&update->src);
+            SourceRefName = LaxUtf8Marshaler.FromNative(update->src_refname);
         }
         /// <summary>
         /// Empty constructor to support test suites

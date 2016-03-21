@@ -22,7 +22,7 @@ namespace LibGit2Sharp
         private readonly RefSpecCollection refSpecs;
         private string pushUrl;
 
-        readonly RemoteSafeHandle handle;
+        readonly RemoteHandle handle;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -30,7 +30,7 @@ namespace LibGit2Sharp
         protected Remote()
         { }
 
-        internal Remote(RemoteSafeHandle handle, Repository repository)
+        internal Remote(RemoteHandle handle, Repository repository)
         {
             this.repository = repository;
             this.handle = handle;
@@ -39,6 +39,7 @@ namespace LibGit2Sharp
             PushUrl = Proxy.git_remote_pushurl(handle);
             TagFetchMode = Proxy.git_remote_autotag(handle);
             refSpecs = new RefSpecCollection(this, handle);
+            repository.RegisterForCleanup(this);
         }
 
         ~Remote()
@@ -127,12 +128,12 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="reference">The reference to transform.</param>
         /// <returns>The transformed reference.</returns>
-        internal string FetchSpecTransformToSource(string reference)
+        internal unsafe string FetchSpecTransformToSource(string reference)
         {
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, Name, true))
+            using (RemoteHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, Name, true))
             {
-                GitRefSpecHandle fetchSpecPtr = Proxy.git_remote_get_refspec(remoteHandle, 0);
-                return Proxy.git_refspec_rtransform(fetchSpecPtr, reference);
+                git_refspec* fetchSpecPtr = Proxy.git_remote_get_refspec(remoteHandle, 0);
+                return Proxy.git_refspec_rtransform(new IntPtr(fetchSpecPtr), reference);
             }
         }
 

@@ -30,7 +30,7 @@ namespace LibGit2Sharp
         protected Patch()
         { }
 
-        internal Patch(DiffSafeHandle diff)
+        internal unsafe Patch(DiffHandle diff)
         {
             int count = Proxy.git_diff_num_deltas(diff);
             for (int i = 0; i < count; i++)
@@ -44,22 +44,22 @@ namespace LibGit2Sharp
             }
         }
 
-        private void AddFileChange(GitDiffDelta delta)
+        private unsafe void AddFileChange(git_diff_delta* delta)
         {
             var treeEntryChanges = new TreeEntryChanges(delta);
 
-            changes.Add(treeEntryChanges.Path, new PatchEntryChanges(delta.IsBinary(), treeEntryChanges));
+            changes.Add(treeEntryChanges.Path, new PatchEntryChanges(delta->flags.HasFlag(GitDiffFlags.GIT_DIFF_FLAG_BINARY), treeEntryChanges));
         }
 
-        private int PrintCallBack(GitDiffDelta delta, GitDiffHunk hunk, GitDiffLine line, IntPtr payload)
+        private unsafe int PrintCallBack(git_diff_delta* delta, GitDiffHunk hunk, GitDiffLine line, IntPtr payload)
         {
             string patchPart = LaxUtf8Marshaler.FromNative(line.content, (int)line.contentLen);
 
             // Deleted files mean no "new file" path
 
-            var pathPtr = delta.NewFile.Path != IntPtr.Zero
-                ? delta.NewFile.Path
-                : delta.OldFile.Path;
+            var pathPtr = delta->new_file.Path != null
+                ? delta->new_file.Path
+                : delta->old_file.Path;
             var filePath = LaxFilePathMarshaler.FromNative(pathPtr);
 
             PatchEntryChanges currentChange = this[filePath];

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -15,7 +16,7 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Index : IEnumerable<IndexEntry>
     {
-        private readonly IndexSafeHandle handle;
+        private readonly IndexHandle handle;
         private readonly Repository repo;
         private readonly ConflictCollection conflicts;
 
@@ -46,7 +47,7 @@ namespace LibGit2Sharp
             repo.RegisterForCleanup(handle);
         }
 
-        internal IndexSafeHandle Handle
+        internal IndexHandle Handle
         {
             get { return handle; }
         }
@@ -70,22 +71,22 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the <see cref="IndexEntry"/> with the specified relative path.
         /// </summary>
-        public virtual IndexEntry this[string path]
+        public virtual unsafe IndexEntry this[string path]
         {
             get
             {
                 Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-                IndexEntrySafeHandle entryHandle = Proxy.git_index_get_bypath(handle, path, 0);
-                return IndexEntry.BuildFromPtr(entryHandle);
+                git_index_entry* entry = Proxy.git_index_get_bypath(handle, path, 0);
+                return IndexEntry.BuildFromPtr(entry);
             }
         }
 
-        private IndexEntry this[int index]
+        private unsafe IndexEntry this[int index]
         {
             get
             {
-                IndexEntrySafeHandle entryHandle = Proxy.git_index_get_byindex(handle, (UIntPtr)index);
+                git_index_entry* entryHandle = Proxy.git_index_get_byindex(handle, (UIntPtr)index);
                 return IndexEntry.BuildFromPtr(entryHandle);
             }
         }
@@ -270,17 +271,18 @@ namespace LibGit2Sharp
             get { return conflicts; }
         }
 
-        private void AddEntryToTheIndex(string path, ObjectId id, Mode mode)
+        private unsafe void AddEntryToTheIndex(string path, ObjectId id, Mode mode)
         {
-            var indexEntry = new GitIndexEntry
+            IntPtr pathPtr = StrictFilePathMarshaler.FromManaged(path);
+            var indexEntry = new git_index_entry
             {
-                Mode = (uint)mode,
-                Id = id.Oid,
-                Path = StrictFilePathMarshaler.FromManaged(path),
+                mode = (uint)mode,
+                path = (char*) pathPtr,
             };
+            Marshal.Copy(id.RawId, 0, new IntPtr(indexEntry.id.Id), GitOid.Size);
 
-            Proxy.git_index_add(handle, indexEntry);
-            EncodingMarshaler.Cleanup(indexEntry.Path);
+            Proxy.git_index_add(handle, &indexEntry);
+            EncodingMarshaler.Cleanup(pathPtr);
         }
 
         private string DebuggerDisplay

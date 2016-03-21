@@ -221,8 +221,10 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(repository, "repository");
             Ensure.ArgumentNotNullOrEmptyString(remoteName, "remoteName");
 
-            Remote remote = repository.Network.Remotes.RemoteForName(remoteName, true);
-            repository.Network.Fetch(remote, options);
+            using (Remote remote = repository.Network.Remotes.RemoteForName(remoteName, true))
+            {
+                repository.Network.Fetch(remote, options);
+            }
         }
 
         /// <summary>

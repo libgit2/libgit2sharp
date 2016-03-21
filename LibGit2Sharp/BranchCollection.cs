@@ -199,7 +199,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(branch, "branch");
 
-            using (ReferenceSafeHandle referencePtr = repo.Refs.RetrieveReferencePtr(branch.CanonicalName))
+            using (ReferenceHandle referencePtr = repo.Refs.RetrieveReferencePtr(branch.CanonicalName))
             {
                 Proxy.git_branch_delete(referencePtr);
             }
@@ -267,7 +267,7 @@ namespace LibGit2Sharp
                                                 branch.FriendlyName);
             }
 
-            using (ReferenceSafeHandle referencePtr = repo.Refs.RetrieveReferencePtr(Reference.LocalBranchPrefix + branch.FriendlyName))
+            using (ReferenceHandle referencePtr = repo.Refs.RetrieveReferencePtr(Reference.LocalBranchPrefix + branch.FriendlyName))
             {
                 using (Proxy.git_branch_move(referencePtr, newName, allowOverwrite))
                 { }

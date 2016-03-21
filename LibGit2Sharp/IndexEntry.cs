@@ -40,24 +40,22 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual ObjectId Id { get; private set; }
 
-        internal static IndexEntry BuildFromPtr(IndexEntrySafeHandle handle)
+        internal static unsafe IndexEntry BuildFromPtr(git_index_entry* entry)
         {
-            if (handle == null || handle.IsZero)
+            if (entry == null)
             {
                 return null;
             }
 
-            GitIndexEntry entry = handle.MarshalAsGitIndexEntry();
-
-            FilePath path = LaxFilePathMarshaler.FromNative(entry.Path);
+            FilePath path = LaxFilePathMarshaler.FromNative(entry->path);
 
             return new IndexEntry
             {
                 Path = path.Native,
-                Id = entry.Id,
-                StageLevel = Proxy.git_index_entry_stage(handle),
-                Mode = (Mode)entry.Mode,
-                AssumeUnchanged = (GitIndexEntry.GIT_IDXENTRY_VALID & entry.Flags) == GitIndexEntry.GIT_IDXENTRY_VALID
+                Id = new ObjectId(entry->id.Id),
+                StageLevel = Proxy.git_index_entry_stage(entry),
+                Mode = (Mode)entry->mode,
+                AssumeUnchanged = (git_index_entry.GIT_IDXENTRY_VALID & entry->flags) == git_index_entry.GIT_IDXENTRY_VALID
             };
         }
 

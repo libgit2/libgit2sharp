@@ -4,14 +4,14 @@ using System.Runtime.InteropServices;
 namespace LibGit2Sharp.Core
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal class GitIndexReucEntry
+    internal unsafe struct git_index_reuc_entry
     {
         public uint AncestorMode;
         public uint OurMode;
         public uint TheirMode;
-        public GitOid AncestorId;
-        public GitOid OurId;
-        public GitOid TheirId;
-        public IntPtr Path;
+        public git_oid AncestorId;
+        public git_oid OurId;
+        public git_oid TheirId;
+        public char* Path;
     }
 }

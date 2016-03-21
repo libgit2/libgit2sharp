@@ -108,14 +108,22 @@ namespace LibGit2Sharp
                 return res;
             }
 
-            var baseCred = credHandle.MarshalAs<GitCredential>();
-            switch (baseCred.credtype)
+            if (credHandle == IntPtr.Zero)
             {
-                case GitCredentialType.UserPassPlaintext:
-                    cred = UsernamePasswordCredentials.FromNative(credHandle.MarshalAs<GitCredentialUserpass>());
-                    return 0;
-                default:
-                    throw new InvalidOperationException("User returned an unkown credential type");
+                throw new InvalidOperationException("creditals callback indicated success but returned no credentials");
+            }
+
+            unsafe
+            {
+                var baseCred = (GitCredential*) credHandle;
+                switch (baseCred->credtype)
+                {
+                    case GitCredentialType.UserPassPlaintext:
+                        cred = UsernamePasswordCredentials.FromNative((GitCredentialUserpass*) credHandle);
+                        return 0;
+                    default:
+                        throw new InvalidOperationException("User returned an unkown credential type");
+                }
             }
         }
 

@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 namespace LibGit2Sharp.Core
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal class GitCredentialUserpass
+    internal unsafe struct GitCredentialUserpass
     {
         public GitCredential parent;
-        public IntPtr username;
-        public IntPtr password;
+        public char* username;
+        public char* password;
     }
 }
 

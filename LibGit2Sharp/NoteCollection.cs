@@ -123,7 +123,7 @@ namespace LibGit2Sharp
 
                 string canonicalNamespace = NormalizeToCanonicalName(@namespace);
 
-                using (NoteSafeHandle noteHandle = Proxy.git_note_read(repo.Handle, canonicalNamespace, id))
+                using (NoteHandle noteHandle = Proxy.git_note_read(repo.Handle, canonicalNamespace, id))
                 {
                     return noteHandle == null
                         ? null

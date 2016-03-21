@@ -106,7 +106,7 @@ namespace LibGit2Sharp
             return repo.Notes[oid];
         }
 
-        private static string RetrieveEncodingOf(GitObjectSafeHandle obj)
+        private static string RetrieveEncodingOf(ObjectHandle obj)
         {
             string encoding = Proxy.git_commit_message_encoding(obj);
 

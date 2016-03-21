@@ -25,7 +25,7 @@ namespace LibGit2Sharp
         /// Initializes a new instance of the <see cref="ReflogEntry"/> class.
         /// </summary>
         /// <param name="entryHandle">a <see cref="SafeHandle"/> to the reflog entry</param>
-        public ReflogEntry(SafeHandle entryHandle)
+        internal unsafe ReflogEntry(git_reflog_entry* entryHandle)
         {
             _from = Proxy.git_reflog_entry_id_old(entryHandle);
             _to = Proxy.git_reflog_entry_id_new(entryHandle);

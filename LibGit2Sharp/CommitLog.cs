@@ -108,7 +108,7 @@ namespace LibGit2Sharp
         private class CommitEnumerator : IEnumerator<Commit>
         {
             private readonly Repository repo;
-            private readonly RevWalkerSafeHandle handle;
+            private readonly RevWalkerHandle handle;
             private ObjectId currentOid;
 
             public CommitEnumerator(Repository repo, CommitFilter filter)
@@ -167,7 +167,7 @@ namespace LibGit2Sharp
                 handle.SafeDispose();
             }
 
-            private delegate void HidePushSignature(RevWalkerSafeHandle handle, ObjectId id);
+            private delegate void HidePushSignature(RevWalkerHandle handle, ObjectId id);
 
             private void InternalHidePush(IList<object> identifier, HidePushSignature hidePush)
             {

@@ -62,6 +62,13 @@ namespace LibGit2Sharp
             this.repository = repo;
         }
 
+        unsafe AnnotatedCommitHandle AnnotatedCommitHandleFromRefHandle(ReferenceHandle refHandle)
+        {
+            return (refHandle == null) ?
+                new AnnotatedCommitHandle(null, false) :
+                Proxy.git_annotated_commit_from_ref(this.repository.Handle, refHandle);
+        }
+
         /// <summary>
         /// Start a rebase operation.
         /// </summary>
@@ -85,19 +92,11 @@ namespace LibGit2Sharp
                     this.repository.Info.CurrentOperation);
             }
 
-            Func<Branch, ReferenceSafeHandle> RefHandleFromBranch = (Branch b) =>
+            Func<Branch, ReferenceHandle> RefHandleFromBranch = (Branch b) =>
             {
                 return (b == null) ?
                     null :
                     this.repository.Refs.RetrieveReferencePtr(b.CanonicalName);
-            };
-
-            Func<ReferenceSafeHandle, GitAnnotatedCommitHandle> AnnotatedCommitHandleFromRefHandle =
-                (ReferenceSafeHandle refHandle) =>
-            {
-                return (refHandle == null) ?
-                    new GitAnnotatedCommitHandle() :
-                    Proxy.git_annotated_commit_from_ref(this.repository.Handle, refHandle);
             };
 
             using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
@@ -108,13 +107,13 @@ namespace LibGit2Sharp
                     checkout_options = checkoutOptionsWrapper.Options,
                 };
 
-                using (ReferenceSafeHandle branchRefPtr = RefHandleFromBranch(branch))
-                using (ReferenceSafeHandle upstreamRefPtr = RefHandleFromBranch(upstream))
-                using (ReferenceSafeHandle ontoRefPtr = RefHandleFromBranch(onto))
-                using (GitAnnotatedCommitHandle annotatedBranchCommitHandle = AnnotatedCommitHandleFromRefHandle(branchRefPtr))
-                using (GitAnnotatedCommitHandle upstreamRefAnnotatedCommitHandle = AnnotatedCommitHandleFromRefHandle(upstreamRefPtr))
-                using (GitAnnotatedCommitHandle ontoRefAnnotatedCommitHandle = AnnotatedCommitHandleFromRefHandle(ontoRefPtr))
-                using (RebaseSafeHandle rebaseOperationHandle = Proxy.git_rebase_init(this.repository.Handle,
+                using (ReferenceHandle branchRefPtr = RefHandleFromBranch(branch))
+                using (ReferenceHandle upstreamRefPtr = RefHandleFromBranch(upstream))
+                using (ReferenceHandle ontoRefPtr = RefHandleFromBranch(onto))
+                using (AnnotatedCommitHandle annotatedBranchCommitHandle = AnnotatedCommitHandleFromRefHandle(branchRefPtr))
+                using (AnnotatedCommitHandle upstreamRefAnnotatedCommitHandle = AnnotatedCommitHandleFromRefHandle(upstreamRefPtr))
+                using (AnnotatedCommitHandle ontoRefAnnotatedCommitHandle = AnnotatedCommitHandleFromRefHandle(ontoRefPtr))
+                using (RebaseHandle rebaseOperationHandle = Proxy.git_rebase_init(this.repository.Handle,
                                                                                       annotatedBranchCommitHandle,
                                                                                       upstreamRefAnnotatedCommitHandle,
                                                                                       ontoRefAnnotatedCommitHandle,
@@ -134,7 +133,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="committer">The <see cref="Identity"/> of who added the change to the repository.</param>
         /// <param name="options">The <see cref="RebaseOptions"/> that specify the rebase behavior.</param>
-        public virtual RebaseResult Continue(Identity committer, RebaseOptions options)
+        public virtual unsafe RebaseResult Continue(Identity committer, RebaseOptions options)
         {
             Ensure.ArgumentNotNull(committer, "committer");
 
@@ -150,7 +149,7 @@ namespace LibGit2Sharp
                     checkout_options = checkoutOptionsWrapper.Options,
                 };
 
-                using (RebaseSafeHandle rebase = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
+                using (RebaseHandle rebase = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
                 {
                     // TODO: Should we check the pre-conditions for committing here
                     // for instance - what if we had failed on the git_rebase_finish call,
@@ -163,11 +162,11 @@ namespace LibGit2Sharp
                         // Get information on the current step
                         long currentStepIndex = Proxy.git_rebase_operation_current(rebase);
                         long totalStepCount = Proxy.git_rebase_operation_entrycount(rebase);
-                        GitRebaseOperation gitRebasestepInfo = Proxy.git_rebase_operation_byindex(rebase, currentStepIndex);
+                        git_rebase_operation* gitRebasestepInfo = Proxy.git_rebase_operation_byindex(rebase, currentStepIndex);
 
-                        var stepInfo = new RebaseStepInfo(gitRebasestepInfo.type,
-                                                          repository.Lookup<Commit>(new ObjectId(gitRebasestepInfo.id)),
-                                                          LaxUtf8NoCleanupMarshaler.FromNative(gitRebasestepInfo.exec));
+                        var stepInfo = new RebaseStepInfo(gitRebasestepInfo->type,
+                                                          repository.Lookup<Commit>(ObjectId.BuildFromPtr(&gitRebasestepInfo->id)),
+                                                          LaxUtf8NoCleanupMarshaler.FromNative(gitRebasestepInfo->exec));
 
                         if (rebaseCommitResult.WasPatchAlreadyApplied)
                         {
@@ -213,7 +212,7 @@ namespace LibGit2Sharp
                     checkout_options = checkoutOptionsWrapper.Options,
                 };
 
-                using (RebaseSafeHandle rebase = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
+                using (RebaseHandle rebase = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
                 {
                     Proxy.git_rebase_abort(rebase);
                 }
@@ -223,7 +222,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// The info on the current step.
         /// </summary>
-        public virtual RebaseStepInfo GetCurrentStepInfo()
+        public virtual unsafe RebaseStepInfo GetCurrentStepInfo()
         {
             if (repository.Info.CurrentOperation != LibGit2Sharp.CurrentOperation.RebaseMerge)
             {
@@ -235,13 +234,13 @@ namespace LibGit2Sharp
                 version = 1,
             };
 
-            using (RebaseSafeHandle rebaseHandle = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
+            using (RebaseHandle rebaseHandle = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
             {
                 long currentStepIndex = Proxy.git_rebase_operation_current(rebaseHandle);
-                GitRebaseOperation gitRebasestepInfo = Proxy.git_rebase_operation_byindex(rebaseHandle, currentStepIndex);
-                var stepInfo = new RebaseStepInfo(gitRebasestepInfo.type,
-                                                  repository.Lookup<Commit>(new ObjectId(gitRebasestepInfo.id)),
-                                                  LaxUtf8Marshaler.FromNative(gitRebasestepInfo.exec));
+                git_rebase_operation* gitRebasestepInfo = Proxy.git_rebase_operation_byindex(rebaseHandle, currentStepIndex);
+                var stepInfo = new RebaseStepInfo(gitRebasestepInfo->type,
+                                                  repository.Lookup<Commit>(ObjectId.BuildFromPtr(&gitRebasestepInfo->id)),
+                                                  LaxUtf8Marshaler.FromNative(gitRebasestepInfo->exec));
                 return stepInfo;
             }
         }
@@ -251,7 +250,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="stepIndex"></param>
         /// <returns></returns>
-        public virtual RebaseStepInfo GetStepInfo(long stepIndex)
+        public virtual unsafe RebaseStepInfo GetStepInfo(long stepIndex)
         {
             if (repository.Info.CurrentOperation != LibGit2Sharp.CurrentOperation.RebaseMerge)
             {
@@ -263,12 +262,12 @@ namespace LibGit2Sharp
                 version = 1,
             };
 
-            using (RebaseSafeHandle rebaseHandle = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
+            using (RebaseHandle rebaseHandle = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
             {
-                GitRebaseOperation gitRebasestepInfo = Proxy.git_rebase_operation_byindex(rebaseHandle, stepIndex);
-                var stepInfo = new RebaseStepInfo(gitRebasestepInfo.type,
-                                                  repository.Lookup<Commit>(new ObjectId(gitRebasestepInfo.id)),
-                                                  LaxUtf8Marshaler.FromNative(gitRebasestepInfo.exec));
+                git_rebase_operation* gitRebasestepInfo = Proxy.git_rebase_operation_byindex(rebaseHandle, stepIndex);
+                var stepInfo = new RebaseStepInfo(gitRebasestepInfo->type,
+                                                  repository.Lookup<Commit>(ObjectId.BuildFromPtr(&gitRebasestepInfo->id)),
+                                                  LaxUtf8Marshaler.FromNative(gitRebasestepInfo->exec));
                 return stepInfo;
             }
         }
@@ -284,7 +283,7 @@ namespace LibGit2Sharp
                 version = 1,
             };
 
-            using (RebaseSafeHandle rebaseHandle = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
+            using (RebaseHandle rebaseHandle = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
             {
                 return Proxy.git_rebase_operation_current(rebaseHandle);
             }
@@ -301,7 +300,7 @@ namespace LibGit2Sharp
                 version = 1,
             };
 
-            using (RebaseSafeHandle rebaseHandle = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
+            using (RebaseHandle rebaseHandle = Proxy.git_rebase_open(repository.Handle, gitRebaseOptions))
             {
                 return Proxy.git_rebase_operation_entrycount(rebaseHandle);
             }

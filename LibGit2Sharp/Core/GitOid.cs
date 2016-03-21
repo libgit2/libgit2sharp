@@ -2,6 +2,12 @@
 
 namespace LibGit2Sharp.Core
 {
+    internal struct git_oid
+    {
+        public const int Size = 20;
+        public unsafe fixed byte Id[20];
+    }
+
     /// <summary>
     /// Represents a unique id in git which is the sha1 hash of this id's content.
     /// </summary>

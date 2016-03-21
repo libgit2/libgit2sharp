@@ -26,11 +26,11 @@ namespace LibGit2Sharp
             this.index = index;
         }
 
-        private IndexNameEntry this[int idx]
+        private unsafe IndexNameEntry this[int idx]
         {
             get
             {
-                IndexNameEntrySafeHandle entryHandle = Proxy.git_index_name_get_byindex(index.Handle, (UIntPtr)idx);
+                git_index_name_entry* entryHandle = Proxy.git_index_name_get_byindex(index.Handle, (UIntPtr)idx);
                 return IndexNameEntry.BuildFromPtr(entryHandle);
             }
         }
