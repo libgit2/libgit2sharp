@@ -177,7 +177,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(remote);
 
                 // Update the configured autotag setting.
-                repo.Network.Remotes.Update(remote,
+                repo.Network.Remotes.Update(remoteName,
                     r => r.TagFetchMode = tagFetchMode);
 
                 // Perform the actual fetch.

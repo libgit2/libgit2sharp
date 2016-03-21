@@ -635,6 +635,15 @@ namespace LibGit2Sharp.Core
             return new ConfigurationHandle(handle, true);
         }
 
+        public static unsafe IntPtr git_config_lock(git_config* config)
+        {
+            IntPtr txn;
+            int res = NativeMethods.git_config_lock(out txn, config);
+            Ensure.ZeroResult(res);
+
+            return txn;
+        }
+
         #endregion
 
         #region git_cred_
@@ -3193,6 +3202,20 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
 
             return oid;
+        }
+
+        #endregion
+
+        #region git_transaction_
+
+        public static void git_transaction_commit(IntPtr txn)
+        {
+            NativeMethods.git_transaction_commit(txn);
+        }
+
+        public static void git_transaction_free(IntPtr txn)
+        {
+            NativeMethods.git_transaction_free(txn);
         }
 
         #endregion

@@ -343,6 +343,9 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
 
         [DllImport(libgit2)]
+        internal static extern unsafe int git_config_lock(out IntPtr txn, git_config* config);
+
+        [DllImport(libgit2)]
         internal static extern unsafe int git_config_delete_multivar(
             git_config* cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name,
@@ -1825,6 +1828,12 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_cherrypick(git_repository* repo, git_object* commit, GitCherryPickOptions options);
+
+        [DllImport(libgit2)]
+        internal static extern int git_transaction_commit(IntPtr txn);
+
+        [DllImport(libgit2)]
+        internal static extern void git_transaction_free(IntPtr txn);
     }
 }
 // ReSharper restore InconsistentNaming
