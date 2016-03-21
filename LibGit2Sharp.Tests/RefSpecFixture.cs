@@ -105,8 +105,10 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(path))
             {
-                var remote = repo.Network.Remotes["origin"];
-                repo.Network.Remotes.Update(remote, r => r.FetchRefSpecs = fetchRefSpecs);
+                using (var remote = repo.Network.Remotes["origin"])
+                {
+                    repo.Network.Remotes.Update(remote, r => r.FetchRefSpecs = fetchRefSpecs);
+                }
             }
 
             using (var repo = new Repository(path))
@@ -127,22 +129,23 @@ namespace LibGit2Sharp.Tests
             var path = SandboxStandardTestRepo();
 
             using (var repo = new Repository(path))
+            using (var remote = repo.Network.Remotes["origin"])
             {
-                var remote = repo.Network.Remotes["origin"];
-
-                remote = repo.Network.Remotes.Update(remote,
+                using (var updatedRemote = repo.Network.Remotes.Update(remote,
                     r => r.FetchRefSpecs.Add(newRefSpec),
-                    r => r.PushRefSpecs.Add(newRefSpec));
+                    r => r.PushRefSpecs.Add(newRefSpec)))
+                {
+                    Assert.Contains(newRefSpec, updatedRemote.FetchRefSpecs.Select(r => r.Specification));
+                    Assert.Contains(newRefSpec, updatedRemote.PushRefSpecs.Select(r => r.Specification));
 
-                Assert.Contains(newRefSpec, remote.FetchRefSpecs.Select(r => r.Specification));
-                Assert.Contains(newRefSpec, remote.PushRefSpecs.Select(r => r.Specification));
-
-                remote = repo.Network.Remotes.Update(remote,
-                    r => r.FetchRefSpecs.Remove(newRefSpec),
-                    r => r.PushRefSpecs.Remove(newRefSpec));
-
-                Assert.DoesNotContain(newRefSpec, remote.FetchRefSpecs.Select(r => r.Specification));
-                Assert.DoesNotContain(newRefSpec, remote.PushRefSpecs.Select(r => r.Specification));
+                    using (var updatedRemote2 = repo.Network.Remotes.Update(updatedRemote,
+                        r => r.FetchRefSpecs.Remove(newRefSpec),
+                        r => r.PushRefSpecs.Remove(newRefSpec)))
+                    {
+                        Assert.DoesNotContain(newRefSpec, updatedRemote2.FetchRefSpecs.Select(r => r.Specification));
+                        Assert.DoesNotContain(newRefSpec, updatedRemote2.PushRefSpecs.Select(r => r.Specification));
+                    }
+                }
             }
         }
 
