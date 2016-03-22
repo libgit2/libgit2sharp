@@ -182,6 +182,7 @@ namespace LibGit2Sharp
         ///   the tracked branch.
         /// </para>
         /// </summary>
+        [Obsolete("This property is deprecated. Use Repository.Network.Remotes[] using the RemoteName property")]
         public virtual Remote Remote
         {
             get
