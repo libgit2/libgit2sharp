@@ -43,16 +43,13 @@ namespace LibGit2Sharp.Commands
                 throw new LibGit2SharpException("There is no tracking information for the current branch.");
             }
 
-            using (var remote = repository.Network.Remotes.RemoteForName(currentBranch.RemoteName))
+            if (currentBranch.RemoteName == null)
             {
-                if (remote == null)
-                {
-                    throw new LibGit2SharpException("No upstream remote for the current branch.");
-                }
-
-                repository.Network.Fetch(remote, options.FetchOptions);
-                return repository.MergeFetchedRefs(merger, options.MergeOptions);
+                throw new LibGit2SharpException("No upstream remote for the current branch.");
             }
+
+            new Commands.Fetch(repository, currentBranch.RemoteName, new string[0], options.FetchOptions, null).Run();
+            return repository.MergeFetchedRefs(merger, options.MergeOptions);
         }
     }
 }

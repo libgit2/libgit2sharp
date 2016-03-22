@@ -351,6 +351,7 @@
     <Compile Include="Core\GitCredential.cs" />
     <Compile Include="Core\GitCredentialUserpass.cs" />
     <Compile Include="Commands\Pull.cs" />
+    <Compile Include="Commands\Fetch.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />

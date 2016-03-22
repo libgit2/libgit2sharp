@@ -252,10 +252,7 @@ namespace LibGit2Sharp.Tests
                 Assert.False(repo.RetrieveStatus().Any());
                 Assert.Equal(repo.Lookup<Commit>("refs/remotes/origin/master~1"), repo.Head.Tip);
 
-                using (var remote = repo.Network.Remotes[repo.Head.RemoteName])
-                {
-                    repo.Network.Fetch(remote);
-                }
+                new Commands.Fetch(repo, repo.Head.RemoteName, new string[0], null, null).Run();
 
                 MergeOptions mergeOptions = new MergeOptions()
                 {
@@ -282,8 +279,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(clonedRepoPath))
             {
                 repo.Network.Remotes.Add("pruner", clonedRepoPath2);
-                var remote = repo.Network.Remotes["pruner"];
-                repo.Network.Fetch(remote);
+                new Commands.Fetch(repo, "pruner", new string[0], null, null).Run();
                 Assert.NotNull(repo.Refs["refs/remotes/pruner/master"]);
 
                 // Remove the branch from the source repository
@@ -293,11 +289,11 @@ namespace LibGit2Sharp.Tests
                 }
 
                 // and by default we don't prune it
-                repo.Network.Fetch(remote);
+                new Commands.Fetch(repo, "pruner", new string[0], null, null).Run();
                 Assert.NotNull(repo.Refs["refs/remotes/pruner/master"]);
 
                 // but we do when asked by the user
-                repo.Network.Fetch(remote, new FetchOptions { Prune = true} );
+                new Commands.Fetch(repo, "pruner", new string[0], new FetchOptions { Prune = true}, null).Run();
                 Assert.Null(repo.Refs["refs/remotes/pruner/master"]);
             }
         }
