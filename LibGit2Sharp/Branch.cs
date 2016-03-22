@@ -146,7 +146,10 @@ namespace LibGit2Sharp
             {
                 if (IsRemote)
                 {
-                    return Remote.FetchSpecTransformToSource(CanonicalName);
+                    using (var remote = repo.Network.Remotes.RemoteForName(RemoteName))
+                    {
+                        return remote.FetchSpecTransformToSource(CanonicalName);
+                    }
                 }
 
                 return UpstreamBranchCanonicalNameFromLocalBranch();

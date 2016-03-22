@@ -415,9 +415,12 @@ namespace LibGit2Sharp
 
             foreach (var branch in enumeratedBranches)
             {
-                Push(branch.Remote, string.Format(
-                    CultureInfo.InvariantCulture,
-                    "{0}:{1}", branch.CanonicalName, branch.UpstreamBranchCanonicalName), pushOptions);
+                using (var remote = repository.Network.Remotes.RemoteForName(branch.RemoteName))
+                {
+                    Push(remote, string.Format(
+                        CultureInfo.InvariantCulture,
+                        "{0}:{1}", branch.CanonicalName, branch.UpstreamBranchCanonicalName), pushOptions);
+                }
             }
         }
 
@@ -558,13 +561,17 @@ namespace LibGit2Sharp
                 throw new LibGit2SharpException("There is no tracking information for the current branch.");
             }
 
-            if (currentBranch.Remote == null)
+            string remoteName = currentBranch.RemoteName;
+            if (remoteName == null)
             {
                 throw new LibGit2SharpException("No upstream remote for the current branch.");
             }
 
-            Fetch(currentBranch.Remote, options.FetchOptions);
-            return repository.MergeFetchedRefs(merger, options.MergeOptions);
+            using (var remote = repository.Network.Remotes.RemoteForName(remoteName))
+            {
+                Fetch(remote, options.FetchOptions);
+                return repository.MergeFetchedRefs(merger, options.MergeOptions);
+            }
         }
 
         /// <summary>

@@ -252,7 +252,10 @@ namespace LibGit2Sharp.Tests
                 Assert.False(repo.RetrieveStatus().Any());
                 Assert.Equal(repo.Lookup<Commit>("refs/remotes/origin/master~1"), repo.Head.Tip);
 
-                repo.Network.Fetch(repo.Head.Remote);
+                using (var remote = repo.Network.Remotes[repo.Head.RemoteName])
+                {
+                    repo.Network.Fetch(remote);
+                }
 
                 MergeOptions mergeOptions = new MergeOptions()
                 {
