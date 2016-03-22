@@ -164,7 +164,7 @@ namespace LibGit2Sharp.Tests
                     }
                 };
 
-                MergeResult mergeResult = repo.Network.Pull(Constants.Signature, pullOptions);
+                MergeResult mergeResult = new Commands.Pull(repo, Constants.Signature, pullOptions).Run();
 
                 if(fastForwardStrategy == FastForwardStrategy.Default || fastForwardStrategy == FastForwardStrategy.FastForwardOnly)
                 {
@@ -197,7 +197,7 @@ namespace LibGit2Sharp.Tests
                     b => b.UpstreamBranch = "refs/heads/master");
 
                 // Pull!
-                MergeResult mergeResult = repo.Network.Pull(Constants.Signature, new PullOptions());
+                MergeResult mergeResult = new Commands.Pull(repo, Constants.Signature, new PullOptions()).Run();
 
                 Assert.Equal(mergeResult.Status, MergeStatus.FastForward);
                 Assert.Equal(mergeResult.Commit, repo.Branches["refs/remotes/origin/master"].Tip);
@@ -224,7 +224,7 @@ namespace LibGit2Sharp.Tests
 
                 try
                 {
-                    repo.Network.Pull(Constants.Signature, new PullOptions());
+                    new Commands.Pull(repo, Constants.Signature, new PullOptions()).Run();
                 }
                 catch(MergeFetchHeadNotFoundException ex)
                 {

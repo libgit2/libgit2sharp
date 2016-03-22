@@ -549,29 +549,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="merger">If the merge is a non-fast forward merge that generates a merge commit, the <see cref="Signature"/> of who made the merge.</param>
         /// <param name="options">Specifies optional parameters controlling merge behavior of pull; if null, the defaults are used.</param>
+        [Obsolete("This method is deprecated. Please use the LibGit2Sharp.Commands.Pull class")]
         public virtual MergeResult Pull(Signature merger, PullOptions options)
         {
-            Ensure.ArgumentNotNull(merger, "merger");
-            Ensure.ArgumentNotNull(options, "options");
-
-            Branch currentBranch = repository.Head;
-
-            if (!currentBranch.IsTracking)
-            {
-                throw new LibGit2SharpException("There is no tracking information for the current branch.");
-            }
-
-            string remoteName = currentBranch.RemoteName;
-            if (remoteName == null)
-            {
-                throw new LibGit2SharpException("No upstream remote for the current branch.");
-            }
-
-            using (var remote = repository.Network.Remotes.RemoteForName(remoteName))
-            {
-                Fetch(remote, options.FetchOptions);
-                return repository.MergeFetchedRefs(merger, options.MergeOptions);
-            }
+            return new Commands.Pull(repository, merger, options).Run();
         }
 
         /// <summary>

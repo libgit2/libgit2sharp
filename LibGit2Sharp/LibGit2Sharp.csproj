@@ -350,6 +350,7 @@
     <Compile Include="Core\Handles\Libgit2Object.cs" />
     <Compile Include="Core\GitCredential.cs" />
     <Compile Include="Core\GitCredentialUserpass.cs" />
+    <Compile Include="Commands\Pull.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
@@ -386,4 +387,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="Commands\" />
+  </ItemGroup>
 </Project>
