@@ -612,7 +612,7 @@ namespace LibGit2Sharp.Tests
             {
                 repo.Checkout(repo.Head.Tip.Sha, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
                 Branch trackLocal = repo.Head;
-                Assert.Null(trackLocal.Remote);
+                Assert.Null(trackLocal.RemoteName);
             }
         }
 

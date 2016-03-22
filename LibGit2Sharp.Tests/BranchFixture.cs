@@ -394,7 +394,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 Branch master = repo.Branches["master"];
-                Assert.Equal(repo.Network.Remotes["origin"], master.Remote);
+                Assert.Equal("origin", master.RemoteName);
             }
         }
 
@@ -405,7 +405,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 Branch test = repo.Branches["i-do-numbers"];
-                Assert.Null(test.Remote);
+                Assert.Null(test.RemoteName);
                 Assert.Null(test.UpstreamBranchCanonicalName);
             }
         }
@@ -418,7 +418,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 Branch trackLocal = repo.Branches["track-local"];
-                Assert.Null(trackLocal.Remote);
+                Assert.Null(trackLocal.RemoteName);
             }
         }
 
@@ -440,7 +440,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 var master = repo.Branches["origin/master"];
-                Assert.Equal(repo.Network.Remotes["origin"], master.Remote);
+                Assert.Equal("origin", master.RemoteName);
             }
         }
 
@@ -464,7 +464,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(branch);
                 Assert.True(branch.IsRemote);
 
-                Assert.Null(branch.Remote);
+                Assert.Null(branch.RemoteName);
             }
         }
 
@@ -486,7 +486,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(branch);
                 Assert.True(branch.IsRemote);
 
-                Assert.Null(branch.Remote);
+                Assert.Null(branch.RemoteName);
             }
         }
 
@@ -732,7 +732,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.True(branch.IsTracking);
                 Assert.Equal(trackedBranch, branch.TrackedBranch);
-                Assert.Equal(upstreamRemote, branch.Remote);
+                Assert.Equal("origin", branch.RemoteName);
             }
         }
 
@@ -793,7 +793,7 @@ namespace LibGit2Sharp.Tests
                 Assert.True(updatedBranch.IsTracking);
                 Assert.Equal(trackedBranch, updatedBranch.TrackedBranch);
                 Assert.Equal(upstreamBranchName, updatedBranch.UpstreamBranchCanonicalName);
-                Assert.Equal(upstreamRemote, updatedBranch.Remote);
+                Assert.Equal(remoteName, updatedBranch.RemoteName);
             }
         }
 
@@ -820,7 +820,7 @@ namespace LibGit2Sharp.Tests
 
                 // Branches that track the local remote do not have the "Remote" property set.
                 // Verify (through the configuration entry) that the local remote is set as expected.
-                Assert.Null(branch.Remote);
+                Assert.Null(branch.RemoteName);
                 ConfigurationEntry<string> remoteConfigEntry = repo.Config.Get<string>("branch", testBranchName, "remote");
                 Assert.NotNull(remoteConfigEntry);
                 Assert.Equal(".", remoteConfigEntry.Value);
@@ -861,7 +861,7 @@ namespace LibGit2Sharp.Tests
 
                 // Verify this is no longer a tracking branch
                 Assert.False(branch.IsTracking);
-                Assert.Null(branch.Remote);
+                Assert.Null(branch.RemoteName);
                 Assert.Null(branch.UpstreamBranchCanonicalName);
             }
         }
@@ -1134,8 +1134,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Null(repo.Head.TrackingDetails.BehindBy);
                 Assert.Null(repo.Head.TrackingDetails.CommonAncestor);
 
-                Assert.NotNull(repo.Head.Remote);
-                Assert.Equal("origin", repo.Head.Remote.Name);
+                Assert.Equal("origin", repo.Head.RemoteName);
 
                 Touch(repo.Info.WorkingDirectory, "a.txt", "a");
                 repo.Stage("a.txt");
@@ -1163,7 +1162,7 @@ namespace LibGit2Sharp.Tests
                 foreach (var branch in branches)
                 {
                     Assert.True(branch.IsRemote);
-                    Assert.NotNull(branch.Remote);
+                    Assert.NotNull(branch.RemoteName);
                     Assert.False(branch.IsTracking);
                     Assert.Null(branch.TrackedBranch);
 
