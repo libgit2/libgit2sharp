@@ -103,7 +103,7 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, oldName, "hello test file\n");
                 Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus(oldName));
 
-                repo.Stage(oldName);
+                Commands.Stage(repo, oldName);
                 Assert.Equal(FileStatus.NewInIndex, repo.RetrieveStatus(oldName));
 
                 // Generated through
@@ -211,7 +211,7 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, relFilePath, "Anybody out there?");
 
                 // Stage the file
-                repo.Stage(relFilePath);
+                Commands.Stage(repo, relFilePath);
 
                 // Get the index
                 Index index = repo.Index;
@@ -248,7 +248,7 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.Path, "index.lock");
 
                 Touch(repo.Info.WorkingDirectory, "newfile", "my my, this is gonna crash\n");
-                Assert.Throws<LockedFileException>(() => repo.Stage("newfile"));
+                Assert.Throws<LockedFileException>(() => Commands.Stage(repo, "newfile"));
             }
         }
 
@@ -273,7 +273,7 @@ namespace LibGit2Sharp.Tests
                 Assert.True(readStatus.IsDirty);
                 Assert.Equal(0, repoRead.Index.Count);
 
-                repoWrite.Stage("*");
+                Commands.Stage(repoWrite, "*");
                 repoWrite.Commit("message", Constants.Signature, Constants.Signature);
 
                 writeStatus = repoWrite.RetrieveStatus();
@@ -304,9 +304,11 @@ namespace LibGit2Sharp.Tests
 
                 var headIndexTree = repo.Lookup<Tree>(headIndexTreeSha);
                 Assert.NotNull(headIndexTree);
-                repo.Index.Replace(headIndexTree);
+                var index = repo.Index;
+                index.Replace(headIndexTree);
+                index.Write();
 
-                Assert.True(repo.Index.IsFullyMerged);
+                Assert.True(index.IsFullyMerged);
                 Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus(testFile));
             }
 
@@ -335,9 +337,11 @@ namespace LibGit2Sharp.Tests
 
                 var headIndexTree = repo.Lookup<Tree>(headIndexTreeSha);
                 Assert.NotNull(headIndexTree);
-                repo.Index.Replace(headIndexTree);
+                var index = repo.Index;
+                index.Replace(headIndexTree);
+                index.Write();
 
-                Assert.True(repo.Index.IsFullyMerged);
+                Assert.True(index.IsFullyMerged);
                 Assert.Equal(FileStatus.ModifiedInWorkdir, repo.RetrieveStatus(testFile));
             }
 
@@ -359,10 +363,11 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 Assert.Equal(FileStatus.Unaltered, repo.RetrieveStatus(testFile));
-                Assert.NotEqual(0, repo.Index.Count);
-
-                repo.Index.Clear();
-                Assert.Equal(0, repo.Index.Count);
+                var index = repo.Index;
+                Assert.NotEqual(0, index.Count);
+                index.Clear();
+                Assert.Equal(0, index.Count);
+                index.Write();
 
                 Assert.Equal(FileStatus.DeletedFromIndex | FileStatus.NewInWorkdir, repo.RetrieveStatus(testFile));
             }
@@ -457,7 +462,7 @@ namespace LibGit2Sharp.Tests
 
                 AddSomeCornerCases(repo);
 
-                repo.Stage("*");
+                Commands.Stage(repo, "*");
 
                 var after = repo.RetrieveStatus();
                 Assert.False(after.Any(se => se.State == FileStatus.NewInWorkdir));

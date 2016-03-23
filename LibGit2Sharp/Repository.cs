@@ -1683,11 +1683,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="path">The path of the file within the working directory.</param>
         /// <param name="stageOptions">Determines how paths will be staged.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Stage()")]
         public void Stage(string path, StageOptions stageOptions)
         {
-            Ensure.ArgumentNotNull(path, "path");
-
-            Stage(new[] { path }, stageOptions);
+            Commands.Stage(this, path, stageOptions);
         }
 
         /// <summary>
@@ -1697,80 +1696,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
         /// <param name="stageOptions">Determines how paths will be staged.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Stage()")]
         public void Stage(IEnumerable<string> paths, StageOptions stageOptions)
         {
-            Ensure.ArgumentNotNull(paths, "paths");
-
-            DiffModifiers diffModifiers = DiffModifiers.IncludeUntracked;
-            ExplicitPathsOptions explicitPathsOptions = stageOptions != null ? stageOptions.ExplicitPathsOptions : null;
-
-            if (stageOptions != null && stageOptions.IncludeIgnored)
-            {
-                diffModifiers |= DiffModifiers.IncludeIgnored;
-            }
-
-            var changes = Diff.Compare<TreeChanges>(diffModifiers, paths, explicitPathsOptions,
-                new CompareOptions { Similarity = SimilarityOptions.None });
-
-            var unexpectedTypesOfChanges = changes
-                .Where(
-                    tec => tec.Status != ChangeKind.Added &&
-                           tec.Status != ChangeKind.Modified &&
-                           tec.Status != ChangeKind.Conflicted &&
-                           tec.Status != ChangeKind.Unmodified &&
-                           tec.Status != ChangeKind.Deleted).ToList();
-
-            if (unexpectedTypesOfChanges.Count > 0)
-            {
-                throw new InvalidOperationException(
-                    string.Format(CultureInfo.InvariantCulture,
-                        "Entry '{0}' bears an unexpected ChangeKind '{1}'",
-                        unexpectedTypesOfChanges[0].Path, unexpectedTypesOfChanges[0].Status));
-            }
-
-            /* Remove files from the index that don't exist on disk */
-            foreach (TreeEntryChanges treeEntryChanges in changes)
-            {
-                switch (treeEntryChanges.Status)
-                {
-                    case ChangeKind.Conflicted:
-                        if (!treeEntryChanges.Exists)
-                        {
-                            RemoveFromIndex(treeEntryChanges.Path);
-                        }
-                        break;
-
-                    case ChangeKind.Deleted:
-                        RemoveFromIndex(treeEntryChanges.Path);
-                        break;
-
-                    default:
-                        continue;
-                }
-            }
-
-            foreach (TreeEntryChanges treeEntryChanges in changes)
-            {
-                switch (treeEntryChanges.Status)
-                {
-                    case ChangeKind.Added:
-                    case ChangeKind.Modified:
-                        AddToIndex(treeEntryChanges.Path);
-                        break;
-
-                    case ChangeKind.Conflicted:
-                        if (treeEntryChanges.Exists)
-                        {
-                            AddToIndex(treeEntryChanges.Path);
-                        }
-                        break;
-
-                    default:
-                        continue;
-                }
-            }
-
-            UpdatePhysicalIndex();
+            Commands.Stage(this, paths, stageOptions);
         }
 
         /// <summary>
@@ -1781,11 +1710,10 @@ namespace LibGit2Sharp
         /// The passed <paramref name="path"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Unstage()")]
         public void Unstage(string path, ExplicitPathsOptions explicitPathsOptions)
         {
-            Ensure.ArgumentNotNull(path, "path");
-
-            Unstage(new[] { path }, explicitPathsOptions);
+            Commands.Unstage(this, path, explicitPathsOptions);
         }
 
         /// <summary>
@@ -1796,20 +1724,10 @@ namespace LibGit2Sharp
         /// The passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Unstage()")]
         public void Unstage(IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions)
         {
-            Ensure.ArgumentNotNull(paths, "paths");
-
-            if (Info.IsHeadUnborn)
-            {
-                var changes = Diff.Compare<TreeChanges>(null, DiffTargets.Index, paths, explicitPathsOptions, new CompareOptions { Similarity = SimilarityOptions.None });
-
-                Index.Replace(changes);
-            }
-            else
-            {
-                Index.Replace(Head.Tip, paths, explicitPathsOptions);
-            }
+            Commands.Unstage(this, paths, explicitPathsOptions);
         }
 
         /// <summary>
@@ -1822,7 +1740,7 @@ namespace LibGit2Sharp
             Move(new[] { sourcePath }, new[] { destinationPath });
         }
 
-        /// <summary>
+         /// <summary>
         /// Moves and/or renames a collection of files in the working directory and promotes the changes to the staging area.
         /// </summary>
         /// <param name="sourcePaths">The paths of the files within the working directory which have to be moved/renamed.</param>
@@ -2005,7 +1923,7 @@ namespace LibGit2Sharp
             Proxy.git_index_read(Index.Handle);
         }
 
-        private void AddToIndex(string relativePath)
+        internal void AddToIndex(string relativePath)
         {
             if (!Submodules.TryStage(relativePath, true))
             {
@@ -2013,14 +1931,14 @@ namespace LibGit2Sharp
             }
         }
 
-        private string RemoveFromIndex(string relativePath)
+        internal string RemoveFromIndex(string relativePath)
         {
             Proxy.git_index_remove_bypath(Index.Handle, relativePath);
 
             return relativePath;
         }
 
-        private void UpdatePhysicalIndex()
+        internal void UpdatePhysicalIndex()
         {
             Proxy.git_index_write(Index.Handle);
         }

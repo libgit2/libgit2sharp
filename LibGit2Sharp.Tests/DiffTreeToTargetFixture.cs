@@ -12,12 +12,12 @@ namespace LibGit2Sharp.Tests
         {
             var fullpath = Touch(repo.Info.WorkingDirectory, "file.txt", "hello\n");
 
-            repo.Stage(fullpath);
+            Commands.Stage(repo, fullpath);
             repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
 
             File.AppendAllText(fullpath, "world\n");
 
-            repo.Stage(fullpath);
+            Commands.Stage(repo,fullpath);
 
             File.AppendAllText(fullpath, "!!!\n");
         }
@@ -159,7 +159,7 @@ namespace LibGit2Sharp.Tests
 
                 var fullpath = Path.Combine(repo.Info.WorkingDirectory, "file.txt");
                 File.Move(fullpath, fullpath + ".bak");
-                repo.Stage(fullpath);
+                Commands.Stage(repo, fullpath);
                 File.Move(fullpath + ".bak", fullpath);
 
                 FileStatus state = repo.RetrieveStatus("file.txt");
@@ -378,11 +378,11 @@ namespace LibGit2Sharp.Tests
             {
                 var fullpath = Touch(repo.Info.WorkingDirectory, "file.txt", "a");
 
-                repo.Stage("file.txt");
+                Commands.Stage(repo, "file.txt");
                 repo.Commit("Add file without line ending", Constants.Signature, Constants.Signature);
 
                 File.AppendAllText(fullpath, "\n");
-                repo.Stage("file.txt");
+                Commands.Stage(repo, "file.txt");
 
                 var changes = repo.Diff.Compare<TreeChanges>(repo.Head.Tip.Tree, DiffTargets.Index);
                 Assert.Equal(1, changes.Modified.Count());

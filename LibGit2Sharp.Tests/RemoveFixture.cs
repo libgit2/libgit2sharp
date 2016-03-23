@@ -104,11 +104,11 @@ namespace LibGit2Sharp.Tests
             string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                repo.Stage(Touch(repo.Info.WorkingDirectory, "2/subdir1/2.txt", "whone"));
-                repo.Stage(Touch(repo.Info.WorkingDirectory, "2/subdir1/3.txt", "too"));
-                repo.Stage(Touch(repo.Info.WorkingDirectory, "2/subdir2/4.txt", "tree"));
-                repo.Stage(Touch(repo.Info.WorkingDirectory, "2/5.txt", "for"));
-                repo.Stage(Touch(repo.Info.WorkingDirectory, "2/6.txt", "fyve"));
+                Commands.Stage(repo, Touch(repo.Info.WorkingDirectory, "2/subdir1/2.txt", "whone"));
+                Commands.Stage(repo, Touch(repo.Info.WorkingDirectory, "2/subdir1/3.txt", "too"));
+                Commands.Stage(repo, Touch(repo.Info.WorkingDirectory, "2/subdir2/4.txt", "tree"));
+                Commands.Stage(repo, Touch(repo.Info.WorkingDirectory, "2/5.txt", "for"));
+                Commands.Stage(repo, Touch(repo.Info.WorkingDirectory, "2/6.txt", "fyve"));
 
                 int count = repo.Index.Count;
 

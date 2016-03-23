@@ -271,6 +271,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="path">The path of the file within the working directory.</param>
         /// <param name="stageOptions">Determines how paths will be staged.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Stage()")]
         void Stage(string path, StageOptions stageOptions);
 
         /// <summary>
@@ -280,6 +281,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
         /// <param name="stageOptions">Determines how paths will be staged.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Stage()")]
         void Stage(IEnumerable<string> paths, StageOptions stageOptions);
 
         /// <summary>
@@ -290,6 +292,7 @@ namespace LibGit2Sharp
         /// The passed <paramref name="path"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Unstage()")]
         void Unstage(string path, ExplicitPathsOptions explicitPathsOptions);
 
         /// <summary>
@@ -300,6 +303,7 @@ namespace LibGit2Sharp
         /// The passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Unstage()")]
         void Unstage(IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions);
 
         /// <summary>

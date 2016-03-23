@@ -25,7 +25,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(doesCurrentlyExistInTheIndex, (repo.Index[relativePath] != null));
                 Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
-                repo.Stage(relativePath);
+                Commands.Stage(repo, relativePath);
 
                 Assert.Equal(count + expectedIndexCountVariation, repo.Index.Count);
                 Assert.Equal(doesExistInTheIndexOnceStaged, (repo.Index[relativePath] != null));
@@ -48,7 +48,7 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, filename, "brand new content");
                 Assert.Equal(FileStatus.NewInIndex | FileStatus.ModifiedInWorkdir, repo.RetrieveStatus(filename));
 
-                repo.Stage(filename);
+                Commands.Stage(repo, filename);
                 IndexEntry newBlob = repo.Index[filename];
 
                 Assert.Equal(count, repo.Index.Count);
@@ -68,7 +68,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Null(repo.Index[relativePath]);
                 Assert.Equal(status, repo.RetrieveStatus(relativePath));
 
-                Assert.Throws<UnmatchedPathException>(() => repo.Stage(relativePath, new StageOptions { ExplicitPathsOptions = new ExplicitPathsOptions() }));
+                Assert.Throws<UnmatchedPathException>(() => Commands.Stage(repo, relativePath, new StageOptions { ExplicitPathsOptions = new ExplicitPathsOptions() }));
             }
         }
 
@@ -83,8 +83,8 @@ namespace LibGit2Sharp.Tests
                 Assert.Null(repo.Index[relativePath]);
                 Assert.Equal(status, repo.RetrieveStatus(relativePath));
 
-                Assert.DoesNotThrow(() => repo.Stage(relativePath));
-                Assert.DoesNotThrow(() => repo.Stage(relativePath, new StageOptions { ExplicitPathsOptions = new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false } }));
+                Assert.DoesNotThrow(() => Commands.Stage(repo, relativePath));
+                Assert.DoesNotThrow(() => Commands.Stage(repo, relativePath, new StageOptions { ExplicitPathsOptions = new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false } }));
 
                 Assert.Equal(status, repo.RetrieveStatus(relativePath));
             }
@@ -101,8 +101,8 @@ namespace LibGit2Sharp.Tests
                 Assert.Null(repo.Index[relativePath]);
                 Assert.Equal(status, repo.RetrieveStatus(relativePath));
 
-                repo.Stage(relativePath);
-                repo.Stage(relativePath, new StageOptions { ExplicitPathsOptions = new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false } });
+                Commands.Stage(repo, relativePath);
+                Commands.Stage(repo, relativePath, new StageOptions { ExplicitPathsOptions = new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false } });
             }
         }
 
@@ -121,7 +121,7 @@ namespace LibGit2Sharp.Tests
                 File.Delete(Path.Combine(repo.Info.WorkingDirectory, filename));
                 Assert.Equal(FileStatus.NewInIndex | FileStatus.DeletedFromWorkdir, repo.RetrieveStatus(filename));
 
-                repo.Stage(filename);
+                Commands.Stage(repo, filename);
                 Assert.Null(repo.Index[filename]);
 
                 Assert.Equal(count - 1, repo.Index.Count);
@@ -145,7 +145,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus(filename));
                 Assert.Null(repo.Index[filename]);
 
-                repo.Stage(filename);
+                Commands.Stage(repo, filename);
                 Assert.NotNull(repo.Index[filename]);
                 Assert.Equal(FileStatus.NewInIndex, repo.RetrieveStatus(filename));
             }
@@ -193,7 +193,7 @@ namespace LibGit2Sharp.Tests
         {
             try
             {
-                repo.Stage(path);
+                Commands.Stage(repo, path);
                 Assert.Equal(FileStatus.NewInIndex, repo.RetrieveStatus(path));
                 repo.Index.Replace(repo.Head.Tip);
                 Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus(path));
@@ -216,7 +216,7 @@ namespace LibGit2Sharp.Tests
 
                 Touch(repo.Info.WorkingDirectory, file, "With backward slash on Windows!");
 
-                repo.Stage(file);
+                Commands.Stage(repo, file);
 
                 Assert.Equal(count + 1, repo.Index.Count);
 
@@ -235,7 +235,7 @@ namespace LibGit2Sharp.Tests
             {
                 string fullPath = Touch(scd.RootedDirectoryPath, "unit_test.txt", "some contents");
 
-                Assert.Throws<ArgumentException>(() => repo.Stage(fullPath));
+                Assert.Throws<ArgumentException>(() => Commands.Stage(repo, fullPath));
             }
         }
 
@@ -245,10 +245,10 @@ namespace LibGit2Sharp.Tests
             var path = SandboxStandardTestRepoGitDir();
             using (var repo = new Repository(path))
             {
-                Assert.Throws<ArgumentException>(() => repo.Stage(string.Empty));
-                Assert.Throws<ArgumentNullException>(() => repo.Stage((string)null));
-                Assert.Throws<ArgumentException>(() => repo.Stage(new string[] { }));
-                Assert.Throws<ArgumentException>(() => repo.Stage(new string[] { null }));
+                Assert.Throws<ArgumentException>(() => Commands.Stage(repo, string.Empty));
+                Assert.Throws<ArgumentNullException>(() => Commands.Stage(repo, (string)null));
+                Assert.Throws<ArgumentException>(() => Commands.Stage(repo, new string[] { }));
+                Assert.Throws<ArgumentException>(() => Commands.Stage(repo, new string[] { null }));
             }
         }
 
@@ -284,7 +284,7 @@ namespace LibGit2Sharp.Tests
             {
                 int count = repo.Index.Count;
 
-                repo.Stage(relativePath);
+                Commands.Stage(repo, relativePath);
 
                 Assert.Equal(count + expectedIndexCountVariation, repo.Index.Count);
             }
@@ -297,7 +297,7 @@ namespace LibGit2Sharp.Tests
             {
                 int count = repo.Index.Count;
 
-                repo.Stage(new string[] { "*", "u*" });
+                Commands.Stage(repo, new string[] { "*", "u*" });
 
                 Assert.Equal(count, repo.Index.Count);  // 1 added file, 1 deleted file, so same count
             }
@@ -314,7 +314,7 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, path, "This file is ignored.");
 
                 Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus(path));
-                repo.Stage("*");
+                Commands.Stage(repo, "*");
                 Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus(path));
             }
         }
@@ -330,7 +330,7 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, path, "This file is ignored.");
 
                 Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus(path));
-                repo.Stage(path, new StageOptions { IncludeIgnored = true });
+                Commands.Stage(repo, path, new StageOptions { IncludeIgnored = true });
                 Assert.Equal(FileStatus.NewInIndex, repo.RetrieveStatus(path));
             }
         }
@@ -346,7 +346,7 @@ namespace LibGit2Sharp.Tests
                 File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, ".gitignore"),
                     String.Format("{0}\n", filename));
 
-                repo.Stage(filename);
+                Commands.Stage(repo, filename);
                 Assert.Equal(expected, repo.RetrieveStatus(filename));
             }
         }
@@ -368,7 +368,7 @@ namespace LibGit2Sharp.Tests
                 File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, ".gitignore"),
                     String.Format("{0}\n", filename));
 
-                repo.Stage(filename);
+                Commands.Stage(repo, filename);
                 Assert.Equal(expected, repo.RetrieveStatus(filename));
             }
         }
@@ -385,7 +385,7 @@ namespace LibGit2Sharp.Tests
                     Touch(repo.Info.WorkingDirectory, "test.txt",
                                Guid.NewGuid().ToString());
 
-                    repo.Stage("test.txt");
+                    Commands.Stage(repo, "test.txt");
 
                     Assert.DoesNotThrow(() => repo.Commit(
                                 "Commit", Constants.Signature, Constants.Signature));

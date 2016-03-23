@@ -139,8 +139,6 @@ namespace LibGit2Sharp
             {
                 Proxy.git_index_read_fromtree(this, obj.ObjectPtr);
             }
-
-            UpdatePhysicalIndex();
         }
 
         /// <summary>
@@ -153,7 +151,6 @@ namespace LibGit2Sharp
         public virtual void Clear()
         {
             Proxy.git_index_clear(this);
-            UpdatePhysicalIndex();
         }
 
         private void RemoveFromIndex(string relativePath)
@@ -167,14 +164,8 @@ namespace LibGit2Sharp
         /// <param name="indexEntryPath">The path of the <see cref="Index"/> entry to be removed.</param>
         public virtual void Remove(string indexEntryPath)
         {
-            if (indexEntryPath == null)
-            {
-                throw new ArgumentNullException("indexEntryPath");
-            }
-
+            Ensure.ArgumentNotNull(indexEntryPath, "indexEntryPath");
             RemoveFromIndex(indexEntryPath);
-
-            UpdatePhysicalIndex();
         }
 
         /// <summary>
@@ -187,14 +178,8 @@ namespace LibGit2Sharp
         /// <param name="pathInTheWorkdir">The path, in the working directory, of the file to be added.</param>
         public virtual void Add(string pathInTheWorkdir)
         {
-            if (pathInTheWorkdir == null)
-            {
-                throw new ArgumentNullException("pathInTheWorkdir");
-            }
-
+            Ensure.ArgumentNotNull(pathInTheWorkdir, "pathInTheWorkdir");
             Proxy.git_index_add_bypath(handle, pathInTheWorkdir);
-
-            UpdatePhysicalIndex();
         }
 
         /// <summary>
@@ -211,25 +196,9 @@ namespace LibGit2Sharp
         public virtual void Add(Blob blob, string indexEntryPath, Mode indexEntryMode)
         {
             Ensure.ArgumentConformsTo(indexEntryMode, m => m.HasAny(TreeEntryDefinition.BlobModes), "indexEntryMode");
-
-            if (blob == null)
-            {
-                throw new ArgumentNullException("blob");
-            }
-
-            if (indexEntryPath == null)
-            {
-                throw new ArgumentNullException("indexEntryPath");
-            }
-
+            Ensure.ArgumentNotNull(blob, "blob");
+            Ensure.ArgumentNotNull(indexEntryPath, "indexEntryPath");
             AddEntryToTheIndex(indexEntryPath, blob.Id, indexEntryMode);
-
-            UpdatePhysicalIndex();
-        }
-
-        private void UpdatePhysicalIndex()
-        {
-            Proxy.git_index_write(handle);
         }
 
         internal void Replace(TreeChanges changes)
@@ -259,8 +228,6 @@ namespace LibGit2Sharp
                                                                           treeEntryChanges.Status));
                 }
             }
-
-            UpdatePhysicalIndex();
         }
 
         /// <summary>
@@ -327,6 +294,14 @@ namespace LibGit2Sharp
 
             var changes = repo.Diff.Compare<TreeChanges>(commit.Tree, DiffTargets.Index, paths, explicitPathsOptions, new CompareOptions { Similarity = SimilarityOptions.None });
             Replace(changes);
+        }
+
+        /// <summary>
+        /// Write the contents of this <see cref="Index"/> to disk
+        /// </summary>
+        public virtual void Write()
+        {
+            Proxy.git_index_write(handle);
         }
     }
 }

@@ -130,7 +130,7 @@ namespace LibGit2Sharp.Tests
         {
             Touch(repository.Info.WorkingDirectory, filename, content);
 
-            repository.Stage(filename);
+            Commands.Stage(repository, filename);
 
             return repository.Commit("New commit", Constants.Signature, Constants.Signature);
         }

@@ -560,6 +560,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="path">The path of the file within the working directory.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Stage()")]
         public static void Stage(this IRepository repository, string path)
         {
             repository.Stage(path, null);
@@ -570,6 +571,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Stage()")]
         public static void Stage(this IRepository repository, IEnumerable<string> paths)
         {
             repository.Stage(paths, null);
@@ -580,6 +582,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="path">The path of the file within the working directory.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Unstage()")]
         public static void Unstage(this IRepository repository, string path)
         {
             repository.Unstage(path, null);
@@ -590,6 +593,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Unstage()")]
         public static void Unstage(this IRepository repository, IEnumerable<string> paths)
         {
             repository.Unstage(paths, null);

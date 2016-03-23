@@ -365,7 +365,7 @@ namespace LibGit2Sharp.Tests
             string message = null)
         {
             Touch(repoPath, path, text);
-            repo.Stage(path);
+            Commands.Stage(repo, path);
 
             var commitSignature = GetNextSignature();
             return repo.Commit(message ?? "Changed " + path, commitSignature, commitSignature);

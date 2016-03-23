@@ -338,7 +338,7 @@ namespace LibGit2Sharp.Tests
                     Touch(repo.Info.WorkingDirectory,
                           conflict.Theirs.Path,
                           repo.Lookup<Blob>(conflict.Theirs.Id).GetContentText(new FilteringOptions(conflict.Theirs.Path)));
-                    repo.Stage(conflict.Theirs.Path);
+                    Commands.Stage(repo, conflict.Theirs.Path);
                 }
 
                 Assert.True(repo.Index.IsFullyMerged);
@@ -396,7 +396,7 @@ namespace LibGit2Sharp.Tests
                     Touch(repo.Info.WorkingDirectory,
                           conflict.Theirs.Path,
                           repo.Lookup<Blob>(conflict.Theirs.Id).GetContentText(new FilteringOptions(conflict.Theirs.Path)));
-                    repo.Stage(conflict.Theirs.Path);
+                    Commands.Stage(repo, conflict.Theirs.Path);
                 }
 
                 Touch(repo.Info.WorkingDirectory,
@@ -618,7 +618,7 @@ namespace LibGit2Sharp.Tests
 
                 string newFileRelativePath = "new_file.txt";
                 Touch(repo.Info.WorkingDirectory, newFileRelativePath, "New Content");
-                repo.Stage(newFileRelativePath);
+                Commands.Stage(repo, newFileRelativePath);
                 Commit commit = repo.Commit("new commit 1", Constants.Signature, Constants.Signature, new CommitOptions());
 
                 repo.Checkout(topicBranch1Prime);
@@ -627,7 +627,7 @@ namespace LibGit2Sharp.Tests
 
                 string newFileRelativePath2 = "new_file_2.txt";
                 Touch(repo.Info.WorkingDirectory, newFileRelativePath2, "New Content for path 2");
-                repo.Stage(newFileRelativePath2);
+                Commands.Stage(repo, newFileRelativePath2);
                 repo.Commit("new commit 2", Constants.Signature, Constants.Signature, new CommitOptions());
 
                 Branch upstreamBranch = repo.Branches[topicBranch1Name];
@@ -714,69 +714,69 @@ namespace LibGit2Sharp.Tests
 
             CreateAttributesFile(repo, attributes);
 
-            repo.Stage(".gitattributes");
+            Commands.Stage(repo, ".gitattributes");
             commit = repo.Commit("setup", Constants.Signature, Constants.Signature, new CommitOptions());
 
             Touch(workdir, filePathA, fileContentA1);
-            repo.Stage(filePathA);
+            Commands.Stage(repo, filePathA);
             commit = repo.Commit("commit 1", Constants.Signature, Constants.Signature, new CommitOptions());
 
             Touch(workdir, filePathB, fileContentB1);
-            repo.Stage(filePathB);
+            Commands.Stage(repo, filePathB);
             commit = repo.Commit("commit 2", Constants.Signature, Constants.Signature, new CommitOptions());
 
             Touch(workdir, filePathC, fileContentC1);
-            repo.Stage(filePathC);
+            Commands.Stage(repo, filePathC);
             commit = repo.Commit("commit 3", Constants.Signature, Constants.Signature, new CommitOptions());
 
             Branch masterBranch1 = repo.CreateBranch(masterBranch1Name, commit);
 
             Touch(workdir, filePathB, string.Join(lineEnding, fileContentB1, fileContentB2));
-            repo.Stage(filePathB);
+            Commands.Stage(repo, filePathB);
             commit = repo.Commit("commit 4", Constants.Signature, Constants.Signature, new CommitOptions());
 
             Touch(workdir, filePathB, string.Join(lineEnding, fileContentB1, fileContentB2, fileContentB3));
-            repo.Stage(filePathB);
+            Commands.Stage(repo, filePathB);
             commit = repo.Commit("commit 5", Constants.Signature, Constants.Signature, new CommitOptions());
 
             Touch(workdir, filePathB, string.Join(lineEnding, fileContentB1, fileContentB2, fileContentB3, fileContentB4));
-            repo.Stage(filePathB);
+            Commands.Stage(repo, filePathB);
             commit = repo.Commit("commit 6", Constants.Signature, Constants.Signature, new CommitOptions());
 
             repo.CreateBranch(topicBranch1Name, commit);
 
             Touch(workdir, filePathC, string.Join(lineEnding, fileContentC1, fileContentC2));
-            repo.Stage(filePathC);
+            Commands.Stage(repo, filePathC);
             commit = repo.Commit("commit 7", Constants.Signature, Constants.Signature, new CommitOptions());
 
             Touch(workdir, filePathC, string.Join(lineEnding, fileContentC1, fileContentC2, fileContentC3));
-            repo.Stage(filePathC);
+            Commands.Stage(repo, filePathC);
             commit = repo.Commit("commit 8", Constants.Signature, Constants.Signature, new CommitOptions());
 
             Touch(workdir, filePathC, string.Join(lineEnding, fileContentC1, fileContentC2, fileContentC3, fileContentC4));
-            repo.Stage(filePathC);
+            Commands.Stage(repo, filePathC);
             commit = repo.Commit("commit 9", Constants.Signature, Constants.Signature, new CommitOptions());
 
             repo.CreateBranch(topicBranch2Name, commit);
 
             repo.Checkout(masterBranch1.Tip);
             Touch(workdir, filePathD, fileContentD1);
-            repo.Stage(filePathD);
+            Commands.Stage(repo, filePathD);
             commit = repo.Commit("commit 10", Constants.Signature, Constants.Signature, new CommitOptions());
 
             Touch(workdir, filePathD, string.Join(lineEnding, fileContentD1, fileContentD2));
-            repo.Stage(filePathD);
+            Commands.Stage(repo, filePathD);
             commit = repo.Commit("commit 11", Constants.Signature, Constants.Signature, new CommitOptions());
 
             Touch(workdir, filePathD, string.Join(lineEnding, fileContentD1, fileContentD2, fileContentD3));
-            repo.Stage(filePathD);
+            Commands.Stage(repo, filePathD);
             commit = repo.Commit("commit 12", Constants.Signature, Constants.Signature, new CommitOptions());
 
             repo.CreateBranch(masterBranch2Name, commit);
 
             // Create commit / branch that conflicts with T1 and T2
             Touch(workdir, filePathB, string.Join(lineEnding, fileContentB1, fileContentB2 + fileContentB3 + fileContentB4));
-            repo.Stage(filePathB);
+            Commands.Stage(repo, filePathB);
             commit = repo.Commit("commit 13", Constants.Signature, Constants.Signature, new CommitOptions());
             repo.CreateBranch(conflictBranch1Name, commit);
         }
