@@ -3,58 +3,41 @@ using LibGit2Sharp;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
-namespace LibGit2Sharp.Commands
+namespace LibGit2Sharp
 {
     /// <summary>
-    /// Fetch from a particular remote or the default
+    /// Class to serve as namespacing for the command-emulating methods
     /// </summary>
-    public class Fetch
+    public static partial class Commands
     {
-        private readonly Repository repository;
-        private readonly string remote;
-        private readonly FetchOptions options;
-        private readonly string logMessage;
-        private readonly IEnumerable<string> refspecs;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LibGit2Sharp.Commands.Fetch"/> class.
-        /// </summary>
-        /// <param name="repository">The repository in which to fetch.</param>
-        /// <param name="remote">The remote to fetch from</param>
-        /// <param name="options">Fetch options.</param>
-        /// <param name="logMessage">Log message for any ref updates.</param>
-        /// <param name="refspecs">List of refspecs to apply as active.</param>
-        public Fetch(Repository repository, string remote, IEnumerable<string> refspecs, FetchOptions options, string logMessage)
-        {
-            Ensure.ArgumentNotNull(remote, "remote");
-
-            this.repository = repository;
-            this.remote = remote;
-            this.options = options ?? new FetchOptions();
-            this.logMessage = logMessage;
-            this.refspecs = refspecs;
-        }
-
-        private RemoteHandle RemoteFromNameOrUrl()
+        private static RemoteHandle RemoteFromNameOrUrl(RepositoryHandle repoHandle, string remote)
         {
             RemoteHandle handle = null;
-            handle = Proxy.git_remote_lookup(repository.Handle, remote, false);
+            handle = Proxy.git_remote_lookup(repoHandle, remote, false);
 
             // If that wasn't the name of a remote, let's use it as a url
             if (handle == null)
             {
-                handle = Proxy.git_remote_create_anonymous(repository.Handle, remote);
+                handle = Proxy.git_remote_create_anonymous(repoHandle, remote);
             }
 
             return handle;
         }
 
         /// <summary>
-        /// Run this command
+        /// Perform a fetch
         /// </summary>
-        public void Run()
+        /// <param name="repository">The repository in which to fetch.</param>
+        /// <param name="remote">The remote to fetch from. Either as a remote name or a URL</param>
+        /// <param name="options">Fetch options.</param>
+        /// <param name="logMessage">Log message for any ref updates.</param>
+        /// <param name="refspecs">List of refspecs to apply as active.</param>
+        public static void Fetch(Repository repository, string remote, IEnumerable<string> refspecs, FetchOptions options, string logMessage)
         {
-            using (var remoteHandle = RemoteFromNameOrUrl())
+            Ensure.ArgumentNotNull(remote, "remote");
+
+            options = options ?? new FetchOptions();
+            using (var remoteHandle = RemoteFromNameOrUrl(repository.Handle, remote))
             {
 
                 var callbacks = new RemoteCallbacks(options);

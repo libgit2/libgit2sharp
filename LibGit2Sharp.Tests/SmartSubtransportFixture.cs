@@ -63,9 +63,9 @@ namespace LibGit2Sharp.Tests
                     }
 
                     // Perform the actual fetch
-                    new Commands.Fetch(repo, remoteName, new string[0],
+                    Commands.Fetch(repo, remoteName, new string[0],
                         new FetchOptions { OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler, TagFetchMode = TagFetchMode.Auto },
-                    null).Run();
+                    null);
 
                     // Verify the expected
                     expectedFetchState.CheckUpdatedReferences(repo);
@@ -115,10 +115,10 @@ namespace LibGit2Sharp.Tests
                     }
 
                     // Perform the actual fetch
-                    new Commands.Fetch(repo, remoteName, new string[0], new FetchOptions {
+                    Commands.Fetch(repo, remoteName, new string[0], new FetchOptions {
                         OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler, TagFetchMode = TagFetchMode.Auto,
                         CredentialsProvider = (_user, _valid, _hostname) => new UsernamePasswordCredentials() { Username = "libgit3", Password = "libgit3" },
-                    }, null).Run();
+                    }, null);
 
                     // Verify the expected
                     expectedFetchState.CheckUpdatedReferences(repo);

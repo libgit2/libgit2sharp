@@ -2,40 +2,27 @@
 using LibGit2Sharp;
 using LibGit2Sharp.Core;
 
-namespace LibGit2Sharp.Commands
+namespace LibGit2Sharp
 {
     /// <summary>
     /// Fetch changes from the configured upstream remote and branch into the branch pointed at by HEAD.
     /// </summary>
-    public class Pull
+    public static partial class Commands
     {
-        private readonly Repository repository;
-        private readonly Signature merger;
-        private readonly PullOptions options;
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="LibGit2Sharp.Commands.Pull"/> class.
+        /// Fetch changes from the configured upstream remote and branch into the branch pointed at by HEAD.
         /// </summary>
         /// <param name="repository">The repository.</param>
         /// <param name="merger">The signature to use for the merge.</param>
         /// <param name="options">The options for fetch and merging.</param>
-        public Pull(Repository repository, Signature merger, PullOptions options)
+        public static MergeResult Pull(Repository repository, Signature merger, PullOptions options)
         {
             Ensure.ArgumentNotNull(repository, "repository");
             Ensure.ArgumentNotNull(merger, "merger");
             Ensure.ArgumentNotNull(options, "options");
 
-            this.repository = repository;
-            this.merger = merger;
-            this.options = options;
-        }
 
-        /// <summary>
-        /// Run this command
-        /// </summary>
-        public MergeResult Run()
-        {
-
+            options = options ?? new PullOptions();
             Branch currentBranch = repository.Head;
 
             if (!currentBranch.IsTracking)
@@ -48,7 +35,7 @@ namespace LibGit2Sharp.Commands
                 throw new LibGit2SharpException("No upstream remote for the current branch.");
             }
 
-            new Commands.Fetch(repository, currentBranch.RemoteName, new string[0], options.FetchOptions, null).Run();
+            Commands.Fetch(repository, currentBranch.RemoteName, new string[0], options.FetchOptions, null);
             return repository.MergeFetchedRefs(merger, options.MergeOptions);
         }
     }

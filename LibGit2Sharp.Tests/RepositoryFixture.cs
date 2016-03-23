@@ -208,13 +208,13 @@ namespace LibGit2Sharp.Tests
                 }
 
                 // Perform the actual fetch
-                new Commands.Fetch(repo, remoteName, new string[0], new FetchOptions { OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler }, null).Run();
+                Commands.Fetch(repo, remoteName, new string[0], new FetchOptions { OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler }, null);
 
                 // Verify the expected state
                 expectedFetchState.CheckUpdatedReferences(repo);
 
                 // Now fetch the rest of the tags
-                new Commands.Fetch(repo, remoteName, new string[0], new FetchOptions { TagFetchMode = TagFetchMode.All }, null).Run();
+                Commands.Fetch(repo, remoteName, new string[0], new FetchOptions { TagFetchMode = TagFetchMode.All }, null);
 
                 // Verify that the "nearly-dangling" tag is now in the repo.
                 Tag nearlyDanglingTag = repo.Tags["nearly-dangling"];

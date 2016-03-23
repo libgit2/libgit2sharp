@@ -44,7 +44,7 @@ namespace LibGit2Sharp.Tests
                 }
 
                 // Perform the actual fetch
-                new Commands.Fetch(repo, remoteName, new string[0], new FetchOptions { OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler }, null).Run();
+                Commands.Fetch(repo, remoteName, new string[0], new FetchOptions { OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler }, null);
 
                 // Verify the expected
                 expectedFetchState.CheckUpdatedReferences(repo);
@@ -64,10 +64,10 @@ namespace LibGit2Sharp.Tests
                 repo.Network.Remotes.Add(remoteName, Constants.PrivateRepoUrl);
 
                 // Perform the actual fetch
-                new Commands.Fetch(repo, remoteName, new string[0], new FetchOptions
+                Commands.Fetch(repo, remoteName, new string[0], new FetchOptions
                 {
                     CredentialsProvider = Constants.PrivateRepoCredentials
-                }, null).Run();
+                }, null);
             }
         }
 
@@ -101,10 +101,10 @@ namespace LibGit2Sharp.Tests
                 }
 
                 // Perform the actual fetch
-                new Commands.Fetch(repo, remoteName, new string[0], new FetchOptions {
+                Commands.Fetch(repo, remoteName, new string[0], new FetchOptions {
                     TagFetchMode = TagFetchMode.All,
                     OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler
-                }, null).Run();
+                }, null);
 
                 // Verify the expected
                 expectedFetchState.CheckUpdatedReferences(repo);
@@ -147,10 +147,10 @@ namespace LibGit2Sharp.Tests
                 }
 
                 // Perform the actual fetch
-                new Commands.Fetch(repo, remoteName, new string[] { refSpec }, new FetchOptions {
+                Commands.Fetch(repo, remoteName, new string[] { refSpec }, new FetchOptions {
                     TagFetchMode = TagFetchMode.None,
                     OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler
-                }, null).Run();
+                }, null);
 
                 // Verify the expected
                 expectedFetchState.CheckUpdatedReferences(repo);
@@ -181,7 +181,7 @@ namespace LibGit2Sharp.Tests
                     r => r.TagFetchMode = tagFetchMode);
 
                 // Perform the actual fetch.
-                new Commands.Fetch(repo, remoteName, new string[0], null, null).Run();
+                Commands.Fetch(repo, remoteName, new string[0], null, null);
 
                 // Verify the number of fetched tags.
                 Assert.Equal(expectedTagCount, repo.Tags.Count());
@@ -199,7 +199,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(clonedRepoPath))
             {
-                new Commands.Fetch(repo, "origin", new string[0], new FetchOptions { TagFetchMode = TagFetchMode.All }, null).Run();
+                Commands.Fetch(repo, "origin", new string[0], new FetchOptions { TagFetchMode = TagFetchMode.All }, null);
             }
         }
 
@@ -225,17 +225,17 @@ namespace LibGit2Sharp.Tests
 
                 // No pruning when the configuration entry isn't defined
                 Assert.Null(clonedRepo.Config.Get<bool>("fetch.prune"));
-                new Commands.Fetch(clonedRepo, "origin", new string[0], null, null).Run();
+                Commands.Fetch(clonedRepo, "origin", new string[0], null, null);
                 Assert.Equal(5, clonedRepo.Branches.Count(b => b.IsRemote));
 
                 // No pruning when the configuration entry is set to false
                 clonedRepo.Config.Set<bool>("fetch.prune", false);
-                new Commands.Fetch(clonedRepo, "origin", new string[0], null, null).Run();
+                Commands.Fetch(clonedRepo, "origin", new string[0], null, null);
                 Assert.Equal(5, clonedRepo.Branches.Count(b => b.IsRemote));
 
                 // Auto pruning when the configuration entry is set to true
                 clonedRepo.Config.Set<bool>("fetch.prune", true);
-                new Commands.Fetch(clonedRepo, "origin", new string[0], null, null).Run();
+                Commands.Fetch(clonedRepo, "origin", new string[0], null, null);
                 Assert.Equal(4, clonedRepo.Branches.Count(b => b.IsRemote));
             }
         }
