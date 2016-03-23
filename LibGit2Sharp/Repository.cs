@@ -1828,11 +1828,10 @@ namespace LibGit2Sharp
         /// The passed <paramref name="path"/> will be treated as an explicit path.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Remove")]
         public void Remove(string path, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions)
         {
-            Ensure.ArgumentNotNull(path, "path");
-
-            Remove(new[] { path }, removeFromWorkingDirectory, explicitPathsOptions);
+            Commands.Remove(this, path, removeFromWorkingDirectory, explicitPathsOptions);
         }
 
         /// <summary>
@@ -1856,40 +1855,10 @@ namespace LibGit2Sharp
         /// The passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Remove")]
         public void Remove(IEnumerable<string> paths, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions)
         {
-            Ensure.ArgumentNotNullOrEmptyEnumerable<string>(paths, "paths");
-
-            var pathsToDelete = paths.Where(p => Directory.Exists(Path.Combine(Info.WorkingDirectory, p))).ToList();
-            var notConflictedPaths = new List<string>();
-
-            foreach (var path in paths)
-            {
-                Ensure.ArgumentNotNullOrEmptyString(path, "path");
-
-                var conflict = Index.Conflicts[path];
-
-                if (conflict != null)
-                {
-                    pathsToDelete.Add(RemoveFromIndex(path));
-                }
-                else
-                {
-                    notConflictedPaths.Add(path);
-                }
-            }
-
-            if (notConflictedPaths.Count > 0)
-            {
-                pathsToDelete.AddRange(RemoveStagedItems(notConflictedPaths, removeFromWorkingDirectory, explicitPathsOptions));
-            }
-
-            if (removeFromWorkingDirectory)
-            {
-                RemoveFilesAndFolders(pathsToDelete);
-            }
-
-            UpdatePhysicalIndex();
+            Commands.Remove(this, paths, removeFromWorkingDirectory, explicitPathsOptions);
         }
 
         /// <summary>
@@ -1977,80 +1946,6 @@ namespace LibGit2Sharp
             }
 
             return dic;
-        }
-
-        private void RemoveFilesAndFolders(IEnumerable<string> pathsList)
-        {
-            string wd = Info.WorkingDirectory;
-
-            foreach (string path in pathsList)
-            {
-                string fileName = Path.Combine(wd, path);
-
-                if (Directory.Exists(fileName))
-                {
-                    Directory.Delete(fileName, true);
-                    continue;
-                }
-
-                if (!File.Exists(fileName))
-                {
-                    continue;
-                }
-
-                File.Delete(fileName);
-            }
-        }
-
-        private IEnumerable<string> RemoveStagedItems(IEnumerable<string> paths, bool removeFromWorkingDirectory = true, ExplicitPathsOptions explicitPathsOptions = null)
-        {
-            var removed = new List<string>();
-            var changes = Diff.Compare<TreeChanges>(DiffModifiers.IncludeUnmodified | DiffModifiers.IncludeUntracked, paths, explicitPathsOptions);
-
-            foreach (var treeEntryChanges in changes)
-            {
-                var status = RetrieveStatus(treeEntryChanges.Path);
-
-                switch (treeEntryChanges.Status)
-                {
-                    case ChangeKind.Added:
-                    case ChangeKind.Deleted:
-                        removed.Add(RemoveFromIndex(treeEntryChanges.Path));
-                        break;
-
-                    case ChangeKind.Unmodified:
-                        if (removeFromWorkingDirectory && (
-                            status.HasFlag(FileStatus.ModifiedInIndex) ||
-                            status.HasFlag(FileStatus.NewInIndex)))
-                        {
-                            throw new RemoveFromIndexException("Unable to remove file '{0}', as it has changes staged in the index. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
-                                                               treeEntryChanges.Path);
-                        }
-                        removed.Add(RemoveFromIndex(treeEntryChanges.Path));
-                        continue;
-
-                    case ChangeKind.Modified:
-                        if (status.HasFlag(FileStatus.ModifiedInWorkdir) && status.HasFlag(FileStatus.ModifiedInIndex))
-                        {
-                            throw new RemoveFromIndexException("Unable to remove file '{0}', as it has staged content different from both the working directory and the HEAD.",
-                                                               treeEntryChanges.Path);
-                        }
-                        if (removeFromWorkingDirectory)
-                        {
-                            throw new RemoveFromIndexException("Unable to remove file '{0}', as it has local modifications. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
-                                                               treeEntryChanges.Path);
-                        }
-                        removed.Add(RemoveFromIndex(treeEntryChanges.Path));
-                        continue;
-
-                    default:
-                        throw new RemoveFromIndexException("Unable to remove file '{0}'. Its current status is '{1}'.",
-                                                           treeEntryChanges.Path,
-                                                           treeEntryChanges.Status);
-                }
-            }
-
-            return removed;
         }
 
         /// <summary>

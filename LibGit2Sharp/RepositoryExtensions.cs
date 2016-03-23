@@ -611,9 +611,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="path">The path of the file within the working directory.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Remove")]
         public static void Remove(this IRepository repository, string path)
         {
-            repository.Remove(path, true, null);
+            Commands.Remove(repository, path, true, null);
         }
 
         /// <summary>
@@ -629,9 +630,10 @@ namespace LibGit2Sharp
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="path">The path of the file within the working directory.</param>
         /// <param name="removeFromWorkingDirectory">True to remove the file from the working directory, False otherwise.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Remove")]
         public static void Remove(this IRepository repository, string path, bool removeFromWorkingDirectory)
         {
-            repository.Remove(path, removeFromWorkingDirectory, null);
+            Commands.Remove(repository, path, removeFromWorkingDirectory, null);
         }
 
         /// <summary>
@@ -646,9 +648,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Remove")]
         public static void Remove(this IRepository repository, IEnumerable<string> paths)
         {
-            repository.Remove(paths, true, null);
+            Commands.Remove(repository, paths, true, null);
         }
 
         /// <summary>
@@ -664,6 +667,7 @@ namespace LibGit2Sharp
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
         /// <param name="removeFromWorkingDirectory">True to remove the files from the working directory, False otherwise.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Remove")]
         public static void Remove(this IRepository repository, IEnumerable<string> paths, bool removeFromWorkingDirectory)
         {
             repository.Remove(paths, removeFromWorkingDirectory, null);

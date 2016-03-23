@@ -751,7 +751,7 @@ namespace LibGit2Sharp.Tests
                 foreach(var entry in repo.RetrieveStatus())
                 {
                     Commands.Unstage(repo, entry.FilePath);
-                    repo.Remove(entry.FilePath, true);
+                    Commands.Remove(repo, entry.FilePath, true);
                 }
 
                 // Assert that we have an empty working directory.

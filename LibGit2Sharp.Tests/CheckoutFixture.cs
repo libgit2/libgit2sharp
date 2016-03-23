@@ -156,7 +156,7 @@ namespace LibGit2Sharp.Tests
                 // Remove the file in master branch
                 // Verify it exists after checking out otherBranch.
                 string fileFullPath = Path.Combine(repo.Info.WorkingDirectory, originalFilePath);
-                repo.Remove(fileFullPath);
+                Commands.Remove(repo, fileFullPath);
                 repo.Commit("2nd commit", Constants.Signature, Constants.Signature);
 
                 // Checkout other_branch

@@ -341,6 +341,7 @@ namespace LibGit2Sharp
         /// The passed <paramref name="path"/> will be treated as an explicit path.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Remove()")]
         void Remove(string path, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions);
 
         /// <summary>
@@ -364,6 +365,7 @@ namespace LibGit2Sharp
         /// The passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Unstage()")]
         void Remove(IEnumerable<string> paths, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions);
 
         /// <summary>

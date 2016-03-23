@@ -133,7 +133,7 @@ namespace LibGit2Sharp.Tests
                 var patch = repo.Diff.Compare<Patch>(commit.Tree, DiffTargets.WorkingDirectory, new [] {filename});
                 Assert.True(patch[filename].IsBinaryComparison);
 
-                repo.Remove(filename);
+                Commands.Remove(repo, filename);
                 var commit2 = repo.Commit("Delete binary file", Constants.Signature, Constants.Signature);
 
                 var patch2 = repo.Diff.Compare<Patch>(commit.Tree, commit2.Tree, new[] { filename });

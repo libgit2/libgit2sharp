@@ -1039,7 +1039,7 @@ namespace LibGit2Sharp.Tests
 
                 repo.Commit("One commit", Constants.Signature, Constants.Signature);
 
-                repo.Remove("new.txt");
+                Commands.Remove(repo, "new.txt");
 
                 Assert.Throws<EmptyCommitException>(() => repo.Commit("Oops", Constants.Signature, Constants.Signature,
                     new CommitOptions { AmendPreviousCommit = true }));
