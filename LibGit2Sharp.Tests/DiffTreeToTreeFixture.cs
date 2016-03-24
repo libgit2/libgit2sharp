@@ -293,7 +293,7 @@ namespace LibGit2Sharp.Tests
 
                 Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
 
-                repo.Move(originalPath, renamedPath);
+                Commands.Move(repo, originalPath, renamedPath);
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
@@ -331,7 +331,7 @@ namespace LibGit2Sharp.Tests
                 // 8 lines, 50% are from original file
                 Touch(repo.Info.WorkingDirectory, originalPath, "a\nb\nc\nd\ne\nf\ng\nh\n");
                 Commands.Stage(repo, originalPath);
-                repo.Move(originalPath, renamedPath);
+                Commands.Move(repo, originalPath, renamedPath);
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
@@ -369,7 +369,7 @@ namespace LibGit2Sharp.Tests
 
                 Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
 
-                repo.Move(originalPath, renamedPath);
+                Commands.Move(repo, originalPath, renamedPath);
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
@@ -434,7 +434,7 @@ namespace LibGit2Sharp.Tests
 
                 Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
 
-                repo.Move(originalPath, renamedPath);
+                Commands.Move(repo, originalPath, renamedPath);
                 File.AppendAllText(Path.Combine(repo.Info.WorkingDirectory, renamedPath), "e\nf\n");
                 Commands.Stage(repo, renamedPath);
 
@@ -508,7 +508,7 @@ namespace LibGit2Sharp.Tests
 
                 Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
 
-                repo.Move(originalPath, renamedPath);
+                Commands.Move(repo, originalPath, renamedPath);
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
@@ -725,7 +725,7 @@ namespace LibGit2Sharp.Tests
                 Commands.Stage(repo, originalPath3);
                 Commands.Stage(repo, copiedPath1);
                 Commands.Stage(repo, copiedPath2);
-                repo.Move(originalPath, renamedPath);
+                Commands.Move(repo, originalPath, renamedPath);
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 

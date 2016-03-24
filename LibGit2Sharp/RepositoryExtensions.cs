@@ -272,7 +272,7 @@ namespace LibGit2Sharp
             return repository.Checkout(commit, options);
         }
 
-        internal static string BuildRelativePathFrom(this Repository repo, string path)
+        internal static string BuildRelativePathFrom(this IRepository repo, string path)
         {
             //TODO: To be removed when libgit2 natively implements this
             if (!Path.IsPathRooted(path))
@@ -282,7 +282,7 @@ namespace LibGit2Sharp
 
             string normalizedPath = Path.GetFullPath(path);
 
-            if (!repo.PathStartsWith(normalizedPath, repo.Info.WorkingDirectory))
+            if (!PathStartsWith(repo, normalizedPath, repo.Info.WorkingDirectory))
             {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
                                                           "Unable to process file '{0}'. This file is not located under the working directory of the repository ('{1}').",
@@ -291,6 +291,12 @@ namespace LibGit2Sharp
             }
 
             return normalizedPath.Substring(repo.Info.WorkingDirectory.Length);
+        }
+
+        internal static bool PathStartsWith(IRepository repository, string path, string value)
+        {
+            var pathCase = new PathCase(repository);
+            return pathCase.StartsWith(path, value);
         }
 
         private static ObjectId DereferenceToCommit(Repository repo, string identifier)

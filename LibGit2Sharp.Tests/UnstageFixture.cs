@@ -240,7 +240,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(SandboxStandardTestRepo()))
             {
-                repo.Move("branch_file.txt", "renamed_branch_file.txt");
+                Commands.Move(repo, "branch_file.txt", "renamed_branch_file.txt");
 
                 RepositoryStatus oldStatus = repo.RetrieveStatus();
                 Assert.Equal(1, oldStatus.RenamedInIndex.Count());
@@ -261,7 +261,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(SandboxStandardTestRepo()))
             {
-                repo.Move("branch_file.txt", "renamed_branch_file.txt");
+                Commands.Move(repo, "branch_file.txt", "renamed_branch_file.txt");
 
                 RepositoryStatus oldStatus = repo.RetrieveStatus();
                 Assert.Equal(1, oldStatus.RenamedInIndex.Count());
@@ -281,7 +281,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(SandboxStandardTestRepo()))
             {
-                repo.Move("branch_file.txt", "renamed_branch_file.txt");
+                Commands.Move(repo, "branch_file.txt", "renamed_branch_file.txt");
                 Commands.Unstage(repo, new string[] { "branch_file.txt", "renamed_branch_file.txt" });
 
                 RepositoryStatus status = repo.RetrieveStatus();

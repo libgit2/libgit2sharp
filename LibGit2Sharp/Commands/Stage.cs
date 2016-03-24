@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Globalization;
 using System.Collections.Generic;
@@ -198,6 +199,123 @@ namespace LibGit2Sharp
             {
                 repository.Index.Replace(repository.Head.Tip, paths, explicitPathsOptions);
             }
+        }
+
+        /// <summary>
+        /// Moves and/or renames a file in the working directory and promotes the change to the staging area.
+        /// </summary>
+        /// <param name="repository">The repository to act on</param>
+        /// <param name="sourcePath">The path of the file within the working directory which has to be moved/renamed.</param>
+        /// <param name="destinationPath">The target path of the file within the working directory.</param>
+        public static void Move(IRepository repository, string sourcePath, string destinationPath)
+        {
+            Move(repository, new[] { sourcePath }, new[] { destinationPath });
+        }
+
+        /// <summary>
+        /// Moves and/or renames a collection of files in the working directory and promotes the changes to the staging area.
+        /// </summary>
+        /// <param name="repository">The repository to act on</param>
+        /// <param name="sourcePaths">The paths of the files within the working directory which have to be moved/renamed.</param>
+        /// <param name="destinationPaths">The target paths of the files within the working directory.</param>
+        public static void Move(IRepository repository, IEnumerable<string> sourcePaths, IEnumerable<string> destinationPaths)
+        {
+            Ensure.ArgumentNotNull(repository, "repository");
+            Ensure.ArgumentNotNull(sourcePaths, "sourcePaths");
+            Ensure.ArgumentNotNull(destinationPaths, "destinationPaths");
+
+            //TODO: Move() should support following use cases:
+            // - Moving a file under a directory ('file' and 'dir' -> 'dir/file')
+            // - Moving a directory (and its content) under another directory ('dir1' and 'dir2' -> 'dir2/dir1/*')
+
+            //TODO: Move() should throw when:
+            // - Moving a directory under a file
+
+            IDictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>> batch = PrepareBatch(repository, sourcePaths, destinationPaths);
+
+            if (batch.Count == 0)
+            {
+                throw new ArgumentNullException("sourcePaths");
+            }
+
+            foreach (KeyValuePair<Tuple<string, FileStatus>, Tuple<string, FileStatus>> keyValuePair in batch)
+            {
+                string sourcePath = keyValuePair.Key.Item1;
+                string destPath = keyValuePair.Value.Item1;
+
+                if (Directory.Exists(sourcePath) || Directory.Exists(destPath))
+                {
+                    throw new NotImplementedException();
+                }
+
+                FileStatus sourceStatus = keyValuePair.Key.Item2;
+                if (sourceStatus.HasAny(new Enum[] { FileStatus.Nonexistent, FileStatus.DeletedFromIndex, FileStatus.NewInWorkdir, FileStatus.DeletedFromWorkdir }))
+                {
+                    throw new LibGit2SharpException("Unable to move file '{0}'. Its current status is '{1}'.",
+                        sourcePath,
+                        sourceStatus);
+                }
+
+                FileStatus desStatus = keyValuePair.Value.Item2;
+                if (desStatus.HasAny(new Enum[] { FileStatus.Nonexistent, FileStatus.DeletedFromWorkdir }))
+                {
+                    continue;
+                }
+
+                throw new LibGit2SharpException("Unable to overwrite file '{0}'. Its current status is '{1}'.",
+                    destPath,
+                    desStatus);
+            }
+
+            string wd = repository.Info.WorkingDirectory;
+            var index = repository.Index;
+            foreach (KeyValuePair<Tuple<string, FileStatus>, Tuple<string, FileStatus>> keyValuePair in batch)
+            {
+                string from = keyValuePair.Key.Item1;
+                string to = keyValuePair.Value.Item1;
+
+                index.Remove(from);
+                File.Move(Path.Combine(wd, from), Path.Combine(wd, to));
+                index.Add(to);
+            }
+
+            index.Write();
+        }
+
+        private static bool Enumerate(IEnumerator<string> leftEnum, IEnumerator<string> rightEnum)
+        {
+            bool isLeftEoF = leftEnum.MoveNext();
+            bool isRightEoF = rightEnum.MoveNext();
+
+            if (isLeftEoF == isRightEoF)
+            {
+                return isLeftEoF;
+            }
+
+            throw new ArgumentException("The collection of paths are of different lengths.");
+        }
+
+        private static IDictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>> PrepareBatch(IRepository repository, IEnumerable<string> leftPaths, IEnumerable<string> rightPaths)
+        {
+            IDictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>> dic = new Dictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>>();
+
+            IEnumerator<string> leftEnum = leftPaths.GetEnumerator();
+            IEnumerator<string> rightEnum = rightPaths.GetEnumerator();
+
+            while (Enumerate(leftEnum, rightEnum))
+            {
+                Tuple<string, FileStatus> from = BuildFrom(repository, leftEnum.Current);
+                Tuple<string, FileStatus> to = BuildFrom(repository, rightEnum.Current);
+                dic.Add(from, to);
+            }
+
+            return dic;
+        }
+
+        private static Tuple<string, FileStatus> BuildFrom(IRepository repository, string path)
+        {
+            string relativePath = repository.BuildRelativePathFrom(path);
+            return new Tuple<string, FileStatus>(relativePath, repository.RetrieveStatus(relativePath));
         }
     }
 }

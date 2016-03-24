@@ -120,7 +120,7 @@ namespace LibGit2Sharp.Tests
 
                 const string newName = "being.frakking.polite.txt";
 
-                repo.Move(oldName, newName);
+                Commands.Move(repo, oldName, newName);
                 Assert.Equal(FileStatus.DeletedFromIndex, repo.RetrieveStatus(oldName));
                 Assert.Equal(FileStatus.NewInIndex, repo.RetrieveStatus(newName));
 
@@ -150,7 +150,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(sourceStatus, repo.RetrieveStatus(sourcePath));
                 Assert.Equal(destStatus, repo.RetrieveStatus(destPath));
 
-                repo.Move(sourcePath, destPath);
+                Commands.Move(repo, sourcePath, destPath);
 
                 Assert.Equal(sourcePostStatus, repo.RetrieveStatus(sourcePath));
                 Assert.Equal(destPostStatus, repo.RetrieveStatus(destPath));
@@ -193,7 +193,7 @@ namespace LibGit2Sharp.Tests
                 foreach (var destPath in destPaths)
                 {
                     string path = destPath;
-                    Assert.Throws<LibGit2SharpException>(() => repo.Move(sourcePath, path));
+                    Assert.Throws<LibGit2SharpException>(() => Commands.Move(repo, sourcePath, path));
                 }
             }
         }

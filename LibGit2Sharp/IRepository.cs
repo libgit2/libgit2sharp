@@ -311,6 +311,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="sourcePath">The path of the file within the working directory which has to be moved/renamed.</param>
         /// <param name="destinationPath">The target path of the file within the working directory.</param>
+        [Obsolete("This method is deprecatd. Please use LibGit2Sharp.Commands.Move()")]
         void Move(string sourcePath, string destinationPath);
 
         /// <summary>
@@ -318,6 +319,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="sourcePaths">The paths of the files within the working directory which have to be moved/renamed.</param>
         /// <param name="destinationPaths">The target paths of the files within the working directory.</param>
+        [Obsolete("This method is deprecatd. Please use LibGit2Sharp.Commands.Move()")]
         void Move(IEnumerable<string> sourcePaths, IEnumerable<string> destinationPaths);
 
         /// <summary>
