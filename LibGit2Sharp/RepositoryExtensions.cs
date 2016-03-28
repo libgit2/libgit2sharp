@@ -205,6 +205,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="remoteName">The name of the <see cref="Remote"/> to fetch from.</param>
+        [Obsolete("This method is deprecated. Please us the LibGit2Sharp.Commands.Fetch class")]
         public static void Fetch(this IRepository repository, string remoteName)
         {
             repository.Fetch(remoteName, null);
@@ -216,6 +217,7 @@ namespace LibGit2Sharp
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="remoteName">The name of the <see cref="Remote"/> to fetch from.</param>
         /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
+        [Obsolete("This method is deprecated. Please us the LibGit2Sharp.Commands.Fetch class")]
         public static void Fetch(this IRepository repository, string remoteName, FetchOptions options)
         {
             Ensure.ArgumentNotNull(repository, "repository");

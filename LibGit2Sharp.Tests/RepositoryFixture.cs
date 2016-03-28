@@ -181,7 +181,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                Remote remote = repo.Network.Remotes.Add(remoteName, url);
+                repo.Network.Remotes.Add(remoteName, url);
 
                 // We will first fetch without specifying any Tag options.
                 // After we verify this fetch, we will perform a second fetch
@@ -208,13 +208,13 @@ namespace LibGit2Sharp.Tests
                 }
 
                 // Perform the actual fetch
-                repo.Fetch(remote.Name, new FetchOptions { OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler });
+                Commands.Fetch(repo, remoteName, new string[0], new FetchOptions { OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler }, null);
 
                 // Verify the expected state
                 expectedFetchState.CheckUpdatedReferences(repo);
 
                 // Now fetch the rest of the tags
-                repo.Fetch(remote.Name, new FetchOptions { TagFetchMode = TagFetchMode.All });
+                Commands.Fetch(repo, remoteName, new string[0], new FetchOptions { TagFetchMode = TagFetchMode.All }, null);
 
                 // Verify that the "nearly-dangling" tag is now in the repo.
                 Tag nearlyDanglingTag = repo.Tags["nearly-dangling"];
