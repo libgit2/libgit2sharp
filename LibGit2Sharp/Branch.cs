@@ -110,10 +110,10 @@ namespace LibGit2Sharp
             {
                 if (this is DetachedHead)
                 {
-                    return repo.Head.reference.TargetIdentifier == this.reference.TargetIdentifier;
+                    return repo.Head.Reference.TargetIdentifier == this.Reference.TargetIdentifier;
                 }
 
-                return repo.Head.reference.TargetIdentifier == this.CanonicalName;
+                return repo.Head.Reference.TargetIdentifier == this.CanonicalName;
             }
         }
 
