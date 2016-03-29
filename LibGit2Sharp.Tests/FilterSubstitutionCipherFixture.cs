@@ -197,14 +197,14 @@ namespace LibGit2Sharp.Tests
         private static void DeleteFile(Repository repo, string fileName)
         {
             File.Delete(Path.Combine(repo.Info.WorkingDirectory, fileName));
-            repo.Stage(fileName);
+            Commands.Stage(repo, fileName);
             repo.Commit("remove file", Constants.Signature, Constants.Signature);
         }
 
         private static Blob CommitOnBranchAndReturnDatabaseBlob(Repository repo, string fileName, string input)
         {
             Touch(repo.Info.WorkingDirectory, fileName, input);
-            repo.Stage(fileName);
+            Commands.Stage(repo, fileName);
 
             var commit = repo.Commit("new file", Constants.Signature, Constants.Signature);
 

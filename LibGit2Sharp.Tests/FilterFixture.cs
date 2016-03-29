@@ -280,8 +280,8 @@ namespace LibGit2Sharp.Tests
                 {
                     CreateConfigurationWithDummyUser(repo, Constants.Identity);
                     File.WriteAllText(attributesPath, "*.blob filter=test");
-                    repo.Stage(attributesFile.Name);
-                    repo.Stage(contentFile.Name);
+                    Commands.Stage(repo, attributesFile.Name);
+                    Commands.Stage(repo, contentFile.Name);
                     repo.Commit("test", Constants.Signature, Constants.Signature);
                     contentFile.Delete();
                     repo.Checkout("HEAD", new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
@@ -413,7 +413,7 @@ namespace LibGit2Sharp.Tests
         {
             string newFilePath = Touch(repo.Info.WorkingDirectory, Guid.NewGuid() + ".txt", contents);
             var stageNewFile = new FileInfo(newFilePath);
-            repo.Stage(newFilePath);
+            Commands.Stage(repo, newFilePath);
             return stageNewFile;
         }
 

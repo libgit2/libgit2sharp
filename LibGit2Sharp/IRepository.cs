@@ -271,6 +271,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="path">The path of the file within the working directory.</param>
         /// <param name="stageOptions">Determines how paths will be staged.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Stage()")]
         void Stage(string path, StageOptions stageOptions);
 
         /// <summary>
@@ -280,6 +281,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
         /// <param name="stageOptions">Determines how paths will be staged.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Stage()")]
         void Stage(IEnumerable<string> paths, StageOptions stageOptions);
 
         /// <summary>
@@ -290,6 +292,7 @@ namespace LibGit2Sharp
         /// The passed <paramref name="path"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Unstage()")]
         void Unstage(string path, ExplicitPathsOptions explicitPathsOptions);
 
         /// <summary>
@@ -300,6 +303,7 @@ namespace LibGit2Sharp
         /// The passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Unstage()")]
         void Unstage(IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions);
 
         /// <summary>
@@ -307,6 +311,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="sourcePath">The path of the file within the working directory which has to be moved/renamed.</param>
         /// <param name="destinationPath">The target path of the file within the working directory.</param>
+        [Obsolete("This method is deprecatd. Please use LibGit2Sharp.Commands.Move()")]
         void Move(string sourcePath, string destinationPath);
 
         /// <summary>
@@ -314,6 +319,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="sourcePaths">The paths of the files within the working directory which have to be moved/renamed.</param>
         /// <param name="destinationPaths">The target paths of the files within the working directory.</param>
+        [Obsolete("This method is deprecatd. Please use LibGit2Sharp.Commands.Move()")]
         void Move(IEnumerable<string> sourcePaths, IEnumerable<string> destinationPaths);
 
         /// <summary>
@@ -337,6 +343,7 @@ namespace LibGit2Sharp
         /// The passed <paramref name="path"/> will be treated as an explicit path.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Remove()")]
         void Remove(string path, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions);
 
         /// <summary>
@@ -360,6 +367,7 @@ namespace LibGit2Sharp
         /// The passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Unstage()")]
         void Remove(IEnumerable<string> paths, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions);
 
         /// <summary>

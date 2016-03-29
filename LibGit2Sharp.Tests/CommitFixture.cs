@@ -552,10 +552,10 @@ namespace LibGit2Sharp.Tests
 
                 const string relativeFilepath = "new.txt";
                 string filePath = Touch(repo.Info.WorkingDirectory, relativeFilepath, "null");
-                repo.Stage(relativeFilepath);
+                Commands.Stage(repo, relativeFilepath);
 
                 File.AppendAllText(filePath, "token\n");
-                repo.Stage(relativeFilepath);
+                Commands.Stage(repo, relativeFilepath);
 
                 Assert.Null(repo.Head[relativeFilepath]);
 
@@ -614,7 +614,7 @@ namespace LibGit2Sharp.Tests
 
                 const string relativeFilepath = "new.txt";
                 Touch(repo.Info.WorkingDirectory, relativeFilepath, "this is a new file");
-                repo.Stage(relativeFilepath);
+                Commands.Stage(repo, relativeFilepath);
 
                 string mergeHeadPath = Touch(repo.Info.Path, "MERGE_HEAD", "abcdefabcdefabcdefabcdefabcdefabcdefabcd");
                 string mergeMsgPath = Touch(repo.Info.Path, "MERGE_MSG", "This is a dummy merge.\n");
@@ -651,9 +651,9 @@ namespace LibGit2Sharp.Tests
 
                 const string relativeFilepath = "new.txt";
                 string filePath = Touch(repo.Info.WorkingDirectory, relativeFilepath, "null");
-                repo.Stage(relativeFilepath);
+                Commands.Stage(repo, relativeFilepath);
                 File.AppendAllText(filePath, "token\n");
-                repo.Stage(relativeFilepath);
+                Commands.Stage(repo, relativeFilepath);
 
                 Assert.Null(repo.Head[relativeFilepath]);
 
@@ -692,7 +692,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(commit.Id, repo.Refs.Log(targetCanonicalName).First().To);
 
                 File.WriteAllText(filePath, "nulltoken commits!\n");
-                repo.Stage(relativeFilepath);
+                Commands.Stage(repo, relativeFilepath);
 
                 var author2 = new Signature(author.Name, author.Email, author.When.AddSeconds(5));
                 Commit commit2 = repo.Commit("Are you trying to fork me?", author2, author2);
@@ -713,7 +713,7 @@ namespace LibGit2Sharp.Tests
                 File.WriteAllText(filePath, "davidfowl commits!\n");
 
                 var author3 = new Signature("David Fowler", "david.fowler@microsoft.com", author.When.AddSeconds(2));
-                repo.Stage(relativeFilepath);
+                Commands.Stage(repo, relativeFilepath);
 
                 Commit commit3 = repo.Commit("I'm going to branch you backwards in time!", author3, author3);
 
@@ -739,7 +739,7 @@ namespace LibGit2Sharp.Tests
             {
                 const string relativeFilepath = "test.txt";
                 Touch(repo.Info.WorkingDirectory, relativeFilepath, "test\n");
-                repo.Stage(relativeFilepath);
+                Commands.Stage(repo, relativeFilepath);
 
                 var author = new Signature("nulltoken", "emeric.fermas@gmail.com", DateTimeOffset.Parse("Wed, Dec 14 2011 08:29:03 +0100"));
                 repo.Commit("Initial commit", author, author);
@@ -825,7 +825,7 @@ namespace LibGit2Sharp.Tests
         {
             string relativeFilepath = string.Format("new-file-{0}.txt", Path.GetRandomFileName());
             Touch(repo.Info.WorkingDirectory, relativeFilepath, "brand new content\n");
-            repo.Stage(relativeFilepath);
+            Commands.Stage(repo, relativeFilepath);
         }
 
         private static void AssertCommitHasBeenAmended(IRepository repo, Commit amendedCommit, Commit originalCommit)
@@ -914,7 +914,7 @@ namespace LibGit2Sharp.Tests
 
                 const string relativeFilepath = "test.txt";
                 Touch(repo.Info.WorkingDirectory, relativeFilepath, "test\n");
-                repo.Stage(relativeFilepath);
+                Commands.Stage(repo, relativeFilepath);
 
                 repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
                 Assert.Equal(1, repo.Head.Commits.Count());
@@ -1030,16 +1030,16 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(repoPath))
             {
                 Touch(repo.Info.WorkingDirectory, "test.txt", "test\n");
-                repo.Stage("test.txt");
+                Commands.Stage(repo, "test.txt");
 
                 repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
 
                 Touch(repo.Info.WorkingDirectory, "new.txt", "content\n");
-                repo.Stage("new.txt");
+                Commands.Stage(repo, "new.txt");
 
                 repo.Commit("One commit", Constants.Signature, Constants.Signature);
 
-                repo.Remove("new.txt");
+                Commands.Remove(repo, "new.txt");
 
                 Assert.Throws<EmptyCommitException>(() => repo.Commit("Oops", Constants.Signature, Constants.Signature,
                     new CommitOptions { AmendPreviousCommit = true }));

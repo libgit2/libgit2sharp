@@ -676,7 +676,7 @@ namespace LibGit2Sharp.Tests
 
                 Touch(repo.Info.WorkingDirectory, "README", "Yeah!\n");
                 repo.Index.Clear();
-                repo.Stage("README");
+                Commands.Stage(repo, "README");
 
                 repo.Commit("A new world, free of the burden of the history", Constants.Signature, Constants.Signature);
 

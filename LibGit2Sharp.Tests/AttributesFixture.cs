@@ -29,7 +29,7 @@ namespace LibGit2Sharp.Tests
 
             Touch(repo.Info.WorkingDirectory, filename, sb.ToString());
 
-            repo.Stage(filename);
+            Commands.Stage(repo, filename);
 
             IndexEntry entry = repo.Index[filename];
             Assert.NotNull(entry);

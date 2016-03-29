@@ -443,7 +443,7 @@ namespace LibGit2Sharp.Tests
             {
                 const string filename = "new.txt";
                 Touch(repo.Info.WorkingDirectory, filename, "one ");
-                repo.Stage(filename);
+                Commands.Stage(repo, filename);
 
                 Signature author = Constants.Signature;
                 Commit commit = repo.Commit("Initial commit", author, author);
