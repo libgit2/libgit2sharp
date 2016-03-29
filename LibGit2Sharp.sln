@@ -14,9 +14,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{19D079
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "LibGit2Sharp.Shared", "LibGit2Sharp.Shared\LibGit2Sharp.Shared.shproj", "{DE74D271-F14A-4D22-A738-1CAB045ECC79}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp.Portable", "LibGit2Sharp.Portable\LibGit2Sharp.Portable.csproj", "{39FDD325-625A-4619-A8A9-4E061D0F993F}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		LibGit2Sharp.Shared\LibGit2Sharp.Shared.projitems*{ee6ed99f-cb12-4683-b055-d28fc7357a34}*SharedItemsImports = 4
+		LibGit2Sharp.Shared\LibGit2Sharp.Shared.projitems*{39fdd325-625a-4619-a8a9-4e061d0f993f}*SharedItemsImports = 4
 		LibGit2Sharp.Shared\LibGit2Sharp.Shared.projitems*{de74d271-f14a-4d22-a738-1cab045ecc79}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,6 +35,10 @@ Global
 		{286E63EB-04DD-4ADE-88D6-041B57800761}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{286E63EB-04DD-4ADE-88D6-041B57800761}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{286E63EB-04DD-4ADE-88D6-041B57800761}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39FDD325-625A-4619-A8A9-4E061D0F993F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39FDD325-625A-4619-A8A9-4E061D0F993F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39FDD325-625A-4619-A8A9-4E061D0F993F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39FDD325-625A-4619-A8A9-4E061D0F993F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
