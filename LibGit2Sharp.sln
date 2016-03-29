@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25114.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp", "LibGit2Sharp\LibGit2Sharp.csproj", "{EE6ED99F-CB12-4683-B055-D28FC7357A34}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp.Tests", "LibGit2Sharp.Tests\LibGit2Sharp.Tests.csproj", "{286E63EB-04DD-4ADE-88D6-041B57800761}"
@@ -10,7 +12,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{19D079
 		.nuget\packages.config = .nuget\packages.config
 	EndProjectSection
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "LibGit2Sharp.Shared", "LibGit2Sharp.Shared\LibGit2Sharp.Shared.shproj", "{DE74D271-F14A-4D22-A738-1CAB045ECC79}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		LibGit2Sharp.Shared\LibGit2Sharp.Shared.projitems*{ee6ed99f-cb12-4683-b055-d28fc7357a34}*SharedItemsImports = 4
+		LibGit2Sharp.Shared\LibGit2Sharp.Shared.projitems*{de74d271-f14a-4d22-a738-1cab045ecc79}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -30,7 +38,7 @@ Global
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0
-		$0.TextStylePolicy = $1
+		$0.TextStylePolicy = $4
 		$1.inheritsSet = null
 		$1.scope = text/x-csharp
 		$0.CSharpFormattingPolicy = $2
@@ -46,7 +54,6 @@ Global
 		$0.StandardHeader = $3
 		$3.Text = 
 		$3.inheritsSet = Apache2License
-		$0.TextStylePolicy = $4
 		$4.FileWidth = 120
 		$4.RemoveTrailingWhitespace = True
 		$4.inheritsSet = VisualStudio
