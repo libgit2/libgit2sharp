@@ -8,7 +8,7 @@
     <ProjectGuid>{39FDD325-625A-4619-A8A9-4E061D0F993F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LibGit2Sharp.Portable</RootNamespace>
+    <RootNamespace>LibGit2Sharp</RootNamespace>
     <AssemblyName>LibGit2Sharp.Portable</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
@@ -63,10 +63,15 @@
   <ItemGroup>
     <Compile Include="Core\Handles\Objects.cs">
       <DependentUpon>Objects.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
     </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="..\LibGit2Sharp.Shared\LibGit2Sharp.Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
