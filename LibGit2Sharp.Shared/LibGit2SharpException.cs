@@ -8,7 +8,9 @@ namespace LibGit2Sharp
     /// <summary>
     /// The exception that is thrown when an error occurs during application execution.
     /// </summary>
+#if NET40
     [Serializable]
+#endif
     public class LibGit2SharpException : Exception
     {
         /// <summary>
@@ -44,6 +46,7 @@ namespace LibGit2Sharp
         {
         }
 
+#if NET40
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2SharpException"/> class with a serialized data.
         /// </summary>
@@ -52,6 +55,7 @@ namespace LibGit2Sharp
         protected LibGit2SharpException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
+#endif
 
         internal LibGit2SharpException(string message, GitErrorCode code, GitErrorCategory category) : this(message)
         {

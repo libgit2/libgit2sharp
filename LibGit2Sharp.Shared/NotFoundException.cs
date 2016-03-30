@@ -7,7 +7,9 @@ namespace LibGit2Sharp
     /// <summary>
     /// The exception that is thrown attempting to reference a resource that does not exist.
     /// </summary>
+#if NET40
     [Serializable]
+#endif
     public class NotFoundException : LibGit2SharpException
     {
         /// <summary>
@@ -42,6 +44,7 @@ namespace LibGit2Sharp
             : base(message, innerException)
         { }
 
+#if NET40
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2Sharp.NotFoundException"/> class with a serialized data.
         /// </summary>
@@ -50,6 +53,7 @@ namespace LibGit2Sharp
         protected NotFoundException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
+#endif
 
         internal NotFoundException(string message, GitErrorCode code, GitErrorCategory category)
             : base(message, code, category)

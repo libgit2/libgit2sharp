@@ -7,7 +7,9 @@ namespace LibGit2Sharp
     /// The exception that is thrown when a <see cref="Repository"/> is being built with
     /// a path that doesn't point at a valid Git repository or workdir.
     /// </summary>
+#if NET40
     [Serializable]
+#endif
     public class RepositoryNotFoundException : LibGit2SharpException
     {
         /// <summary>
@@ -42,6 +44,7 @@ namespace LibGit2Sharp
             : base(message, innerException)
         { }
 
+#if NET40
         /// <summary>
         /// Initializes a new instance of the <see cref="RepositoryNotFoundException"/> class with a serialized data.
         /// </summary>
@@ -50,5 +53,6 @@ namespace LibGit2Sharp
         protected RepositoryNotFoundException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
+#endif
     }
 }

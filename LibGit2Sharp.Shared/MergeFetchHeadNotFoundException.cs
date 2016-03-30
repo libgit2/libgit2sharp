@@ -6,7 +6,9 @@ namespace LibGit2Sharp
     /// <summary>
     /// The exception that is thrown when the ref to merge with was as part of a pull operation not fetched.
     /// </summary>
+#if NET40
     [Serializable]
+#endif
     public class MergeFetchHeadNotFoundException : NotFoundException
     {
         /// <summary>
@@ -41,6 +43,7 @@ namespace LibGit2Sharp
             : base(message, innerException)
         { }
 
+#if NET40
         /// <summary>
         /// Initializes a new instance of the <see cref="MergeFetchHeadNotFoundException"/> class with a serialized data.
         /// </summary>
@@ -49,5 +52,6 @@ namespace LibGit2Sharp
         protected MergeFetchHeadNotFoundException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
+#endif
     }
 }

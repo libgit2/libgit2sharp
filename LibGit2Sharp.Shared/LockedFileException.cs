@@ -7,7 +7,9 @@ namespace LibGit2Sharp
     /// <summary>
     /// The exception that is thrown attempting to open a locked file.
     /// </summary>
+#if NET40
     [Serializable]
+#endif
     public class LockedFileException : LibGit2SharpException
     {
         /// <summary>
@@ -42,6 +44,7 @@ namespace LibGit2Sharp
             : base(message, innerException)
         { }
 
+#if NET40
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2Sharp.LockedFileException"/> class with a serialized data.
         /// </summary>
@@ -50,6 +53,7 @@ namespace LibGit2Sharp
         protected LockedFileException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
+#endif
 
         internal LockedFileException(string message, GitErrorCode code, GitErrorCategory category)
             : base(message, code, category)

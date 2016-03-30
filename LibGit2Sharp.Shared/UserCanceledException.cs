@@ -7,7 +7,9 @@ namespace LibGit2Sharp
     /// <summary>
     /// The exception that is thrown when an operation is canceled.
     /// </summary>
+#if NET40
     [Serializable]
+#endif
     public class UserCancelledException : LibGit2SharpException
     {
         /// <summary>
@@ -42,6 +44,7 @@ namespace LibGit2Sharp
             : base(message, innerException)
         { }
 
+#if NET40
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2Sharp.UserCancelledException"/> class with a serialized data.
         /// </summary>
@@ -50,6 +53,7 @@ namespace LibGit2Sharp
         protected UserCancelledException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
+#endif
 
         internal UserCancelledException(string message, GitErrorCode code, GitErrorCategory category)
             : base(message, code, category)

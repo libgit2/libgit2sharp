@@ -6,7 +6,9 @@ namespace LibGit2Sharp
     /// <summary>
     /// The exception that is thrown when an explicit path or a list of explicit paths could not be matched.
     /// </summary>
+#if NET40
     [Serializable]
+#endif
     public class UnmatchedPathException : LibGit2SharpException
     {
         /// <summary>
@@ -41,6 +43,7 @@ namespace LibGit2Sharp
             : base(message, innerException)
         { }
 
+#if NET40
         /// <summary>
         /// Initializes a new instance of the <see cref="UnmatchedPathException"/> class with a serialized data.
         /// </summary>
@@ -49,5 +52,6 @@ namespace LibGit2Sharp
         protected UnmatchedPathException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
+#endif
     }
 }

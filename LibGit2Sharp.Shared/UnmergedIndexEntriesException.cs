@@ -8,7 +8,9 @@ namespace LibGit2Sharp
     /// The exception that is thrown when an operation that requires a fully merged index
     /// is performed against an index with unmerged entries
     /// </summary>
+#if NET40
     [Serializable]
+#endif
     public class UnmergedIndexEntriesException : LibGit2SharpException
     {
         /// <summary>
@@ -43,6 +45,7 @@ namespace LibGit2Sharp
             : base(message, innerException)
         { }
 
+#if NET40
         /// <summary>
         /// Initializes a new instance of the <see cref="UnmergedIndexEntriesException"/> class with a serialized data.
         /// </summary>
@@ -51,6 +54,7 @@ namespace LibGit2Sharp
         protected UnmergedIndexEntriesException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
+#endif
 
         internal UnmergedIndexEntriesException(string message, GitErrorCode code, GitErrorCategory category)
             : base(message, code, category)
