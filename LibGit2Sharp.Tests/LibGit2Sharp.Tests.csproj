@@ -50,10 +50,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\LibGit2Sharp\Core\Epoch.cs">
+    <Compile Include="..\LibGit2Sharp.Shared\Core\Epoch.cs">
       <Link>TestHelpers\Epoch.cs</Link>
     </Compile>
-    <Compile Include="..\LibGit2Sharp\Core\Platform.cs">
+    <Compile Include="..\LibGit2Sharp.Shared\Core\Platform.cs">
       <Link>TestHelpers\Platform.cs</Link>
     </Compile>
     <Compile Include="BlameFixture.cs" />
