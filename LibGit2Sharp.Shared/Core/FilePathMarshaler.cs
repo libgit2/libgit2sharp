@@ -70,7 +70,7 @@ namespace LibGit2Sharp.Core
             {
                 throw new MarshalDirectiveException(string.Format(CultureInfo.InvariantCulture,
                                                     "{0} must be used on a FilePath.",
-                                                    GetType().Name));
+                                                    this.GetType().Name));
             }
 
             return FromManaged(filePath);
