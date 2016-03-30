@@ -34,7 +34,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(branch);
                 AssertBelongsToARepository(repo, branch);
 
-                Branch test = repo.Checkout(branch);
+                Branch test = Commands.Checkout(repo, branch);
                 Assert.False(repo.Info.IsHeadDetached);
                 AssertBelongsToARepository(repo, test);
 
@@ -73,7 +73,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.False(repo.RetrieveStatus().IsDirty);
 
-                Branch test = repo.Checkout(branchName);
+                Branch test = Commands.Checkout(repo, branchName);
                 Assert.False(repo.Info.IsHeadDetached);
 
                 Assert.False(test.IsRemote);
@@ -118,7 +118,7 @@ namespace LibGit2Sharp.Tests
                 var commit = repo.Lookup<Commit>(commitPointer);
                 AssertBelongsToARepository(repo, commit);
 
-                Branch detachedHead = checkoutByCommitOrBranchSpec ? repo.Checkout(commitPointer) : repo.Checkout(commit);
+                Branch detachedHead = checkoutByCommitOrBranchSpec ? Commands.Checkout(repo, commitPointer) : Commands.Checkout(repo, commit);
 
                 Assert.Equal(repo.Head, detachedHead);
                 Assert.Equal(commit.Sha, detachedHead.Tip.Sha);
@@ -162,7 +162,7 @@ namespace LibGit2Sharp.Tests
                 // Checkout other_branch
                 Branch otherBranch = repo.Branches[otherBranchName];
                 Assert.NotNull(otherBranch);
-                repo.Checkout(otherBranch);
+                Commands.Checkout(repo, otherBranch);
 
                 // Verify working directory is updated
                 Assert.False(repo.RetrieveStatus().IsDirty);
@@ -190,7 +190,7 @@ namespace LibGit2Sharp.Tests
                 // Checkout other_branch
                 Branch otherBranch = repo.Branches[otherBranchName];
                 Assert.NotNull(otherBranch);
-                repo.Checkout(otherBranch);
+                Commands.Checkout(repo, otherBranch);
 
                 // Verify working directory is updated
                 Assert.False(repo.RetrieveStatus().IsDirty);
@@ -218,7 +218,7 @@ namespace LibGit2Sharp.Tests
                 // Checkout other_branch
                 Branch otherBranch = repo.Branches[otherBranchName];
                 Assert.NotNull(otherBranch);
-                repo.Checkout(otherBranch);
+                Commands.Checkout(repo, otherBranch);
 
                 // Verify working directory is updated
                 Assert.False(repo.RetrieveStatus().IsDirty);
@@ -258,7 +258,7 @@ namespace LibGit2Sharp.Tests
                 repo.Commit("change in master", Constants.Signature, Constants.Signature);
 
                 // Checkout otherBranch.
-                repo.Checkout(otherBranchName);
+                Commands.Checkout(repo, otherBranchName);
 
                 // Add change to otherBranch.
                 Touch(repo.Info.WorkingDirectory, originalFilePath, alternateFileContent);
@@ -266,10 +266,10 @@ namespace LibGit2Sharp.Tests
 
                 // Assert that normal checkout throws exception
                 // for the conflict.
-                Assert.Throws<CheckoutConflictException>(() => repo.Checkout(master.CanonicalName));
+                Assert.Throws<CheckoutConflictException>(() => Commands.Checkout(repo, master.CanonicalName));
 
                 // Checkout with force option should succeed.
-                repo.Checkout(master.CanonicalName, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force});
+                Commands.Checkout(repo, master.CanonicalName, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force});
 
                 // Assert that master branch is checked out.
                 Assert.True(repo.Branches["master"].IsCurrentRepositoryHead);
@@ -299,16 +299,16 @@ namespace LibGit2Sharp.Tests
                 repo.Commit("2nd commit", Constants.Signature, Constants.Signature);
 
                 // Checkout branch2
-                repo.Checkout("branch2");
+                Commands.Checkout(repo, "branch2");
                 Touch(repo.Info.WorkingDirectory, originalFilePath, "Hello From branch2!\n");
 
                 // Assert that checking out master throws
                 // when there are unstaged commits
-                Assert.Throws<CheckoutConflictException>(() => repo.Checkout("master"));
+                Assert.Throws<CheckoutConflictException>(() => Commands.Checkout(repo, "master"));
 
                 // And when there are staged commits
                 Commands.Stage(repo, originalFilePath);
-                Assert.Throws<CheckoutConflictException>(() => repo.Checkout("master"));
+                Assert.Throws<CheckoutConflictException>(() => Commands.Checkout(repo, "master"));
             }
         }
 
@@ -334,7 +334,7 @@ namespace LibGit2Sharp.Tests
                 repo.Commit("2nd commit", Constants.Signature, Constants.Signature);
 
                 // Checkout branch2
-                repo.Checkout("branch2");
+                Commands.Checkout(repo, "branch2");
 
                 // Update the context of a.txt - a.txt will then conflict between branch2 and master.
                 Touch(repo.Info.WorkingDirectory, relativePath, "Hello From branch2!\n");
@@ -348,7 +348,7 @@ namespace LibGit2Sharp.Tests
                     CheckoutNotifyFlags = CheckoutNotifyFlags.Conflict,
                 };
 
-                Assert.Throws<UserCancelledException>(() => repo.Checkout("master", options));
+                Assert.Throws<UserCancelledException>(() => Commands.Checkout(repo, "master", options));
                 Assert.Equal(relativePath, conflictPath);
             }
         }
@@ -359,8 +359,8 @@ namespace LibGit2Sharp.Tests
             string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Throws<BareRepositoryException>(() => repo.Checkout(repo.Branches["refs/heads/test"]));
-                Assert.Throws<BareRepositoryException>(() => repo.Checkout("refs/heads/test"));
+                Assert.Throws<BareRepositoryException>(() => Commands.Checkout(repo, repo.Branches["refs/heads/test"]));
+                Assert.Throws<BareRepositoryException>(() => Commands.Checkout(repo, "refs/heads/test"));
             }
         }
 
@@ -373,7 +373,7 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.True(repo.Info.IsHeadUnborn);
 
-                Assert.Throws<UnbornBranchException>(() => repo.Checkout(repo.Head));
+                Assert.Throws<UnbornBranchException>(() => Commands.Checkout(repo, repo.Head));
             }
         }
 
@@ -383,7 +383,7 @@ namespace LibGit2Sharp.Tests
             string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Throws<NotFoundException>(() => repo.Checkout("i-do-not-exist"));
+                Assert.Throws<NotFoundException>(() => Commands.Checkout(repo, "i-do-not-exist"));
             }
         }
 
@@ -393,9 +393,9 @@ namespace LibGit2Sharp.Tests
             string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Throws<ArgumentException>(() => repo.Checkout(string.Empty));
-                Assert.Throws<ArgumentNullException>(() => repo.Checkout(default(Branch)));
-                Assert.Throws<ArgumentNullException>(() => repo.Checkout(default(string)));
+                Assert.Throws<ArgumentException>(() => Commands.Checkout(repo, string.Empty));
+                Assert.Throws<ArgumentNullException>(() => Commands.Checkout(repo, default(Branch)));
+                Assert.Throws<ArgumentNullException>(() => Commands.Checkout(repo, default(string)));
             }
         }
 
@@ -410,7 +410,7 @@ namespace LibGit2Sharp.Tests
                 bool wasCalled = false;
 
                 Branch branch = repo.Branches[otherBranchName];
-                repo.Checkout(branch,
+                Commands.Checkout(repo, branch,
                     new CheckoutOptions { OnCheckoutProgress = (path, completed, total) => wasCalled = true});
 
                 Assert.True(wasCalled);
@@ -427,7 +427,7 @@ namespace LibGit2Sharp.Tests
                 PopulateBasicRepository(repo);
                 bool wasCalled = false;
 
-                repo.Checkout(otherBranchName, new CheckoutOptions() { OnCheckoutProgress = (path, completed, total) => wasCalled = true});
+                Commands.Checkout(repo, otherBranchName, new CheckoutOptions() { OnCheckoutProgress = (path, completed, total) => wasCalled = true});
 
                 Assert.True(wasCalled);
             }
@@ -474,7 +474,7 @@ namespace LibGit2Sharp.Tests
                 repo.Commit("2nd commit of conflict.txt and update.txt on master branch", Constants.Signature, Constants.Signature);
 
                 // Checkout other branch
-                repo.Checkout("newbranch");
+                Commands.Checkout(repo, "newbranch");
 
                 // Make alternate edits to conflict.txt and update.txt
                 Touch(repo.Info.WorkingDirectory, relativePathUpdated, "updated file text CCC");
@@ -505,7 +505,7 @@ namespace LibGit2Sharp.Tests
                     CheckoutNotifyFlags = notifyFlags,
                 };
 
-                Assert.Throws<CheckoutConflictException>(() => repo.Checkout("master", options));
+                Assert.Throws<CheckoutConflictException>(() => Commands.Checkout(repo, "master", options));
 
                 Assert.True(wasCalled);
                 Assert.Equal(expectedNotificationPath, actualNotificationPath);
@@ -529,7 +529,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(1, repo.RetrieveStatus().Untracked.Count());
                 Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus(fullPathFileB));
 
-                repo.Checkout(otherBranchName);
+                Commands.Checkout(repo, otherBranchName);
 
                 // Verify untracked entry still exists.
                 Assert.Equal(1, repo.RetrieveStatus().Untracked.Count());
@@ -553,7 +553,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(1, repo.RetrieveStatus().Untracked.Count());
                 Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus(fullPathFileB));
 
-                repo.Checkout(otherBranchName, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
+                Commands.Checkout(repo, otherBranchName, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
 
                 // Verify untracked entry still exists.
                 Assert.Equal(1, repo.RetrieveStatus().Untracked.Count());
@@ -577,7 +577,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(1, repo.RetrieveStatus().Modified.Count());
                 Assert.Equal(FileStatus.ModifiedInWorkdir, repo.RetrieveStatus(fullPathFileA));
 
-                repo.Checkout(otherBranchName);
+                Commands.Checkout(repo, otherBranchName);
 
                 // Verify modified entry still exists.
                 Assert.Equal(1, repo.RetrieveStatus().Modified.Count());
@@ -602,7 +602,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(1, repo.RetrieveStatus().Staged.Count());
                 Assert.Equal(FileStatus.ModifiedInIndex, repo.RetrieveStatus(fullPathFileA));
 
-                repo.Checkout(otherBranchName);
+                Commands.Checkout(repo, otherBranchName);
 
                 // Verify staged entry still exists.
                 Assert.Equal(1, repo.RetrieveStatus().Staged.Count());
@@ -629,7 +629,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus(ignoredFilePath));
 
-                repo.Checkout(otherBranchName);
+                Commands.Checkout(repo, otherBranchName);
 
                 // Verify that the ignored file still exists.
                 Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus(ignoredFilePath));
@@ -656,7 +656,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus(ignoredFilePath));
 
-                repo.Checkout(otherBranchName, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
+                Commands.Checkout(repo, otherBranchName, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
 
                 // Verify that the ignored file still exists.
                 Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus(ignoredFilePath));
@@ -685,7 +685,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.False(repo.Info.IsHeadDetached);
 
-                repo.Checkout(initial);
+                Commands.Checkout(repo, initial);
 
                 // Head should point at initial commit.
                 Assert.Equal(repo.Head.Tip, initialCommit);
@@ -712,7 +712,7 @@ namespace LibGit2Sharp.Tests
                 // Set the working directory to the current head
                 ResetAndCleanWorkingDirectory(repo);
 
-                repo.Checkout(remoteBranchSpec);
+                Commands.Checkout(repo, remoteBranchSpec);
 
                 // Verify that HEAD is detached.
                 Assert.Equal(repo.Refs["HEAD"].TargetIdentifier, repo.Branches["origin/master"].Tip.Sha);
@@ -733,7 +733,7 @@ namespace LibGit2Sharp.Tests
                 // The blob actually exists in the object database with the correct Sha
                 Assert.Equal(expectedSha, repo.Lookup<Blob>(expectedSha).Sha);
 
-                repo.Checkout("refs/heads/logo", new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
+                Commands.Checkout(repo, "refs/heads/logo", new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
 
                 // The Index has been updated as well with the blob
                 Assert.Equal(expectedSha, repo.Index["square-logo.png"].Id.Sha);
@@ -761,9 +761,9 @@ namespace LibGit2Sharp.Tests
 
                 var commitSha = repo.Lookup(commitPointer).Sha;
 
-                Branch initialHead = repo.Checkout("6dcf9bf");
+                Branch initialHead = Commands.Checkout(repo, "6dcf9bf");
 
-                repo.Checkout(commitPointer);
+                Commands.Checkout(repo, commitPointer);
 
                 // Assert reflog entry is created
                 var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
@@ -785,13 +785,13 @@ namespace LibGit2Sharp.Tests
                 ResetAndCleanWorkingDirectory(repo);
                 Assert.False(repo.RetrieveStatus().IsDirty);
 
-                Branch initialHead = repo.Checkout("6dcf9bf");
+                Branch initialHead = Commands.Checkout(repo, "6dcf9bf");
 
                 Assert.True(repo.Info.IsHeadDetached);
 
                 var before = DateTimeOffset.Now.TruncateMilliseconds();
 
-                Branch newHead = repo.Checkout(repo.Branches["master"]);
+                Branch newHead = Commands.Checkout(repo, repo.Branches["master"]);
 
                 // Assert reflog entry is created
                 AssertRefLogEntry(repo, "HEAD",
@@ -812,10 +812,10 @@ namespace LibGit2Sharp.Tests
                 ResetAndCleanWorkingDirectory(repo);
                 Assert.False(repo.RetrieveStatus().IsDirty);
 
-                repo.Checkout("6dcf9bf");
+                Commands.Checkout(repo, "6dcf9bf");
                 Assert.True(repo.Info.IsHeadDetached);
 
-                var branch = repo.Checkout(shortBranchName);
+                var branch = Commands.Checkout(repo, shortBranchName);
 
                 Assert.False(repo.Info.IsHeadDetached);
                 Assert.Equal(referenceName, repo.Head.CanonicalName);
@@ -833,11 +833,11 @@ namespace LibGit2Sharp.Tests
                 ResetAndCleanWorkingDirectory(repo);
                 Assert.False(repo.RetrieveStatus().IsDirty);
 
-                Branch previousHead = repo.Checkout("i-do-numbers");
-                repo.Checkout("diff-test-cases");
+                Branch previousHead = Commands.Checkout(repo, "i-do-numbers");
+                Commands.Checkout(repo, "diff-test-cases");
 
                 //Go back to previous branch checked out
-                var branch = repo.Checkout(@"@{-1}");
+                var branch = Commands.Checkout(repo, @"@{-1}");
 
                 Assert.False(repo.Info.IsHeadDetached);
                 Assert.Equal(previousHead.CanonicalName, repo.Head.CanonicalName);
@@ -860,14 +860,14 @@ namespace LibGit2Sharp.Tests
                 var reflogEntriesCount = repo.Refs.Log(repo.Refs.Head).Count();
 
                 // Checkout branch
-                repo.Checkout(master);
+                Commands.Checkout(repo, master);
 
                 Assert.Equal(reflogEntriesCount, repo.Refs.Log(repo.Refs.Head).Count());
 
                 var before = DateTimeOffset.Now.TruncateMilliseconds();
 
                 // Checkout in detached mode
-                repo.Checkout(master.Tip.Sha);
+                Commands.Checkout(repo, master.Tip.Sha);
 
                 Assert.True(repo.Info.IsHeadDetached);
                 AssertRefLogEntry(repo, "HEAD",
@@ -877,19 +877,19 @@ namespace LibGit2Sharp.Tests
                 // Checkout detached "HEAD" => nothing should happen
                 reflogEntriesCount = repo.Refs.Log(repo.Refs.Head).Count();
 
-                repo.Checkout(repo.Head);
+                Commands.Checkout(repo, repo.Head);
 
                 Assert.Equal(reflogEntriesCount, repo.Refs.Log(repo.Refs.Head).Count());
 
                 // Checkout attached "HEAD" => nothing should happen
-                repo.Checkout("master");
+                Commands.Checkout(repo, "master");
                 reflogEntriesCount = repo.Refs.Log(repo.Refs.Head).Count();
 
-                repo.Checkout(repo.Head);
+                Commands.Checkout(repo, repo.Head);
 
                 Assert.Equal(reflogEntriesCount, repo.Refs.Log(repo.Refs.Head).Count());
 
-                repo.Checkout("HEAD");
+                Commands.Checkout(repo, "HEAD");
 
                 Assert.Equal(reflogEntriesCount, repo.Refs.Log(repo.Refs.Head).Count());
             }
@@ -901,7 +901,7 @@ namespace LibGit2Sharp.Tests
             string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Throws<NotFoundException>(() => repo.Checkout("head"));
+                Assert.Throws<NotFoundException>(() => Commands.Checkout(repo, "head"));
             }
         }
 
@@ -913,10 +913,10 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.False(repo.Info.IsHeadDetached);
 
-                repo.Checkout(repo.Head);
+                Commands.Checkout(repo, repo.Head);
                 Assert.False(repo.Info.IsHeadDetached);
 
-                repo.Checkout("HEAD");
+                Commands.Checkout(repo, "HEAD");
                 Assert.False(repo.Info.IsHeadDetached);
             }
         }
@@ -927,14 +927,14 @@ namespace LibGit2Sharp.Tests
             string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                repo.Checkout(repo.Head.Tip.Sha);
+                Commands.Checkout(repo, repo.Head.Tip.Sha);
 
                 Assert.True(repo.Info.IsHeadDetached);
 
-                repo.Checkout(repo.Head);
+                Commands.Checkout(repo, repo.Head);
                 Assert.True(repo.Info.IsHeadDetached);
 
-                repo.Checkout("HEAD");
+                Commands.Checkout(repo, "HEAD");
                 Assert.True(repo.Info.IsHeadDetached);
             }
         }
@@ -952,7 +952,7 @@ namespace LibGit2Sharp.Tests
                 // Set the working directory to the current head
                 ResetAndCleanWorkingDirectory(repo);
 
-                repo.Checkout(originalBranch);
+                Commands.Checkout(repo, originalBranch);
                 Assert.False(repo.RetrieveStatus().IsDirty);
 
                 repo.CheckoutPaths(checkoutFrom, new[] { path });

@@ -297,7 +297,7 @@ namespace LibGit2Sharp.Tests
             string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                repo.Checkout(repo.Head.Tip);
+                Commands.Checkout(repo, repo.Head.Tip);
 
                 Assert.True(repo.Info.IsHeadDetached);
 

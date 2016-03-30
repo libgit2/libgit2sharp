@@ -841,47 +841,10 @@ namespace LibGit2Sharp
         /// <param name="committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Checkout()")]
         public Branch Checkout(string committishOrBranchSpec, CheckoutOptions options)
         {
-            Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
-            Ensure.ArgumentNotNull(options, "options");
-
-            var handles = Proxy.git_revparse_ext(Handle, committishOrBranchSpec);
-            if (handles == null)
-            {
-                Ensure.GitObjectIsNotNull(null, committishOrBranchSpec);
-            }
-
-            var objH = handles.Item1;
-            var refH = handles.Item2;
-            GitObject obj;
-            try
-            {
-                if (!refH.IsNull)
-                {
-                    var reference = Reference.BuildFromPtr<Reference>(refH, this);
-                    if (reference.IsLocalBranch)
-                    {
-                        Branch branch = Branches[reference.CanonicalName];
-                        return Checkout(branch, options);
-                    }
-                }
-
-                obj = GitObject.BuildFrom(this,
-                                          Proxy.git_object_id(objH),
-                                          Proxy.git_object_type(objH),
-                                          PathFromRevparseSpec(committishOrBranchSpec));
-            }
-            finally
-            {
-                objH.Dispose();
-                refH.Dispose();
-            }
-
-            Commit commit = obj.DereferenceToCommit(true);
-            Checkout(commit.Tree, options, committishOrBranchSpec);
-
-            return Head;
+            return Commands.Checkout(this, committishOrBranchSpec, options);
         }
 
         /// <summary>
@@ -892,30 +855,10 @@ namespace LibGit2Sharp
         /// <param name="branch">The <see cref="Branch"/> to check out.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Checkout()")]
         public Branch Checkout(Branch branch, CheckoutOptions options)
         {
-            Ensure.ArgumentNotNull(branch, "branch");
-            Ensure.ArgumentNotNull(options, "options");
-
-            // Make sure this is not an unborn branch.
-            if (branch.Tip == null)
-            {
-                throw new UnbornBranchException("The tip of branch '{0}' is null. There's nothing to checkout.",
-                                                branch.FriendlyName);
-            }
-
-            if (!branch.IsRemote && !(branch is DetachedHead) &&
-                string.Equals(Refs[branch.CanonicalName].TargetIdentifier, branch.Tip.Id.Sha,
-                StringComparison.OrdinalIgnoreCase))
-            {
-                Checkout(branch.Tip.Tree, options, branch.CanonicalName);
-            }
-            else
-            {
-                Checkout(branch.Tip.Tree, options, branch.Tip.Id.Sha);
-            }
-
-            return Head;
+            return Commands.Checkout(this, branch, options);
         }
 
         /// <summary>
@@ -927,31 +870,21 @@ namespace LibGit2Sharp
         /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to check out.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Checkout()")]
         public Branch Checkout(Commit commit, CheckoutOptions options)
         {
-            Ensure.ArgumentNotNull(commit, "commit");
-            Ensure.ArgumentNotNull(options, "options");
-
-            Checkout(commit.Tree, options, commit.Id.Sha);
-
-            return Head;
+            return Commands.Checkout(this, commit, options);
         }
 
         /// <summary>
-        /// Internal implementation of Checkout that expects the ID of the checkout target
-        /// to already be in the form of a canonical branch name or a commit ID.
+        /// Checkout the specified tree.
         /// </summary>
         /// <param name="tree">The <see cref="Tree"/> to checkout.</param>
-        /// <param name="checkoutOptions"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <param name="refLogHeadSpec">The spec which will be written as target in the reflog.</param>
-        private void Checkout(
-            Tree tree,
-            CheckoutOptions checkoutOptions,
-            string refLogHeadSpec)
+        /// <param name="paths">The paths to checkout.</param>
+        /// <param name="options">Collection of parameters controlling checkout behavior.</param>
+        public void Checkout(Tree tree, IEnumerable<string> paths, CheckoutOptions options)
         {
-            CheckoutTree(tree, null, checkoutOptions);
-
-            Refs.MoveHeadTarget(refLogHeadSpec);
+            CheckoutTree(tree, paths != null ? paths.ToList() : null, options);
         }
 
         /// <summary>
@@ -960,10 +893,7 @@ namespace LibGit2Sharp
         /// <param name="tree">The <see cref="Tree"/> to checkout.</param>
         /// <param name="paths">The paths to checkout.</param>
         /// <param name="opts">Collection of parameters controlling checkout behavior.</param>
-        private void CheckoutTree(
-            Tree tree,
-            IList<string> paths,
-            IConvertableToGitCheckoutOpts opts)
+        private void CheckoutTree(Tree tree, IList<string> paths, IConvertableToGitCheckoutOpts opts)
         {
 
             using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(opts, ToFilePaths(paths)))
@@ -1874,6 +1804,29 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(options, "options");
 
             return Proxy.git_describe_commit(handle, commit.Id, options);
+        }
+
+        /// <summary>
+        /// Parse an extended SHA-1 expression and retrieve the object and the reference
+        /// mentioned in the revision (if any).
+        /// </summary>
+        /// <param name="revision">An extended SHA-1 expression for the object to look up</param>
+        /// <param name="reference">The reference mentioned in the revision (if any)</param>
+        /// <param name="obj">The object which the revision resolves to</param>
+        public void RevParse(string revision, out Reference reference, out GitObject obj)
+        {
+            var handles = Proxy.git_revparse_ext(Handle, revision);
+            if (handles == null)
+            {
+                Ensure.GitObjectIsNotNull(null, revision);
+            }
+
+            using (var objH = handles.Item1)
+            using (var refH = handles.Item2)
+            {
+                reference = refH.IsNull ? null : Reference.BuildFromPtr<Reference>(refH, this);
+                obj = GitObject.BuildFrom(this, Proxy.git_object_id(objH), Proxy.git_object_type(objH), PathFromRevparseSpec(revision));
+            }
         }
 
         private string DebuggerDisplay
