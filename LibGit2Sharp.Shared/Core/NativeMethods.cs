@@ -48,13 +48,17 @@ namespace LibGit2Sharp.Core
             }
         }
 
+#if NET40
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
+#endif
         internal static void AddHandle()
         {
             Interlocked.Increment(ref handlesCount);
         }
 
+#if NET40
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
+#endif
         internal static void RemoveHandle()
         {
             int count = Interlocked.Decrement(ref handlesCount);
@@ -589,7 +593,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern int git_libgit2_features();
 
-        #region git_libgit2_opts
+#region git_libgit2_opts
 
         // Bindings for git_libgit2_opts(int option, ...):
         // Currently only GIT_OPT_GET_SEARCH_PATH and GIT_OPT_SET_SEARCH_PATH are supported,
@@ -606,7 +610,7 @@ namespace LibGit2Sharp.Core
         internal static extern int git_libgit2_opts(int option, uint level,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))]string path);
 
-        #endregion
+#endregion
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_graph_ahead_behind(out UIntPtr ahead, out UIntPtr behind, git_repository* repo, ref GitOid one, ref GitOid two);
