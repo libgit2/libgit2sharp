@@ -11,7 +11,7 @@ namespace LibGit2Sharp
     /// </summary>
     public class Version
     {
-        private readonly Assembly assembly = typeof(Repository).Assembly;
+        private readonly Assembly assembly = typeof(Repository).GetTypeInfo().Assembly;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -32,7 +32,7 @@ namespace LibGit2Sharp
             get
             {
                 var attribute = (AssemblyInformationalVersionAttribute)assembly
-                   .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
+                   .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute))
                    .Single();
 
                 return attribute.InformationalVersion;
