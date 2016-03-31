@@ -16,16 +16,30 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "LibGit2Sharp.Shared", "LibG
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp.Portable", "LibGit2Sharp.Portable\LibGit2Sharp.Portable.csproj", "{39FDD325-625A-4619-A8A9-4E061D0F993F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "InteropGeneration", "InteropGeneration", "{5BDCC83F-0B36-47C2-B5E3-A5B09BD47DA0}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CodeGenerationAttributes.Shared", "CodeGenerationAttributes.Shared\CodeGenerationAttributes.Shared.shproj", "{B1273734-6E0A-4097-B1CB-6925013DC809}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeGenerationAttributes.Net40", "CodeGenerationAttributes.Net40\CodeGenerationAttributes.Net40.csproj", "{F8F482FC-1B76-46F5-B1D8-3DDBBD18D1E4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeGenerationAttributes.Portable", "CodeGenerationAttributes.Portable\CodeGenerationAttributes.Portable.csproj", "{E1A8B99F-B2F6-4A38-9DF6-8792056D70FF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeGeneration", "CodeGeneration\CodeGeneration.csproj", "{6598997B-9419-4CC1-84FF-9621B555E9C0}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0CA739FD-DA4D-4F64-9834-DA14A3ECD04B}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 		version.json = version.json
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeGeneration.Debugging", "CodeGeneration.Debugging\CodeGeneration.Debugging.csproj", "{C9212ECC-76F0-4658-9C89-DD506EE788B5}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		CodeGenerationAttributes.Shared\CodeGenerationAttributes.Shared.projitems*{b1273734-6e0a-4097-b1cb-6925013dc809}*SharedItemsImports = 13
+		CodeGenerationAttributes.Shared\CodeGenerationAttributes.Shared.projitems*{e1a8b99f-b2f6-4a38-9df6-8792056d70ff}*SharedItemsImports = 4
+		CodeGenerationAttributes.Shared\CodeGenerationAttributes.Shared.projitems*{f8f482fc-1b76-46f5-b1d8-3ddbbd18d1e4}*SharedItemsImports = 4
 		LibGit2Sharp.Shared\LibGit2Sharp.Shared.projitems*{ee6ed99f-cb12-4683-b055-d28fc7357a34}*SharedItemsImports = 4
-		LibGit2Sharp.Shared\LibGit2Sharp.Shared.projitems*{39fdd325-625a-4619-a8a9-4e061d0f993f}*SharedItemsImports = 4
 		LibGit2Sharp.Shared\LibGit2Sharp.Shared.projitems*{de74d271-f14a-4d22-a738-1cab045ecc79}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,9 +59,32 @@ Global
 		{39FDD325-625A-4619-A8A9-4E061D0F993F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{39FDD325-625A-4619-A8A9-4E061D0F993F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39FDD325-625A-4619-A8A9-4E061D0F993F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8F482FC-1B76-46F5-B1D8-3DDBBD18D1E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8F482FC-1B76-46F5-B1D8-3DDBBD18D1E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8F482FC-1B76-46F5-B1D8-3DDBBD18D1E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8F482FC-1B76-46F5-B1D8-3DDBBD18D1E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1A8B99F-B2F6-4A38-9DF6-8792056D70FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1A8B99F-B2F6-4A38-9DF6-8792056D70FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1A8B99F-B2F6-4A38-9DF6-8792056D70FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1A8B99F-B2F6-4A38-9DF6-8792056D70FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6598997B-9419-4CC1-84FF-9621B555E9C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6598997B-9419-4CC1-84FF-9621B555E9C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6598997B-9419-4CC1-84FF-9621B555E9C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6598997B-9419-4CC1-84FF-9621B555E9C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9212ECC-76F0-4658-9C89-DD506EE788B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9212ECC-76F0-4658-9C89-DD506EE788B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9212ECC-76F0-4658-9C89-DD506EE788B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9212ECC-76F0-4658-9C89-DD506EE788B5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B1273734-6E0A-4097-B1CB-6925013DC809} = {5BDCC83F-0B36-47C2-B5E3-A5B09BD47DA0}
+		{F8F482FC-1B76-46F5-B1D8-3DDBBD18D1E4} = {5BDCC83F-0B36-47C2-B5E3-A5B09BD47DA0}
+		{E1A8B99F-B2F6-4A38-9DF6-8792056D70FF} = {5BDCC83F-0B36-47C2-B5E3-A5B09BD47DA0}
+		{6598997B-9419-4CC1-84FF-9621B555E9C0} = {5BDCC83F-0B36-47C2-B5E3-A5B09BD47DA0}
+		{C9212ECC-76F0-4658-9C89-DD506EE788B5} = {5BDCC83F-0B36-47C2-B5E3-A5B09BD47DA0}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0

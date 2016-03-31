@@ -73,6 +73,7 @@
   <Import Project="UniqueIdentifier.targets" />
   <Import Project="NativeDllName.targets" />
   <Import Project="ExtraDefine.targets" />
+  <Import Project="CodeGenerator.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
@@ -85,4 +86,5 @@
   </ItemGroup>
   <Import Project="..\LibGit2Sharp.Shared\LibGit2Sharp.Shared.projitems" Label="Shared" />
   <Import Project="..\packages\Nerdbank.GitVersioning.1.3.16\build\portable-net+win+wpa+wp+sl+netmf+MonoAndroid+MonoTouch+Xamarin.iOS\Nerdbank.GitVersioning.targets" Condition="Exists('..\packages\Nerdbank.GitVersioning.1.3.16\build\portable-net+win+wpa+wp+sl+netmf+MonoAndroid+MonoTouch+Xamarin.iOS\Nerdbank.GitVersioning.targets')" />
+  <Import Project="..\packages\CodeGeneration.Roslyn.0.1.48-alpha-gaa3f482974\build\CodeGeneration.Roslyn.targets" Condition="Exists('..\packages\CodeGeneration.Roslyn.0.1.48-alpha-gaa3f482974\build\CodeGeneration.Roslyn.targets')" />
 </Project>
