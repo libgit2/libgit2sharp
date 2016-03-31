@@ -43,3 +43,6 @@ LibGit2Sharp/Core/NativeDllName.cs
 !nuget.package/build/
 _NCrunch_LibGit2Sharp/
 packages/
+project.lock.json
+*.nuget.props
+*.nuget.targets
