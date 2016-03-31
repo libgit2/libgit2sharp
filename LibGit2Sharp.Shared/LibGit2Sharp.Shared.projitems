@@ -241,7 +241,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Core\GitSignature.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileStatus.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\GitTime.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Core\NativeMethods.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\NativeMethods.cs">
+      <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+    </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Core\ObjectSafeWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Utf8Marshaler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DirectReference.cs" />
