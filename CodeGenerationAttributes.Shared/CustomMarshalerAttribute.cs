@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LibGit2Sharp
 {
-    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.ReturnValue, AllowMultiple = false)]
     [Conditional("CodeGeneration")]
     public class CustomMarshalerAttribute : Attribute
     {
