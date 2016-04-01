@@ -31,10 +31,6 @@ namespace LibGit2Sharp
         {
             this.repository = repository;
             this.handle = handle;
-            Name = Proxy.git_remote_name(handle);
-            Url = Proxy.git_remote_url(handle);
-            PushUrl = Proxy.git_remote_pushurl(handle);
-            TagFetchMode = Proxy.git_remote_autotag(handle);
             refSpecs = new RefSpecCollection(this, handle);
             repository.RegisterForCleanup(this);
         }
@@ -75,12 +71,17 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the alias of this remote repository.
         /// </summary>
-        public virtual string Name { get; private set; }
+        public virtual string Name
+        {
+            get { return Proxy.git_remote_name(handle); }
+        }
 
         /// <summary>
         /// Gets the url to use to communicate with this remote repository.
         /// </summary>
-        public virtual string Url { get; private set; }
+        public virtual string Url
+        {
+            get { return Proxy.git_remote_url(handle); } }
 
         /// <summary>
         /// Gets the distinct push url for this remote repository, if set.
@@ -88,14 +89,16 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual string PushUrl
         {
-            get { return pushUrl ?? Url; }
-            private set { pushUrl = value; }
+            get { return Proxy.git_remote_pushurl(handle) ?? Url; }
         }
 
         /// <summary>
         /// Gets the Tag Fetch Mode of the remote - indicating how tags are fetched.
         /// </summary>
-        public virtual TagFetchMode TagFetchMode { get; private set; }
+        public virtual TagFetchMode TagFetchMode
+        {
+            get { return Proxy.git_remote_autotag(handle); }
+        }
 
         /// <summary>
         /// Gets the list of <see cref="RefSpec"/>s defined for this <see cref="Remote"/>
