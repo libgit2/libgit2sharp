@@ -29,6 +29,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0CA739FD-DA4D-4F64-9834-DA14A3ECD04B}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		LibGit2Sharp\CodeGenerator.targets = LibGit2Sharp\CodeGenerator.targets
 		version.json = version.json
 	EndProjectSection
 EndProject
@@ -40,6 +41,7 @@ Global
 		CodeGenerationAttributes.Shared\CodeGenerationAttributes.Shared.projitems*{e1a8b99f-b2f6-4a38-9df6-8792056d70ff}*SharedItemsImports = 4
 		CodeGenerationAttributes.Shared\CodeGenerationAttributes.Shared.projitems*{f8f482fc-1b76-46f5-b1d8-3ddbbd18d1e4}*SharedItemsImports = 4
 		LibGit2Sharp.Shared\LibGit2Sharp.Shared.projitems*{ee6ed99f-cb12-4683-b055-d28fc7357a34}*SharedItemsImports = 4
+		LibGit2Sharp.Shared\LibGit2Sharp.Shared.projitems*{39fdd325-625a-4619-a8a9-4e061d0f993f}*SharedItemsImports = 4
 		LibGit2Sharp.Shared\LibGit2Sharp.Shared.projitems*{de74d271-f14a-4d22-a738-1cab045ecc79}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

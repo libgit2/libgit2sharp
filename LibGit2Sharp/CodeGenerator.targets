@@ -19,4 +19,5 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
+  <Import Project="$(UserProfile)\.nuget\packages\CodeGeneration.Roslyn\0.1.54\build\CodeGeneration.Roslyn.targets" Condition="Exists('$(UserProfile)\.nuget\packages\CodeGeneration.Roslyn\0.1.54\build\CodeGeneration.Roslyn.targets')" />
 </Project>
