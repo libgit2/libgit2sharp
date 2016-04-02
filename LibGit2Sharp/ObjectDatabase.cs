@@ -213,7 +213,7 @@ namespace LibGit2Sharp
             return CreateBlob(stream, hintpath, (long?)numberOfBytesToConsume);
         }
 
-        private Blob CreateBlob(Stream stream, string hintpath, long? numberOfBytesToConsume)
+        private unsafe Blob CreateBlob(Stream stream, string hintpath, long? numberOfBytesToConsume)
         {
             Ensure.ArgumentNotNull(stream, "stream");
 
@@ -228,9 +228,51 @@ namespace LibGit2Sharp
                 throw new ArgumentException("The stream cannot be read from.", "stream");
             }
 
-            var proc = new Processor(stream, numberOfBytesToConsume);
-            ObjectId id = Proxy.git_blob_create_fromchunks(repo.Handle, hintpath, proc.Provider);
+            IntPtr writestream_ptr = Proxy.git_blob_create_fromstream(repo.Handle, hintpath);
+            GitWriteStream writestream = (GitWriteStream)Marshal.PtrToStructure(writestream_ptr, typeof(GitWriteStream));
 
+            try
+            {
+                var buffer = new byte[4 * 1024];
+                long totalRead = 0;
+                int read = 0;
+
+                while (true)
+                {
+                    int toRead = numberOfBytesToConsume.HasValue ?
+                        (int)Math.Min(numberOfBytesToConsume.Value - totalRead, (long)buffer.Length) :
+                        buffer.Length;
+
+                    if (toRead > 0)
+                    {
+                        read = (toRead > 0) ? stream.Read(buffer, 0, toRead) : 0;
+                    }
+
+                    if (read == 0)
+                    {
+                        break;
+                    }
+
+                    fixed (byte* buffer_ptr = buffer)
+                    {
+                        writestream.write(writestream_ptr, (IntPtr)buffer_ptr, (UIntPtr)read);
+                    }
+
+                    totalRead += read;
+                }
+
+                if (numberOfBytesToConsume.HasValue && totalRead < numberOfBytesToConsume.Value)
+                {
+                    throw new EndOfStreamException("The stream ended unexpectedly");
+                }
+            }
+            catch(Exception e)
+            {
+                writestream.free(writestream_ptr);
+                throw e;
+            }
+
+            ObjectId id = Proxy.git_blob_create_fromstream_commit(writestream_ptr);
             return repo.Lookup<Blob>(id);
         }
 
