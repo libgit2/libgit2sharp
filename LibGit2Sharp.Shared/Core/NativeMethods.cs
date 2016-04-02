@@ -1133,9 +1133,9 @@ namespace LibGit2Sharp.Core
             IntPtr refspec,
             [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* name);
 
-        [DllImport(libgit2)]
-        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]
-        internal static extern string git_refspec_string(
+        [DllImport(libgit2, EntryPoint = "git_refspec_string")]
+        [return: CustomMarshaler(typeof(LaxUtf8NoCleanupMarshaler), typeof(string))]
+        private static extern unsafe byte* git_refspec_string_(
             IntPtr refSpec);
 
         [DllImport(libgit2)]
