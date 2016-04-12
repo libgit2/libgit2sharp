@@ -33,11 +33,12 @@ namespace LibGit2Sharp.Tests
             var path = SandboxStandardTestRepoGitDir();
             using (var repo = new Repository(path))
             {
-                var changes = repo.Diff.Compare<TreeChanges>();
-
-                Assert.Equal(2, changes.Count());
-                Assert.Equal("deleted_unstaged_file.txt", changes.Deleted.Single().Path);
-                Assert.Equal("modified_unstaged_file.txt", changes.Modified.Single().Path);
+                using (var changes = repo.Diff.Compare<TreeChanges>())
+                {
+                    Assert.Equal(2, changes.Count());
+                    Assert.Equal("deleted_unstaged_file.txt", changes.Deleted.Single().Path);
+                    Assert.Equal("modified_unstaged_file.txt", changes.Modified.Single().Path);
+                }
             }
         }
 
@@ -51,11 +52,15 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
-                var changes = repo.Diff.Compare<TreeChanges>(new[] { relativePath }, false, new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false });
-                Assert.Equal(0, changes.Count());
+                using (var changes = repo.Diff.Compare<TreeChanges>(new[] { relativePath }, false, new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false }))
+                {
+                    Assert.Equal(0, changes.Count());
+                }
 
-                changes = repo.Diff.Compare<TreeChanges>(new[] { relativePath });
-                Assert.Equal(0, changes.Count());
+                using (var changes = repo.Diff.Compare<TreeChanges>(new[] { relativePath }))
+                {
+                    Assert.Equal(0, changes.Count());
+                }
             }
         }
 
@@ -85,12 +90,14 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
-                repo.Diff.Compare<TreeChanges>(new[] { relativePath }, false, new ExplicitPathsOptions
+                using (var changes = repo.Diff.Compare<TreeChanges>(new[] { relativePath }, false, new ExplicitPathsOptions
                 {
                     ShouldFailOnUnmatchedPath = false,
-                    OnUnmatchedPath = callback.OnUnmatchedPath });
-
-                Assert.True(callback.WasCalled);
+                    OnUnmatchedPath = callback.OnUnmatchedPath
+                }))
+                {
+                    Assert.True(callback.WasCalled);
+                }
             }
         }
 
@@ -130,21 +137,23 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 SetFilemode(repo, true);
-                var changes = repo.Diff.Compare<TreeChanges>(new[] { file });
+                using(var changes = repo.Diff.Compare<TreeChanges>(new[] { file }))
+                {
+                    Assert.Equal(1, changes.Count());
 
-                Assert.Equal(1, changes.Count());
-
-                var change = changes.Modified.Single();
-                Assert.Equal(Mode.ExecutableFile, change.OldMode);
-                Assert.Equal(Mode.NonExecutableFile, change.Mode);
+                    var change = changes.Modified.Single();
+                    Assert.Equal(Mode.ExecutableFile, change.OldMode);
+                    Assert.Equal(Mode.NonExecutableFile, change.Mode);
+                }
             }
 
             using (var repo = new Repository(path))
             {
                 SetFilemode(repo, false);
-                var changes = repo.Diff.Compare<TreeChanges>(new[] { file });
-
-                Assert.Equal(0, changes.Count());
+                using(var changes = repo.Diff.Compare<TreeChanges>(new[] { file }))
+                {
+                    Assert.Equal(0, changes.Count());
+                }
             }
         }
 
@@ -159,12 +168,13 @@ namespace LibGit2Sharp.Tests
             var path = SandboxStandardTestRepoGitDir();
             using (var repo = new Repository(path))
             {
-                var changes = repo.Diff.Compare<TreeChanges>(null, true);
-
-                Assert.Equal(3, changes.Count());
-                Assert.Equal("deleted_unstaged_file.txt", changes.Deleted.Single().Path);
-                Assert.Equal("modified_unstaged_file.txt", changes.Modified.Single().Path);
-                Assert.Equal("new_untracked_file.txt", changes.Added.Single().Path);
+                using (var changes = repo.Diff.Compare<TreeChanges>(null, true))
+                {
+                    Assert.Equal(3, changes.Count());
+                    Assert.Equal("deleted_unstaged_file.txt", changes.Deleted.Single().Path);
+                    Assert.Equal("modified_unstaged_file.txt", changes.Modified.Single().Path);
+                    Assert.Equal("new_untracked_file.txt", changes.Added.Single().Path);
+                }
             }
         }
     }

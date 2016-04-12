@@ -182,58 +182,60 @@ namespace LibGit2Sharp
         private static IEnumerable<string> RemoveStagedItems(IRepository repository, IEnumerable<string> paths, bool removeFromWorkingDirectory = true, ExplicitPathsOptions explicitPathsOptions = null)
         {
             var removed = new List<string>();
-            var changes = repository.Diff.Compare<TreeChanges>(DiffModifiers.IncludeUnmodified | DiffModifiers.IncludeUntracked, paths, explicitPathsOptions);
-            var index = repository.Index;
-
-            foreach (var treeEntryChanges in changes)
+            using (var changes = repository.Diff.Compare<TreeChanges>(DiffModifiers.IncludeUnmodified | DiffModifiers.IncludeUntracked, paths, explicitPathsOptions))
             {
-                var status = repository.RetrieveStatus(treeEntryChanges.Path);
+                var index = repository.Index;
 
-                switch (treeEntryChanges.Status)
+                foreach (var treeEntryChanges in changes)
                 {
-                    case ChangeKind.Added:
-                    case ChangeKind.Deleted:
-                        removed.Add(treeEntryChanges.Path);
-                        index.Remove(treeEntryChanges.Path);
-                        break;
+                    var status = repository.RetrieveStatus(treeEntryChanges.Path);
 
-                    case ChangeKind.Unmodified:
-                        if (removeFromWorkingDirectory && (
-                            status.HasFlag(FileStatus.ModifiedInIndex) ||
-                            status.HasFlag(FileStatus.NewInIndex)))
-                        {
-                            throw new RemoveFromIndexException("Unable to remove file '{0}', as it has changes staged in the index. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
-                                treeEntryChanges.Path);
-                        }
-                        removed.Add(treeEntryChanges.Path);
-                        index.Remove(treeEntryChanges.Path);
-                        continue;
+                    switch (treeEntryChanges.Status)
+                    {
+                        case ChangeKind.Added:
+                        case ChangeKind.Deleted:
+                            removed.Add(treeEntryChanges.Path);
+                            index.Remove(treeEntryChanges.Path);
+                            break;
 
-                    case ChangeKind.Modified:
-                        if (status.HasFlag(FileStatus.ModifiedInWorkdir) && status.HasFlag(FileStatus.ModifiedInIndex))
-                        {
-                            throw new RemoveFromIndexException("Unable to remove file '{0}', as it has staged content different from both the working directory and the HEAD.",
-                                treeEntryChanges.Path);
-                        }
-                        if (removeFromWorkingDirectory)
-                        {
-                            throw new RemoveFromIndexException("Unable to remove file '{0}', as it has local modifications. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
-                                treeEntryChanges.Path);
-                        }
-                        removed.Add(treeEntryChanges.Path);
-                        index.Remove(treeEntryChanges.Path);
-                        continue;
+                        case ChangeKind.Unmodified:
+                            if (removeFromWorkingDirectory && (
+                                status.HasFlag(FileStatus.ModifiedInIndex) ||
+                                status.HasFlag(FileStatus.NewInIndex)))
+                            {
+                                throw new RemoveFromIndexException("Unable to remove file '{0}', as it has changes staged in the index. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
+                                    treeEntryChanges.Path);
+                            }
+                            removed.Add(treeEntryChanges.Path);
+                            index.Remove(treeEntryChanges.Path);
+                            continue;
 
-                    default:
-                        throw new RemoveFromIndexException("Unable to remove file '{0}'. Its current status is '{1}'.",
-                            treeEntryChanges.Path,
-                            treeEntryChanges.Status);
+                        case ChangeKind.Modified:
+                            if (status.HasFlag(FileStatus.ModifiedInWorkdir) && status.HasFlag(FileStatus.ModifiedInIndex))
+                            {
+                                throw new RemoveFromIndexException("Unable to remove file '{0}', as it has staged content different from both the working directory and the HEAD.",
+                                    treeEntryChanges.Path);
+                            }
+                            if (removeFromWorkingDirectory)
+                            {
+                                throw new RemoveFromIndexException("Unable to remove file '{0}', as it has local modifications. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
+                                    treeEntryChanges.Path);
+                            }
+                            removed.Add(treeEntryChanges.Path);
+                            index.Remove(treeEntryChanges.Path);
+                            continue;
+
+                        default:
+                            throw new RemoveFromIndexException("Unable to remove file '{0}'. Its current status is '{1}'.",
+                                treeEntryChanges.Path,
+                                treeEntryChanges.Status);
+                    }
                 }
+
+                index.Write();
+
+                return removed;
             }
-
-            index.Write();
-
-            return removed;
         }
     }
 }

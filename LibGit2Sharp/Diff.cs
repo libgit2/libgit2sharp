@@ -241,9 +241,16 @@ namespace LibGit2Sharp
                 }
             }
 
-            using (DiffHandle diff = BuildDiffList(oldTreeId, newTreeId, comparer, diffOptions, paths, explicitPathsOptions, compareOptions))
+            DiffHandle diff = BuildDiffList(oldTreeId, newTreeId, comparer, diffOptions, paths, explicitPathsOptions, compareOptions);
+
+            try
             {
                 return BuildDiffResult<T>(diff);
+            }
+            catch
+            {
+                diff.SafeDispose();
+                throw;
             }
         }
 
@@ -343,9 +350,16 @@ namespace LibGit2Sharp
                 }
             }
 
-            using (DiffHandle diff = BuildDiffList(oldTreeId, null, comparer, diffOptions, paths, explicitPathsOptions, compareOptions))
+            DiffHandle diff = BuildDiffList(oldTreeId, null, comparer, diffOptions, paths, explicitPathsOptions, compareOptions);
+            
+            try
             {
                 return BuildDiffResult<T>(diff);
+            }
+            catch
+            {
+                diff.SafeDispose();
+                throw;
             }
         }
 
@@ -462,9 +476,16 @@ namespace LibGit2Sharp
                 }
             }
 
-            using (DiffHandle diff = BuildDiffList(null, null, comparer, diffOptions, paths, explicitPathsOptions, compareOptions))
+            DiffHandle diff = BuildDiffList(null, null, comparer, diffOptions, paths, explicitPathsOptions, compareOptions);
+
+            try
             {
                 return BuildDiffResult<T>(diff);
+            }
+            catch
+            {
+                diff.SafeDispose();
+                throw;
             }
         }
 

@@ -32,14 +32,17 @@ namespace LibGit2Sharp
 
         internal unsafe Patch(DiffHandle diff)
         {
-            int count = Proxy.git_diff_num_deltas(diff);
-            for (int i = 0; i < count; i++)
+            using (diff)
             {
-                using (var patch = Proxy.git_patch_from_diff(diff, i))
+                int count = Proxy.git_diff_num_deltas(diff);
+                for (int i = 0; i < count; i++)
                 {
-                    var delta = Proxy.git_diff_get_delta(diff, i);
-                    AddFileChange(delta);
-                    Proxy.git_patch_print(patch, PrintCallBack);
+                    using (var patch = Proxy.git_patch_from_diff(diff, i))
+                    {
+                        var delta = Proxy.git_diff_get_delta(diff, i);
+                        AddFileChange(delta);
+                        Proxy.git_patch_print(patch, PrintCallBack);
+                    }
                 }
             }
         }
@@ -179,6 +182,25 @@ namespace LibGit2Sharp
                                      linesAdded,
                                      linesDeleted);
             }
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            // This doesn't do anything yet because it loads everything
+            // eagerly and disposes of the diff handle in the constructor.
         }
     }
 }

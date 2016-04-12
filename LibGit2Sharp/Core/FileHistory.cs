@@ -163,11 +163,13 @@ namespace LibGit2Sharp.Core
 
         private static string ParentPath(IRepository repo, Commit currentCommit, string currentPath, Commit parentCommit)
         {
-            var treeChanges = repo.Diff.Compare<TreeChanges>(parentCommit.Tree, currentCommit.Tree);
-            var treeEntryChanges = treeChanges.FirstOrDefault(c => c.Path == currentPath);
-            return treeEntryChanges != null && treeEntryChanges.Status == ChangeKind.Renamed
-                ? treeEntryChanges.OldPath
-                : currentPath;
+            using (var treeChanges = repo.Diff.Compare<TreeChanges>(parentCommit.Tree, currentCommit.Tree))
+            {
+                var treeEntryChanges = treeChanges.FirstOrDefault(c => c.Path == currentPath);
+                return treeEntryChanges != null && treeEntryChanges.Status == ChangeKind.Renamed
+                    ? treeEntryChanges.OldPath
+                    : currentPath;
+            }
         }
     }
 }
