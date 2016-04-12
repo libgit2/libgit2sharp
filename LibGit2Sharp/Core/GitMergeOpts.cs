@@ -36,6 +36,12 @@ namespace LibGit2Sharp.Core
         public uint RecursionLimit;
 
         /// <summary>
+        /// Default merge driver to be used when both sides of a merge have
+        /// changed.  The default is the `text` driver.
+        /// </summary>
+        public string DefaultDriver;
+
+        /// <summary>
         /// Flags for automerging content.
         /// </summary>
         public MergeFileFavor MergeFileFavorFlags;
