@@ -17,7 +17,6 @@ namespace LibGit2Sharp
         internal readonly Repository repository;
 
         private readonly RefSpecCollection refSpecs;
-        private string pushUrl;
 
         readonly RemoteHandle handle;
 
@@ -170,38 +169,6 @@ namespace LibGit2Sharp
 
                 return fetchPrune != null && fetchPrune.Value;
             }
-        }
-
-        /// <summary>
-        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="Remote"/>.
-        /// </summary>
-        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="Remote"/>.</param>
-        /// <returns>True if the specified <see cref="Object"/> is equal to the current <see cref="Remote"/>; otherwise, false.</returns>
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as Remote);
-        }
-
-        /// <summary>
-        /// Tests if two <see cref="Remote"/> are equal.
-        /// </summary>
-        /// <param name="left">First <see cref="Remote"/> to compare.</param>
-        /// <param name="right">Second <see cref="Remote"/> to compare.</param>
-        /// <returns>True if the two objects are equal; false otherwise.</returns>
-        public static bool operator ==(Remote left, Remote right)
-        {
-            return Equals(left, right);
-        }
-
-        /// <summary>
-        /// Tests if two <see cref="Remote"/> are different.
-        /// </summary>
-        /// <param name="left">First <see cref="Remote"/> to compare.</param>
-        /// <param name="right">Second <see cref="Remote"/> to compare.</param>
-        /// <returns>True if the two objects are different; false otherwise.</returns>
-        public static bool operator !=(Remote left, Remote right)
-        {
-            return !Equals(left, right);
         }
 
         private string DebuggerDisplay
