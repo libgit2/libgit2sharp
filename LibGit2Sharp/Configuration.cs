@@ -759,5 +759,29 @@ namespace LibGit2Sharp
         {
             return Proxy.git_config_snapshot(configHandle);
         }
+
+        /// <summary>
+        /// Perform a series of actions within a transaction.
+        ///
+        /// The configuration will be locked during this function and the changes will be committed at the end. These
+        /// changes will not be visible in the configuration until the end of this method.
+        ///
+        /// If the action throws an exception, the changes will be rolled back.
+        /// </summary>
+        /// <param name="action">The code to run under the transaction</param>
+        public virtual unsafe void WithinTransaction(Action action)
+        {
+            IntPtr txn = IntPtr.Zero;
+            try
+            {
+                txn = Proxy.git_config_lock(configHandle);
+                action();
+                Proxy.git_transaction_commit(txn);
+            }
+            finally
+            {
+                Proxy.git_transaction_free(txn);
+            }
+        }
     }
 }
