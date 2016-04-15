@@ -317,6 +317,27 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.LPArray)] [In] IntPtr[] parents);
 
         [DllImport(libgit2)]
+        internal static extern unsafe int git_commit_create_buffer(
+            GitBuf res,
+            git_repository* repo,
+            git_signature* author,
+            git_signature* committer,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string encoding,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string message,
+            git_object* tree,
+            UIntPtr parent_count,
+            IntPtr* parents /* git_commit** originally */);
+
+        [DllImport(libgit2)]
+        internal static extern unsafe int git_commit_create_with_signature(
+            out GitOid id,
+            git_repository* repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string commit_content,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string signature,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string signature_field);
+
+
+        [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]
         internal static extern unsafe string git_commit_message(git_object* commit);
 

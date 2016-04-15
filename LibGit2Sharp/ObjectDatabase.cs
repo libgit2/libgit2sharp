@@ -423,6 +423,32 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Inserts a <see cref="Commit"/> into the object database after attaching the given signature.
+        /// </summary>
+        /// <param name="commitContent">The raw unsigned commit</param>
+        /// <param name="signature">The signature data </param>
+        /// <param name="field">The header field in the commit in which to store the signature</param>
+        /// <returns>The created <see cref="Commit"/>.</returns>
+        public virtual ObjectId CreateCommitWithSignature(string commitContent, string signature, string field)
+        {
+            return Proxy.git_commit_create_with_signature(repo.Handle, commitContent, signature, field);
+        }
+
+        /// <summary>
+        /// Inserts a <see cref="Commit"/> into the object database after attaching the given signature.
+        /// <para>
+        /// This overload uses the default header field of "gpgsig"
+        /// </para>
+        /// </summary>
+        /// <param name="commitContent">The raw unsigned commit</param>
+        /// <param name="signature">The signature data </param>
+        /// <returns>The created <see cref="Commit"/>.</returns>
+        public virtual ObjectId CreateCommitWithSignature(string commitContent, string signature)
+        {
+            return Proxy.git_commit_create_with_signature(repo.Handle, commitContent, signature, null);
+        }
+
+        /// <summary>
         /// Inserts a <see cref="TagAnnotation"/> into the object database, pointing to a specific <see cref="GitObject"/>.
         /// </summary>
         /// <param name="name">The name.</param>

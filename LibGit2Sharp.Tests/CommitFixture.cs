@@ -1057,10 +1057,7 @@ namespace LibGit2Sharp.Tests
             Assert.Equal(expected, Commit.PrettifyMessage(input.Replace('#', ';'), ';'));
         }
 
-        [Fact]
-        public void CanExtractSignatureFromCommit()
-        {
-            string commitData = @"tree 6b79e22d69bf46e289df0345a14ca059dfc9bdf6
+        private readonly string signedCommit = @"tree 6b79e22d69bf46e289df0345a14ca059dfc9bdf6
 parent 34734e478d6cf50c27c9d69026d93974d052c454
 author Ben Burkert <ben@benburkert.com> 1358451456 -0800
 committer Ben Burkert <ben@benburkert.com> 1358451456 -0800
@@ -1085,7 +1082,7 @@ gpgsig -----BEGIN PGP SIGNATURE-----
 a simple commit which works
 ";
 
-            string signatureData = @"-----BEGIN PGP SIGNATURE-----
+        private readonly string signatureData = @"-----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (Darwin)
 
 iQIcBAABAgAGBQJQ+FMIAAoJEH+LfPdZDSs1e3EQAJMjhqjWF+WkGLHju7pTw2al
@@ -1103,7 +1100,7 @@ cpxtDQQMGYFpXK/71stq
 =ozeK
 -----END PGP SIGNATURE-----";
 
-            string signedData = @"tree 6b79e22d69bf46e289df0345a14ca059dfc9bdf6
+        private readonly string signedData = @"tree 6b79e22d69bf46e289df0345a14ca059dfc9bdf6
 parent 34734e478d6cf50c27c9d69026d93974d052c454
 author Ben Burkert <ben@benburkert.com> 1358451456 -0800
 committer Ben Burkert <ben@benburkert.com> 1358451456 -0800
@@ -1111,17 +1108,63 @@ committer Ben Burkert <ben@benburkert.com> 1358451456 -0800
 a simple commit which works
 ";
 
+
+        [Fact]
+        public void CanExtractSignatureFromCommit()
+        {
             string repoPath = InitNewRepository();
             using (var repo = new Repository(repoPath))
             {
                 var odb = repo.ObjectDatabase;
-                var signedId = odb.Write<Commit>(Encoding.UTF8.GetBytes(commitData));
+                var signedId = odb.Write<Commit>(Encoding.UTF8.GetBytes(signedCommit));
 
                 // Look up the commit to make sure we wrote something valid
                 var commit = repo.Lookup<Commit>(signedId);
                 Assert.Equal("a simple commit which works\n", commit.Message);
 
                 var signatureInfo = Commit.ExtractSignature(repo, signedId, "gpgsig");
+                Assert.Equal(signedData, signatureInfo.SignedData);
+                Assert.Equal(signatureData, signatureInfo.Signature);
+
+                signatureInfo = Commit.ExtractSignature(repo, signedId);
+                Assert.Equal(signedData, signatureInfo.SignedData);
+                Assert.Equal(signatureData, signatureInfo.Signature);
+            }
+        }
+
+        [Fact]
+        public void CanCreateACommitString()
+        {
+            string repoPath = SandboxStandardTestRepo();
+            using (var repo = new Repository(repoPath))
+            {
+                var tipCommit = repo.Head.Tip;
+                var recreatedCommit = Commit.CreateBuffer(
+                    tipCommit.Author,
+                    tipCommit.Committer,
+                    tipCommit.Message,
+                    tipCommit.Tree,
+                    tipCommit.Parents,
+                    false, null);
+
+                var recreatedId = repo.ObjectDatabase.Write<Commit>(Encoding.UTF8.GetBytes(recreatedCommit));
+                Assert.Equal(tipCommit.Id, recreatedId);
+            }
+        }
+
+        [Fact]
+        public void CanCreateASignedCommit()
+        {
+            string repoPath = InitNewRepository();
+            using (var repo = new Repository(repoPath))
+            {
+                var odb = repo.ObjectDatabase;
+                var signedId = odb.Write<Commit>(Encoding.UTF8.GetBytes(signedCommit));
+                var signedId2 = odb.CreateCommitWithSignature(signedData, signatureData);
+
+                Assert.Equal(signedId, signedId2);
+
+                var signatureInfo = Commit.ExtractSignature(repo, signedId2);
                 Assert.Equal(signedData, signatureInfo.SignedData);
                 Assert.Equal(signatureData, signatureInfo.Signature);
             }
