@@ -920,6 +920,9 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe void git_odb_stream_free(git_odb_stream* stream);
 
         [DllImport(libgit2)]
+        internal static extern unsafe int git_odb_write(out GitOid id, git_odb *odb, byte* data, UIntPtr len, GitObjectType type);
+
+        [DllImport(libgit2)]
         internal static extern unsafe git_oid* git_object_id(git_object* obj);
 
         [DllImport(libgit2)]

@@ -178,6 +178,16 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Write an object to the object database
+        /// </summary>
+        /// <param name="data">The contents of the object</param>
+        /// <typeparam name="T">The type of object to write</typeparam>
+        public virtual ObjectId Write<T>(byte[] data) where T : GitObject
+        {
+            return Proxy.git_odb_write(handle, data, GitObject.TypeToKindMap[typeof(T)]);
+        }
+
+        /// <summary>
         /// Inserts a <see cref="Blob"/> into the object database, created from the content of a stream.
         /// <para>Optionally, git filters will be applied to the content before storing it.</para>
         /// </summary>

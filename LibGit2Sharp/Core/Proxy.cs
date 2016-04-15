@@ -1510,6 +1510,19 @@ namespace LibGit2Sharp.Core
             return id;
         }
 
+        public static unsafe ObjectId git_odb_write(ObjectDatabaseHandle odb, byte[] data, ObjectType type)
+        {
+            GitOid id;
+            int res;
+            fixed(byte* p = data)
+            {
+                res = NativeMethods.git_odb_write(out id, odb, p, new UIntPtr((ulong)data.LongLength), type.ToGitObjectType());
+            }
+            Ensure.ZeroResult(res);
+
+            return id;
+        }
+
         #endregion
 
         #region git_patch_
