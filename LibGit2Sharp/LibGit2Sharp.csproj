@@ -355,6 +355,7 @@
     <Compile Include="Commands\Stage.cs" />
     <Compile Include="Commands\Remove.cs" />
     <Compile Include="Commands\Checkout.cs" />
+    <Compile Include="SignatureInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />

@@ -338,6 +338,14 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe git_oid* git_commit_tree_id(git_object* commit);
 
         [DllImport(libgit2)]
+        internal static extern unsafe int git_commit_extract_signature(
+            GitBuf signature,
+            GitBuf signed_data,
+            git_repository *repo,
+            ref GitOid commit_id,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string field);
+
+        [DllImport(libgit2)]
         internal static extern unsafe int git_config_delete_entry(
             git_config* cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);

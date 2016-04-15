@@ -426,6 +426,22 @@ namespace LibGit2Sharp.Core
             return ObjectId.BuildFromPtr(NativeMethods.git_commit_tree_id(obj));
         }
 
+        public static unsafe SignatureInfo git_commit_extract_signature(RepositoryHandle repo, ObjectId id, string field)
+        {
+            using (var signature = new GitBuf())
+            using (var signedData = new GitBuf())
+            {
+                var oid = id.Oid;
+                Ensure.ZeroResult(NativeMethods.git_commit_extract_signature(signature, signedData, repo, ref oid, field));
+
+                return new SignatureInfo()
+                {
+                    Signature = LaxUtf8Marshaler.FromNative(signature.ptr, signature.size.ConvertToInt()),
+                    SignedData = LaxUtf8Marshaler.FromNative(signedData.ptr, signedData.size.ConvertToInt()),
+                };
+            }
+        }
+
         #endregion
 
         #region git_config_

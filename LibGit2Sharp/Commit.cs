@@ -138,6 +138,32 @@ namespace LibGit2Sharp
             }
         }
 
+        /// <summary>
+        /// Extract the signature data from this commit
+        /// </summary>
+        /// <returns>The signature and the signed data</returns>
+        /// <param name="repo">The repository in which the object lives</param>
+        /// <param name="id">The commit to extract the signature from</param>
+        /// <param name="field">The header field which contains the signature; use null for the default of "gpgsig"</param>
+        public static SignatureInfo ExtractSignature(Repository repo, ObjectId id, string field)
+        {
+            return Proxy.git_commit_extract_signature(repo.Handle, id, field);
+        }
+
+        /// <summary>
+        /// Extract the signature data from this commit
+        /// <para>
+        /// The overload uses the default header field "gpgsig"
+        /// </para>
+        /// </summary>
+        /// <returns>The signature and the signed data</returns>
+        /// <param name="repo">The repository in which the object lives</param>
+        /// <param name="id">The commit to extract the signature from</param>
+        public static SignatureInfo ExtractSignature(Repository repo, ObjectId id)
+        {
+            return Proxy.git_commit_extract_signature(repo.Handle, id, null);
+        }
+
         private class ParentsCollection : ICollection<Commit>
         {
             private readonly Lazy<ICollection<Commit>> _parents;

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -1054,6 +1055,76 @@ namespace LibGit2Sharp.Tests
 
             Assert.Equal(expected, Commit.PrettifyMessage(input, '#'));
             Assert.Equal(expected, Commit.PrettifyMessage(input.Replace('#', ';'), ';'));
+        }
+
+        [Fact]
+        public void CanExtractSignatureFromCommit()
+        {
+            string commitData = @"tree 6b79e22d69bf46e289df0345a14ca059dfc9bdf6
+parent 34734e478d6cf50c27c9d69026d93974d052c454
+author Ben Burkert <ben@benburkert.com> 1358451456 -0800
+committer Ben Burkert <ben@benburkert.com> 1358451456 -0800
+gpgsig -----BEGIN PGP SIGNATURE-----
+ Version: GnuPG v1.4.12 (Darwin)
+ 
+ iQIcBAABAgAGBQJQ+FMIAAoJEH+LfPdZDSs1e3EQAJMjhqjWF+WkGLHju7pTw2al
+ o6IoMAhv0Z/LHlWhzBd9e7JeCnanRt12bAU7yvYp9+Z+z+dbwqLwDoFp8LVuigl8
+ JGLcnwiUW3rSvhjdCp9irdb4+bhKUnKUzSdsR2CK4/hC0N2i/HOvMYX+BRsvqweq
+ AsAkA6dAWh+gAfedrBUkCTGhlNYoetjdakWqlGL1TiKAefEZrtA1TpPkGn92vbLq
+ SphFRUY9hVn1ZBWrT3hEpvAIcZag3rTOiRVT1X1flj8B2vGCEr3RrcwOIZikpdaW
+ who/X3xh/DGbI2RbuxmmJpxxP/8dsVchRJJzBwG+yhwU/iN3MlV2c5D69tls/Dok
+ 6VbyU4lm/ae0y3yR83D9dUlkycOnmmlBAHKIZ9qUts9X7mWJf0+yy2QxJVpjaTGG
+ cmnQKKPeNIhGJk2ENnnnzjEve7L7YJQF6itbx5VCOcsGh3Ocb3YR7DMdWjt7f8pu
+ c6j+q1rP7EpE2afUN/geSlp5i3x8aXZPDj67jImbVCE/Q1X9voCtyzGJH7MXR0N9
+ ZpRF8yzveRfMH8bwAJjSOGAFF5XkcR/RNY95o+J+QcgBLdX48h+ZdNmUf6jqlu3J
+ 7KmTXXQcOVpN6dD3CmRFsbjq+x6RHwa8u1iGn+oIkX908r97ckfB/kHKH7ZdXIJc
+ cpxtDQQMGYFpXK/71stq
+ =ozeK
+ -----END PGP SIGNATURE-----
+
+a simple commit which works
+";
+
+            string signatureData = @"-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (Darwin)
+
+iQIcBAABAgAGBQJQ+FMIAAoJEH+LfPdZDSs1e3EQAJMjhqjWF+WkGLHju7pTw2al
+o6IoMAhv0Z/LHlWhzBd9e7JeCnanRt12bAU7yvYp9+Z+z+dbwqLwDoFp8LVuigl8
+JGLcnwiUW3rSvhjdCp9irdb4+bhKUnKUzSdsR2CK4/hC0N2i/HOvMYX+BRsvqweq
+AsAkA6dAWh+gAfedrBUkCTGhlNYoetjdakWqlGL1TiKAefEZrtA1TpPkGn92vbLq
+SphFRUY9hVn1ZBWrT3hEpvAIcZag3rTOiRVT1X1flj8B2vGCEr3RrcwOIZikpdaW
+who/X3xh/DGbI2RbuxmmJpxxP/8dsVchRJJzBwG+yhwU/iN3MlV2c5D69tls/Dok
+6VbyU4lm/ae0y3yR83D9dUlkycOnmmlBAHKIZ9qUts9X7mWJf0+yy2QxJVpjaTGG
+cmnQKKPeNIhGJk2ENnnnzjEve7L7YJQF6itbx5VCOcsGh3Ocb3YR7DMdWjt7f8pu
+c6j+q1rP7EpE2afUN/geSlp5i3x8aXZPDj67jImbVCE/Q1X9voCtyzGJH7MXR0N9
+ZpRF8yzveRfMH8bwAJjSOGAFF5XkcR/RNY95o+J+QcgBLdX48h+ZdNmUf6jqlu3J
+7KmTXXQcOVpN6dD3CmRFsbjq+x6RHwa8u1iGn+oIkX908r97ckfB/kHKH7ZdXIJc
+cpxtDQQMGYFpXK/71stq
+=ozeK
+-----END PGP SIGNATURE-----";
+
+            string signedData = @"tree 6b79e22d69bf46e289df0345a14ca059dfc9bdf6
+parent 34734e478d6cf50c27c9d69026d93974d052c454
+author Ben Burkert <ben@benburkert.com> 1358451456 -0800
+committer Ben Burkert <ben@benburkert.com> 1358451456 -0800
+
+a simple commit which works
+";
+
+            string repoPath = InitNewRepository();
+            using (var repo = new Repository(repoPath))
+            {
+                var odb = repo.ObjectDatabase;
+                var signedId = odb.Write<Commit>(Encoding.UTF8.GetBytes(commitData));
+
+                // Look up the commit to make sure we wrote something valid
+                var commit = repo.Lookup<Commit>(signedId);
+                Assert.Equal("a simple commit which works\n", commit.Message);
+
+                var signatureInfo = Commit.ExtractSignature(repo, signedId, "gpgsig");
+                Assert.Equal(signedData, signatureInfo.SignedData);
+                Assert.Equal(signatureData, signatureInfo.Signature);
+            }
         }
     }
 }
