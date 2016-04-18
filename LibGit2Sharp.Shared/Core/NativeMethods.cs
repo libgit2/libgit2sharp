@@ -2,7 +2,9 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
+#if NET40
 using System.Runtime.ConstrainedExecution;
+#endif
 using System.Runtime.InteropServices;
 using System.Threading;
 using LibGit2Sharp.Core.Handles;
@@ -16,9 +18,9 @@ namespace LibGit2Sharp.Core
         public const uint GIT_PATH_MAX = 4096;
         private const string libgit2 = NativeDllName.Name;
         // This is here to keep the pointer alive
-        #pragma warning disable 0414
+#pragma warning disable 0414
         private static readonly LibraryLifetimeObject lifetimeObject;
-        #pragma warning restore 0414
+#pragma warning restore 0414
         private static int handlesCount;
 
         /// <summary>
@@ -26,7 +28,10 @@ namespace LibGit2Sharp.Core
         /// have run to completion ensuring that no dangling git-related finalizer runs after git_threads_shutdown.
         /// There should never be more than one instance of this object per AppDomain.
         /// </summary>
-        private sealed class LibraryLifetimeObject : CriticalFinalizerObject
+        private sealed class LibraryLifetimeObject
+#if NET40
+            : CriticalFinalizerObject
+#endif
         {
             // Ensure mono can JIT the .cctor and adjust the PATH before trying to load the native library.
             // See https://github.com/libgit2/libgit2sharp/pull/190
