@@ -6,6 +6,7 @@
     "Microsoft.NETCore": "5.0.0",
     "Microsoft.NETCore.Portable.Compatibility": "1.0.0",
     "System.Security.Cryptography.X509Certificates": "4.0.0-beta-23409",
+    "System.Security.SecureString": "4.0.0-beta-23409",
     "LibGit2Sharp.NativeBinaries": "[1.0.132]",
     "Nerdbank.GitVersioning": "1.3.16"
   },
