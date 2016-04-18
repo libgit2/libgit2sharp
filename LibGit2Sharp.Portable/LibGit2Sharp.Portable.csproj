@@ -61,6 +61,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BufferedStream.cs" />
     <Compile Include="Core\Handles\Objects.cs">
       <DependentUpon>Objects.tt</DependentUpon>
       <AutoGen>True</AutoGen>
