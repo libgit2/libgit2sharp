@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp.Core
 {
@@ -20,6 +21,7 @@ namespace LibGit2Sharp.Core
         {
             get
             {
+#if NET40
                 // See http://www.mono-project.com/docs/faq/technical/#how-to-detect-the-execution-platform
                 switch ((int)Environment.OSVersion.Platform)
                 {
@@ -33,6 +35,24 @@ namespace LibGit2Sharp.Core
                     default:
                         return OperatingSystemType.Windows;
                 }
+#else
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    return OperatingSystemType.Windows;
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    return OperatingSystemType.Unix;
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    return OperatingSystemType.MacOSX;
+                }
+                else
+                {
+                    throw new InvalidOperationException();
+                }
+#endif
             }
         }
     }
