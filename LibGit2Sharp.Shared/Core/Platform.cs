@@ -13,7 +13,7 @@ namespace LibGit2Sharp.Core
     {
         public static string ProcessorArchitecture
         {
-            get { return IntPtr.Size == 8 ? "amd64" : "x86"; }
+            get { return IntPtr.Size == 8 ? "x64" : "x86"; }
         }
 
         public static OperatingSystemType OperatingSystem

@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace LibGit2Sharp.Core
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal class GitWriteStream
+    internal struct GitWriteStream
     {
         [MarshalAs(UnmanagedType.FunctionPtr)]
         public write_fn write;

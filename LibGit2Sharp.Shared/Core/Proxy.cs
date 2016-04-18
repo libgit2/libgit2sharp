@@ -115,18 +115,18 @@ namespace LibGit2Sharp.Core
 
         #region git_blob_
 
-        public static unsafe ObjectId git_blob_create_fromchunks(RepositoryHandle repo, FilePath hintpath, NativeMethods.source_callback fileCallback)
+        public static unsafe IntPtr git_blob_create_fromstream(RepositoryHandle repo, FilePath hintpath)
+        {
+            IntPtr writestream_ptr;
+
+            Ensure.ZeroResult(NativeMethods.git_blob_create_fromstream(out writestream_ptr, repo, hintpath));
+            return writestream_ptr;
+        }
+
+        public static unsafe ObjectId git_blob_create_fromstream_commit(IntPtr writestream_ptr)
         {
             var oid = new GitOid();
-            int res = NativeMethods.git_blob_create_fromchunks(ref oid, repo, hintpath, fileCallback, IntPtr.Zero);
-
-            if (res == (int)GitErrorCode.User)
-            {
-                throw new EndOfStreamException("The stream ended unexpectedly");
-            }
-
-            Ensure.ZeroResult(res);
-
+            Ensure.ZeroResult(NativeMethods.git_blob_create_fromstream_commit(ref oid, writestream_ptr));
             return oid;
         }
 
@@ -633,6 +633,15 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
 
             return new ConfigurationHandle(handle, true);
+        }
+
+        public static unsafe IntPtr git_config_lock(git_config* config)
+        {
+            IntPtr txn;
+            int res = NativeMethods.git_config_lock(out txn, config);
+            Ensure.ZeroResult(res);
+
+            return txn;
         }
 
         #endregion
@@ -3193,6 +3202,20 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
 
             return oid;
+        }
+
+        #endregion
+
+        #region git_transaction_
+
+        public static void git_transaction_commit(IntPtr txn)
+        {
+            NativeMethods.git_transaction_commit(txn);
+        }
+
+        public static void git_transaction_free(IntPtr txn)
+        {
+            NativeMethods.git_transaction_free(txn);
         }
 
         #endregion

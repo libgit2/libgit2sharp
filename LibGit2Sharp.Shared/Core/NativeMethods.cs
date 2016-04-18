@@ -132,6 +132,17 @@ namespace LibGit2Sharp.Core
             IntPtr data);
 
         [DllImport(libgit2)]
+        internal static extern unsafe int git_blob_create_fromstream(
+            out IntPtr stream,
+            git_repository* repositoryPtr,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath hintpath);
+
+        [DllImport(libgit2)]
+        internal static extern unsafe int git_blob_create_fromstream_commit(
+            ref GitOid oid,
+            IntPtr stream);
+
+        [DllImport(libgit2)]
         private static extern unsafe int git_blob_create_fromchunks(
             ref GitOid oid,
             git_repository* repositoryPtr,
@@ -335,6 +346,9 @@ namespace LibGit2Sharp.Core
         private static extern unsafe int git_config_delete_entry(
             git_config* cfg,
             [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* name);
+
+        [DllImport(libgit2)]
+        internal static extern unsafe int git_config_lock(out IntPtr txn, git_config* config);
 
         [DllImport(libgit2)]
         private static extern unsafe int git_config_delete_multivar(
@@ -1819,6 +1833,12 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_cherrypick(git_repository* repo, git_object* commit, GitCherryPickOptions options);
+
+        [DllImport(libgit2)]
+        internal static extern int git_transaction_commit(IntPtr txn);
+
+        [DllImport(libgit2)]
+        internal static extern void git_transaction_free(IntPtr txn);
     }
 }
 // ReSharper restore InconsistentNaming

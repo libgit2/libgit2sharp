@@ -28,9 +28,23 @@ namespace LibGit2Sharp
             Exists = (delta->new_file.Flags & GitDiffFlags.GIT_DIFF_FLAG_EXISTS) != 0;
             OldExists = (delta->old_file.Flags & GitDiffFlags.GIT_DIFF_FLAG_EXISTS) != 0;
 
-            Status = (delta->status == ChangeKind.Untracked || delta->status == ChangeKind.Ignored)
-                ? ChangeKind.Added
-                : delta->status;
+            Status = GetStatusFromChangeKind(delta->status);
+        }
+
+        // This treatment of change kind was apparently introduced in order to be able
+        // to compare a tree against the index, see commit fdc972b. It's extracted
+        // here so that TreeEntry can use the same rules without having to instantiate
+        // a TreeEntryChanges object.
+        internal static ChangeKind GetStatusFromChangeKind(ChangeKind changeKind)
+        {
+            switch (changeKind)
+            {
+                case ChangeKind.Untracked:
+                case ChangeKind.Ignored:
+                    return ChangeKind.Added;
+                default:
+                    return changeKind;
+            }
         }
 
         /// <summary>

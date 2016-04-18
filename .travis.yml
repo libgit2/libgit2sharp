@@ -1,7 +1,10 @@
 # Travis-CI Build for libgit2sharp
 # see travis-ci.org for details
 
-language: c
+language: csharp
+mono:
+ - 3.12.0
+ - 4.2.3
 
 os:
  - osx
@@ -14,11 +17,9 @@ env:
 before_install:
  - date -u
  - uname -a
- - export PATH=/opt/mono/bin:$PATH
  - env | sort
 
-# Make sure CMake and Mono are installed
-install: ./CI/travis.${TRAVIS_OS_NAME}.install.deps.sh
+solution: LibGit2Sharp.sln
 
 # Build libgit2, LibGit2Sharp and run the tests
 script:

@@ -457,7 +457,7 @@ namespace LibGit2Sharp.Tests
                 Remote remote = repo.Network.Remotes["origin"];
                 Assert.NotNull(remote);
 
-                repo.Network.Remotes.Update(remote, r => r.FetchRefSpecs = fetchRefSpecs);
+                repo.Network.Remotes.Update("origin", r => r.FetchRefSpecs = fetchRefSpecs);
 
                 Branch branch = repo.Branches["refs/remotes/origin/master"];
 
@@ -750,7 +750,7 @@ namespace LibGit2Sharp.Tests
                 // cannot be resolved.
                 Remote remote = repo.Network.Remotes["origin"];
                 Assert.NotNull(remote);
-                repo.Network.Remotes.Update(remote, r => r.FetchRefSpecs = fetchRefSpecs);
+                repo.Network.Remotes.Update("origin", r => r.FetchRefSpecs = fetchRefSpecs);
 
                 // Now attempt to update the tracked branch
                 Branch branch = repo.CreateBranch(testBranchName);

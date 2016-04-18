@@ -74,68 +74,69 @@ namespace LibGit2Sharp
                 diffModifiers |= DiffModifiers.IncludeIgnored;
             }
 
-            var changes = repository.Diff.Compare<TreeChanges>(diffModifiers, paths, explicitPathsOptions,
-                new CompareOptions { Similarity = SimilarityOptions.None });
-
-            var unexpectedTypesOfChanges = changes
-                .Where(
-                    tec => tec.Status != ChangeKind.Added &&
-                    tec.Status != ChangeKind.Modified &&
-                    tec.Status != ChangeKind.Conflicted &&
-                    tec.Status != ChangeKind.Unmodified &&
-                    tec.Status != ChangeKind.Deleted).ToList();
-
-            if (unexpectedTypesOfChanges.Count > 0)
+            using (var changes = repository.Diff.Compare<TreeChanges>(diffModifiers, paths, explicitPathsOptions,
+                new CompareOptions { Similarity = SimilarityOptions.None }))
             {
-                throw new InvalidOperationException(
-                    string.Format(CultureInfo.InvariantCulture,
-                        "Entry '{0}' bears an unexpected ChangeKind '{1}'",
-                        unexpectedTypesOfChanges[0].Path, unexpectedTypesOfChanges[0].Status));
-            }
+                var unexpectedTypesOfChanges = changes
+                    .Where(
+                        tec => tec.Status != ChangeKind.Added &&
+                        tec.Status != ChangeKind.Modified &&
+                        tec.Status != ChangeKind.Conflicted &&
+                        tec.Status != ChangeKind.Unmodified &&
+                        tec.Status != ChangeKind.Deleted).ToList();
 
-            /* Remove files from the index that don't exist on disk */
-            foreach (TreeEntryChanges treeEntryChanges in changes)
-            {
-                switch (treeEntryChanges.Status)
+                if (unexpectedTypesOfChanges.Count > 0)
                 {
-                    case ChangeKind.Conflicted:
-                        if (!treeEntryChanges.Exists)
-                        {
+                    throw new InvalidOperationException(
+                        string.Format(CultureInfo.InvariantCulture,
+                            "Entry '{0}' bears an unexpected ChangeKind '{1}'",
+                            unexpectedTypesOfChanges[0].Path, unexpectedTypesOfChanges[0].Status));
+                }
+
+                /* Remove files from the index that don't exist on disk */
+                foreach (TreeEntryChanges treeEntryChanges in changes)
+                {
+                    switch (treeEntryChanges.Status)
+                    {
+                        case ChangeKind.Conflicted:
+                            if (!treeEntryChanges.Exists)
+                            {
+                                repository.Index.Remove(treeEntryChanges.Path);
+                            }
+                            break;
+
+                        case ChangeKind.Deleted:
                             repository.Index.Remove(treeEntryChanges.Path);
-                        }
-                        break;
+                            break;
 
-                    case ChangeKind.Deleted:
-                        repository.Index.Remove(treeEntryChanges.Path);
-                        break;
-
-                    default:
-                        continue;
+                        default:
+                            continue;
+                    }
                 }
-            }
 
-            foreach (TreeEntryChanges treeEntryChanges in changes)
-            {
-                switch (treeEntryChanges.Status)
+                foreach (TreeEntryChanges treeEntryChanges in changes)
                 {
-                    case ChangeKind.Added:
-                    case ChangeKind.Modified:
-                        repository.Index.Add(treeEntryChanges.Path);
-                        break;
-
-                    case ChangeKind.Conflicted:
-                        if (treeEntryChanges.Exists)
-                        {
+                    switch (treeEntryChanges.Status)
+                    {
+                        case ChangeKind.Added:
+                        case ChangeKind.Modified:
                             repository.Index.Add(treeEntryChanges.Path);
-                        }
-                        break;
+                            break;
 
-                    default:
-                        continue;
+                        case ChangeKind.Conflicted:
+                            if (treeEntryChanges.Exists)
+                            {
+                                repository.Index.Add(treeEntryChanges.Path);
+                            }
+                            break;
+
+                        default:
+                            continue;
+                    }
                 }
-            }
 
-            repository.Index.Write();
+                repository.Index.Write();
+            }
         }
 
         /// <summary>
@@ -191,9 +192,8 @@ namespace LibGit2Sharp
 
             if (repository.Info.IsHeadUnborn)
             {
-                var changes = repository.Diff.Compare<TreeChanges>(null, DiffTargets.Index, paths, explicitPathsOptions, new CompareOptions { Similarity = SimilarityOptions.None });
-
-                repository.Index.Replace(changes);
+                using (var changes = repository.Diff.Compare<TreeChanges>(null, DiffTargets.Index, paths, explicitPathsOptions, new CompareOptions { Similarity = SimilarityOptions.None }))
+                    repository.Index.Replace(changes);
             }
             else
             {
