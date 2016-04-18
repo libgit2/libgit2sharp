@@ -26,13 +26,21 @@ namespace LibGit2Sharp
 
             try
             {
+#if NET40
                 passwordPtr = Marshal.SecureStringToGlobalAllocUnicode(Password);
+#else
+                passwordPtr = SecureStringMarshal.SecureStringToCoTaskMemUnicode(Password);
+#endif
 
                 return NativeMethods.git_cred_userpass_plaintext_new(out cred, Username, Marshal.PtrToStringUni(passwordPtr));
             }
             finally
             {
+#if NET40
                 Marshal.ZeroFreeGlobalAllocUnicode(passwordPtr);
+#else
+                SecureStringMarshal.ZeroFreeCoTaskMemUnicode(passwordPtr);
+#endif
             }
 
         }
