@@ -21,11 +21,13 @@ namespace LibGit2Sharp
 
         static GlobalSettings()
         {
+#if NET40
             if (Platform.OperatingSystem == OperatingSystemType.Windows)
             {
                 string managedPath = new Uri(Assembly.GetExecutingAssembly().EscapedCodeBase).LocalPath;
                 nativeLibraryPath = Path.Combine(Path.Combine(Path.GetDirectoryName(managedPath), "lib"), "win32");
             }
+#endif
 
             registeredFilters = new Dictionary<Filter, FilterRegistration>();
         }
