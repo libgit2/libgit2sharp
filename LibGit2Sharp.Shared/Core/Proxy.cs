@@ -2901,7 +2901,9 @@ namespace LibGit2Sharp.Core
 
         public static unsafe ObjectId git_submodule_head_id(SubmoduleHandle submodule)
         {
+#if NET40
             Console.WriteLine("got git_oid for head {0}", NativeMethods.git_submodule_head_id(submodule) == null);
+#endif
             return ObjectId.BuildFromPtr(NativeMethods.git_submodule_head_id(submodule));
         }
 
@@ -2945,9 +2947,9 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
-        #endregion
+#endregion
 
-        #region git_tag_
+#region git_tag_
 
         public static unsafe ObjectId git_tag_annotation_create(
             RepositoryHandle repo,
@@ -3056,9 +3058,9 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_tag_target_type(tag);
         }
 
-        #endregion
+#endregion
 
-        #region git_trace_
+#region git_trace_
 
         /// <summary>
         /// Install/Enable logging inside of LibGit2 to send messages back to LibGit2Sharp.
@@ -3078,9 +3080,9 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
-        #endregion
+#endregion
 
-        #region git_transport_
+#region git_transport_
 
         public static void git_transport_register(String prefix, IntPtr transport_cb, IntPtr param)
         {
@@ -3107,18 +3109,18 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
-        #endregion
+#endregion
 
-        #region git_transport_smart_
+#region git_transport_smart_
 
         public static int git_transport_smart_credentials(out IntPtr cred, IntPtr transport, string user, int methods)
         {
             return NativeMethods.git_transport_smart_credentials(out cred, transport, user, methods);
         }
 
-        #endregion
+#endregion
 
-        #region git_tree_
+#region git_tree_
 
         public static unsafe Mode git_tree_entry_attributes(git_tree_entry* entry)
         {
@@ -3174,9 +3176,9 @@ namespace LibGit2Sharp.Core
             return (int)NativeMethods.git_tree_entrycount(tree);
         }
 
-        #endregion
+#endregion
 
-        #region git_treebuilder_
+#region git_treebuilder_
 
         public static unsafe TreeBuilderHandle git_treebuilder_new(RepositoryHandle repo)
         {
@@ -3204,9 +3206,9 @@ namespace LibGit2Sharp.Core
             return oid;
         }
 
-        #endregion
+#endregion
 
-        #region git_transaction_
+#region git_transaction_
 
         public static void git_transaction_commit(IntPtr txn)
         {
@@ -3218,9 +3220,9 @@ namespace LibGit2Sharp.Core
             NativeMethods.git_transaction_free(txn);
         }
 
-        #endregion
+#endregion
 
-        #region git_libgit2_
+#region git_libgit2_
 
         /// <summary>
         /// Returns the features with which libgit2 was compiled.
@@ -3284,7 +3286,7 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
-        #endregion
+#endregion
 
         private static ICollection<TResult> git_foreach<T, TResult>(
             Func<T, TResult> resultSelector,

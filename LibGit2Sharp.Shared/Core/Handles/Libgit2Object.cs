@@ -15,7 +15,9 @@
 //
 // Uncomment the line below or add a conditional symbol to activate this mode
 
+#if NET40
 #define LEAKS_TRACKING
+#endif
 
 using System;
 using System.Linq;
