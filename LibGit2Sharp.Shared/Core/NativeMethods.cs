@@ -132,10 +132,10 @@ namespace LibGit2Sharp.Core
             IntPtr data);
 
         [DllImport(libgit2)]
-        internal static extern unsafe int git_blob_create_fromstream(
+        private static extern unsafe int git_blob_create_fromstream(
             out IntPtr stream,
             git_repository* repositoryPtr,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath hintpath);
+            [CustomMarshaler(typeof(StrictFilePathMarshaler), typeof(FilePath))] byte* hintpath);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_blob_create_fromstream_commit(
