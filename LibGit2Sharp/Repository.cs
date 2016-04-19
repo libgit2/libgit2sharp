@@ -1423,29 +1423,18 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Analyze the possibilities of updating HEAD with the given commit(s).
+        /// <para>
+        /// It expects objects convertible to annotated commits, so <see cref="LibGit2Sharp.Reference"/> and
+        /// <see cref="LibGit2Sharp.Commit"/> also work as inputs.
+        /// </para>
         /// </summary>
         /// <param name="commits">Commits to merge into HEAD</param>
         /// <returns>Which update methods are possible and which preference the user has specified</returns>
-        public MergeAnalysisResult AnalyzeMerge(params Commit[] commits)
+        public MergeAnalysisResult AnalyzeMerge(params IAnnotatedCommit[] commits)
         {
-            using (var handles = new DisposableArray<AnnotatedCommitHandle>(commits.Select(commit =>
-                Proxy.git_annotated_commit_lookup(Handle, commit.Id.Oid)).ToArray()))
+            using (var annotated = new DisposableArray<AnnotatedCommit>(commits.Select(c => c.GetAnnotatedCommit())))
             {
-                return AnalyzeMerge(handles);
-            }
-        }
-
-        /// <summary>
-        /// Analyze the possibilities of updating HEAD with the given reference(s)
-        /// </summary>
-        /// <param name="references">References to merge into HEAD</param>
-        /// <returns>Which update methods are possible and which preference the user has specified</returns>
-        public MergeAnalysisResult AnalyzeMerge(params Reference[] references)
-        {
-            using (var refHandles = new DisposableArray<ReferenceHandle>(references.Select(r => refs.RetrieveReferencePtr(r.CanonicalName))))
-            using (var handles = new DisposableArray<AnnotatedCommitHandle>(refHandles.Array.Select(rh => Proxy.git_annotated_commit_from_ref(Handle, rh))))
-            {
-                return AnalyzeMerge(handles);
+                return AnalyzeMerge(annotated.Array.Select(c => c.Handle).ToArray());
             }
         }
 

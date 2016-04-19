@@ -228,18 +228,14 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Analyze the possibilities of updating HEAD with the given commit(s).
+        /// <para>
+        /// It expects objects convertible to annotated commits, so <see cref="LibGit2Sharp.Reference"/> and
+        /// <see cref="LibGit2Sharp.Commit"/> also work as inputs.
+        /// </para>
         /// </summary>
         /// <param name="commits">Commits to merge into HEAD</param>
         /// <returns>Which update methods are possible and which preference the user has specified</returns>
-        MergeAnalysisResult AnalyzeMerge(params Commit[] commits);
-
-
-        /// <summary>
-        /// Analyze the possibilities of updating HEAD with the given reference(s)
-        /// </summary>
-        /// <param name="references">References to merge into HEAD</param>
-        /// <returns>Which update methods are possible and which preference the user has specified</returns>
-        MergeAnalysisResult AnalyzeMerge(params Reference[] references);
+        MergeAnalysisResult AnalyzeMerge(params IAnnotatedCommit[] commits);
 
         /// <summary>
         /// Access to Rebase functionality.
