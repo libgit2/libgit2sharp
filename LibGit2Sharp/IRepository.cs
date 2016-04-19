@@ -436,5 +436,23 @@ namespace LibGit2Sharp
         /// <param name="reference">The reference mentioned in the revision (if any)</param>
         /// <param name="obj">The object which the revision resolves to</param>
         void RevParse(string revision, out Reference reference, out GitObject obj);
+
+        /// <summary>
+        /// Initialize a <see cref="LibGit2Sharp.AnnotatedCommit"/> from extended SHA-1 syntax
+        /// </summary>
+        /// <param name="revspec">A string in extended SHA-1 syntax to look up the object</param>
+        AnnotatedCommit LookupAnnotatedCommit(string revspec);
+
+        /// <summary>
+        /// Initialize a <see cref="LibGit2Sharp.AnnotatedCommit"/> from extended SHA-1 syntax
+        /// </summary>
+        /// <param name="reference">A reference pointing to the commit</param>
+        AnnotatedCommit LookupAnnotatedCommit(Reference reference);
+
+        /// <summary>
+        /// Initialize a <see cref="LibGit2Sharp.AnnotatedCommit"/> from extended SHA-1 syntax
+        /// </summary>
+        /// <param name="commit">A commit</param>
+        AnnotatedCommit LookupAnnotatedCommit(Commit commit);
     }
 }

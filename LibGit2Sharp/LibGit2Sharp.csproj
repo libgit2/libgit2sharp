@@ -359,6 +359,8 @@
     <Compile Include="Commands\Remove.cs" />
     <Compile Include="Commands\Checkout.cs" />
     <Compile Include="Core\DisposableArray.cs" />
+    <Compile Include="IAnnotatedCommit.cs" />
+    <Compile Include="AnnotatedCommit.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />

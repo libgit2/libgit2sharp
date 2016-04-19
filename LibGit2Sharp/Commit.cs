@@ -13,7 +13,7 @@ namespace LibGit2Sharp
     /// A Commit
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class Commit : GitObject
+    public class Commit : GitObject, IAnnotatedCommit
     {
         private readonly GitObjectLazyGroup group1;
         private readonly GitObjectLazyGroup group2;
@@ -136,6 +136,11 @@ namespace LibGit2Sharp
                                      Id.ToString(7),
                                      MessageShort);
             }
+        }
+
+        AnnotatedCommit IAnnotatedCommit.GetAnnotatedCommit()
+        {
+            return repo.LookupAnnotatedCommit(this);
         }
 
         private class ParentsCollection : ICollection<Commit>
