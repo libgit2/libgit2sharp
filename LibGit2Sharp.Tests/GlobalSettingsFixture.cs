@@ -19,7 +19,7 @@ namespace LibGit2Sharp.Tests
         public void CanRetrieveValidVersionString()
         {
             // Version string format is:
-            //      Major.Minor.Patch[-preDateTime]-LibGit2Sharp_abbrev_hash-libgit2_abbrev_hash (x86|amd64 - features)
+            //      Major.Minor.Patch[-preDateTime]-LibGit2Sharp_abbrev_hash-libgit2_abbrev_hash (x86|x64 - features)
             // Example output:
             //      "0.17.0[-pre20170914123547]-deadcafe-06d772d (x86 - Threads, Https)"
 
@@ -29,7 +29,7 @@ namespace LibGit2Sharp.Tests
             //      version: '0.17.0[-pre20170914123547]' LibGit2Sharp version number.
             //      git2SharpHash:'unknown' ( when compiled from source ) else LibGit2Sharp library hash.
             //      git2hash: '06d772d' LibGit2 library hash.
-            //      arch: 'x86' or 'amd64' LibGit2 target.
+            //      arch: 'x86' or 'x64' LibGit2 target.
             //      git2Features: 'Threads, Ssh' LibGit2 features compiled with.
             string regex = @"^(?<version>\d{1,}\.\d{1,2}\.\d{1,3}(-(pre|dev)\d{14})?)-(?<git2SharpHash>\w+)-(?<git2Hash>\w+) \((?<arch>\w+) - (?<git2Features>(?:\w*(?:, )*\w+)*)\)$";
 
@@ -38,7 +38,7 @@ namespace LibGit2Sharp.Tests
             Match regexResult = Regex.Match(versionInfo, regex);
 
             Assert.True(regexResult.Success, "The following version string format is enforced:" +
-                                             "Major.Minor.Patch[-preDateTime]-LibGit2Sharp_abbrev_hash-libgit2_abbrev_hash (x86|amd64 - features)");
+                                             "Major.Minor.Patch[-preDateTime]-LibGit2Sharp_abbrev_hash-libgit2_abbrev_hash (x86|x64 - features)");
 
             GroupCollection matchGroups = regexResult.Groups;
 

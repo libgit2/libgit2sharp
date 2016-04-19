@@ -4,12 +4,12 @@ using System.Runtime.InteropServices;
 namespace LibGit2Sharp.Core
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal struct GitRemoteHead
+    internal unsafe struct git_remote_head
     {
-        public bool Local;
-        public GitOid Oid;
-        public GitOid Loid;
-        public IntPtr NamePtr;
-        public IntPtr SymRefTargetPtr;
+        public int Local;
+        public git_oid Oid;
+        public git_oid Loid;
+        public char* Name;
+        public char* SymrefTarget;
     }
 }

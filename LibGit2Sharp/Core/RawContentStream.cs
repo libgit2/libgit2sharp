@@ -7,13 +7,13 @@ namespace LibGit2Sharp.Core
 {
     internal class RawContentStream : UnmanagedMemoryStream
     {
-        private readonly GitObjectSafeHandle handle;
+        private readonly ObjectHandle handle;
         private readonly ICollection<IDisposable> linkedResources;
 
         internal unsafe RawContentStream(
-            GitObjectSafeHandle handle,
-            Func<GitObjectSafeHandle, IntPtr> bytePtrProvider,
-            Func<GitObjectSafeHandle, long> sizeProvider,
+            ObjectHandle handle,
+            Func<ObjectHandle, IntPtr> bytePtrProvider,
+            Func<ObjectHandle, long> sizeProvider,
             ICollection<IDisposable> linkedResources = null)
             : base((byte*)Wrap(handle, bytePtrProvider, linkedResources).ToPointer(),
             Wrap(handle, sizeProvider, linkedResources))
@@ -23,8 +23,8 @@ namespace LibGit2Sharp.Core
         }
 
         private static T Wrap<T>(
-            GitObjectSafeHandle handle,
-            Func<GitObjectSafeHandle, T> provider,
+            ObjectHandle handle,
+            Func<ObjectHandle, T> provider,
             IEnumerable<IDisposable> linkedResources)
         {
             T value;
@@ -43,7 +43,7 @@ namespace LibGit2Sharp.Core
         }
 
         private static void Dispose(
-            GitObjectSafeHandle handle,
+            ObjectHandle handle,
             IEnumerable<IDisposable> linkedResources)
         {
             handle.SafeDispose();

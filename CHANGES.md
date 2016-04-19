@@ -10,6 +10,20 @@
   - Windows (x86/amd64): <https://ci.appveyor.com/project/libgit2/libgit2sharp>
   - Linux/Mac OS X: <https://travis-ci.org/libgit2/libgit2sharp>
 
+## v0.22 + 1
+
+### Additions
+
+### Changes
+
+ - The native libraries are now expected to be in the `lib` directory,
+   instead of `NativeBinaries` for improved mono compatibility.  In
+   addition, the names of platform architectures now better reflect
+   the vendor naming (eg, `x86_64` instead of `amd64` on Linux).
+ - Obsolete the config paths in RepositoryOptions
+
+### Fixes
+
 ## v0.22 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.21.1...v0.22))
 
 ### Additions

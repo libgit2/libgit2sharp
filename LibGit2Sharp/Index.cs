@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -15,7 +16,7 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Index : IEnumerable<IndexEntry>
     {
-        private readonly IndexSafeHandle handle;
+        private readonly IndexHandle handle;
         private readonly Repository repo;
         private readonly ConflictCollection conflicts;
 
@@ -46,7 +47,7 @@ namespace LibGit2Sharp
             repo.RegisterForCleanup(handle);
         }
 
-        internal IndexSafeHandle Handle
+        internal IndexHandle Handle
         {
             get { return handle; }
         }
@@ -70,22 +71,22 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the <see cref="IndexEntry"/> with the specified relative path.
         /// </summary>
-        public virtual IndexEntry this[string path]
+        public virtual unsafe IndexEntry this[string path]
         {
             get
             {
                 Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-                IndexEntrySafeHandle entryHandle = Proxy.git_index_get_bypath(handle, path, 0);
-                return IndexEntry.BuildFromPtr(entryHandle);
+                git_index_entry* entry = Proxy.git_index_get_bypath(handle, path, 0);
+                return IndexEntry.BuildFromPtr(entry);
             }
         }
 
-        private IndexEntry this[int index]
+        private unsafe IndexEntry this[int index]
         {
             get
             {
-                IndexEntrySafeHandle entryHandle = Proxy.git_index_get_byindex(handle, (UIntPtr)index);
+                git_index_entry* entryHandle = Proxy.git_index_get_byindex(handle, (UIntPtr)index);
                 return IndexEntry.BuildFromPtr(entryHandle);
             }
         }
@@ -138,8 +139,6 @@ namespace LibGit2Sharp
             {
                 Proxy.git_index_read_fromtree(this, obj.ObjectPtr);
             }
-
-            UpdatePhysicalIndex();
         }
 
         /// <summary>
@@ -152,7 +151,6 @@ namespace LibGit2Sharp
         public virtual void Clear()
         {
             Proxy.git_index_clear(this);
-            UpdatePhysicalIndex();
         }
 
         private void RemoveFromIndex(string relativePath)
@@ -166,14 +164,8 @@ namespace LibGit2Sharp
         /// <param name="indexEntryPath">The path of the <see cref="Index"/> entry to be removed.</param>
         public virtual void Remove(string indexEntryPath)
         {
-            if (indexEntryPath == null)
-            {
-                throw new ArgumentNullException("indexEntryPath");
-            }
-
+            Ensure.ArgumentNotNull(indexEntryPath, "indexEntryPath");
             RemoveFromIndex(indexEntryPath);
-
-            UpdatePhysicalIndex();
         }
 
         /// <summary>
@@ -186,14 +178,8 @@ namespace LibGit2Sharp
         /// <param name="pathInTheWorkdir">The path, in the working directory, of the file to be added.</param>
         public virtual void Add(string pathInTheWorkdir)
         {
-            if (pathInTheWorkdir == null)
-            {
-                throw new ArgumentNullException("pathInTheWorkdir");
-            }
-
+            Ensure.ArgumentNotNull(pathInTheWorkdir, "pathInTheWorkdir");
             Proxy.git_index_add_bypath(handle, pathInTheWorkdir);
-
-            UpdatePhysicalIndex();
         }
 
         /// <summary>
@@ -210,25 +196,9 @@ namespace LibGit2Sharp
         public virtual void Add(Blob blob, string indexEntryPath, Mode indexEntryMode)
         {
             Ensure.ArgumentConformsTo(indexEntryMode, m => m.HasAny(TreeEntryDefinition.BlobModes), "indexEntryMode");
-
-            if (blob == null)
-            {
-                throw new ArgumentNullException("blob");
-            }
-
-            if (indexEntryPath == null)
-            {
-                throw new ArgumentNullException("indexEntryPath");
-            }
-
+            Ensure.ArgumentNotNull(blob, "blob");
+            Ensure.ArgumentNotNull(indexEntryPath, "indexEntryPath");
             AddEntryToTheIndex(indexEntryPath, blob.Id, indexEntryMode);
-
-            UpdatePhysicalIndex();
-        }
-
-        private void UpdatePhysicalIndex()
-        {
-            Proxy.git_index_write(handle);
         }
 
         internal void Replace(TreeChanges changes)
@@ -258,8 +228,6 @@ namespace LibGit2Sharp
                                                                           treeEntryChanges.Status));
                 }
             }
-
-            UpdatePhysicalIndex();
         }
 
         /// <summary>
@@ -270,17 +238,18 @@ namespace LibGit2Sharp
             get { return conflicts; }
         }
 
-        private void AddEntryToTheIndex(string path, ObjectId id, Mode mode)
+        private unsafe void AddEntryToTheIndex(string path, ObjectId id, Mode mode)
         {
-            var indexEntry = new GitIndexEntry
+            IntPtr pathPtr = StrictFilePathMarshaler.FromManaged(path);
+            var indexEntry = new git_index_entry
             {
-                Mode = (uint)mode,
-                Id = id.Oid,
-                Path = StrictFilePathMarshaler.FromManaged(path),
+                mode = (uint)mode,
+                path = (char*) pathPtr,
             };
+            Marshal.Copy(id.RawId, 0, new IntPtr(indexEntry.id.Id), GitOid.Size);
 
-            Proxy.git_index_add(handle, indexEntry);
-            EncodingMarshaler.Cleanup(indexEntry.Path);
+            Proxy.git_index_add(handle, &indexEntry);
+            EncodingMarshaler.Cleanup(pathPtr);
         }
 
         private string DebuggerDisplay
@@ -323,8 +292,18 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(commit, "commit");
 
-            var changes = repo.Diff.Compare<TreeChanges>(commit.Tree, DiffTargets.Index, paths, explicitPathsOptions, new CompareOptions { Similarity = SimilarityOptions.None });
-            Replace(changes);
+            using (var changes = repo.Diff.Compare<TreeChanges>(commit.Tree, DiffTargets.Index, paths, explicitPathsOptions, new CompareOptions { Similarity = SimilarityOptions.None }))
+            {
+                Replace(changes);
+            }
+        }
+
+        /// <summary>
+        /// Write the contents of this <see cref="Index"/> to disk
+        /// </summary>
+        public virtual void Write()
+        {
+            Proxy.git_index_write(handle);
         }
     }
 }

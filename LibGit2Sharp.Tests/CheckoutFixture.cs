@@ -156,7 +156,7 @@ namespace LibGit2Sharp.Tests
                 // Remove the file in master branch
                 // Verify it exists after checking out otherBranch.
                 string fileFullPath = Path.Combine(repo.Info.WorkingDirectory, originalFilePath);
-                repo.Remove(fileFullPath);
+                Commands.Remove(repo, fileFullPath);
                 repo.Commit("2nd commit", Constants.Signature, Constants.Signature);
 
                 // Checkout other_branch
@@ -184,7 +184,7 @@ namespace LibGit2Sharp.Tests
                 string newFileFullPath = Touch(
                     repo.Info.WorkingDirectory, "b.txt", "hello from master branch!\n");
 
-                repo.Stage(newFileFullPath);
+                Commands.Stage(repo, newFileFullPath);
                 repo.Commit("2nd commit", Constants.Signature, Constants.Signature);
 
                 // Checkout other_branch
@@ -212,7 +212,7 @@ namespace LibGit2Sharp.Tests
                 string fullPath = Touch(
                     repo.Info.WorkingDirectory, originalFilePath, "Update : hello from master branch!\n");
 
-                repo.Stage(fullPath);
+                Commands.Stage(repo, fullPath);
                 repo.Commit("2nd commit", Constants.Signature, Constants.Signature);
 
                 // Checkout other_branch
@@ -254,7 +254,7 @@ namespace LibGit2Sharp.Tests
                 // Add change to master.
                 Touch(repo.Info.WorkingDirectory, originalFilePath, originalFileContent);
 
-                repo.Stage(originalFilePath);
+                Commands.Stage(repo, originalFilePath);
                 repo.Commit("change in master", Constants.Signature, Constants.Signature);
 
                 // Checkout otherBranch.
@@ -262,7 +262,7 @@ namespace LibGit2Sharp.Tests
 
                 // Add change to otherBranch.
                 Touch(repo.Info.WorkingDirectory, originalFilePath, alternateFileContent);
-                repo.Stage(originalFilePath);
+                Commands.Stage(repo, originalFilePath);
 
                 // Assert that normal checkout throws exception
                 // for the conflict.
@@ -287,7 +287,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(repoPath))
             {
                 Touch(repo.Info.WorkingDirectory, originalFilePath, "Hello\n");
-                repo.Stage(originalFilePath);
+                Commands.Stage(repo, originalFilePath);
                 repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
 
                 // Create 2nd branch
@@ -295,7 +295,7 @@ namespace LibGit2Sharp.Tests
 
                 // Update file in main
                 Touch(repo.Info.WorkingDirectory, originalFilePath, "Hello from master!\n");
-                repo.Stage(originalFilePath);
+                Commands.Stage(repo, originalFilePath);
                 repo.Commit("2nd commit", Constants.Signature, Constants.Signature);
 
                 // Checkout branch2
@@ -307,7 +307,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<CheckoutConflictException>(() => repo.Checkout("master"));
 
                 // And when there are staged commits
-                repo.Stage(originalFilePath);
+                Commands.Stage(repo, originalFilePath);
                 Assert.Throws<CheckoutConflictException>(() => repo.Checkout("master"));
             }
         }
@@ -322,7 +322,7 @@ namespace LibGit2Sharp.Tests
                 const string relativePath = "a.txt";
                 Touch(repo.Info.WorkingDirectory, relativePath, "Hello\n");
 
-                repo.Stage(relativePath);
+                Commands.Stage(repo, relativePath);
                 repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
 
                 // Create 2nd branch
@@ -330,7 +330,7 @@ namespace LibGit2Sharp.Tests
 
                 // Update file in main
                 Touch(repo.Info.WorkingDirectory, relativePath, "Hello from master!\n");
-                repo.Stage(relativePath);
+                Commands.Stage(repo, relativePath);
                 repo.Commit("2nd commit", Constants.Signature, Constants.Signature);
 
                 // Checkout branch2
@@ -453,13 +453,13 @@ namespace LibGit2Sharp.Tests
 
                 const string relativePathUpdated = "updated.txt";
                 Touch(repo.Info.WorkingDirectory, relativePathUpdated, "updated file text A");
-                repo.Stage(relativePathUpdated);
+                Commands.Stage(repo, relativePathUpdated);
                 repo.Commit("Commit initial update file", Constants.Signature, Constants.Signature);
 
                 // Create conflicting change
                 const string relativePathConflict = "conflict.txt";
                 Touch(repo.Info.WorkingDirectory, relativePathConflict, "conflict file text A");
-                repo.Stage(relativePathConflict);
+                Commands.Stage(repo, relativePathConflict);
                 repo.Commit("Initial commit of conflict.txt and update.txt", Constants.Signature, Constants.Signature);
 
                 // Create another branch
@@ -467,9 +467,9 @@ namespace LibGit2Sharp.Tests
 
                 // Make an edit to conflict.txt and update.txt
                 Touch(repo.Info.WorkingDirectory, relativePathUpdated, "updated file text BB");
-                repo.Stage(relativePathUpdated);
+                Commands.Stage(repo, relativePathUpdated);
                 Touch(repo.Info.WorkingDirectory, relativePathConflict, "conflict file text BB");
-                repo.Stage(relativePathConflict);
+                Commands.Stage(repo, relativePathConflict);
 
                 repo.Commit("2nd commit of conflict.txt and update.txt on master branch", Constants.Signature, Constants.Signature);
 
@@ -478,14 +478,14 @@ namespace LibGit2Sharp.Tests
 
                 // Make alternate edits to conflict.txt and update.txt
                 Touch(repo.Info.WorkingDirectory, relativePathUpdated, "updated file text CCC");
-                repo.Stage(relativePathUpdated);
+                Commands.Stage(repo, relativePathUpdated);
                 Touch(repo.Info.WorkingDirectory, relativePathConflict, "conflict file text CCC");
-                repo.Stage(relativePathConflict);
+                Commands.Stage(repo, relativePathConflict);
                 repo.Commit("2nd commit of conflict.txt and update.txt on newbranch", Constants.Signature, Constants.Signature);
 
                 // make conflicting change to conflict.txt
                 Touch(repo.Info.WorkingDirectory, relativePathConflict, "conflict file text DDDD");
-                repo.Stage(relativePathConflict);
+                Commands.Stage(repo, relativePathConflict);
 
                 // Create ignored change
                 string relativePathIgnore = Path.Combine("bin", "ignored.txt");
@@ -596,7 +596,7 @@ namespace LibGit2Sharp.Tests
 
                 // Generate a staged change.
                 string fullPathFileA = Touch(repo.Info.WorkingDirectory, originalFilePath, alternateFileContent);
-                repo.Stage(fullPathFileA);
+                Commands.Stage(repo, fullPathFileA);
 
                 // Verify that there is a staged entry.
                 Assert.Equal(1, repo.RetrieveStatus().Staged.Count());
@@ -680,7 +680,7 @@ namespace LibGit2Sharp.Tests
 
                 // Add commit to master
                 string fullPath = Touch(repo.Info.WorkingDirectory, originalFilePath, "Update : hello from master branch!\n");
-                repo.Stage(fullPath);
+                Commands.Stage(repo, fullPath);
                 repo.Commit("2nd commit", Constants.Signature, Constants.Signature);
 
                 Assert.False(repo.Info.IsHeadDetached);
@@ -1029,23 +1029,6 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Fact]
-        public void CanCatchDeprecatedException()
-        {
-            bool caught = false;
-
-            try
-            {
-                throw new CheckoutConflictException();
-            }
-            catch (MergeConflictException)
-            {
-                caught = true;
-            }
-
-            Assert.True(caught);
-        }
-
         /// <summary>
         /// Helper method to populate a simple repository with
         /// a single file and two branches.
@@ -1055,10 +1038,10 @@ namespace LibGit2Sharp.Tests
         {
             // Generate a .gitignore file.
             string gitIgnoreFilePath = Touch(repo.Info.WorkingDirectory, ".gitignore", "bin");
-            repo.Stage(gitIgnoreFilePath);
+            Commands.Stage(repo, gitIgnoreFilePath);
 
             string fullPathFileA = Touch(repo.Info.WorkingDirectory, originalFilePath, originalFileContent);
-            repo.Stage(fullPathFileA);
+            Commands.Stage(repo, fullPathFileA);
 
             repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
 

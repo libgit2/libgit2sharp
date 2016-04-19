@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace LibGit2Sharp.Core
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal class GitCredential
+    internal struct GitCredential
     {
         public GitCredentialType credtype;
         public IntPtr free;

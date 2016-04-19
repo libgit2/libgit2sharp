@@ -611,7 +611,7 @@ namespace LibGit2Sharp.Tests
 
                 if (shouldStage)
                 {
-                    repo.Stage("b.txt");
+                    Commands.Stage(repo, "b.txt");
                 }
 
                 Assert.Throws<CheckoutConflictException>(() => repo.Merge(committishToMerge, Constants.Signature, new MergeOptions() { FastForwardStrategy = strategy }));
@@ -678,7 +678,7 @@ namespace LibGit2Sharp.Tests
             const string conflictBranchName = "conflicts";
 
             string path = SandboxMergeTestRepo();
-            using (var repo = InitIsolatedRepository(path))
+            using (var repo = new Repository(path))
             {
                 Branch branch = repo.Branches[conflictBranchName];
                 Assert.NotNull(branch);
@@ -750,8 +750,8 @@ namespace LibGit2Sharp.Tests
                 // Remove entries from the working directory
                 foreach(var entry in repo.RetrieveStatus())
                 {
-                    repo.Unstage(entry.FilePath);
-                    repo.Remove(entry.FilePath, true);
+                    Commands.Unstage(repo, entry.FilePath);
+                    Commands.Remove(repo, entry.FilePath, true);
                 }
 
                 // Assert that we have an empty working directory.
@@ -790,7 +790,7 @@ namespace LibGit2Sharp.Tests
 
                 Touch(repo.Info.WorkingDirectory, "README", "Yeah!\n");
                 repo.Index.Clear();
-                repo.Stage("README");
+                Commands.Stage(repo, "README");
 
                 repo.Commit("A new world, free of the burden of the history", Constants.Signature, Constants.Signature);
 
@@ -869,10 +869,76 @@ namespace LibGit2Sharp.Tests
         {
             Touch(repository.Info.WorkingDirectory, filename, content);
 
-            repository.Stage(filename);
+            Commands.Stage(repository, filename);
 
             return repository.Commit("New commit", Constants.Signature, Constants.Signature);
         }
+
+
+        [Theory]
+        [InlineData("master", MergeAnalysis.Unborn | MergeAnalysis.FastForward, true)]
+        [InlineData("fast_forward", MergeAnalysis.Normal | MergeAnalysis.FastForward, false)]
+        [InlineData("conflicts", MergeAnalysis.Normal, false)]
+
+        public void CanAnalyzeMerge(string branchName, MergeAnalysis analysis, bool makeUnborn)
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                if (makeUnborn)
+                {
+                    repo.Refs.UpdateTarget("HEAD", "refs/heads/unborn");
+                }
+
+                // test both Commit and Reference overload
+                MergeAnalysisResult result = repo.AnalyzeMerge(repo.Branches[branchName].Tip);
+                MergeAnalysisResult result2 = repo.AnalyzeMerge(repo.Refs["refs/heads/" + branchName]);
+
+                Assert.Equal(analysis, result.Analysis);
+                Assert.Equal(analysis, result2.Analysis);
+            }
+        }
+
+        [Theory]
+        [InlineData("false", MergePreference.NoFastForward)]
+        [InlineData("only", MergePreference.FastForwardOnly)]
+        [InlineData(null, MergePreference.Default)]
+        public void CanRetrieveMergePreference(string value, MergePreference preference)
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                if (value != null)
+                {
+                    repo.Config.Set("merge.ff", value);
+                }
+
+                // it doesn't matter too much which branch we ask about, we want the preference
+                MergeAnalysisResult result = repo.AnalyzeMerge(repo.Branches["fast_forward"].Tip);
+
+                Assert.Equal(preference, result.Preference);
+            }
+        }
+
+        [Fact]
+        public void CanAnalyzeFastForward()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                // test both Commit and Reference overload
+                MergeAnalysisResult result = repo.AnalyzeMerge(repo.Branches["fast_forward"].Tip);
+                MergeAnalysisResult result2 = repo.AnalyzeMerge(repo.Refs["refs/heads/fast_forward"]);
+
+                Assert.True(result.Analysis.HasFlag(MergeAnalysis.FastForward));
+                Assert.True(result.Analysis.HasFlag(MergeAnalysis.Normal));
+                Assert.False(result.Analysis.HasFlag(MergeAnalysis.Unborn));
+                Assert.False(result.Analysis.HasFlag(MergeAnalysis.UpToDate));
+
+                Assert.Equal(result, result2);
+            }
+        }
+
 
         // Commit IDs of the checked in merge_testrepo
         private const string masterBranchInitialId = "83cebf5389a4adbcb80bda6b68513caee4559802";

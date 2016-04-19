@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace LibGit2Sharp.Core
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal struct GitCertificateX509
+    internal unsafe struct git_certificate_x509
     {
         /// <summary>
         /// Type of the certificate, in this case, GitCertificateType.X509
@@ -13,7 +13,7 @@ namespace LibGit2Sharp.Core
         /// <summary>
         /// Pointer to the X509 certificate data
         /// </summary>
-        public IntPtr data;
+        public byte* data;
         /// <summary>
         ///  The size of the certificate data
         /// </summary>

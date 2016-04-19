@@ -95,7 +95,7 @@ namespace LibGit2Sharp.Tests
                 var gitIgnoreFile = string.Format("deeply{0}nested{0}.gitignore", pd);
                 Touch(repo.Info.WorkingDirectory, gitIgnoreFile, "SmtCounters.h");
 
-                repo.Stage(gitIgnoreFile);
+                Commands.Stage(repo, gitIgnoreFile);
                 repo.Commit("Add .gitignore", Constants.Signature, Constants.Signature);
 
                 Assert.False(repo.RetrieveStatus().IsDirty);

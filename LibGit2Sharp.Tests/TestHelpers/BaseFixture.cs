@@ -16,12 +16,14 @@ namespace LibGit2Sharp.Tests.TestHelpers
     {
         private readonly List<string> directories = new List<string>();
 
-#if LEAKS_IDENTIFYING
         public BaseFixture()
         {
+            BuildFakeConfigs(this);
+
+#if LEAKS_IDENTIFYING
             LeaksContainer.Clear();
-        }
 #endif
+        }
 
         static BaseFixture()
         {
@@ -78,6 +80,41 @@ namespace LibGit2Sharp.Tests.TestHelpers
             PackBuilderTestRepoPath = Path.Combine(sourceRelativePath, "packbuilder_testrepo_wd");
 
             CleanupTestReposOlderThan(TimeSpan.FromMinutes(15));
+        }
+
+        public static void BuildFakeConfigs(IPostTestDirectoryRemover dirRemover)
+        {
+            var scd = new SelfCleaningDirectory(dirRemover);
+
+            string global = null, xdg = null, system = null, programData = null;
+            BuildFakeRepositoryOptions(scd, out global, out xdg, out system, out programData);
+
+            StringBuilder sb = new StringBuilder()
+                .AppendFormat("[Woot]{0}", Environment.NewLine)
+                .AppendFormat("this-rocks = global{0}", Environment.NewLine)
+                .AppendFormat("[Wow]{0}", Environment.NewLine)
+                .AppendFormat("Man-I-am-totally-global = 42{0}", Environment.NewLine);
+            File.WriteAllText(Path.Combine(global, ".gitconfig"), sb.ToString());
+
+            sb = new StringBuilder()
+                .AppendFormat("[Woot]{0}", Environment.NewLine)
+                .AppendFormat("this-rocks = system{0}", Environment.NewLine);
+            File.WriteAllText(Path.Combine(system, "gitconfig"), sb.ToString());
+
+            sb = new StringBuilder()
+                .AppendFormat("[Woot]{0}", Environment.NewLine)
+                .AppendFormat("this-rocks = xdg{0}", Environment.NewLine);
+            File.WriteAllText(Path.Combine(xdg, "config"), sb.ToString());
+
+            sb = new StringBuilder()
+                .AppendFormat("[Woot]{0}", Environment.NewLine)
+                .AppendFormat("this-rocks = programdata{0}", Environment.NewLine);
+            File.WriteAllText(Path.Combine(programData, "config"), sb.ToString());
+
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, global);
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Xdg, xdg);
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.System, system);
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.ProgramData, programData);
         }
 
         private static void CleanupTestReposOlderThan(TimeSpan olderThan)
@@ -207,14 +244,6 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return Repository.Init(scd.DirectoryPath, isBare);
         }
 
-        protected Repository InitIsolatedRepository(string path = null, bool isBare = false, RepositoryOptions options = null)
-        {
-            path = path ?? InitNewRepository(isBare);
-            options = BuildFakeConfigs(BuildSelfCleaningDirectory(), options);
-
-            return new Repository(path, options);
-        }
-
         public void Register(string directoryPath)
         {
             directories.Add(directoryPath);
@@ -234,7 +263,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             if (LeaksContainer.TypeNames.Any())
             {
                 Assert.False(true, string.Format("Some handles of the following types haven't been properly released: {0}.{1}"
-                    + "In order to get some help fixing those leaks, uncomment the define LEAKS_TRACKING in SafeHandleBase.cs{1}"
+                    + "In order to get some help fixing those leaks, uncomment the define LEAKS_TRACKING in Libgit2Object.cs{1}"
                     + "and run the tests locally.", string.Join(", ", LeaksContainer.TypeNames), Environment.NewLine));
             }
 #endif
@@ -293,42 +322,19 @@ namespace LibGit2Sharp.Tests.TestHelpers
             Assert.True(r.Success, text);
         }
 
-        public RepositoryOptions BuildFakeConfigs(SelfCleaningDirectory scd, RepositoryOptions options = null)
+        private static void BuildFakeRepositoryOptions(SelfCleaningDirectory scd, out string global, out string xdg, out string system, out string programData)
         {
-            options = BuildFakeRepositoryOptions(scd, options);
-
-            StringBuilder sb = new StringBuilder()
-                .AppendFormat("[Woot]{0}", Environment.NewLine)
-                .AppendFormat("this-rocks = global{0}", Environment.NewLine)
-                .AppendFormat("[Wow]{0}", Environment.NewLine)
-                .AppendFormat("Man-I-am-totally-global = 42{0}", Environment.NewLine);
-            File.WriteAllText(options.GlobalConfigurationLocation, sb.ToString());
-
-            sb = new StringBuilder()
-                .AppendFormat("[Woot]{0}", Environment.NewLine)
-                .AppendFormat("this-rocks = system{0}", Environment.NewLine);
-            File.WriteAllText(options.SystemConfigurationLocation, sb.ToString());
-
-            sb = new StringBuilder()
-                .AppendFormat("[Woot]{0}", Environment.NewLine)
-                .AppendFormat("this-rocks = xdg{0}", Environment.NewLine);
-            File.WriteAllText(options.XdgConfigurationLocation, sb.ToString());
-
-            return options;
-        }
-
-        private static RepositoryOptions BuildFakeRepositoryOptions(SelfCleaningDirectory scd, RepositoryOptions options = null)
-        {
-            options = options ?? new RepositoryOptions();
-
             string confs = Path.Combine(scd.DirectoryPath, "confs");
             Directory.CreateDirectory(confs);
 
-            options.GlobalConfigurationLocation = Path.Combine(confs, "my-global-config");
-            options.XdgConfigurationLocation = Path.Combine(confs, "my-xdg-config");
-            options.SystemConfigurationLocation = Path.Combine(confs, "my-system-config");
-
-            return options;
+            global = Path.Combine(confs, "my-global-config");
+            Directory.CreateDirectory(global);
+            xdg = Path.Combine(confs, "my-xdg-config");
+            Directory.CreateDirectory(xdg);
+            system = Path.Combine(confs, "my-system-config");
+            Directory.CreateDirectory(system);
+            programData = Path.Combine(confs, "my-programdata-config");
+            Directory.CreateDirectory(programData);
         }
 
         /// <summary>
@@ -337,18 +343,14 @@ namespace LibGit2Sharp.Tests.TestHelpers
         /// <remarks>The configuration file will be removed automatically when the tests are finished</remarks>
         /// <param name="identity">The identity to use for user.name and user.email</param>
         /// <returns>The path to the configuration file</returns>
-        protected string CreateConfigurationWithDummyUser(Identity identity)
+        protected void CreateConfigurationWithDummyUser(Repository repo, Identity identity)
         {
-            return CreateConfigurationWithDummyUser(identity.Name, identity.Email);
+            CreateConfigurationWithDummyUser(repo, identity.Name, identity.Email);
         }
 
-        protected string CreateConfigurationWithDummyUser(string name, string email)
+        protected void CreateConfigurationWithDummyUser(Repository repo, string name, string email)
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-
-            string configFilePath = Touch(scd.DirectoryPath, "fake-config");
-
-            using (Configuration config = Configuration.BuildFrom(configFilePath))
+            Configuration config = repo.Config;
             {
                 if (name != null)
                 {
@@ -360,8 +362,6 @@ namespace LibGit2Sharp.Tests.TestHelpers
                     config.Set("user.email", email);
                 }
             }
-
-            return configFilePath;
         }
 
         /// <summary>

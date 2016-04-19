@@ -36,7 +36,7 @@ namespace LibGit2Sharp
 
         private IEnumerable<string> GetFetchRefSpecs()
         {
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repo.Handle, remote.Name, true))
+            using (RemoteHandle remoteHandle = Proxy.git_remote_lookup(repo.Handle, remote.Name, true))
             {
                 return Proxy.git_remote_get_fetch_refspecs(remoteHandle);
             }
@@ -54,7 +54,7 @@ namespace LibGit2Sharp
 
         private IEnumerable<string> GetPushRefSpecs()
         {
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repo.Handle, remote.Name, true))
+            using (RemoteHandle remoteHandle = Proxy.git_remote_lookup(repo.Handle, remote.Name, true))
             {
                 return Proxy.git_remote_get_push_refspecs(remoteHandle);
             }

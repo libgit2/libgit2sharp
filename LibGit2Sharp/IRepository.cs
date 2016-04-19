@@ -175,18 +175,6 @@ namespace LibGit2Sharp
         void Reset(ResetMode resetMode, Commit commit, CheckoutOptions options);
 
         /// <summary>
-        /// Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
-        /// </summary>
-        /// <param name="commit">The target commit object.</param>
-        /// <param name="paths">The list of paths (either files or directories) that should be considered.</param>
-        /// <param name="explicitPathsOptions">
-        /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
-        /// Use these options to determine how unmatched explicit paths should be handled.
-        /// </param>
-        [Obsolete("This method will be removed in the next release. Please use Index.Replace() instead.")]
-        void Reset(Commit commit, IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions);
-
-        /// <summary>
         /// Clean the working tree by removing files that are not under version control.
         /// </summary>
         void RemoveUntrackedFiles();
@@ -226,6 +214,21 @@ namespace LibGit2Sharp
         /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
         MergeResult Merge(string committish, Signature merger, MergeOptions options);
+
+        /// <summary>
+        /// Analyze the possibilities of updating HEAD with the given commit(s).
+        /// </summary>
+        /// <param name="commits">Commits to merge into HEAD</param>
+        /// <returns>Which update methods are possible and which preference the user has specified</returns>
+        MergeAnalysisResult AnalyzeMerge(params Commit[] commits);
+
+
+        /// <summary>
+        /// Analyze the possibilities of updating HEAD with the given reference(s)
+        /// </summary>
+        /// <param name="references">References to merge into HEAD</param>
+        /// <returns>Which update methods are possible and which preference the user has specified</returns>
+        MergeAnalysisResult AnalyzeMerge(params Reference[] references);
 
         /// <summary>
         /// Access to Rebase functionality.
@@ -283,6 +286,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="path">The path of the file within the working directory.</param>
         /// <param name="stageOptions">Determines how paths will be staged.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Stage()")]
         void Stage(string path, StageOptions stageOptions);
 
         /// <summary>
@@ -292,6 +296,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
         /// <param name="stageOptions">Determines how paths will be staged.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Stage()")]
         void Stage(IEnumerable<string> paths, StageOptions stageOptions);
 
         /// <summary>
@@ -302,6 +307,7 @@ namespace LibGit2Sharp
         /// The passed <paramref name="path"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Unstage()")]
         void Unstage(string path, ExplicitPathsOptions explicitPathsOptions);
 
         /// <summary>
@@ -312,6 +318,7 @@ namespace LibGit2Sharp
         /// The passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Unstage()")]
         void Unstage(IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions);
 
         /// <summary>
@@ -319,6 +326,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="sourcePath">The path of the file within the working directory which has to be moved/renamed.</param>
         /// <param name="destinationPath">The target path of the file within the working directory.</param>
+        [Obsolete("This method is deprecatd. Please use LibGit2Sharp.Commands.Move()")]
         void Move(string sourcePath, string destinationPath);
 
         /// <summary>
@@ -326,6 +334,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="sourcePaths">The paths of the files within the working directory which have to be moved/renamed.</param>
         /// <param name="destinationPaths">The target paths of the files within the working directory.</param>
+        [Obsolete("This method is deprecatd. Please use LibGit2Sharp.Commands.Move()")]
         void Move(IEnumerable<string> sourcePaths, IEnumerable<string> destinationPaths);
 
         /// <summary>
@@ -349,6 +358,7 @@ namespace LibGit2Sharp
         /// The passed <paramref name="path"/> will be treated as an explicit path.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Remove()")]
         void Remove(string path, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions);
 
         /// <summary>
@@ -372,6 +382,7 @@ namespace LibGit2Sharp
         /// The passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Unstage()")]
         void Remove(IEnumerable<string> paths, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions);
 
         /// <summary>

@@ -68,7 +68,7 @@ namespace LibGit2Sharp.Tests
 
                 const string relativeFilepath = "new.txt";
                 Touch(repo.Info.WorkingDirectory, relativeFilepath, "content\n");
-                repo.Stage(relativeFilepath);
+                Commands.Stage(repo, relativeFilepath);
 
                 var author = Constants.Signature;
                 const string commitMessage = "Hope reflog behaves as it should";
@@ -116,7 +116,7 @@ namespace LibGit2Sharp.Tests
             {
                 const string relativeFilepath = "new.txt";
                 Touch(repo.Info.WorkingDirectory, relativeFilepath, "content\n");
-                repo.Stage(relativeFilepath);
+                Commands.Stage(repo, relativeFilepath);
 
                 var author = Constants.Signature;
                 const string commitMessage = "First commit should be logged as initial";
@@ -145,7 +145,7 @@ namespace LibGit2Sharp.Tests
 
                 const string relativeFilepath = "new.txt";
                 Touch(repo.Info.WorkingDirectory, relativeFilepath, "content\n");
-                repo.Stage(relativeFilepath);
+                Commands.Stage(repo, relativeFilepath);
 
                 var author = Constants.Signature;
                 const string commitMessage = "Commit on detached head";

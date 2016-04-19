@@ -13,12 +13,12 @@ namespace LibGit2Sharp
         /// </summary>
         protected FilterSource() { }
 
-        internal FilterSource(FilePath path, FilterMode mode, GitFilterSource source)
+        internal unsafe FilterSource(FilePath path, FilterMode mode, git_filter_source* source)
         {
             SourceMode = mode;
-            ObjectId = new ObjectId(source.oid);
+            ObjectId = ObjectId.BuildFromPtr(&source->oid);
             Path = path.Native;
-            Root = Proxy.git_repository_workdir(source.repository).Native;
+            Root = Proxy.git_repository_workdir(new IntPtr(source->repository)).Native;
         }
 
         /// <summary>
@@ -26,12 +26,21 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="ptr"></param>
         /// <returns></returns>
-        internal static FilterSource FromNativePtr(IntPtr ptr)
+        internal static unsafe FilterSource FromNativePtr(IntPtr ptr)
         {
-            var source = ptr.MarshalAs<GitFilterSource>();
-            FilePath path = LaxFilePathMarshaler.FromNative(source.path) ?? FilePath.Empty;
+            return FromNativePtr((git_filter_source*) ptr.ToPointer());
+        }
+
+        /// <summary>
+        /// Take an unmanaged pointer and convert it to filter source callback paramater
+        /// </summary>
+        /// <param name="ptr"></param>
+        /// <returns></returns>
+        internal static unsafe FilterSource FromNativePtr(git_filter_source* ptr)
+        {
+            FilePath path = LaxFilePathMarshaler.FromNative(ptr->path) ?? FilePath.Empty;
             FilterMode gitFilterSourceMode = Proxy.git_filter_source_mode(ptr);
-            return new FilterSource(path, gitFilterSourceMode, source);
+            return new FilterSource(path, gitFilterSourceMode, ptr);
         }
 
         /// <summary>
