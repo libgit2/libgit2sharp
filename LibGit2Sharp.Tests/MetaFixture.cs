@@ -18,6 +18,7 @@ namespace LibGit2Sharp.Tests
         private static readonly HashSet<Type> explicitOnlyInterfaces = new HashSet<Type>
         {
             typeof(IBelongToARepository), typeof(IDiffResult),
+            typeof(IAnnotatedCommit),
         };
 
         [Fact]
