@@ -169,6 +169,18 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void TreeUsesPosixStylePaths()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                /* From a commit tree */
+                var commitTree = repo.Lookup<Commit>("4c062a6").Tree;
+                Assert.NotNull(commitTree["1/branch_file.txt"]);
+                Assert.Null(commitTree["1\\branch_file.txt"]);
+            }
+        }
+
+        [Fact]
         public void CanRetrieveTreeEntryPath()
         {
             string path = SandboxBareTestRepo();
@@ -180,7 +192,7 @@ namespace LibGit2Sharp.Tests
                 TreeEntry treeTreeEntry = commitTree["1"];
                 Assert.Equal("1", treeTreeEntry.Path);
 
-                string completePath = Path.Combine("1", "branch_file.txt");
+                string completePath = "1/branch_file.txt";
 
                 TreeEntry blobTreeEntry = commitTree["1/branch_file.txt"];
                 Assert.Equal(completePath, blobTreeEntry.Path);
