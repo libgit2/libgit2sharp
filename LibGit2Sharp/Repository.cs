@@ -37,6 +37,7 @@ namespace LibGit2Sharp
         private readonly SubmoduleCollection submodules;
         private readonly Lazy<PathCase> pathCase;
 
+        [Flags]
         private enum RepositoryRequiredParameter
         {
             None = 0,
