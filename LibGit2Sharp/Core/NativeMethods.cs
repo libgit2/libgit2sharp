@@ -1386,6 +1386,10 @@ namespace LibGit2Sharp.Core
             git_repository* repository);
 
         [DllImport(libgit2)]
+        internal static extern unsafe int git_repository_new(
+            out git_repository* repo);
+
+        [DllImport(libgit2)]
         internal static extern unsafe int git_repository_odb(out git_odb* odb, git_repository* repo);
 
         [DllImport(libgit2)]
@@ -1453,9 +1457,6 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxFilePathNoCleanupMarshaler))]
         internal static extern unsafe FilePath git_repository_workdir(IntPtr repository);
-
-        [DllImport(libgit2)]
-        internal static extern unsafe int git_repository_new(out git_repository* repo);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_reset(

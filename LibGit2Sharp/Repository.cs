@@ -37,6 +37,25 @@ namespace LibGit2Sharp
         private readonly SubmoduleCollection submodules;
         private readonly Lazy<PathCase> pathCase;
 
+        private enum RepositoryRequiredParameter
+        {
+            None = 0,
+            Path = 1,
+            Options = 2,
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Repository"/> class
+        /// that does not point to an on-disk Git repository.  This is
+        /// suitable only for custom, in-memory Git repositories that are
+        /// configured with custom object database, reference database and/or
+        /// configuration backends.
+        /// </summary>
+        public Repository()
+            : this(null, null, RepositoryRequiredParameter.None)
+        {
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Repository"/> class.
         /// <para>For a standard repository, <paramref name="path"/> should either point to the ".git" folder or to the working directory. For a bare repository, <paramref name="path"/> should directly point to the repository folder.</para>
@@ -45,30 +64,59 @@ namespace LibGit2Sharp
         /// The path to the git repository to open, can be either the path to the git directory (for non-bare repositories this
         /// would be the ".git" folder inside the working directory) or the path to the working directory.
         /// </param>
-        public Repository(string path) : this(path, null)
+        public Repository(string path)
+            : this(path, null, RepositoryRequiredParameter.Path)
         { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Repository"/> class, providing optional behavioral overrides through <paramref name="options"/> parameter.
-        /// <para>For a standard repository, <paramref name="path"/> should either point to the ".git" folder or to the working directory. For a bare repository, <paramref name="path"/> should directly point to the repository folder.</para>
+        /// Initializes a new instance of the <see cref="Repository"/> class,
+        /// providing optional behavioral overrides through the
+        /// <paramref name="options"/> parameter.
+        /// <para>For a standard repository, <paramref name="path"/> may
+        /// either point to the ".git" folder or to the working directory.
+        /// For a bare repository, <paramref name="path"/> should directly
+        /// point to the repository folder.</para>
         /// </summary>
         /// <param name="path">
-        /// The path to the git repository to open, can be either the path to the git directory (for non-bare repositories this
-        /// would be the ".git" folder inside the working directory) or the path to the working directory.
+        /// The path to the git repository to open, can be either the
+        /// path to the git directory (for non-bare repositories this
+        /// would be the ".git" folder inside the working directory)
+        /// or the path to the working directory.
         /// </param>
         /// <param name="options">
         /// Overrides to the way a repository is opened.
         /// </param>
-        public Repository(string path, RepositoryOptions options)
+        public Repository(string path, RepositoryOptions options) :
+            this(path, options, RepositoryRequiredParameter.Path | RepositoryRequiredParameter.Options)
         {
-            Ensure.ArgumentNotNullOrEmptyString(path, "path");
+        }
+        
+        private Repository(string path, RepositoryOptions options, RepositoryRequiredParameter requiredParameter)
+        {
+            if ((requiredParameter & RepositoryRequiredParameter.Path) == RepositoryRequiredParameter.Path)
+            {
+                Ensure.ArgumentNotNullOrEmptyString(path, "path");
+            }
+
+            if ((requiredParameter & RepositoryRequiredParameter.Options) == RepositoryRequiredParameter.Options)
+            {
+                Ensure.ArgumentNotNull(options, "options");
+            }
 
             try
             {
-                handle = Proxy.git_repository_open(path);
+                handle = (path != null) ? Proxy.git_repository_open(path) : Proxy.git_repository_new();
                 RegisterForCleanup(handle);
 
                 isBare = Proxy.git_repository_is_bare(handle);
+
+                /* TODO: bug in libgit2, update when fixed by
+                 * https://github.com/libgit2/libgit2/pull/2970
+                 */
+                if (path == null)
+                {
+                    isBare = true;
+                }
 
                 Func<Index> indexBuilder = () => new Index(this);
 
@@ -252,7 +300,7 @@ namespace LibGit2Sharp
                     throw new BareRepositoryException("Index is not available in a bare repository.");
                 }
 
-                return index.Value;
+                return index != null ? index.Value : null;
             }
         }
 
