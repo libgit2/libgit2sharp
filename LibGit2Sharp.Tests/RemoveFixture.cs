@@ -59,12 +59,12 @@ namespace LibGit2Sharp.Tests
 
                 if (throws)
                 {
-                    Assert.Throws<RemoveFromIndexException>(() => repo.Remove(filename, removeFromWorkdir));
+                    Assert.Throws<RemoveFromIndexException>(() => Commands.Remove(repo, filename, removeFromWorkdir));
                     Assert.Equal(count, repo.Index.Count);
                 }
                 else
                 {
-                    repo.Remove(filename, removeFromWorkdir);
+                    Commands.Remove(repo, filename, removeFromWorkdir);
 
                     Assert.Equal(count - 1, repo.Index.Count);
                     Assert.Equal(existsAfterRemove, File.Exists(fullpath));
@@ -93,8 +93,8 @@ namespace LibGit2Sharp.Tests
                 File.AppendAllText(fullpath, "additional content");
                 Assert.Equal(FileStatus.ModifiedInIndex | FileStatus.ModifiedInWorkdir, repo.RetrieveStatus(filename));
 
-                Assert.Throws<RemoveFromIndexException>(() => repo.Remove(filename));
-                Assert.Throws<RemoveFromIndexException>(() => repo.Remove(filename, false));
+                Assert.Throws<RemoveFromIndexException>(() => Commands.Remove(repo, filename));
+                Assert.Throws<RemoveFromIndexException>(() => Commands.Remove(repo, filename, false));
             }
         }
 
@@ -104,16 +104,16 @@ namespace LibGit2Sharp.Tests
             string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                repo.Stage(Touch(repo.Info.WorkingDirectory, "2/subdir1/2.txt", "whone"));
-                repo.Stage(Touch(repo.Info.WorkingDirectory, "2/subdir1/3.txt", "too"));
-                repo.Stage(Touch(repo.Info.WorkingDirectory, "2/subdir2/4.txt", "tree"));
-                repo.Stage(Touch(repo.Info.WorkingDirectory, "2/5.txt", "for"));
-                repo.Stage(Touch(repo.Info.WorkingDirectory, "2/6.txt", "fyve"));
+                Commands.Stage(repo, Touch(repo.Info.WorkingDirectory, "2/subdir1/2.txt", "whone"));
+                Commands.Stage(repo, Touch(repo.Info.WorkingDirectory, "2/subdir1/3.txt", "too"));
+                Commands.Stage(repo, Touch(repo.Info.WorkingDirectory, "2/subdir2/4.txt", "tree"));
+                Commands.Stage(repo, Touch(repo.Info.WorkingDirectory, "2/5.txt", "for"));
+                Commands.Stage(repo, Touch(repo.Info.WorkingDirectory, "2/6.txt", "fyve"));
 
                 int count = repo.Index.Count;
 
                 Assert.True(Directory.Exists(Path.Combine(repo.Info.WorkingDirectory, "2")));
-                repo.Remove("2", false);
+                Commands.Remove(repo, "2", false);
 
                 Assert.Equal(count - 5, repo.Index.Count);
             }
@@ -128,7 +128,7 @@ namespace LibGit2Sharp.Tests
                 int count = repo.Index.Count;
 
                 Assert.True(Directory.Exists(Path.Combine(repo.Info.WorkingDirectory, "1")));
-                repo.Remove("1");
+                Commands.Remove(repo, "1");
 
                 Assert.False(Directory.Exists(Path.Combine(repo.Info.WorkingDirectory, "1")));
                 Assert.Equal(count - 1, repo.Index.Count);
@@ -148,8 +148,8 @@ namespace LibGit2Sharp.Tests
                     Assert.Null(repo.Index[relativePath]);
                     Assert.Equal(status, repo.RetrieveStatus(relativePath));
 
-                    repo.Remove(relativePath, i % 2 == 0);
-                    repo.Remove(relativePath, i % 2 == 0,
+                    Commands.Remove(repo, relativePath, i % 2 == 0);
+                    Commands.Remove(repo, relativePath, i % 2 == 0,
                                       new ExplicitPathsOptions {ShouldFailOnUnmatchedPath = false});
                 }
             }
@@ -169,7 +169,7 @@ namespace LibGit2Sharp.Tests
                     Assert.Equal(status, repo.RetrieveStatus(relativePath));
 
                     Assert.Throws<UnmatchedPathException>(
-                        () => repo.Remove(relativePath, i%2 == 0, new ExplicitPathsOptions()));
+                        () => Commands.Remove(repo, relativePath, i%2 == 0, new ExplicitPathsOptions()));
                 }
             }
         }
@@ -180,10 +180,10 @@ namespace LibGit2Sharp.Tests
             var path = SandboxStandardTestRepoGitDir();
             using (var repo = new Repository(path))
             {
-                Assert.Throws<ArgumentException>(() => repo.Remove(string.Empty));
-                Assert.Throws<ArgumentNullException>(() => repo.Remove((string)null));
-                Assert.Throws<ArgumentException>(() => repo.Remove(new string[] { }));
-                Assert.Throws<ArgumentNullException>(() => repo.Remove(new string[] { null }));
+                Assert.Throws<ArgumentException>(() => Commands.Remove(repo, string.Empty));
+                Assert.Throws<ArgumentNullException>(() => Commands.Remove(repo, (string)null));
+                Assert.Throws<ArgumentException>(() => Commands.Remove(repo, new string[] { }));
+                Assert.Throws<ArgumentNullException>(() => Commands.Remove(repo, new string[] { null }));
             }
         }
     }

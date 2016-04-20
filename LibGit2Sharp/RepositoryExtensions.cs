@@ -178,104 +178,11 @@ namespace LibGit2Sharp
             repository.Reset(resetMode, commit);
         }
 
-        /// <summary>
-        /// Replaces entries in the <see cref="Index"/> with entries from the specified commit.
-        /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
-        /// <param name="committish">A revparse spec for the target commit object.</param>
-        /// <param name="paths">The list of paths (either files or directories) that should be considered.</param>
-        /// <param name="explicitPathsOptions">
-        /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
-        /// Use these options to determine how unmatched explicit paths should be handled.
-        /// </param>
-        [Obsolete("This method will be removed in the next release. Please use Index.Replace() instead.")]
-        public static void Reset(this IRepository repository, string committish = "HEAD", IEnumerable<string> paths = null, ExplicitPathsOptions explicitPathsOptions = null)
-        {
-            if (repository.Info.IsBare)
-            {
-                throw new BareRepositoryException("Reset is not allowed in a bare repository");
-            }
-
-            Ensure.ArgumentNotNullOrEmptyString(committish, "committish");
-
-            Commit commit = LookUpCommit(repository, committish);
-
-            repository.Index.Replace(commit, paths, explicitPathsOptions);
-        }
-
         private static Commit LookUpCommit(IRepository repository, string committish)
         {
             GitObject obj = repository.Lookup(committish);
             Ensure.GitObjectIsNotNull(obj, committish);
             return obj.DereferenceToCommit(true);
-        }
-
-        /// <summary>
-        /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="LibGit2Sharp.Commit"/> into the repository.
-        /// The tip of the <see cref="Repository.Head"/> will be used as the parent of this new Commit.
-        /// Once the commit is created, the <see cref="Repository.Head"/> will move forward to point at it.
-        /// <para>Both the Author and Committer will be guessed from the Git configuration. An exception will be raised if no configuration is reachable.</para>
-        /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
-        /// <param name="message">The description of why a change was made to the repository.</param>
-        /// <returns>The generated <see cref="LibGit2Sharp.Commit"/>.</returns>
-        [Obsolete("This method will be removed in the next release. Please use Commit(string, Signature, Signature) instead.")]
-        public static Commit Commit(this IRepository repository, string message)
-        {
-            return repository.Commit(message, (CommitOptions)null);
-        }
-
-        /// <summary>
-        /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="LibGit2Sharp.Commit"/> into the repository.
-        /// The tip of the <see cref="Repository.Head"/> will be used as the parent of this new Commit.
-        /// Once the commit is created, the <see cref="Repository.Head"/> will move forward to point at it.
-        /// <para>Both the Author and Committer will be guessed from the Git configuration. An exception will be raised if no configuration is reachable.</para>
-        /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
-        /// <param name="message">The description of why a change was made to the repository.</param>
-        /// <param name="options">The <see cref="CommitOptions"/> that specify the commit behavior.</param>
-        /// <returns>The generated <see cref="LibGit2Sharp.Commit"/>.</returns>
-        [Obsolete("This method will be removed in the next release. Please use Commit(string, Signature, Signature, CommitOptions) instead.")]
-        public static Commit Commit(this IRepository repository, string message, CommitOptions options)
-        {
-            Signature author = repository.Config.BuildSignatureOrThrow(DateTimeOffset.Now);
-
-            return repository.Commit(message, author, options);
-        }
-
-        /// <summary>
-        /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="LibGit2Sharp.Commit"/> into the repository.
-        /// The tip of the <see cref="Repository.Head"/> will be used as the parent of this new Commit.
-        /// Once the commit is created, the <see cref="Repository.Head"/> will move forward to point at it.
-        /// <para>The Committer will be guessed from the Git configuration. An exception will be raised if no configuration is reachable.</para>
-        /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
-        /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
-        /// <param name="message">The description of why a change was made to the repository.</param>
-        /// <returns>The generated <see cref="LibGit2Sharp.Commit"/>.</returns>
-        [Obsolete("This method will be removed in the next release. Please use Commit(string, Signature, Signature) instead.")]
-        public static Commit Commit(this IRepository repository, string message, Signature author)
-        {
-            return repository.Commit(message, author, (CommitOptions)null);
-        }
-
-        /// <summary>
-        /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="LibGit2Sharp.Commit"/> into the repository.
-        /// The tip of the <see cref="Repository.Head"/> will be used as the parent of this new Commit.
-        /// Once the commit is created, the <see cref="Repository.Head"/> will move forward to point at it.
-        /// <para>The Committer will be guessed from the Git configuration. An exception will be raised if no configuration is reachable.</para>
-        /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
-        /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
-        /// <param name="message">The description of why a change was made to the repository.</param>
-        /// <param name="options">The <see cref="CommitOptions"/> that specify the commit behavior.</param>
-        /// <returns>The generated <see cref="LibGit2Sharp.Commit"/>.</returns>
-        [Obsolete("This method will be removed in the next release. Please use Commit(string, Signature, Signature, CommitOptions) instead.")]
-        public static Commit Commit(this IRepository repository, string message, Signature author, CommitOptions options)
-        {
-            Signature committer = repository.Config.BuildSignatureOrThrow(DateTimeOffset.Now);
-
-            return repository.Commit(message, author, committer, options);
         }
 
         /// <summary>
@@ -298,6 +205,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="remoteName">The name of the <see cref="Remote"/> to fetch from.</param>
+        [Obsolete("This method is deprecated. Please us the LibGit2Sharp.Commands.Fetch class")]
         public static void Fetch(this IRepository repository, string remoteName)
         {
             repository.Fetch(remoteName, null);
@@ -309,13 +217,16 @@ namespace LibGit2Sharp
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="remoteName">The name of the <see cref="Remote"/> to fetch from.</param>
         /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
+        [Obsolete("This method is deprecated. Please us the LibGit2Sharp.Commands.Fetch class")]
         public static void Fetch(this IRepository repository, string remoteName, FetchOptions options)
         {
             Ensure.ArgumentNotNull(repository, "repository");
             Ensure.ArgumentNotNullOrEmptyString(remoteName, "remoteName");
 
-            Remote remote = repository.Network.Remotes.RemoteForName(remoteName, true);
-            repository.Network.Fetch(remote, options);
+            using (Remote remote = repository.Network.Remotes.RemoteForName(remoteName, true))
+            {
+                repository.Network.Fetch(remote, options);
+            }
         }
 
         /// <summary>
@@ -361,7 +272,7 @@ namespace LibGit2Sharp
             return repository.Checkout(commit, options);
         }
 
-        internal static string BuildRelativePathFrom(this Repository repo, string path)
+        internal static string BuildRelativePathFrom(this IRepository repo, string path)
         {
             //TODO: To be removed when libgit2 natively implements this
             if (!Path.IsPathRooted(path))
@@ -371,7 +282,7 @@ namespace LibGit2Sharp
 
             string normalizedPath = Path.GetFullPath(path);
 
-            if (!repo.PathStartsWith(normalizedPath, repo.Info.WorkingDirectory))
+            if (!PathStartsWith(repo, normalizedPath, repo.Info.WorkingDirectory))
             {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
                                                           "Unable to process file '{0}'. This file is not located under the working directory of the repository ('{1}').",
@@ -380,6 +291,12 @@ namespace LibGit2Sharp
             }
 
             return normalizedPath.Substring(repo.Info.WorkingDirectory.Length);
+        }
+
+        internal static bool PathStartsWith(IRepository repository, string path, string value)
+        {
+            var pathCase = new PathCase(repository);
+            return pathCase.StartsWith(path, value);
         }
 
         private static ObjectId DereferenceToCommit(Repository repo, string identifier)
@@ -598,29 +515,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
-        /// </summary>
-        /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
-        /// <param name="commit">The target commit object.</param>
-        /// <param name="paths">The list of paths (either files or directories) that should be considered.</param>
-        [Obsolete("This method will be removed in the next release. Please use Index.Replace() instead.")]
-        public static void Reset(this IRepository repository, Commit commit, IEnumerable<string> paths)
-        {
-            repository.Index.Replace(commit, paths, null);
-        }
-
-        /// <summary>
-        /// Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
-        /// </summary>
-        /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
-        /// <param name="commit">The target commit object.</param>
-        [Obsolete("This method will be removed in the next release. Please use Index.Replace() instead.")]
-        public static void Reset(this IRepository repository, Commit commit)
-        {
-            repository.Index.Replace(commit, null, null);
-        }
-
-        /// <summary>
         /// Find where each line of a file originated.
         /// </summary>
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
@@ -672,6 +566,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="path">The path of the file within the working directory.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Stage()")]
         public static void Stage(this IRepository repository, string path)
         {
             repository.Stage(path, null);
@@ -682,6 +577,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Stage()")]
         public static void Stage(this IRepository repository, IEnumerable<string> paths)
         {
             repository.Stage(paths, null);
@@ -692,6 +588,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="path">The path of the file within the working directory.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Unstage()")]
         public static void Unstage(this IRepository repository, string path)
         {
             repository.Unstage(path, null);
@@ -702,6 +599,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Unstage()")]
         public static void Unstage(this IRepository repository, IEnumerable<string> paths)
         {
             repository.Unstage(paths, null);
@@ -719,9 +617,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="path">The path of the file within the working directory.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Remove")]
         public static void Remove(this IRepository repository, string path)
         {
-            repository.Remove(path, true, null);
+            Commands.Remove(repository, path, true, null);
         }
 
         /// <summary>
@@ -737,9 +636,10 @@ namespace LibGit2Sharp
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="path">The path of the file within the working directory.</param>
         /// <param name="removeFromWorkingDirectory">True to remove the file from the working directory, False otherwise.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Remove")]
         public static void Remove(this IRepository repository, string path, bool removeFromWorkingDirectory)
         {
-            repository.Remove(path, removeFromWorkingDirectory, null);
+            Commands.Remove(repository, path, removeFromWorkingDirectory, null);
         }
 
         /// <summary>
@@ -754,9 +654,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Remove")]
         public static void Remove(this IRepository repository, IEnumerable<string> paths)
         {
-            repository.Remove(paths, true, null);
+            Commands.Remove(repository, paths, true, null);
         }
 
         /// <summary>
@@ -772,6 +673,7 @@ namespace LibGit2Sharp
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
         /// <param name="removeFromWorkingDirectory">True to remove the files from the working directory, False otherwise.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Remove")]
         public static void Remove(this IRepository repository, IEnumerable<string> paths, bool removeFromWorkingDirectory)
         {
             repository.Remove(paths, removeFromWorkingDirectory, null);

@@ -109,7 +109,7 @@ namespace LibGit2Sharp.Tests
                 sb.Append("libgit2\n\r\n");
             }
 
-            using (var repo = InitIsolatedRepository())
+            using (var repo = new Repository(InitNewRepository()))
             {
                 CreateAttributesFiles(Path.Combine(repo.Info.Path, "info"), "attributes");
 
@@ -676,7 +676,7 @@ namespace LibGit2Sharp.Tests
 
                 Touch(repo.Info.WorkingDirectory, "README", "Yeah!\n");
                 repo.Index.Clear();
-                repo.Stage("README");
+                Commands.Stage(repo, "README");
 
                 repo.Commit("A new world, free of the burden of the history", Constants.Signature, Constants.Signature);
 

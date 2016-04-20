@@ -14,7 +14,7 @@ namespace LibGit2Sharp
         private readonly UpdatingCollection<string> fetchRefSpecs;
         private readonly UpdatingCollection<string> pushRefSpecs;
         private readonly Repository repo;
-        private readonly Remote remote;
+        private readonly string remoteName;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -28,7 +28,19 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(remote, "remote");
 
             this.repo = repo;
-            this.remote = remote;
+            this.remoteName = remote.Name;
+
+            fetchRefSpecs = new UpdatingCollection<string>(GetFetchRefSpecs, SetFetchRefSpecs);
+            pushRefSpecs = new UpdatingCollection<string>(GetPushRefSpecs, SetPushRefSpecs);
+        }
+
+        internal RemoteUpdater(Repository repo, string remote)
+        {
+            Ensure.ArgumentNotNull(repo, "repo");
+            Ensure.ArgumentNotNull(remote, "remote");
+
+            this.repo = repo;
+            this.remoteName = remote;
 
             fetchRefSpecs = new UpdatingCollection<string>(GetFetchRefSpecs, SetFetchRefSpecs);
             pushRefSpecs = new UpdatingCollection<string>(GetPushRefSpecs, SetPushRefSpecs);
@@ -36,7 +48,7 @@ namespace LibGit2Sharp
 
         private IEnumerable<string> GetFetchRefSpecs()
         {
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repo.Handle, remote.Name, true))
+            using (RemoteHandle remoteHandle = Proxy.git_remote_lookup(repo.Handle, remoteName, true))
             {
                 return Proxy.git_remote_get_fetch_refspecs(remoteHandle);
             }
@@ -44,17 +56,17 @@ namespace LibGit2Sharp
 
         private void SetFetchRefSpecs(IEnumerable<string> value)
         {
-            repo.Config.UnsetMultivar(string.Format("remote.{0}.fetch", remote.Name), ConfigurationLevel.Local);
+            repo.Config.UnsetMultivar(string.Format("remote.{0}.fetch", remoteName), ConfigurationLevel.Local);
 
             foreach (var url in value)
             {
-                Proxy.git_remote_add_fetch(repo.Handle, remote.Name, url);
+                Proxy.git_remote_add_fetch(repo.Handle, remoteName, url);
             }
         }
 
         private IEnumerable<string> GetPushRefSpecs()
         {
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repo.Handle, remote.Name, true))
+            using (RemoteHandle remoteHandle = Proxy.git_remote_lookup(repo.Handle, remoteName, true))
             {
                 return Proxy.git_remote_get_push_refspecs(remoteHandle);
             }
@@ -62,11 +74,11 @@ namespace LibGit2Sharp
 
         private void SetPushRefSpecs(IEnumerable<string> value)
         {
-            repo.Config.UnsetMultivar(string.Format("remote.{0}.push", remote.Name), ConfigurationLevel.Local);
+            repo.Config.UnsetMultivar(string.Format("remote.{0}.push", remoteName), ConfigurationLevel.Local);
 
             foreach (var url in value)
             {
-                Proxy.git_remote_add_push(repo.Handle, remote.Name, url);
+                Proxy.git_remote_add_push(repo.Handle, remoteName, url);
             }
         }
 
@@ -75,7 +87,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual TagFetchMode TagFetchMode
         {
-            set { Proxy.git_remote_set_autotag(repo.Handle, remote.Name, value); }
+            set { Proxy.git_remote_set_autotag(repo.Handle, remoteName, value); }
         }
 
         /// <summary>
@@ -83,7 +95,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual string Url
         {
-            set { Proxy.git_remote_set_url(repo.Handle, remote.Name, value); }
+            set { Proxy.git_remote_set_url(repo.Handle, remoteName, value); }
         }
 
         /// <summary>
@@ -91,7 +103,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual string PushUrl
         {
-            set { Proxy.git_remote_set_pushurl(repo.Handle, remote.Name, value); }
+            set { Proxy.git_remote_set_pushurl(repo.Handle, remoteName, value); }
         }
 
         /// <summary>

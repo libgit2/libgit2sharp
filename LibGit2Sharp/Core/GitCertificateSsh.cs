@@ -3,7 +3,7 @@
 namespace LibGit2Sharp.Core
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal struct GitCertificateSsh
+    internal unsafe struct git_certificate_ssh
     {
         public GitCertificateType cert_type;
         public GitCertificateSshType type;
@@ -11,13 +11,11 @@ namespace LibGit2Sharp.Core
         /// <summary>
         /// The MD5 hash (if appropriate)
         /// </summary>
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-        public byte[] HashMD5;
+        public unsafe fixed byte HashMD5[16];
 
         /// <summary>
         /// The MD5 hash (if appropriate)
         /// </summary>
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)]
-        public byte[] HashSHA1;
+        public unsafe fixed byte HashSHA1[20];
     }
 }

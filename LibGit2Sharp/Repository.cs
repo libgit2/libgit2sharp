@@ -21,7 +21,7 @@ namespace LibGit2Sharp
         private readonly BranchCollection branches;
         private readonly CommitLog commits;
         private readonly Lazy<Configuration> config;
-        private readonly RepositorySafeHandle handle;
+        private readonly RepositoryHandle handle;
         private readonly Lazy<Index> index;
         private readonly ReferenceCollection refs;
         private readonly TagCollection tags;
@@ -37,6 +37,25 @@ namespace LibGit2Sharp
         private readonly SubmoduleCollection submodules;
         private readonly Lazy<PathCase> pathCase;
 
+        private enum RepositoryRequiredParameter
+        {
+            None = 0,
+            Path = 1,
+            Options = 2,
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Repository"/> class
+        /// that does not point to an on-disk Git repository.  This is
+        /// suitable only for custom, in-memory Git repositories that are
+        /// configured with custom object database, reference database and/or
+        /// configuration backends.
+        /// </summary>
+        public Repository()
+            : this(null, null, RepositoryRequiredParameter.None)
+        {
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Repository"/> class.
         /// <para>For a standard repository, <paramref name="path"/> should either point to the ".git" folder or to the working directory. For a bare repository, <paramref name="path"/> should directly point to the repository folder.</para>
@@ -45,30 +64,59 @@ namespace LibGit2Sharp
         /// The path to the git repository to open, can be either the path to the git directory (for non-bare repositories this
         /// would be the ".git" folder inside the working directory) or the path to the working directory.
         /// </param>
-        public Repository(string path) : this(path, null)
+        public Repository(string path)
+            : this(path, null, RepositoryRequiredParameter.Path)
         { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Repository"/> class, providing optional behavioral overrides through <paramref name="options"/> parameter.
-        /// <para>For a standard repository, <paramref name="path"/> should either point to the ".git" folder or to the working directory. For a bare repository, <paramref name="path"/> should directly point to the repository folder.</para>
+        /// Initializes a new instance of the <see cref="Repository"/> class,
+        /// providing optional behavioral overrides through the
+        /// <paramref name="options"/> parameter.
+        /// <para>For a standard repository, <paramref name="path"/> may
+        /// either point to the ".git" folder or to the working directory.
+        /// For a bare repository, <paramref name="path"/> should directly
+        /// point to the repository folder.</para>
         /// </summary>
         /// <param name="path">
-        /// The path to the git repository to open, can be either the path to the git directory (for non-bare repositories this
-        /// would be the ".git" folder inside the working directory) or the path to the working directory.
+        /// The path to the git repository to open, can be either the
+        /// path to the git directory (for non-bare repositories this
+        /// would be the ".git" folder inside the working directory)
+        /// or the path to the working directory.
         /// </param>
         /// <param name="options">
         /// Overrides to the way a repository is opened.
         /// </param>
-        public Repository(string path, RepositoryOptions options)
+        public Repository(string path, RepositoryOptions options) :
+            this(path, options, RepositoryRequiredParameter.Path | RepositoryRequiredParameter.Options)
         {
-            Ensure.ArgumentNotNullOrEmptyString(path, "path");
+        }
+        
+        private Repository(string path, RepositoryOptions options, RepositoryRequiredParameter requiredParameter)
+        {
+            if ((requiredParameter & RepositoryRequiredParameter.Path) == RepositoryRequiredParameter.Path)
+            {
+                Ensure.ArgumentNotNullOrEmptyString(path, "path");
+            }
+
+            if ((requiredParameter & RepositoryRequiredParameter.Options) == RepositoryRequiredParameter.Options)
+            {
+                Ensure.ArgumentNotNull(options, "options");
+            }
 
             try
             {
-                handle = Proxy.git_repository_open(path);
+                handle = (path != null) ? Proxy.git_repository_open(path) : Proxy.git_repository_new();
                 RegisterForCleanup(handle);
 
                 isBare = Proxy.git_repository_is_bare(handle);
+
+                /* TODO: bug in libgit2, update when fixed by
+                 * https://github.com/libgit2/libgit2/pull/2970
+                 */
+                if (path == null)
+                {
+                    isBare = true;
+                }
 
                 Func<Index> indexBuilder = () => new Index(this);
 
@@ -204,7 +252,7 @@ namespace LibGit2Sharp
             }
         }
 
-        internal RepositorySafeHandle Handle
+        internal RepositoryHandle Handle
         {
             get { return handle; }
         }
@@ -252,7 +300,7 @@ namespace LibGit2Sharp
                     throw new BareRepositoryException("Index is not available in a bare repository.");
                 }
 
-                return index.Value;
+                return index != null ? index.Value : null;
             }
         }
 
@@ -404,7 +452,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            using (RepositorySafeHandle repo = Proxy.git_repository_init_ext(null, path, isBare))
+            using (RepositoryHandle repo = Proxy.git_repository_init_ext(null, path, isBare))
             {
                 FilePath repoPath = Proxy.git_repository_path(repo);
                 return repoPath.Native;
@@ -429,7 +477,7 @@ namespace LibGit2Sharp
 
             // TODO: Shouldn't we ensure that the working folder isn't under the gitDir?
 
-            using (RepositorySafeHandle repo = Proxy.git_repository_init_ext(wd, gitDirectoryPath, false))
+            using (RepositoryHandle repo = Proxy.git_repository_init_ext(wd, gitDirectoryPath, false))
             {
                 FilePath repoPath = Proxy.git_repository_path(repo);
                 return repoPath.Native;
@@ -482,9 +530,9 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(id, "id");
 
-            using (GitObjectSafeHandle obj = Proxy.git_object_lookup(handle, id, type))
+            using (ObjectHandle obj = Proxy.git_object_lookup(handle, id, type))
             {
-                if (obj == null || obj.IsInvalid)
+                if (obj == null || obj.IsNull)
                 {
                     return null;
                 }
@@ -514,7 +562,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(objectish, "objectish");
 
             GitObject obj;
-            using (GitObjectSafeHandle sh = Proxy.git_revparse_single(handle, objectish))
+            using (ObjectHandle sh = Proxy.git_revparse_single(handle, objectish))
             {
                 if (sh == null)
                 {
@@ -583,8 +631,8 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(url, "url");
 
-            using (RepositorySafeHandle repositoryHandle = Proxy.git_repository_new())
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_create_anonymous(repositoryHandle, url))
+            using (RepositoryHandle repositoryHandle = Proxy.git_repository_new())
+            using (RemoteHandle remoteHandle = Proxy.git_remote_create_anonymous(repositoryHandle, url))
             {
                 var gitCallbacks = new GitRemoteCallbacks { version = 1 };
 
@@ -691,7 +739,7 @@ namespace LibGit2Sharp
                 {
                     cloneOpts.CheckoutBranch = StrictUtf8Marshaler.FromManaged(options.BranchName);
 
-                    using (RepositorySafeHandle repo = Proxy.git_clone(sourceUrl, workdirPath, ref cloneOpts))
+                    using (RepositoryHandle repo = Proxy.git_clone(sourceUrl, workdirPath, ref cloneOpts))
                     {
                         clonedRepoPath = Proxy.git_repository_path(repo).Native;
                     }
@@ -857,7 +905,7 @@ namespace LibGit2Sharp
             GitObject obj;
             try
             {
-                if (!refH.IsInvalid)
+                if (!refH.IsNull)
                 {
                     var reference = Reference.BuildFromPtr<Reference>(refH, this);
                     if (reference.IsLocalBranch)
@@ -1031,21 +1079,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
-        /// </summary>
-        /// <param name="commit">The target commit object.</param>
-        /// <param name="paths">The list of paths (either files or directories) that should be considered.</param>
-        /// <param name="explicitPathsOptions">
-        /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
-        /// Use these options to determine how unmatched explicit paths should be handled.
-        /// </param>
-        [Obsolete("This method will be removed in the next release. Please use Index.Replace() instead.")]
-        public void Reset(Commit commit, IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions)
-        {
-            Index.Replace(commit, paths, explicitPathsOptions);
-        }
-
-        /// <summary>
         /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="LibGit2Sharp.Commit"/> into the repository.
         /// The tip of the <see cref="Repository.Head"/> will be used as the parent of this new Commit.
         /// Once the commit is created, the <see cref="Repository.Head"/> will move forward to point at it.
@@ -1165,7 +1198,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Clean the working tree by removing files that are not under version control.
         /// </summary>
-        public void RemoveUntrackedFiles()
+        public unsafe void RemoveUntrackedFiles()
         {
             var options = new GitCheckoutOpts
             {
@@ -1174,7 +1207,7 @@ namespace LibGit2Sharp
                                      | CheckoutStrategy.GIT_CHECKOUT_ALLOW_CONFLICTS,
             };
 
-            Proxy.git_checkout_index(Handle, new NullGitObjectSafeHandle(), ref options);
+            Proxy.git_checkout_index(Handle, new ObjectHandle(null, false), ref options);
         }
 
         private void CleanupDisposableDependencies()
@@ -1205,7 +1238,7 @@ namespace LibGit2Sharp
 
             options = options ?? new MergeOptions();
 
-            using (GitAnnotatedCommitHandle annotatedCommitHandle = Proxy.git_annotated_commit_lookup(Handle, commit.Id.Oid))
+            using (AnnotatedCommitHandle annotatedCommitHandle = Proxy.git_annotated_commit_lookup(Handle, commit.Id.Oid))
             {
                 return Merge(new[] { annotatedCommitHandle }, merger, options);
             }
@@ -1225,8 +1258,8 @@ namespace LibGit2Sharp
 
             options = options ?? new MergeOptions();
 
-            using (ReferenceSafeHandle referencePtr = Refs.RetrieveReferencePtr(branch.CanonicalName))
-            using (GitAnnotatedCommitHandle annotatedCommitHandle = Proxy.git_annotated_commit_from_ref(Handle, referencePtr))
+            using (ReferenceHandle referencePtr = Refs.RetrieveReferencePtr(branch.CanonicalName))
+            using (AnnotatedCommitHandle annotatedCommitHandle = Proxy.git_annotated_commit_from_ref(Handle, referencePtr))
             {
                 return Merge(new[] { annotatedCommitHandle }, merger, options);
             }
@@ -1276,7 +1309,7 @@ namespace LibGit2Sharp
                     expectedRef);
             }
 
-            GitAnnotatedCommitHandle[] annotatedCommitHandles = fetchHeads.Select(fetchHead =>
+            AnnotatedCommitHandle[] annotatedCommitHandles = fetchHeads.Select(fetchHead =>
                 Proxy.git_annotated_commit_from_fetchhead(Handle, fetchHead.RemoteCanonicalName, fetchHead.Url, fetchHead.Target.Id.Oid)).ToArray();
 
             try
@@ -1287,7 +1320,7 @@ namespace LibGit2Sharp
             finally
             {
                 // Cleanup.
-                foreach (GitAnnotatedCommitHandle annotatedCommitHandle in annotatedCommitHandles)
+                foreach (AnnotatedCommitHandle annotatedCommitHandle in annotatedCommitHandles)
                 {
                     annotatedCommitHandle.Dispose();
                 }
@@ -1470,7 +1503,7 @@ namespace LibGit2Sharp
         /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
         /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        private MergeResult Merge(GitAnnotatedCommitHandle[] annotatedCommits, Signature merger, MergeOptions options)
+        private MergeResult Merge(AnnotatedCommitHandle[] annotatedCommits, Signature merger, MergeOptions options)
         {
             GitMergeAnalysis mergeAnalysis;
             GitMergePreference mergePreference;
@@ -1550,7 +1583,7 @@ namespace LibGit2Sharp
         /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
         /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        private MergeResult NormalMerge(GitAnnotatedCommitHandle[] annotatedCommits, Signature merger, MergeOptions options)
+        private MergeResult NormalMerge(AnnotatedCommitHandle[] annotatedCommits, Signature merger, MergeOptions options)
         {
             MergeResult mergeResult;
             GitMergeFlag treeFlags = options.FindRenames ? GitMergeFlag.GIT_MERGE_FIND_RENAMES
@@ -1613,7 +1646,7 @@ namespace LibGit2Sharp
         /// <param name="annotatedCommit">The merge head handle to fast-forward merge.</param>
         /// <param name="options">Options controlling merge behavior.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        private MergeResult FastForwardMerge(GitAnnotatedCommitHandle annotatedCommit, MergeOptions options)
+        private MergeResult FastForwardMerge(AnnotatedCommitHandle annotatedCommit, MergeOptions options)
         {
             ObjectId id = Proxy.git_annotated_commit_id(annotatedCommit);
             Commit fastForwardCommit = (Commit)Lookup(id, ObjectType.Commit);
@@ -1659,11 +1692,6 @@ namespace LibGit2Sharp
             get { return pathCase.Value.Comparer; }
         }
 
-        internal bool PathStartsWith(string path, string value)
-        {
-            return pathCase.Value.StartsWith(path, value);
-        }
-
         internal FilePath[] ToFilePaths(IEnumerable<string> paths)
         {
             if (paths == null)
@@ -1698,11 +1726,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="path">The path of the file within the working directory.</param>
         /// <param name="stageOptions">Determines how paths will be staged.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Stage()")]
         public void Stage(string path, StageOptions stageOptions)
         {
-            Ensure.ArgumentNotNull(path, "path");
-
-            Stage(new[] { path }, stageOptions);
+            Commands.Stage(this, path, stageOptions);
         }
 
         /// <summary>
@@ -1712,80 +1739,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
         /// <param name="stageOptions">Determines how paths will be staged.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Stage()")]
         public void Stage(IEnumerable<string> paths, StageOptions stageOptions)
         {
-            Ensure.ArgumentNotNull(paths, "paths");
-
-            DiffModifiers diffModifiers = DiffModifiers.IncludeUntracked;
-            ExplicitPathsOptions explicitPathsOptions = stageOptions != null ? stageOptions.ExplicitPathsOptions : null;
-
-            if (stageOptions != null && stageOptions.IncludeIgnored)
-            {
-                diffModifiers |= DiffModifiers.IncludeIgnored;
-            }
-
-            var changes = Diff.Compare<TreeChanges>(diffModifiers, paths, explicitPathsOptions,
-                new CompareOptions { Similarity = SimilarityOptions.None });
-
-            var unexpectedTypesOfChanges = changes
-                .Where(
-                    tec => tec.Status != ChangeKind.Added &&
-                           tec.Status != ChangeKind.Modified &&
-                           tec.Status != ChangeKind.Conflicted &&
-                           tec.Status != ChangeKind.Unmodified &&
-                           tec.Status != ChangeKind.Deleted).ToList();
-
-            if (unexpectedTypesOfChanges.Count > 0)
-            {
-                throw new InvalidOperationException(
-                    string.Format(CultureInfo.InvariantCulture,
-                        "Entry '{0}' bears an unexpected ChangeKind '{1}'",
-                        unexpectedTypesOfChanges[0].Path, unexpectedTypesOfChanges[0].Status));
-            }
-
-            /* Remove files from the index that don't exist on disk */
-            foreach (TreeEntryChanges treeEntryChanges in changes)
-            {
-                switch (treeEntryChanges.Status)
-                {
-                    case ChangeKind.Conflicted:
-                        if (!treeEntryChanges.Exists)
-                        {
-                            RemoveFromIndex(treeEntryChanges.Path);
-                        }
-                        break;
-
-                    case ChangeKind.Deleted:
-                        RemoveFromIndex(treeEntryChanges.Path);
-                        break;
-
-                    default:
-                        continue;
-                }
-            }
-
-            foreach (TreeEntryChanges treeEntryChanges in changes)
-            {
-                switch (treeEntryChanges.Status)
-                {
-                    case ChangeKind.Added:
-                    case ChangeKind.Modified:
-                        AddToIndex(treeEntryChanges.Path);
-                        break;
-
-                    case ChangeKind.Conflicted:
-                        if (treeEntryChanges.Exists)
-                        {
-                            AddToIndex(treeEntryChanges.Path);
-                        }
-                        break;
-
-                    default:
-                        continue;
-                }
-            }
-
-            UpdatePhysicalIndex();
+            Commands.Stage(this, paths, stageOptions);
         }
 
         /// <summary>
@@ -1796,11 +1753,10 @@ namespace LibGit2Sharp
         /// The passed <paramref name="path"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Unstage()")]
         public void Unstage(string path, ExplicitPathsOptions explicitPathsOptions)
         {
-            Ensure.ArgumentNotNull(path, "path");
-
-            Unstage(new[] { path }, explicitPathsOptions);
+            Commands.Unstage(this, path, explicitPathsOptions);
         }
 
         /// <summary>
@@ -1811,20 +1767,10 @@ namespace LibGit2Sharp
         /// The passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Unstage()")]
         public void Unstage(IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions)
         {
-            Ensure.ArgumentNotNull(paths, "paths");
-
-            if (Info.IsHeadUnborn)
-            {
-                var changes = Diff.Compare<TreeChanges>(null, DiffTargets.Index, paths, explicitPathsOptions, new CompareOptions { Similarity = SimilarityOptions.None });
-
-                Index.Replace(changes);
-            }
-            else
-            {
-                Index.Replace(Head.Tip, paths, explicitPathsOptions);
-            }
+            Commands.Unstage(this, paths, explicitPathsOptions);
         }
 
         /// <summary>
@@ -1832,76 +1778,21 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="sourcePath">The path of the file within the working directory which has to be moved/renamed.</param>
         /// <param name="destinationPath">The target path of the file within the working directory.</param>
+        [Obsolete("This method is deprecatd. Please use LibGit2Sharp.Commands.Move()")]
         public void Move(string sourcePath, string destinationPath)
         {
-            Move(new[] { sourcePath }, new[] { destinationPath });
+            Commands.Move(this, sourcePath, destinationPath);
         }
 
-        /// <summary>
+         /// <summary>
         /// Moves and/or renames a collection of files in the working directory and promotes the changes to the staging area.
         /// </summary>
         /// <param name="sourcePaths">The paths of the files within the working directory which have to be moved/renamed.</param>
         /// <param name="destinationPaths">The target paths of the files within the working directory.</param>
+        [Obsolete("This method is deprecatd. Please use LibGit2Sharp.Commands.Move()")]
         public void Move(IEnumerable<string> sourcePaths, IEnumerable<string> destinationPaths)
         {
-            Ensure.ArgumentNotNull(sourcePaths, "sourcePaths");
-            Ensure.ArgumentNotNull(destinationPaths, "destinationPaths");
-
-            //TODO: Move() should support following use cases:
-            // - Moving a file under a directory ('file' and 'dir' -> 'dir/file')
-            // - Moving a directory (and its content) under another directory ('dir1' and 'dir2' -> 'dir2/dir1/*')
-
-            //TODO: Move() should throw when:
-            // - Moving a directory under a file
-
-            IDictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>> batch = PrepareBatch(sourcePaths, destinationPaths);
-
-            if (batch.Count == 0)
-            {
-                throw new ArgumentNullException("sourcePaths");
-            }
-
-            foreach (KeyValuePair<Tuple<string, FileStatus>, Tuple<string, FileStatus>> keyValuePair in batch)
-            {
-                string sourcePath = keyValuePair.Key.Item1;
-                string destPath = keyValuePair.Value.Item1;
-
-                if (Directory.Exists(sourcePath) || Directory.Exists(destPath))
-                {
-                    throw new NotImplementedException();
-                }
-
-                FileStatus sourceStatus = keyValuePair.Key.Item2;
-                if (sourceStatus.HasAny(new Enum[] { FileStatus.Nonexistent, FileStatus.DeletedFromIndex, FileStatus.NewInWorkdir, FileStatus.DeletedFromWorkdir }))
-                {
-                    throw new LibGit2SharpException("Unable to move file '{0}'. Its current status is '{1}'.",
-                                                    sourcePath,
-                                                    sourceStatus);
-                }
-
-                FileStatus desStatus = keyValuePair.Value.Item2;
-                if (desStatus.HasAny(new Enum[] { FileStatus.Nonexistent, FileStatus.DeletedFromWorkdir }))
-                {
-                    continue;
-                }
-
-                throw new LibGit2SharpException("Unable to overwrite file '{0}'. Its current status is '{1}'.",
-                                                destPath,
-                                                desStatus);
-            }
-
-            string wd = Info.WorkingDirectory;
-            foreach (KeyValuePair<Tuple<string, FileStatus>, Tuple<string, FileStatus>> keyValuePair in batch)
-            {
-                string from = keyValuePair.Key.Item1;
-                string to = keyValuePair.Value.Item1;
-
-                RemoveFromIndex(from);
-                File.Move(Path.Combine(wd, from), Path.Combine(wd, to));
-                AddToIndex(to);
-            }
-
-            UpdatePhysicalIndex();
+            Commands.Move(this, sourcePaths, destinationPaths);
         }
 
         /// <summary>
@@ -1925,11 +1816,10 @@ namespace LibGit2Sharp
         /// The passed <paramref name="path"/> will be treated as an explicit path.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Remove")]
         public void Remove(string path, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions)
         {
-            Ensure.ArgumentNotNull(path, "path");
-
-            Remove(new[] { path }, removeFromWorkingDirectory, explicitPathsOptions);
+            Commands.Remove(this, path, removeFromWorkingDirectory, explicitPathsOptions);
         }
 
         /// <summary>
@@ -1953,40 +1843,10 @@ namespace LibGit2Sharp
         /// The passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Remove")]
         public void Remove(IEnumerable<string> paths, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions)
         {
-            Ensure.ArgumentNotNullOrEmptyEnumerable<string>(paths, "paths");
-
-            var pathsToDelete = paths.Where(p => Directory.Exists(Path.Combine(Info.WorkingDirectory, p))).ToList();
-            var notConflictedPaths = new List<string>();
-
-            foreach (var path in paths)
-            {
-                Ensure.ArgumentNotNullOrEmptyString(path, "path");
-
-                var conflict = Index.Conflicts[path];
-
-                if (conflict != null)
-                {
-                    pathsToDelete.Add(RemoveFromIndex(path));
-                }
-                else
-                {
-                    notConflictedPaths.Add(path);
-                }
-            }
-
-            if (notConflictedPaths.Count > 0)
-            {
-                pathsToDelete.AddRange(RemoveStagedItems(notConflictedPaths, removeFromWorkingDirectory, explicitPathsOptions));
-            }
-
-            if (removeFromWorkingDirectory)
-            {
-                RemoveFilesAndFolders(pathsToDelete);
-            }
-
-            UpdatePhysicalIndex();
+            Commands.Remove(this, paths, removeFromWorkingDirectory, explicitPathsOptions);
         }
 
         /// <summary>
@@ -2020,7 +1880,7 @@ namespace LibGit2Sharp
             Proxy.git_index_read(Index.Handle);
         }
 
-        private void AddToIndex(string relativePath)
+        internal void AddToIndex(string relativePath)
         {
             if (!Submodules.TryStage(relativePath, true))
             {
@@ -2028,126 +1888,16 @@ namespace LibGit2Sharp
             }
         }
 
-        private string RemoveFromIndex(string relativePath)
+        internal string RemoveFromIndex(string relativePath)
         {
             Proxy.git_index_remove_bypath(Index.Handle, relativePath);
 
             return relativePath;
         }
 
-        private void UpdatePhysicalIndex()
+        internal void UpdatePhysicalIndex()
         {
             Proxy.git_index_write(Index.Handle);
-        }
-
-        private Tuple<string, FileStatus> BuildFrom(string path)
-        {
-            string relativePath = this.BuildRelativePathFrom(path);
-            return new Tuple<string, FileStatus>(relativePath, RetrieveStatus(relativePath));
-        }
-
-        private static bool Enumerate(IEnumerator<string> leftEnum, IEnumerator<string> rightEnum)
-        {
-            bool isLeftEoF = leftEnum.MoveNext();
-            bool isRightEoF = rightEnum.MoveNext();
-
-            if (isLeftEoF == isRightEoF)
-            {
-                return isLeftEoF;
-            }
-
-            throw new ArgumentException("The collection of paths are of different lengths.");
-        }
-
-        private IDictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>> PrepareBatch(IEnumerable<string> leftPaths, IEnumerable<string> rightPaths)
-        {
-            IDictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>> dic = new Dictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>>();
-
-            IEnumerator<string> leftEnum = leftPaths.GetEnumerator();
-            IEnumerator<string> rightEnum = rightPaths.GetEnumerator();
-
-            while (Enumerate(leftEnum, rightEnum))
-            {
-                Tuple<string, FileStatus> from = BuildFrom(leftEnum.Current);
-                Tuple<string, FileStatus> to = BuildFrom(rightEnum.Current);
-                dic.Add(from, to);
-            }
-
-            return dic;
-        }
-
-        private void RemoveFilesAndFolders(IEnumerable<string> pathsList)
-        {
-            string wd = Info.WorkingDirectory;
-
-            foreach (string path in pathsList)
-            {
-                string fileName = Path.Combine(wd, path);
-
-                if (Directory.Exists(fileName))
-                {
-                    Directory.Delete(fileName, true);
-                    continue;
-                }
-
-                if (!File.Exists(fileName))
-                {
-                    continue;
-                }
-
-                File.Delete(fileName);
-            }
-        }
-
-        private IEnumerable<string> RemoveStagedItems(IEnumerable<string> paths, bool removeFromWorkingDirectory = true, ExplicitPathsOptions explicitPathsOptions = null)
-        {
-            var removed = new List<string>();
-            var changes = Diff.Compare<TreeChanges>(DiffModifiers.IncludeUnmodified | DiffModifiers.IncludeUntracked, paths, explicitPathsOptions);
-
-            foreach (var treeEntryChanges in changes)
-            {
-                var status = RetrieveStatus(treeEntryChanges.Path);
-
-                switch (treeEntryChanges.Status)
-                {
-                    case ChangeKind.Added:
-                    case ChangeKind.Deleted:
-                        removed.Add(RemoveFromIndex(treeEntryChanges.Path));
-                        break;
-
-                    case ChangeKind.Unmodified:
-                        if (removeFromWorkingDirectory && (
-                            status.HasFlag(FileStatus.ModifiedInIndex) ||
-                            status.HasFlag(FileStatus.NewInIndex)))
-                        {
-                            throw new RemoveFromIndexException("Unable to remove file '{0}', as it has changes staged in the index. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
-                                                               treeEntryChanges.Path);
-                        }
-                        removed.Add(RemoveFromIndex(treeEntryChanges.Path));
-                        continue;
-
-                    case ChangeKind.Modified:
-                        if (status.HasFlag(FileStatus.ModifiedInWorkdir) && status.HasFlag(FileStatus.ModifiedInIndex))
-                        {
-                            throw new RemoveFromIndexException("Unable to remove file '{0}', as it has staged content different from both the working directory and the HEAD.",
-                                                               treeEntryChanges.Path);
-                        }
-                        if (removeFromWorkingDirectory)
-                        {
-                            throw new RemoveFromIndexException("Unable to remove file '{0}', as it has local modifications. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
-                                                               treeEntryChanges.Path);
-                        }
-                        removed.Add(RemoveFromIndex(treeEntryChanges.Path));
-                        continue;
-
-                    default:
-                        throw new RemoveFromIndexException("Unable to remove file '{0}'. Its current status is '{1}'.",
-                                                           treeEntryChanges.Path,
-                                                           treeEntryChanges.Status);
-                }
-            }
-
-            return removed;
         }
 
         /// <summary>

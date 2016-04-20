@@ -27,6 +27,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Null(repo.Info.WorkingDirectory);
                 Assert.Equal(Path.GetFullPath(repoPath), repo.Info.Path);
                 Assert.True(repo.Info.IsBare);
+                Assert.Throws<BareRepositoryException>(() => { var idx = repo.Index; });
 
                 AssertInitializedRepository(repo, "refs/heads/master");
 
@@ -181,7 +182,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                Remote remote = repo.Network.Remotes.Add(remoteName, url);
+                repo.Network.Remotes.Add(remoteName, url);
 
                 // We will first fetch without specifying any Tag options.
                 // After we verify this fetch, we will perform a second fetch
@@ -208,13 +209,13 @@ namespace LibGit2Sharp.Tests
                 }
 
                 // Perform the actual fetch
-                repo.Fetch(remote.Name, new FetchOptions { OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler });
+                Commands.Fetch(repo, remoteName, new string[0], new FetchOptions { OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler }, null);
 
                 // Verify the expected state
                 expectedFetchState.CheckUpdatedReferences(repo);
 
                 // Now fetch the rest of the tags
-                repo.Fetch(remote.Name, new FetchOptions { TagFetchMode = TagFetchMode.All });
+                Commands.Fetch(repo, remoteName, new string[0], new FetchOptions { TagFetchMode = TagFetchMode.All }, null);
 
                 // Verify that the "nearly-dangling" tag is now in the repo.
                 Tag nearlyDanglingTag = repo.Tags["nearly-dangling"];
@@ -443,7 +444,7 @@ namespace LibGit2Sharp.Tests
             {
                 const string filename = "new.txt";
                 Touch(repo.Info.WorkingDirectory, filename, "one ");
-                repo.Stage(filename);
+                Commands.Stage(repo, filename);
 
                 Signature author = Constants.Signature;
                 Commit commit = repo.Commit("Initial commit", author, author);
@@ -612,7 +613,7 @@ namespace LibGit2Sharp.Tests
             {
                 repo.Checkout(repo.Head.Tip.Sha, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
                 Branch trackLocal = repo.Head;
-                Assert.Null(trackLocal.Remote);
+                Assert.Null(trackLocal.RemoteName);
             }
         }
 
@@ -670,6 +671,19 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 Assert.False(repo.Info.IsShallow);
+            }
+        }
+
+        [Fact]
+        public void CanCreateInMemoryRepository()
+        {
+            using (var repo = new Repository())
+            {
+                Assert.True(repo.Info.IsBare);
+                Assert.Null(repo.Info.Path);
+                Assert.Null(repo.Info.WorkingDirectory);
+
+                Assert.Throws<BareRepositoryException>(() => { var idx = repo.Index; });
             }
         }
 

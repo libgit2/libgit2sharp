@@ -1,4 +1,6 @@
-﻿namespace LibGit2Sharp
+﻿using System;
+
+namespace LibGit2Sharp
 {
     /// <summary>
     /// Provides optional additional information to the Repository to be opened.
@@ -34,6 +36,7 @@
         /// </para>
         /// <seealso cref="GlobalSettings.SetConfigSearchPaths"/>.
         /// </summary>
+        [Obsolete("This option is deprecated. Use GlobalConfiguration.SetConfigSearchPaths()")]
         public string GlobalConfigurationLocation { get; set; }
 
         /// <summary>
@@ -44,6 +47,7 @@
         /// </para>
         /// <seealso cref="GlobalSettings.SetConfigSearchPaths"/>.
         /// </summary>
+        [Obsolete("This option is deprecated. Use GlobalConfiguration.SetConfigSearchPaths()")]
         public string XdgConfigurationLocation { get; set; }
 
         /// <summary>
@@ -54,6 +58,7 @@
         /// </para>
         /// <seealso cref="GlobalSettings.SetConfigSearchPaths"/>.
         /// </summary>
+        [Obsolete("This option is deprecated. Use GlobalConfiguration.SetConfigSearchPaths()")]
         public string SystemConfigurationLocation { get; set; }
 
         /// <summary>

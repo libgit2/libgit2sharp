@@ -261,8 +261,7 @@ namespace LibGit2Sharp
                 Marshal.StructureToPtr(state.thisStream, state.thisPtr, false);
 
                 state.nextPtr = git_writestream_next;
-                state.nextStream = new GitWriteStream();
-                Marshal.PtrToStructure(state.nextPtr, state.nextStream);
+                state.nextStream = (GitWriteStream)Marshal.PtrToStructure(state.nextPtr, typeof(GitWriteStream));
                 
                 state.filterSource = FilterSource.FromNativePtr(filterSourcePtr);
                 state.output = new WriteStream(state.nextStream, state.nextPtr);

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
@@ -11,7 +12,7 @@ namespace LibGit2Sharp.Tests
         public void CanCountRefSpecs()
         {
             var path = SandboxStandardTestRepo();
-            using (var repo = InitIsolatedRepository(path))
+            using (var repo = new Repository(path))
             {
                 var remote = repo.Network.Remotes["origin"];
                 Assert.Equal(1, remote.RefSpecs.Count());
@@ -22,7 +23,7 @@ namespace LibGit2Sharp.Tests
         public void CanIterateOverRefSpecs()
         {
             var path = SandboxStandardTestRepo();
-            using (var repo = InitIsolatedRepository(path))
+            using (var repo = new Repository(path))
             {
                 var remote = repo.Network.Remotes["origin"];
                 int count = 0;
@@ -39,7 +40,7 @@ namespace LibGit2Sharp.Tests
         public void FetchAndPushRefSpecsComposeRefSpecs()
         {
             var path = SandboxStandardTestRepo();
-            using (var repo = InitIsolatedRepository(path))
+            using (var repo = new Repository(path))
             {
                 var remote = repo.Network.Remotes["origin"];
 
@@ -53,7 +54,7 @@ namespace LibGit2Sharp.Tests
         public void CanReadRefSpecDetails()
         {
             var path = SandboxStandardTestRepo();
-            using (var repo = InitIsolatedRepository(path))
+            using (var repo = new Repository(path))
             {
                 var remote = repo.Network.Remotes["origin"];
 
@@ -73,27 +74,32 @@ namespace LibGit2Sharp.Tests
         public void CanReplaceRefSpecs(string[] newFetchRefSpecs, string[] newPushRefSpecs)
         {
             var path = SandboxStandardTestRepo();
-            using (var repo = InitIsolatedRepository(path))
+            using (var repo = new Repository(path))
             {
-                var remote = repo.Network.Remotes["origin"];
-                var oldRefSpecs = remote.RefSpecs.ToList();
+                List<RefSpec> oldRefSpecs;
+                using (var remote = repo.Network.Remotes["origin"])
+                {
+                    oldRefSpecs = remote.RefSpecs.ToList();
 
-                var newRemote = repo.Network.Remotes.Update(remote,
-                    r => r.FetchRefSpecs = newFetchRefSpecs, r => r.PushRefSpecs = newPushRefSpecs);
+                    repo.Network.Remotes.Update("origin",
+                        r => r.FetchRefSpecs = newFetchRefSpecs, r => r.PushRefSpecs = newPushRefSpecs);
+                        Assert.Equal(oldRefSpecs, remote.RefSpecs.ToList());
+                }
 
-                Assert.Equal(oldRefSpecs, remote.RefSpecs.ToList());
+                using (var newRemote = repo.Network.Remotes["origin"])
+                {
+                    var actualNewFetchRefSpecs = newRemote.RefSpecs
+                        .Where(s => s.Direction == RefSpecDirection.Fetch)
+                        .Select(r => r.Specification)
+                        .ToArray();
+                    Assert.Equal(newFetchRefSpecs, actualNewFetchRefSpecs);
 
-                var actualNewFetchRefSpecs = newRemote.RefSpecs
-                    .Where(s => s.Direction == RefSpecDirection.Fetch)
-                    .Select(r => r.Specification)
-                    .ToArray();
-                Assert.Equal(newFetchRefSpecs, actualNewFetchRefSpecs);
-
-                var actualNewPushRefSpecs = newRemote.RefSpecs
-                    .Where(s => s.Direction == RefSpecDirection.Push)
-                    .Select(r => r.Specification)
-                    .ToArray();
-                Assert.Equal(newPushRefSpecs, actualNewPushRefSpecs);
+                    var actualNewPushRefSpecs = newRemote.RefSpecs
+                        .Where(s => s.Direction == RefSpecDirection.Push)
+                        .Select(r => r.Specification)
+                        .ToArray();
+                    Assert.Equal(newPushRefSpecs, actualNewPushRefSpecs);
+                }
             }
         }
 
@@ -101,17 +107,16 @@ namespace LibGit2Sharp.Tests
         public void RemoteUpdaterSavesRefSpecsPermanently()
         {
             var fetchRefSpecs = new string[] { "refs/their/heads/*:refs/my/heads/*", "+refs/their/tag:refs/my/tag" };
-
             var path = SandboxStandardTestRepo();
-            using (var repo = InitIsolatedRepository(path))
+
+            using (var repo = new Repository(path))
             {
-                var remote = repo.Network.Remotes["origin"];
-                repo.Network.Remotes.Update(remote, r => r.FetchRefSpecs = fetchRefSpecs);
+                repo.Network.Remotes.Update("origin", r => r.FetchRefSpecs = fetchRefSpecs);
             }
 
-            using (var repo = InitIsolatedRepository(path))
+            using (var repo = new Repository(path))
+            using (var remote = repo.Network.Remotes["origin"])
             {
-                var remote = repo.Network.Remotes["origin"];
                 var actualRefSpecs = remote.RefSpecs
                     .Where(r => r.Direction == RefSpecDirection.Fetch)
                     .Select(r => r.Specification)
@@ -124,25 +129,29 @@ namespace LibGit2Sharp.Tests
         public void CanAddAndRemoveRefSpecs()
         {
             string newRefSpec = "+refs/heads/test:refs/heads/other-test";
-
             var path = SandboxStandardTestRepo();
-            using (var repo = InitIsolatedRepository(path))
-            {
-                var remote = repo.Network.Remotes["origin"];
 
-                remote = repo.Network.Remotes.Update(remote,
+            using (var repo = new Repository(path))
+            {
+                repo.Network.Remotes.Update("origin",
                     r => r.FetchRefSpecs.Add(newRefSpec),
                     r => r.PushRefSpecs.Add(newRefSpec));
 
-                Assert.Contains(newRefSpec, remote.FetchRefSpecs.Select(r => r.Specification));
-                Assert.Contains(newRefSpec, remote.PushRefSpecs.Select(r => r.Specification));
+                using (var remote = repo.Network.Remotes["origin"])
+                {
+                    Assert.Contains(newRefSpec, remote.FetchRefSpecs.Select(r => r.Specification));
+                    Assert.Contains(newRefSpec, remote.PushRefSpecs.Select(r => r.Specification));
+                }
 
-                remote = repo.Network.Remotes.Update(remote,
+                repo.Network.Remotes.Update("origin",
                     r => r.FetchRefSpecs.Remove(newRefSpec),
                     r => r.PushRefSpecs.Remove(newRefSpec));
 
-                Assert.DoesNotContain(newRefSpec, remote.FetchRefSpecs.Select(r => r.Specification));
-                Assert.DoesNotContain(newRefSpec, remote.PushRefSpecs.Select(r => r.Specification));
+                using (var remote = repo.Network.Remotes["origin"])
+                {
+                    Assert.DoesNotContain(newRefSpec, remote.FetchRefSpecs.Select(r => r.Specification));
+                    Assert.DoesNotContain(newRefSpec, remote.PushRefSpecs.Select(r => r.Specification));
+                }
             }
         }
 
@@ -150,20 +159,22 @@ namespace LibGit2Sharp.Tests
         public void CanClearRefSpecs()
         {
             var path = SandboxStandardTestRepo();
-            using (var repo = InitIsolatedRepository(path))
+            using (var repo = new Repository(path))
             {
-                var remote = repo.Network.Remotes["origin"];
 
                 // Push refspec does not exist in cloned repository
-                remote = repo.Network.Remotes.Update(remote, r => r.PushRefSpecs.Add("+refs/test:refs/test"));
+                repo.Network.Remotes.Update("origin", r => r.PushRefSpecs.Add("+refs/test:refs/test"));
 
-                remote = repo.Network.Remotes.Update(remote,
+                repo.Network.Remotes.Update("origin",
                     r => r.FetchRefSpecs.Clear(),
                     r => r.PushRefSpecs.Clear());
 
-                Assert.Empty(remote.FetchRefSpecs);
-                Assert.Empty(remote.PushRefSpecs);
-                Assert.Empty(remote.RefSpecs);
+                using (var remote = repo.Network.Remotes["origin"])
+                {
+                    Assert.Empty(remote.FetchRefSpecs);
+                    Assert.Empty(remote.PushRefSpecs);
+                    Assert.Empty(remote.RefSpecs);
+                }
             }
         }
 
@@ -178,16 +189,55 @@ namespace LibGit2Sharp.Tests
         public void SettingInvalidRefSpecsThrows(string refSpec)
         {
             var path = SandboxStandardTestRepo();
-            using (var repo = InitIsolatedRepository(path))
+            using (var repo = new Repository(path))
             {
-                var remote = repo.Network.Remotes["origin"];
-                var oldRefSpecs = remote.RefSpecs.Select(r => r.Specification).ToList();
+                IEnumerable<string> oldRefSpecs;
+                using (var remote = repo.Network.Remotes["origin"])
+                {
+                    oldRefSpecs = remote.RefSpecs.Select(r => r.Specification).ToList();
+                }
 
                 Assert.Throws<InvalidSpecificationException>(() =>
-                    repo.Network.Remotes.Update(remote, r => r.FetchRefSpecs.Add(refSpec)));
+                    repo.Network.Remotes.Update("origin", r => r.FetchRefSpecs.Add(refSpec)));
 
                 var newRemote = repo.Network.Remotes["origin"];
                 Assert.Equal(oldRefSpecs, newRemote.RefSpecs.Select(r => r.Specification).ToList());
+            }
+        }
+
+        [Theory]
+        [InlineData("refs/heads/master", true, false)]
+        [InlineData("refs/heads/some/master", true, false)]
+        [InlineData("refs/remotes/foo/master", false, true)]
+        [InlineData("refs/tags/foo", false, false)]
+        public void CanCheckForMatches(string reference, bool shouldMatchSource, bool shouldMatchDest)
+        {
+            using (var repo = new Repository(InitNewRepository()))
+            {
+                var remote = repo.Network.Remotes.Add("foo", "blahblah", "refs/heads/*:refs/remotes/foo/*");
+                var refspec = remote.RefSpecs.Single();
+
+                Assert.Equal(shouldMatchSource, refspec.SourceMatches(reference));
+                Assert.Equal(shouldMatchDest, refspec.DestinationMatches(reference));
+            }
+        }
+
+        [Theory]
+        [InlineData("refs/heads/master", "refs/remotes/foo/master")]
+        [InlineData("refs/heads/bar/master", "refs/remotes/foo/bar/master")]
+        [InlineData("refs/heads/master", "refs/remotes/foo/master")]
+        public void CanTransformRefspecs(string lhs, string rhs)
+        {
+            using (var repo = new Repository(InitNewRepository()))
+            {
+                var remote = repo.Network.Remotes.Add("foo", "blahblah", "refs/heads/*:refs/remotes/foo/*");
+                var refspec = remote.RefSpecs.Single();
+
+                var actualTransformed = refspec.Transform(lhs);
+                var actualReverseTransformed = refspec.ReverseTransform(rhs);
+
+                Assert.Equal(rhs, actualTransformed);
+                Assert.Equal(lhs, actualReverseTransformed);
             }
         }
     }

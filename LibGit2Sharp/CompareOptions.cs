@@ -40,12 +40,6 @@ namespace LibGit2Sharp
         public bool IncludeUnmodified { get; set; }
 
         /// <summary>
-        /// Use the "patience diff" algorithm.
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use Algorithm instead.")]
-        public bool UsePatienceAlgorithm { get; set; }
-
-        /// <summary>
         /// Algorithm to be used when performing a Diff.
         /// By default, <see cref="DiffAlgorithm.Myers"/> will be used.
         /// </summary>

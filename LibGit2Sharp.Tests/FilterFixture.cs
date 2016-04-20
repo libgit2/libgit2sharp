@@ -276,14 +276,12 @@ namespace LibGit2Sharp.Tests
                 string attributesPath = Path.Combine(Directory.GetParent(repoPath).Parent.FullName, ".gitattributes");
                 FileInfo attributesFile = new FileInfo(attributesPath);
 
-                string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
-                var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
-
-                using (Repository repo = new Repository(repoPath, repositoryOptions))
+                using (Repository repo = new Repository(repoPath))
                 {
+                    CreateConfigurationWithDummyUser(repo, Constants.Identity);
                     File.WriteAllText(attributesPath, "*.blob filter=test");
-                    repo.Stage(attributesFile.Name);
-                    repo.Stage(contentFile.Name);
+                    Commands.Stage(repo, attributesFile.Name);
+                    Commands.Stage(repo, contentFile.Name);
                     repo.Commit("test", Constants.Signature, Constants.Signature);
                     contentFile.Delete();
                     repo.Checkout("HEAD", new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
@@ -415,15 +413,14 @@ namespace LibGit2Sharp.Tests
         {
             string newFilePath = Touch(repo.Info.WorkingDirectory, Guid.NewGuid() + ".txt", contents);
             var stageNewFile = new FileInfo(newFilePath);
-            repo.Stage(newFilePath);
+            Commands.Stage(repo, newFilePath);
             return stageNewFile;
         }
 
         private Repository CreateTestRepository(string path)
         {
-            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
-            var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
-            var repository = new Repository(path, repositoryOptions);
+            var repository = new Repository(path);
+            CreateConfigurationWithDummyUser(repository, Constants.Identity);
             CreateAttributesFile(repository, "* filter=test");
             return repository;
         }

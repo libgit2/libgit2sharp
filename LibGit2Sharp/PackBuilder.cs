@@ -10,7 +10,7 @@ namespace LibGit2Sharp
     /// </summary>
     public sealed class PackBuilder : IDisposable
     {
-        private readonly PackBuilderSafeHandle packBuilderHandle;
+        private readonly PackBuilderHandle packBuilderHandle;
 
         /// <summary>
         /// Constructs a PackBuilder for a <see cref="Repository"/>.
@@ -119,7 +119,7 @@ namespace LibGit2Sharp
             get { return Proxy.git_packbuilder_written(packBuilderHandle); }
         }
 
-        internal PackBuilderSafeHandle Handle
+        internal PackBuilderHandle Handle
         {
             get { return packBuilderHandle; }
         }

@@ -24,7 +24,7 @@ namespace LibGit2Sharp
             if (Platform.OperatingSystem == OperatingSystemType.Windows)
             {
                 string managedPath = new Uri(Assembly.GetExecutingAssembly().EscapedCodeBase).LocalPath;
-                nativeLibraryPath = Path.Combine(Path.GetDirectoryName(managedPath), "NativeBinaries");
+                nativeLibraryPath = Path.Combine(Path.Combine(Path.GetDirectoryName(managedPath), "lib"), "win32");
             }
 
             registeredFilters = new Dictionary<Filter, FilterRegistration>();
@@ -129,10 +129,10 @@ namespace LibGit2Sharp
         /// <summary>
         /// Sets a hint path for searching for native binaries: when
         /// specified, native binaries will first be searched in a
-        /// subdirectory of the given path corresponding to the architecture
-        /// (eg, "x86" or "amd64") before falling back to the default
-        /// path ("NativeBinaries\x86" or "NativeBinaries\amd64" next
-        /// to the application).
+        /// subdirectory of the given path corresponding to the operating
+        /// system and architecture (eg, "x86" or "x64") before falling
+        /// back to the default path ("lib\win32\x86" or "lib\win32\x64"
+        /// next to the application).
         /// <para>
         /// This must be set before any other calls to the library,
         /// and is not available on Unix platforms: see your dynamic

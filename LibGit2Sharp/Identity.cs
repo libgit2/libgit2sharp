@@ -43,7 +43,7 @@ namespace LibGit2Sharp
             get { return _name; }
         }
 
-        internal SignatureSafeHandle BuildNowSignatureHandle()
+        internal SignatureHandle BuildNowSignatureHandle()
         {
             return Proxy.git_signature_now(Name, Email);
         }
@@ -57,11 +57,11 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="identity"></param>
         /// <returns></returns>
-        public static SignatureSafeHandle SafeBuildNowSignatureHandle(this Identity identity)
+        public static unsafe SignatureHandle SafeBuildNowSignatureHandle(this Identity identity)
         {
             if (identity == null)
             {
-                return new SignatureSafeHandle();
+                return new SignatureHandle(null, false);
             }
 
             return identity.BuildNowSignatureHandle();
