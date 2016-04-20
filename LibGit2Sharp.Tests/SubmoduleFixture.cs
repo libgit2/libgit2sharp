@@ -20,6 +20,26 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void RetrievingSubmoduleInBranchShouldWork()
+        {
+            var path = SandboxSubmoduleTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var submodule = repo.Submodules["sm_branch_only"];
+                Assert.Null(submodule);
+
+                repo.Checkout("dev", new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force });
+                submodule = repo.Submodules["sm_branch_only"];
+                Assert.NotNull(submodule);
+                Assert.NotEqual(SubmoduleStatus.Unmodified, submodule.RetrieveStatus());
+
+                repo.Checkout("master", new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force });
+                submodule = repo.Submodules["sm_branch_only"];
+                Assert.Null(submodule);
+            }
+        }
+
         [Theory]
         [InlineData("sm_added_and_uncommited", SubmoduleStatus.InConfig | SubmoduleStatus.InIndex | SubmoduleStatus.InWorkDir | SubmoduleStatus.IndexAdded)]
         [InlineData("sm_changed_file", SubmoduleStatus.InConfig | SubmoduleStatus.InHead | SubmoduleStatus.InIndex | SubmoduleStatus.InWorkDir | SubmoduleStatus.WorkDirFilesModified)]
@@ -29,12 +49,20 @@ namespace LibGit2Sharp.Tests
         [InlineData("sm_gitmodules_only", SubmoduleStatus.InConfig)]
         [InlineData("sm_missing_commits", SubmoduleStatus.InConfig | SubmoduleStatus.InHead | SubmoduleStatus.InIndex | SubmoduleStatus.InWorkDir | SubmoduleStatus.WorkDirModified)]
         [InlineData("sm_unchanged", SubmoduleStatus.InConfig | SubmoduleStatus.InHead | SubmoduleStatus.InIndex | SubmoduleStatus.InWorkDir)]
-        public void CanRetrieveTheStatusOfASubmodule(string name, SubmoduleStatus expectedStatus)
+        [InlineData("sm_branch_only", null)]
+        public void CanRetrieveTheStatusOfASubmodule(string name, SubmoduleStatus? expectedStatus)
         {
             var path = SandboxSubmoduleTestRepo();
             using (var repo = new Repository(path))
             {
                 var submodule = repo.Submodules[name];
+
+                if (expectedStatus == null)
+                {
+                    Assert.Null(submodule);
+                    return;
+                }
+
                 Assert.NotNull(submodule);
                 Assert.Equal(name, submodule.Name);
                 Assert.Equal(name, submodule.Path);
@@ -120,7 +148,7 @@ namespace LibGit2Sharp.Tests
                 var statusBefore = submodule.RetrieveStatus();
                 Assert.Equal(SubmoduleStatus.WorkDirModified, statusBefore & SubmoduleStatus.WorkDirModified);
 
-                repo.Stage(submodulePath);
+                Commands.Stage(repo, submodulePath);
 
                 var statusAfter = submodule.RetrieveStatus();
                 Assert.Equal(SubmoduleStatus.IndexModified, statusAfter & SubmoduleStatus.IndexModified);
@@ -145,7 +173,7 @@ namespace LibGit2Sharp.Tests
 
                 Touch(repo.Info.WorkingDirectory, "new-file.txt");
 
-                repo.Stage(new[] { "new-file.txt", submodulePath, "does-not-exist.txt" });
+                Commands.Stage(repo, new[] { "new-file.txt", submodulePath, "does-not-exist.txt" });
 
                 var statusAfter = submodule.RetrieveStatus();
                 Assert.Equal(SubmoduleStatus.IndexModified, statusAfter & SubmoduleStatus.IndexModified);

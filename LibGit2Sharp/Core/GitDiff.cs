@@ -80,6 +80,13 @@ namespace LibGit2Sharp.Core
         /// </summary>
         GIT_DIFF_IGNORE_CASE = (1 << 10),
 
+
+        /// <summary>
+        /// May be combined with `GIT_DIFF_IGNORE_CASE` to specify that a file
+        /// that has changed case will be returned as an add/delete pair.
+        /// </summary>
+        GIT_DIFF_INCLUDE_CASECHANGE = (1 << 11),
+
         /// <summary>
         /// If the pathspec is set in the diff options, this flags means to
         /// apply it as an exact match instead of as an fnmatch pattern.
@@ -190,6 +197,12 @@ namespace LibGit2Sharp.Core
         IntPtr matched_pathspec,
         IntPtr payload);
 
+    internal delegate int diff_progress_cb(
+        IntPtr diff_so_far,
+        IntPtr old_path,
+        IntPtr new_path,
+        IntPtr payload);
+
     [StructLayout(LayoutKind.Sequential)]
     internal class GitDiffOptions : IDisposable
     {
@@ -201,7 +214,8 @@ namespace LibGit2Sharp.Core
         public SubmoduleIgnore IgnoreSubmodules;
         public GitStrArrayManaged PathSpec;
         public diff_notify_cb NotifyCallback;
-        public IntPtr NotifyPayload;
+        public diff_progress_cb ProgressCallback;
+        public IntPtr Payload;
 
         /* options controlling how to diff text is generated */
 
@@ -224,27 +238,28 @@ namespace LibGit2Sharp.Core
         GIT_DIFF_FLAG_BINARY = (1 << 0),
         GIT_DIFF_FLAG_NOT_BINARY = (1 << 1),
         GIT_DIFF_FLAG_VALID_ID = (1 << 2),
+        GIT_DIFF_FLAG_EXISTS = (1 << 3),
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal class GitDiffFile
+    internal unsafe struct git_diff_file
     {
-        public GitOid Id;
-        public IntPtr Path;
+        public git_oid Id;
+        public char* Path;
         public Int64 Size;
         public GitDiffFlags Flags;
         public UInt16 Mode;
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal class GitDiffDelta
+    internal unsafe struct git_diff_delta
     {
-        public ChangeKind Status;
-        public GitDiffFlags Flags;
-        public UInt16 Similarity;
-        public UInt16 NumberOfFiles;
-        public GitDiffFile OldFile;
-        public GitDiffFile NewFile;
+        public ChangeKind status;
+        public GitDiffFlags flags;
+        public UInt16 similarity;
+        public UInt16 nfiles;
+        public git_diff_file old_file;
+        public git_diff_file new_file;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -354,5 +369,34 @@ namespace LibGit2Sharp.Core
 
         // TODO
         public IntPtr SimilarityMetric;
+    }
+
+    [Flags]
+    enum GitDiffBinaryType
+    {
+        // There is no binary delta.
+        GIT_DIFF_BINARY_NONE = 0,
+
+        // The binary data is the literal contents of the file. */
+        GIT_DIFF_BINARY_LITERAL,
+
+        // The binary data is the delta from one side to the other. */
+        GIT_DIFF_BINARY_DELTA,
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal class GitDiffBinaryFile
+    {
+        public GitDiffBinaryType Type;
+        public IntPtr Data;
+        public UIntPtr DataLen;
+        public UIntPtr InflatedLen;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal class GitDiffBinary
+    {
+        public GitDiffBinaryFile OldFile;
+        public GitDiffBinaryFile NewFile;
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,7 +16,7 @@ namespace LibGit2Sharp
         public CommitFilter()
         {
             SortBy = CommitSortStrategies.Time;
-            Since = "HEAD";
+            IncludeReachableFrom = "HEAD";
             FirstParentOnly = false;
         }
 
@@ -36,11 +37,11 @@ namespace LibGit2Sharp
         ///   By default, the <see cref="Repository.Head"/> will be used as boundary.
         /// </para>
         /// </summary>
-        public object Since { get; set; }
+        public object IncludeReachableFrom { get; set; }
 
         internal IList<object> SinceList
         {
-            get { return ToList(Since); }
+            get { return ToList(IncludeReachableFrom); }
         }
 
         /// <summary>
@@ -51,11 +52,11 @@ namespace LibGit2Sharp
         ///   a <see cref="TagAnnotation"/>, an <see cref="ObjectId"/> or even a mixed collection of all of the above.
         /// </para>
         /// </summary>
-        public object Until { get; set; }
+        public object ExcludeReachableFrom { get; set; }
 
         internal IList<object> UntilList
         {
-            get { return ToList(Until); }
+            get { return ToList(ExcludeReachableFrom); }
         }
 
         /// <summary>
@@ -73,12 +74,12 @@ namespace LibGit2Sharp
             }
 
             var types = new[]
-                            {
-                                typeof(string), typeof(ObjectId),
-                                typeof(Commit), typeof(TagAnnotation),
-                                typeof(Tag), typeof(Branch), typeof(DetachedHead),
-                                typeof(Reference), typeof(DirectReference), typeof(SymbolicReference)
-                            };
+                        {
+                            typeof(string), typeof(ObjectId),
+                            typeof(Commit), typeof(TagAnnotation),
+                            typeof(Tag), typeof(Branch), typeof(DetachedHead),
+                            typeof(Reference), typeof(DirectReference), typeof(SymbolicReference)
+                        };
 
             if (types.Contains(obj.GetType()))
             {

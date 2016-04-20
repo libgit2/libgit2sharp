@@ -73,8 +73,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanFakeConfigurationBuildSignature()
         {
-            var name = "name";
-            var email = "email";
+            const string name = "name";
+            const string email = "email";
             var now = DateTimeOffset.UtcNow;
 
             var fakeConfig = new Mock<Configuration>();

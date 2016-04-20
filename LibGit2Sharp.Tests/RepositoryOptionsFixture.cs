@@ -35,7 +35,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path, options))
             {
                 var st = repo.RetrieveStatus("1/branch_file.txt");
-                Assert.Equal(FileStatus.Missing, st);
+                Assert.Equal(FileStatus.DeletedFromWorkdir, st);
             }
         }
 
@@ -48,7 +48,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path, options))
             {
                 var st = repo.RetrieveStatus("1/branch_file.txt");
-                Assert.Equal(FileStatus.Removed, st);
+                Assert.Equal(FileStatus.DeletedFromIndex, st);
             }
         }
 
@@ -78,7 +78,7 @@ namespace LibGit2Sharp.Tests
             var path2 = SandboxStandardTestRepo();
             using (var repo = new Repository(path2, options))
             {
-                Assert.Equal(FileStatus.Missing, repo.RetrieveStatus("1/branch_file.txt"));
+                Assert.Equal(FileStatus.DeletedFromWorkdir, repo.RetrieveStatus("1/branch_file.txt"));
             }
         }
 
@@ -88,11 +88,11 @@ namespace LibGit2Sharp.Tests
             var path1 = SandboxStandardTestRepo();
             using (var repo = new Repository(path1))
             {
-                Assert.Equal(FileStatus.Untracked, repo.RetrieveStatus("new_untracked_file.txt"));
+                Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus("new_untracked_file.txt"));
 
-                repo.Stage("new_untracked_file.txt");
+                Commands.Stage(repo, "new_untracked_file.txt");
 
-                Assert.Equal(FileStatus.Added, repo.RetrieveStatus("new_untracked_file.txt"));
+                Assert.Equal(FileStatus.NewInIndex, repo.RetrieveStatus("new_untracked_file.txt"));
 
                 File.Copy(Path.Combine(repo.Info.Path, "index"), newIndex);
             }
@@ -102,7 +102,7 @@ namespace LibGit2Sharp.Tests
             var path2 = SandboxStandardTestRepo();
             using (var repo = new Repository(path2, options))
             {
-                Assert.Equal(FileStatus.Added, repo.RetrieveStatus("new_untracked_file.txt"));
+                Assert.Equal(FileStatus.NewInIndex, repo.RetrieveStatus("new_untracked_file.txt"));
             }
         }
 
@@ -131,7 +131,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotEqual(head.Tip.Sha, newHead.Tip.Sha);
                 Assert.Equal(commitSha, newHead.Tip.Sha);
 
-                Assert.Equal(FileStatus.Removed, repo.RetrieveStatus("zomg.txt"));
+                Assert.Equal(FileStatus.DeletedFromIndex, repo.RetrieveStatus("zomg.txt"));
             }
         }
 
@@ -148,7 +148,7 @@ namespace LibGit2Sharp.Tests
                 const string filename = "zomg.txt";
                 Touch(sneakyRepo.Info.WorkingDirectory, filename, "I'm being sneaked in!\n");
 
-                sneakyRepo.Stage(filename);
+                Commands.Stage(sneakyRepo, filename);
                 return sneakyRepo.Commit("Tadaaaa!", Constants.Signature, Constants.Signature).Sha;
             }
         }
@@ -210,7 +210,7 @@ namespace LibGit2Sharp.Tests
             {
                 const string relativeFilepath = "test.txt";
                 Touch(repo.Info.WorkingDirectory, relativeFilepath, "test\n");
-                repo.Stage(relativeFilepath);
+                Commands.Stage(repo, relativeFilepath);
 
                 Assert.NotNull(repo.Commit("Initial commit", Constants.Signature, Constants.Signature));
                 Assert.Equal(1, repo.Head.Commits.Count());

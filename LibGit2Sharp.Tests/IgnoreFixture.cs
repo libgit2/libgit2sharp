@@ -83,5 +83,39 @@ namespace LibGit2Sharp.Tests
                 Assert.True(repo.Ignore.IsPathIgnored(string.Format(@"NewFolder{0}NewFolder{0}File.txt", Path.DirectorySeparatorChar)));
             }
         }
+
+        [Fact]
+        public void HonorDeeplyNestedGitIgnoreFile()
+        {
+            string path = InitNewRepository();
+            using (var repo = new Repository(path))
+            {
+                char pd = Path.DirectorySeparatorChar;
+
+                var gitIgnoreFile = string.Format("deeply{0}nested{0}.gitignore", pd);
+                Touch(repo.Info.WorkingDirectory, gitIgnoreFile, "SmtCounters.h");
+
+                Commands.Stage(repo, gitIgnoreFile);
+                repo.Commit("Add .gitignore", Constants.Signature, Constants.Signature);
+
+                Assert.False(repo.RetrieveStatus().IsDirty);
+
+                var ignoredFile = string.Format("deeply{0}nested{0}SmtCounters.h", pd);
+                Touch(repo.Info.WorkingDirectory, ignoredFile, "Content");
+                Assert.False(repo.RetrieveStatus().IsDirty);
+
+                var file = string.Format("deeply{0}nested{0}file.txt", pd);
+                Touch(repo.Info.WorkingDirectory, file, "Yeah!");
+
+                var repositoryStatus = repo.RetrieveStatus();
+                Assert.True(repositoryStatus.IsDirty);
+
+                Assert.Equal(FileStatus.Ignored, repositoryStatus[ignoredFile].State);
+                Assert.Equal(FileStatus.NewInWorkdir, repositoryStatus[file].State);
+
+                Assert.True(repo.Ignore.IsPathIgnored(ignoredFile));
+                Assert.False(repo.Ignore.IsPathIgnored(file));
+            }
+        }
     }
 }

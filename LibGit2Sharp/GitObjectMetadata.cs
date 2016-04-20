@@ -1,5 +1,4 @@
 ﻿using LibGit2Sharp.Core;
-using System;
 
 namespace LibGit2Sharp
 {
@@ -11,7 +10,7 @@ namespace LibGit2Sharp
         private readonly GitObjectType type;
 
         /// <summary>
-        /// Size of the Object 
+        /// Size of the Object
         /// </summary>
         public long Size { get; private set; }
 

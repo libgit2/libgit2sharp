@@ -63,7 +63,7 @@ namespace LibGit2Sharp.Tests
                 var bomPath = Touch(repo.Info.WorkingDirectory, bomFile, content, encoding);
                 Assert.Equal(expectedContentBytes, File.ReadAllBytes(bomPath).Length);
 
-                repo.Stage(bomFile);
+                Commands.Stage(repo, bomFile);
                 var commit = repo.Commit("bom", Constants.Signature, Constants.Signature);
 
                 var blob = (Blob)commit.Tree[bomFile].Target;
@@ -190,7 +190,7 @@ namespace LibGit2Sharp.Tests
                     File.AppendAllText(Path.Combine(repo.Info.WorkingDirectory, "small.txt"), sb.ToString());
                 }
 
-                repo.Stage("small.txt");
+                Commands.Stage(repo, "small.txt");
                 IndexEntry entry = repo.Index["small.txt"];
                 Assert.Equal("baae1fb3760a73481ced1fa03dc15614142c19ef", entry.Id.Sha);
 
@@ -202,7 +202,7 @@ namespace LibGit2Sharp.Tests
                     CopyStream(stream, file);
                 }
 
-                repo.Stage("small.fromblob.txt");
+                Commands.Stage(repo, "small.fromblob.txt");
                 IndexEntry newentry = repo.Index["small.fromblob.txt"];
 
                 Assert.Equal("baae1fb3760a73481ced1fa03dc15614142c19ef", newentry.Id.Sha);
@@ -222,7 +222,7 @@ namespace LibGit2Sharp.Tests
 
         private static void SkipIfNotSupported(string autocrlf)
         {
-            InconclusiveIf(() => autocrlf == "true" && IsRunningOnLinux(), "Non-Windows does not support core.autocrlf = true");
+            InconclusiveIf(() => autocrlf == "true" && Constants.IsRunningOnUnix, "Non-Windows does not support core.autocrlf = true");
         }
     }
 }

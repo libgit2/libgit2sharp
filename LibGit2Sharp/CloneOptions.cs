@@ -1,5 +1,4 @@
-﻿using System;
-using LibGit2Sharp.Core;
+﻿using LibGit2Sharp.Core;
 using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
@@ -35,6 +34,11 @@ namespace LibGit2Sharp
         public string BranchName { get; set; }
 
         /// <summary>
+        /// Recursively clone submodules.
+        /// </summary>
+        public bool RecurseSubmodules { get; set; }
+
+        /// <summary>
         /// Handler for checkout progress information.
         /// </summary>
         public CheckoutProgressHandler OnCheckoutProgress { get; set; }
@@ -50,9 +54,9 @@ namespace LibGit2Sharp
         {
             get
             {
-                return this.Checkout ?
-                    CheckoutStrategy.GIT_CHECKOUT_SAFE_CREATE :
-                    CheckoutStrategy.GIT_CHECKOUT_NONE;
+                return this.Checkout
+                    ? CheckoutStrategy.GIT_CHECKOUT_SAFE
+                    : CheckoutStrategy.GIT_CHECKOUT_NONE;
             }
         }
 

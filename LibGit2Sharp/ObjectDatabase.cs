@@ -17,7 +17,7 @@ namespace LibGit2Sharp
     public class ObjectDatabase : IEnumerable<GitObject>
     {
         private readonly Repository repo;
-        private readonly ObjectDatabaseSafeHandle handle;
+        private readonly ObjectDatabaseHandle handle;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -41,11 +41,10 @@ namespace LibGit2Sharp
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<GitObject> GetEnumerator()
         {
-            ICollection<GitOid> oids = Proxy.git_odb_foreach(handle,
-                ptr => ptr.MarshalAs<GitOid>());
+            ICollection<ObjectId> oids = Proxy.git_odb_foreach(handle);
 
             return oids
-                .Select(gitOid => repo.Lookup<GitObject>(new ObjectId(gitOid)))
+                .Select(gitOid => repo.Lookup<GitObject>(gitOid))
                 .GetEnumerator();
         }
 
@@ -75,7 +74,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Retrieves the header of a GitObject from the object database. The header contains the Size
         /// and Type of the object. Note that most backends do not support reading only the header
-        /// of an object, so the whole object will be read and then size would be returned.  
+        /// of an object, so the whole object will be read and then size would be returned.
         /// </summary>
         /// <param name="objectId">Object Id of the queried object</param>
         /// <returns>GitObjectMetadata object instance containg object header information</returns>
@@ -99,14 +98,14 @@ namespace LibGit2Sharp
 
             if (repo.Info.IsBare && !Path.IsPathRooted(path))
             {
-                throw new InvalidOperationException(
-                    string.Format(CultureInfo.InvariantCulture,
-                        "Cannot create a blob in a bare repository from a relative path ('{0}').", path));
+                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+                                                    "Cannot create a blob in a bare repository from a relative path ('{0}').",
+                                                    path));
             }
 
             ObjectId id = Path.IsPathRooted(path)
-                               ? Proxy.git_blob_create_fromdisk(repo.Handle, path)
-                               : Proxy.git_blob_create_fromfile(repo.Handle, path);
+                ? Proxy.git_blob_create_fromdisk(repo.Handle, path)
+                : Proxy.git_blob_create_fromfile(repo.Handle, path);
 
             return repo.Lookup<Blob>(id);
         }
@@ -131,10 +130,10 @@ namespace LibGit2Sharp
         private class Processor
         {
             private readonly Stream stream;
-            private readonly int? numberOfBytesToConsume;
+            private readonly long? numberOfBytesToConsume;
             private int totalNumberOfReadBytes;
 
-            public Processor(Stream stream, int? numberOfBytesToConsume)
+            public Processor(Stream stream, long? numberOfBytesToConsume)
             {
                 this.stream = stream;
                 this.numberOfBytesToConsume = numberOfBytesToConsume;
@@ -148,11 +147,13 @@ namespace LibGit2Sharp
 
                 if (numberOfBytesToConsume.HasValue)
                 {
-                    int totalRemainingBytesToRead = numberOfBytesToConsume.Value - totalNumberOfReadBytes;
+                    long totalRemainingBytesToRead = numberOfBytesToConsume.Value - totalNumberOfReadBytes;
 
                     if (totalRemainingBytesToRead < max_length)
                     {
-                        bytesToRead = totalRemainingBytesToRead;
+                        bytesToRead = totalRemainingBytesToRead > int.MaxValue
+                            ? int.MaxValue
+                            : (int)totalRemainingBytesToRead;
                     }
                 }
 
@@ -163,8 +164,7 @@ namespace LibGit2Sharp
 
                 int numberOfReadBytes = stream.Read(local, 0, bytesToRead);
 
-                if (numberOfBytesToConsume.HasValue
-                    && numberOfReadBytes == 0)
+                if (numberOfBytesToConsume.HasValue && numberOfReadBytes == 0)
                 {
                     return (int)GitErrorCode.User;
                 }
@@ -182,10 +182,38 @@ namespace LibGit2Sharp
         /// <para>Optionally, git filters will be applied to the content before storing it.</para>
         /// </summary>
         /// <param name="stream">The stream from which will be read the content of the blob to be created.</param>
+        /// <returns>The created <see cref="Blob"/>.</returns>
+        public virtual Blob CreateBlob(Stream stream)
+        {
+            return CreateBlob(stream, null, null);
+        }
+
+        /// <summary>
+        /// Inserts a <see cref="Blob"/> into the object database, created from the content of a stream.
+        /// <para>Optionally, git filters will be applied to the content before storing it.</para>
+        /// </summary>
+        /// <param name="stream">The stream from which will be read the content of the blob to be created.</param>
+        /// <param name="hintpath">The hintpath is used to determine what git filters should be applied to the object before it can be placed to the object database.</param>
+        /// <returns>The created <see cref="Blob"/>.</returns>
+        public virtual Blob CreateBlob(Stream stream, string hintpath)
+        {
+            return CreateBlob(stream, hintpath, null);
+        }
+
+        /// <summary>
+        /// Inserts a <see cref="Blob"/> into the object database, created from the content of a stream.
+        /// <para>Optionally, git filters will be applied to the content before storing it.</para>
+        /// </summary>
+        /// <param name="stream">The stream from which will be read the content of the blob to be created.</param>
         /// <param name="hintpath">The hintpath is used to determine what git filters should be applied to the object before it can be placed to the object database.</param>
         /// <param name="numberOfBytesToConsume">The number of bytes to consume from the stream.</param>
         /// <returns>The created <see cref="Blob"/>.</returns>
-        public virtual Blob CreateBlob(Stream stream, string hintpath = null, int? numberOfBytesToConsume = null)
+        public virtual Blob CreateBlob(Stream stream, string hintpath, long numberOfBytesToConsume)
+        {
+            return CreateBlob(stream, hintpath, (long?)numberOfBytesToConsume);
+        }
+
+        private unsafe Blob CreateBlob(Stream stream, string hintpath, long? numberOfBytesToConsume)
         {
             Ensure.ArgumentNotNull(stream, "stream");
 
@@ -200,9 +228,51 @@ namespace LibGit2Sharp
                 throw new ArgumentException("The stream cannot be read from.", "stream");
             }
 
-            var proc = new Processor(stream, numberOfBytesToConsume);
-            ObjectId id = Proxy.git_blob_create_fromchunks(repo.Handle, hintpath, proc.Provider);
+            IntPtr writestream_ptr = Proxy.git_blob_create_fromstream(repo.Handle, hintpath);
+            GitWriteStream writestream = (GitWriteStream)Marshal.PtrToStructure(writestream_ptr, typeof(GitWriteStream));
 
+            try
+            {
+                var buffer = new byte[4 * 1024];
+                long totalRead = 0;
+                int read = 0;
+
+                while (true)
+                {
+                    int toRead = numberOfBytesToConsume.HasValue ?
+                        (int)Math.Min(numberOfBytesToConsume.Value - totalRead, (long)buffer.Length) :
+                        buffer.Length;
+
+                    if (toRead > 0)
+                    {
+                        read = (toRead > 0) ? stream.Read(buffer, 0, toRead) : 0;
+                    }
+
+                    if (read == 0)
+                    {
+                        break;
+                    }
+
+                    fixed (byte* buffer_ptr = buffer)
+                    {
+                        writestream.write(writestream_ptr, (IntPtr)buffer_ptr, (UIntPtr)read);
+                    }
+
+                    totalRead += read;
+                }
+
+                if (numberOfBytesToConsume.HasValue && totalRead < numberOfBytesToConsume.Value)
+                {
+                    throw new EndOfStreamException("The stream ended unexpectedly");
+                }
+            }
+            catch(Exception e)
+            {
+                writestream.free(writestream_ptr);
+                throw e;
+            }
+
+            ObjectId id = Proxy.git_blob_create_fromstream_commit(writestream_ptr);
             return repo.Lookup<Blob>(id);
         }
 
@@ -212,7 +282,7 @@ namespace LibGit2Sharp
         /// <param name="stream">The stream from which will be read the content of the blob to be created.</param>
         /// <param name="numberOfBytesToConsume">Number of bytes to consume from the stream.</param>
         /// <returns>The created <see cref="Blob"/>.</returns>
-        public virtual Blob CreateBlob(Stream stream, int numberOfBytesToConsume)
+        public virtual Blob CreateBlob(Stream stream, long numberOfBytesToConsume)
         {
             Ensure.ArgumentNotNull(stream, "stream");
 
@@ -221,15 +291,15 @@ namespace LibGit2Sharp
                 throw new ArgumentException("The stream cannot be read from.", "stream");
             }
 
-            using (var odbStream = Proxy.git_odb_open_wstream(handle, (UIntPtr)numberOfBytesToConsume, GitObjectType.Blob))
+            using (var odbStream = Proxy.git_odb_open_wstream(handle, numberOfBytesToConsume, GitObjectType.Blob))
             {
-                var buffer = new byte[4*1024];
-                int totalRead = 0;
+                var buffer = new byte[4 * 1024];
+                long totalRead = 0;
 
                 while (totalRead < numberOfBytesToConsume)
                 {
-                    var left = numberOfBytesToConsume - totalRead;
-                    var toRead = left < buffer.Length ? left : buffer.Length;
+                    long left = numberOfBytesToConsume - totalRead;
+                    int toRead = left < buffer.Length ? (int)left : buffer.Length;
                     var read = stream.Read(buffer, 0, toRead);
 
                     if (read == 0)
@@ -274,7 +344,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(index, "index");
 
-            var treeId = Proxy.git_tree_create_fromindex(index);
+            var treeId = Proxy.git_index_write_tree(index.Handle);
             return this.repo.Lookup<Tree>(treeId);
         }
 
@@ -295,9 +365,32 @@ namespace LibGit2Sharp
         /// <param name="tree">The <see cref="Tree"/> of the <see cref="Commit"/> to be created.</param>
         /// <param name="parents">The parents of the <see cref="Commit"/> to be created.</param>
         /// <param name="prettifyMessage">True to prettify the message, or false to leave it as is.</param>
-        /// <param name="commentChar">Character that lines start with to be stripped if prettifyMessage is true.</param>
         /// <returns>The created <see cref="Commit"/>.</returns>
-        public virtual Commit CreateCommit(Signature author, Signature committer, string message, Tree tree, IEnumerable<Commit> parents, bool prettifyMessage, char? commentChar = null)
+        public virtual Commit CreateCommit(Signature author, Signature committer, string message, Tree tree, IEnumerable<Commit> parents, bool prettifyMessage)
+        {
+            return CreateCommit(author, committer, message, tree, parents, prettifyMessage, null);
+        }
+
+        /// <summary>
+        /// Inserts a <see cref="Commit"/> into the object database, referencing an existing <see cref="Tree"/>.
+        /// <para>
+        /// Prettifing the message includes:
+        /// * Removing empty lines from the beginning and end.
+        /// * Removing trailing spaces from every line.
+        /// * Turning multiple consecutive empty lines between paragraphs into just one empty line.
+        /// * Ensuring the commit message ends with a newline.
+        /// * Removing every line starting with the <paramref name="commentChar"/>.
+        /// </para>
+        /// </summary>
+        /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
+        /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
+        /// <param name="message">The description of why a change was made to the repository.</param>
+        /// <param name="tree">The <see cref="Tree"/> of the <see cref="Commit"/> to be created.</param>
+        /// <param name="parents">The parents of the <see cref="Commit"/> to be created.</param>
+        /// <param name="prettifyMessage">True to prettify the message, or false to leave it as is.</param>
+        /// <param name="commentChar">When non null, lines starting with this character will be stripped if prettifyMessage is true.</param>
+        /// <returns>The created <see cref="Commit"/>.</returns>
+        public virtual Commit CreateCommit(Signature author, Signature committer, string message, Tree tree, IEnumerable<Commit> parents, bool prettifyMessage, char? commentChar)
         {
             Ensure.ArgumentNotNull(message, "message");
             Ensure.ArgumentDoesNotContainZeroByte(message, "message");
@@ -314,7 +407,9 @@ namespace LibGit2Sharp
 
             ObjectId commitId = Proxy.git_commit_create(repo.Handle, null, author, committer, message, tree, parentIds);
 
-            return repo.Lookup<Commit>(commitId);
+            Commit commit = repo.Lookup<Commit>(commitId);
+            Ensure.GitObjectIsNotNull(commit, commitId.Sha);
+            return commit;
         }
 
         /// <summary>
@@ -339,6 +434,34 @@ namespace LibGit2Sharp
             ObjectId tagId = Proxy.git_tag_annotation_create(repo.Handle, name, target, tagger, prettifiedMessage);
 
             return repo.Lookup<TagAnnotation>(tagId);
+        }
+
+        /// <summary>
+        /// Create a TAR archive of the given tree.
+        /// </summary>
+        /// <param name="tree">The tree.</param>
+        /// <param name="archivePath">The archive path.</param>
+        public virtual void Archive(Tree tree, string archivePath)
+        {
+            using (var output = new FileStream(archivePath, FileMode.Create))
+            using (var archiver = new TarArchiver(output))
+            {
+                Archive(tree, archiver);
+            }
+        }
+
+        /// <summary>
+        /// Create a TAR archive of the given commit.
+        /// </summary>
+        /// <param name="commit">commit.</param>
+        /// <param name="archivePath">The archive path.</param>
+        public virtual void Archive(Commit commit, string archivePath)
+        {
+            using (var output = new FileStream(archivePath, FileMode.Create))
+            using (var archiver = new TarArchiver(output))
+            {
+                Archive(commit, archiver);
+            }
         }
 
         /// <summary>
@@ -387,24 +510,45 @@ namespace LibGit2Sharp
         /// string representation for a <see cref="GitObject"/>.
         /// </summary>
         /// <param name="gitObject">The <see cref="GitObject"/> which identifier should be shortened.</param>
+        /// <returns>A short string representation of the <see cref="ObjectId"/>.</returns>
+        public virtual string ShortenObjectId(GitObject gitObject)
+        {
+            var shortSha = Proxy.git_object_short_id(repo.Handle, gitObject.Id);
+            return shortSha;
+        }
+
+        /// <summary>
+        /// Calculates the current shortest abbreviated <see cref="ObjectId"/>
+        /// string representation for a <see cref="GitObject"/>.
+        /// </summary>
+        /// <param name="gitObject">The <see cref="GitObject"/> which identifier should be shortened.</param>
         /// <param name="minLength">Minimum length of the shortened representation.</param>
         /// <returns>A short string representation of the <see cref="ObjectId"/>.</returns>
-        public virtual string ShortenObjectId(GitObject gitObject, int? minLength = null)
+        public virtual string ShortenObjectId(GitObject gitObject, int minLength)
         {
-            if (minLength.HasValue && (minLength <= 0 || minLength > ObjectId.HexSize))
+            Ensure.ArgumentNotNull(gitObject, "gitObject");
+
+            if (minLength <= 0 || minLength > ObjectId.HexSize)
             {
-                throw new ArgumentOutOfRangeException("minLength", minLength,
-                    string.Format("Expected value should be greater than zero and less than or equal to {0}.", ObjectId.HexSize));
+                throw new ArgumentOutOfRangeException("minLength",
+                                                      minLength,
+                                                      string.Format("Expected value should be greater than zero and less than or equal to {0}.",
+                                                                    ObjectId.HexSize));
             }
 
             string shortSha = Proxy.git_object_short_id(repo.Handle, gitObject.Id);
 
-            if (minLength == null || (minLength <= shortSha.Length))
+            if (shortSha == null)
+            {
+                throw new LibGit2SharpException("Unable to abbreviate SHA-1 value for GitObject " + gitObject.Id);
+            }
+
+            if (minLength <= shortSha.Length)
             {
                 return shortSha;
             }
 
-            return gitObject.Sha.Substring(0, minLength.Value);
+            return gitObject.Sha.Substring(0, minLength);
         }
 
         /// <summary>
@@ -419,21 +563,14 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(one, "one");
             Ensure.ArgumentNotNull(another, "another");
 
-            using (var ourHandle = Proxy.git_object_peel(repo.Handle, one.Id, GitObjectType.Tree, true))
-            using (var theirHandle = Proxy.git_object_peel(repo.Handle, another.Id, GitObjectType.Tree, true))
+            var opts = new MergeTreeOptions()
             {
-                var ancestorCommit = FindMergeBase(one, another);
+                SkipReuc = true,
+                FailOnConflict = true,
+            };
 
-                var ancestorHandle = ancestorCommit != null
-                    ? Proxy.git_object_peel(repo.Handle, ancestorCommit.Id, GitObjectType.Tree, false)
-                    : new NullGitObjectSafeHandle();
-
-                using (ancestorHandle)
-                using (var indexHandle = Proxy.git_merge_trees(repo.Handle, ancestorHandle, ourHandle, theirHandle))
-                {
-                    return !Proxy.git_index_has_conflicts(indexHandle);
-                }
-            }
+            var result = repo.ObjectDatabase.MergeCommits(one, another, opts);
+            return (result.Status == MergeTreeStatus.Succeeded);
         }
 
         /// <summary>
@@ -484,14 +621,154 @@ namespace LibGit2Sharp
                 case MergeBaseFindingStrategy.Standard:
                     id = Proxy.git_merge_base_many(repo.Handle, ids.ToArray());
                     break;
+
                 case MergeBaseFindingStrategy.Octopus:
                     id = Proxy.git_merge_base_octopus(repo.Handle, ids.ToArray());
                     break;
+
                 default:
                     throw new ArgumentException("", "strategy");
             }
 
             return id == null ? null : repo.Lookup<Commit>(id);
+        }
+
+        /// <summary>
+        /// Perform a three-way merge of two commits, looking up their
+        /// commit ancestor. The returned index will contain the results
+        /// of the merge and can be examined for conflicts. The returned
+        /// index must be disposed.
+        /// </summary>
+        /// <param name="ours">The first tree</param>
+        /// <param name="theirs">The second tree</param>
+        /// <param name="options">The <see cref="MergeTreeOptions"/> controlling the merge</param>
+        /// <returns>The <see cref="Index"/> containing the merged trees and any conflicts</returns>
+        public virtual MergeTreeResult MergeCommits(Commit ours, Commit theirs, MergeTreeOptions options)
+        {
+            Ensure.ArgumentNotNull(ours, "ours");
+            Ensure.ArgumentNotNull(theirs, "theirs");
+
+            options = options ?? new MergeTreeOptions();
+
+            // We throw away the index after looking at the conflicts, so we'll never need the REUC
+            // entries to be there
+            GitMergeFlag mergeFlags = GitMergeFlag.GIT_MERGE_NORMAL | GitMergeFlag.GIT_MERGE_SKIP_REUC;
+            if (options.FindRenames)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_FIND_RENAMES;
+            }
+            if (options.FailOnConflict)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_FAIL_ON_CONFLICT;
+            }
+
+
+            var mergeOptions = new GitMergeOpts
+            {
+                Version = 1,
+                MergeFileFavorFlags = options.MergeFileFavor,
+                MergeTreeFlags = mergeFlags,
+                RenameThreshold = (uint)options.RenameThreshold,
+                TargetLimit = (uint)options.TargetLimit,
+            };
+
+            bool earlyStop;
+            using (var oneHandle = Proxy.git_object_lookup(repo.Handle, ours.Id, GitObjectType.Commit))
+            using (var twoHandle = Proxy.git_object_lookup(repo.Handle, theirs.Id, GitObjectType.Commit))
+            using (var indexHandle = Proxy.git_merge_commits(repo.Handle, oneHandle, twoHandle, mergeOptions, out earlyStop))
+            {
+                MergeTreeResult mergeResult;
+
+                // Stopped due to FailOnConflict so there's no index or conflict list
+                if (earlyStop)
+                {
+                    return new MergeTreeResult(new Conflict[] { });
+                }
+
+                if (Proxy.git_index_has_conflicts(indexHandle))
+                {
+                    List<Conflict> conflicts = new List<Conflict>();
+                    Conflict conflict;
+
+                    using (ConflictIteratorHandle iterator = Proxy.git_index_conflict_iterator_new(indexHandle))
+                    {
+                        while ((conflict = Proxy.git_index_conflict_next(iterator)) != null)
+                        {
+                            conflicts.Add(conflict);
+                        }
+                    }
+
+                    mergeResult = new MergeTreeResult(conflicts);
+                }
+                else
+                {
+                    var treeId = Proxy.git_index_write_tree_to(indexHandle, repo.Handle);
+                    mergeResult = new MergeTreeResult(this.repo.Lookup<Tree>(treeId));
+                }
+
+                return mergeResult;
+            }
+        }
+
+        /// <summary>
+        /// Packs all the objects in the <see cref="ObjectDatabase"/> and write a pack (.pack) and index (.idx) files for them.
+        /// </summary>
+        /// <param name="options">Packing options</param>
+        /// This method will invoke the default action of packing all objects in an arbitrary order.
+        /// <returns>Packing results</returns>
+        public virtual PackBuilderResults Pack(PackBuilderOptions options)
+        {
+            return InternalPack(options, builder =>
+            {
+                foreach (GitObject obj in repo.ObjectDatabase)
+                {
+                    builder.Add(obj.Id);
+                }
+            });
+        }
+
+        /// <summary>
+        /// Packs objects in the <see cref="ObjectDatabase"/> chosen by the packDelegate action
+        /// and write a pack (.pack) and index (.idx) files for them
+        /// </summary>
+        /// <param name="options">Packing options</param>
+        /// <param name="packDelegate">Packing action</param>
+        /// <returns>Packing results</returns>
+        public virtual PackBuilderResults Pack(PackBuilderOptions options, Action<PackBuilder> packDelegate)
+        {
+            return InternalPack(options, packDelegate);
+        }
+
+        /// <summary>
+        /// Packs objects in the <see cref="ObjectDatabase"/> and write a pack (.pack) and index (.idx) files for them.
+        /// For internal use only.
+        /// </summary>
+        /// <param name="options">Packing options</param>
+        /// <param name="packDelegate">Packing action</param>
+        /// <returns>Packing results</returns>
+        private PackBuilderResults InternalPack(PackBuilderOptions options, Action<PackBuilder> packDelegate)
+        {
+            Ensure.ArgumentNotNull(options, "options");
+            Ensure.ArgumentNotNull(packDelegate, "packDelegate");
+
+            PackBuilderResults results = new PackBuilderResults();
+
+            using (PackBuilder builder = new PackBuilder(repo))
+            {
+                // set pre-build options
+                builder.SetMaximumNumberOfThreads(options.MaximumNumberOfThreads);
+
+                // call the provided action
+                packDelegate(builder);
+
+                // writing the pack and index files
+                builder.Write(options.PackDirectoryPath);
+
+                // adding the results to the PackBuilderResults object
+                results.WrittenObjectsCount = builder.WrittenObjectsCount;
+            }
+
+            return results;
         }
     }
 }

@@ -1,9 +1,9 @@
+using System;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
-using System;
 
 namespace LibGit2Sharp.Tests
 {
@@ -67,8 +67,6 @@ namespace LibGit2Sharp.Tests
             string path = SandboxRevertTestRepo();
             using (var repo = new Repository(path))
             {
-                string modifiedFileFullPath = Path.Combine(repo.Info.WorkingDirectory, revertedFile);
-
                 // Checkout the revert branch.
                 Branch branch = repo.Checkout(revertBranchName);
                 Assert.NotNull(branch);
@@ -83,7 +81,7 @@ namespace LibGit2Sharp.Tests
 
                 // Verify workspace is dirty.
                 FileStatus fileStatus = repo.RetrieveStatus(revertedFile);
-                Assert.Equal(FileStatus.Staged, fileStatus);
+                Assert.Equal(FileStatus.ModifiedInIndex, fileStatus);
 
                 // This is the ID of the blob containing the expected content.
                 Blob expectedBlob = repo.Lookup<Blob>("bc90ea420cf6c5ae3db7dcdffa0d79df567f219b");
@@ -131,8 +129,8 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(repo.Index.Conflicts["a.txt"]);
 
                 // Verify the non-conflicting paths are staged.
-                Assert.Equal(FileStatus.Staged, repo.RetrieveStatus("b.txt"));
-                Assert.Equal(FileStatus.Staged, repo.RetrieveStatus("c.txt"));
+                Assert.Equal(FileStatus.ModifiedInIndex, repo.RetrieveStatus("b.txt"));
+                Assert.Equal(FileStatus.ModifiedInIndex, repo.RetrieveStatus("c.txt"));
             }
         }
 
@@ -160,6 +158,7 @@ namespace LibGit2Sharp.Tests
                 };
 
                 RevertResult result =  repo.Revert(repo.Head.Tip.Parents.First(), Constants.Signature, options);
+                Assert.Equal(RevertStatus.Conflicts, result.Status);
 
                 // Verify there is a conflict.
                 Assert.False(repo.Index.IsFullyMerged);
@@ -242,6 +241,7 @@ namespace LibGit2Sharp.Tests
                 repo.Revert(repo.Head.Tip, Constants.Signature, options);
 
                 Assert.True(wasCalled);
+                Assert.Equal(CheckoutNotifyFlags.Updated, actualNotifyFlags);
             }
         }
 

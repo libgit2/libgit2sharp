@@ -13,6 +13,7 @@ Thumbs.db
 *_p.c
 *.ncb
 *.suo
+.vs/
 *.sln.ide/
 *.tlb
 *.tlh
@@ -37,8 +38,8 @@ _ReSharper*/
 *.DotSettings
 #Ignore custom generated files
 LibGit2Sharp/Core/UniqueIdentifier.cs
+LibGit2Sharp/Core/NativeDllName.cs
 
-!Lib/NativeBinaries/*/*.pdb
 !nuget.package/build/
 _NCrunch_LibGit2Sharp/
 packages/

@@ -1,4 +1,0 @@
-0000000000000000000000000000000000000000 9107b30fe11ff310fec93876469147b263fb958c Edward Thomson <ethomson@microsoft.com> 1360632483 -0600	branch: Created from HEAD
-9107b30fe11ff310fec93876469147b263fb958c d4c107581ff54a41fd496e0a1f1b7b3354752103 Edward Thomson <ethomson@microsoft.com> 1360632833 -0600	commit: branch
-d4c107581ff54a41fd496e0a1f1b7b3354752103 493209f496e504d63fd78e8c5b800083b442ea34 Edward Thomson <ethomson@microsoft.com> 1360633416 -0600	commit: branch
-493209f496e504d63fd78e8c5b800083b442ea34 8eefb6f8061e4d10a7a59aac8771dc17958d93eb Edward Thomson <ethomson@microsoft.com> 1360633436 -0600	rebase -i (finish): refs/heads/branch onto d4c1075

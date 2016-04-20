@@ -33,16 +33,17 @@ namespace LibGit2Sharp.Tests
             var path = SandboxStandardTestRepoGitDir();
             using (var repo = new Repository(path))
             {
-                var changes = repo.Diff.Compare<TreeChanges>();
-
-                Assert.Equal(2, changes.Count());
-                Assert.Equal("deleted_unstaged_file.txt", changes.Deleted.Single().Path);
-                Assert.Equal("modified_unstaged_file.txt", changes.Modified.Single().Path);
+                using (var changes = repo.Diff.Compare<TreeChanges>())
+                {
+                    Assert.Equal(2, changes.Count());
+                    Assert.Equal("deleted_unstaged_file.txt", changes.Deleted.Single().Path);
+                    Assert.Equal("modified_unstaged_file.txt", changes.Modified.Single().Path);
+                }
             }
         }
 
         [Theory]
-        [InlineData("new_untracked_file.txt", FileStatus.Untracked)]
+        [InlineData("new_untracked_file.txt", FileStatus.NewInWorkdir)]
         [InlineData("really-i-cant-exist.txt", FileStatus.Nonexistent)]
         public void CanCompareTheWorkDirAgainstTheIndexWithLaxUnmatchedExplicitPathsValidation(string relativePath, FileStatus currentStatus)
         {
@@ -51,16 +52,20 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
-                var changes = repo.Diff.Compare<TreeChanges>(new[] { relativePath }, false, new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false });
-                Assert.Equal(0, changes.Count());
+                using (var changes = repo.Diff.Compare<TreeChanges>(new[] { relativePath }, false, new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false }))
+                {
+                    Assert.Equal(0, changes.Count());
+                }
 
-                changes = repo.Diff.Compare<TreeChanges>(new[] { relativePath });
-                Assert.Equal(0, changes.Count());
+                using (var changes = repo.Diff.Compare<TreeChanges>(new[] { relativePath }))
+                {
+                    Assert.Equal(0, changes.Count());
+                }
             }
         }
 
         [Theory]
-        [InlineData("new_untracked_file.txt", FileStatus.Untracked)]
+        [InlineData("new_untracked_file.txt", FileStatus.NewInWorkdir)]
         [InlineData("really-i-cant-exist.txt", FileStatus.Nonexistent)]
         public void ComparingTheWorkDirAgainstTheIndexWithStrictUnmatchedExplicitPathsValidationAndANonExistentPathspecThrows(string relativePath, FileStatus currentStatus)
         {
@@ -74,7 +79,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("new_untracked_file.txt", FileStatus.Untracked)]
+        [InlineData("new_untracked_file.txt", FileStatus.NewInWorkdir)]
         [InlineData("where-am-I.txt", FileStatus.Nonexistent)]
         public void CallbackForUnmatchedExplicitPathsIsCalledWhenSet(string relativePath, FileStatus currentStatus)
         {
@@ -85,12 +90,14 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
-                repo.Diff.Compare<TreeChanges>(new[] { relativePath }, false, new ExplicitPathsOptions
+                using (var changes = repo.Diff.Compare<TreeChanges>(new[] { relativePath }, false, new ExplicitPathsOptions
                 {
                     ShouldFailOnUnmatchedPath = false,
-                    OnUnmatchedPath = callback.OnUnmatchedPath });
-
-                Assert.True(callback.WasCalled);
+                    OnUnmatchedPath = callback.OnUnmatchedPath
+                }))
+                {
+                    Assert.True(callback.WasCalled);
+                }
             }
         }
 
@@ -127,49 +134,32 @@ namespace LibGit2Sharp.Tests
                 repo.Config.Unset("core.filemode", ConfigurationLevel.Local);
             }
 
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-
-            var options = BuildFakeSystemConfigFilemodeOption(scd, true);
-
-            using (var repo = new Repository(path, options))
+            using (var repo = new Repository(path))
             {
-                var changes = repo.Diff.Compare<TreeChanges>(new[] { file });
+                SetFilemode(repo, true);
+                using(var changes = repo.Diff.Compare<TreeChanges>(new[] { file }))
+                {
+                    Assert.Equal(1, changes.Count());
 
-                Assert.Equal(1, changes.Count());
-
-                var change = changes.Modified.Single();
-                Assert.Equal(Mode.ExecutableFile, change.OldMode);
-                Assert.Equal(Mode.NonExecutableFile, change.Mode);
+                    var change = changes.Modified.Single();
+                    Assert.Equal(Mode.ExecutableFile, change.OldMode);
+                    Assert.Equal(Mode.NonExecutableFile, change.Mode);
+                }
             }
 
-            options = BuildFakeSystemConfigFilemodeOption(scd, false);
-
-            using (var repo = new Repository(path, options))
+            using (var repo = new Repository(path))
             {
-                var changes = repo.Diff.Compare<TreeChanges>(new[] { file });
-
-                Assert.Equal(0, changes.Count());
+                SetFilemode(repo, false);
+                using(var changes = repo.Diff.Compare<TreeChanges>(new[] { file }))
+                {
+                    Assert.Equal(0, changes.Count());
+                }
             }
         }
 
-        private RepositoryOptions BuildFakeSystemConfigFilemodeOption(
-            SelfCleaningDirectory scd,
-            bool value)
+        void SetFilemode(Repository repo, bool value)
         {
-            Directory.CreateDirectory(scd.DirectoryPath);
-
-            var options = new RepositoryOptions
-            {
-                SystemConfigurationLocation = Path.Combine(
-                    scd.RootedDirectoryPath, "fake-system.config")
-            };
-
-            StringBuilder sb = new StringBuilder()
-                .AppendFormat("[core]{0}", Environment.NewLine)
-                .AppendFormat("filemode = {1}{0}", Environment.NewLine, value);
-            File.WriteAllText(options.SystemConfigurationLocation, sb.ToString());
-
-            return options;
+            repo.Config.Set("core.filemode", value);
         }
 
         [Fact]
@@ -178,12 +168,13 @@ namespace LibGit2Sharp.Tests
             var path = SandboxStandardTestRepoGitDir();
             using (var repo = new Repository(path))
             {
-                var changes = repo.Diff.Compare<TreeChanges>(null, true);
-
-                Assert.Equal(3, changes.Count());
-                Assert.Equal("deleted_unstaged_file.txt", changes.Deleted.Single().Path);
-                Assert.Equal("modified_unstaged_file.txt", changes.Modified.Single().Path);
-                Assert.Equal("new_untracked_file.txt", changes.Added.Single().Path);
+                using (var changes = repo.Diff.Compare<TreeChanges>(null, true))
+                {
+                    Assert.Equal(3, changes.Count());
+                    Assert.Equal("deleted_unstaged_file.txt", changes.Deleted.Single().Path);
+                    Assert.Equal("modified_unstaged_file.txt", changes.Modified.Single().Path);
+                    Assert.Equal("new_untracked_file.txt", changes.Added.Single().Path);
+                }
             }
         }
     }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -26,8 +25,7 @@ namespace LibGit2Sharp
         /// <param name="canonicalName">The full name of the reference</param>
         internal Branch(Repository repo, Reference reference, string canonicalName)
             : this(repo, reference, _ => canonicalName)
-        {
-        }
+        { }
 
         /// <summary>
         /// Initializes a new instance of an orphaned <see cref="Branch"/> class.
@@ -39,8 +37,7 @@ namespace LibGit2Sharp
         /// <param name="reference">The reference.</param>
         internal Branch(Repository repo, Reference reference)
             : this(repo, reference, r => r.TargetIdentifier)
-        {
-        }
+        { }
 
         private Branch(Repository repo, Reference reference, Func<Reference, string> canonicalNameSelector)
             : base(repo, reference, canonicalNameSelector)
@@ -109,7 +106,15 @@ namespace LibGit2Sharp
         /// </value>
         public virtual bool IsCurrentRepositoryHead
         {
-            get { return repo.Head == this; }
+            get
+            {
+                if (this is DetachedHead)
+                {
+                    return repo.Head.Reference.TargetIdentifier == this.Reference.TargetIdentifier;
+                }
+
+                return repo.Head.Reference.TargetIdentifier == this.CanonicalName;
+            }
         }
 
         /// <summary>
@@ -125,7 +130,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual ICommitLog Commits
         {
-            get { return repo.Commits.QueryBy(new CommitFilter { Since = this }); }
+            get { return repo.Commits.QueryBy(new CommitFilter { IncludeReachableFrom = this }); }
         }
 
         /// <summary>
@@ -141,10 +146,33 @@ namespace LibGit2Sharp
             {
                 if (IsRemote)
                 {
-                    return Remote.FetchSpecTransformToSource(CanonicalName);
+                    using (var remote = repo.Network.Remotes.RemoteForName(RemoteName))
+                    {
+                        return remote.FetchSpecTransformToSource(CanonicalName);
+                    }
                 }
 
                 return UpstreamBranchCanonicalNameFromLocalBranch();
+            }
+        }
+
+        /// <summary>
+        /// Get the name of the remote for the branch.
+        /// <para>
+        ///   If this is a local branch, this will return the configured
+        ///   <see cref="Remote"/> to fetch from and push to. If this is a
+        ///   remote-tracking branch, this will return the name of the remote 
+        ///   containing the tracked branch. If there no tracking information 
+        ///   this will return null.
+        /// </para>
+        /// </summary>
+        public virtual string RemoteName
+        {
+            get
+            {
+                return IsRemote
+                    ? RemoteNameFromRemoteTrackingBranch()
+                    : RemoteNameFromLocalBranch();
             }
         }
 
@@ -157,20 +185,12 @@ namespace LibGit2Sharp
         ///   the tracked branch.
         /// </para>
         /// </summary>
+        [Obsolete("This property is deprecated. Use Repository.Network.Remotes[] using the RemoteName property")]
         public virtual Remote Remote
         {
             get
             {
-                string remoteName;
-
-                if (IsRemote)
-                {
-                    remoteName = RemoteNameFromRemoteTrackingBranch();
-                }
-                else
-                {
-                    remoteName = RemoteNameFromLocalBranch();
-                }
+                string remoteName = RemoteName;
 
                 if (remoteName == null)
                 {
@@ -183,7 +203,7 @@ namespace LibGit2Sharp
 
         private string UpstreamBranchCanonicalNameFromLocalBranch()
         {
-            ConfigurationEntry<string> mergeRefEntry = repo.Config.Get<string>("branch", Name, "merge");
+            ConfigurationEntry<string> mergeRefEntry = repo.Config.Get<string>("branch", FriendlyName, "merge");
 
             if (mergeRefEntry == null)
             {
@@ -195,7 +215,7 @@ namespace LibGit2Sharp
 
         private string RemoteNameFromLocalBranch()
         {
-            ConfigurationEntry<string> remoteEntry = repo.Config.Get<string>("branch", Name, "remote");
+            ConfigurationEntry<string> remoteEntry = repo.Config.Get<string>("branch", FriendlyName, "remote");
 
             if (remoteEntry == null)
             {
@@ -265,9 +285,9 @@ namespace LibGit2Sharp
                 return CanonicalName.Substring(Reference.RemoteTrackingBranchPrefix.Length);
             }
 
-            throw new ArgumentException(
-                string.Format(CultureInfo.InvariantCulture,
-                    "'{0}' does not look like a valid branch name.", CanonicalName));
+            throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                                                      "'{0}' does not look like a valid branch name.",
+                                                      CanonicalName));
         }
     }
 }

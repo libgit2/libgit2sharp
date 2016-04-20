@@ -31,10 +31,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual int TotalObjects
         {
-            get
-            {
-                return (int) gitTransferProgress.total_objects;
-            }
+            get { return (int)gitTransferProgress.total_objects; }
         }
 
         /// <summary>
@@ -42,10 +39,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual int IndexedObjects
         {
-            get
-            {
-                return (int) gitTransferProgress.indexed_objects;
-            }
+            get { return (int)gitTransferProgress.indexed_objects; }
         }
 
         /// <summary>
@@ -53,10 +47,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual int ReceivedObjects
         {
-            get
-            {
-                return (int) gitTransferProgress.received_objects;
-            }
+            get { return (int)gitTransferProgress.received_objects; }
         }
 
         /// <summary>
@@ -64,10 +55,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual long ReceivedBytes
         {
-            get
-            {
-                return (long) gitTransferProgress.received_bytes;
-            }
+            get { return (long)gitTransferProgress.received_bytes; }
         }
 
         private string DebuggerDisplay
@@ -75,7 +63,10 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                                     "{0}/{1}, {2} bytes", ReceivedObjects, TotalObjects, ReceivedBytes);
+                                     "{0}/{1}, {2} bytes",
+                                     ReceivedObjects,
+                                     TotalObjects,
+                                     ReceivedBytes);
             }
         }
     }

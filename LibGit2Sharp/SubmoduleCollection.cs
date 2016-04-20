@@ -41,10 +41,9 @@ namespace LibGit2Sharp
             {
                 Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-                return Lookup(name, handle =>
-                                    new Submodule(repo, name,
-                                                  Proxy.git_submodule_path(handle),
-                                                  Proxy.git_submodule_url(handle)));
+                return Lookup(name, handle => new Submodule(repo, name,
+                                                            Proxy.git_submodule_path(handle),
+                                                            Proxy.git_submodule_url(handle)));
             }
         }
 
@@ -63,9 +62,8 @@ namespace LibGit2Sharp
             {
                 if (handle == null)
                 {
-                    throw new NotFoundException(string.Format(
-                        CultureInfo.InvariantCulture,
-                        "Submodule lookup failed for '{0}'.", name));
+                    throw new NotFoundException("Submodule lookup failed for '{0}'.",
+                                                name);
                 }
 
                 Proxy.git_submodule_init(handle, overwrite);
@@ -91,9 +89,8 @@ namespace LibGit2Sharp
             {
                 if (handle == null)
                 {
-                    throw new NotFoundException(string.Format(
-                        CultureInfo.InvariantCulture,
-                        "Submodule lookup failed for '{0}'.", name));
+                    throw new NotFoundException("Submodule lookup failed for '{0}'.",
+                                                              name);
                 }
 
                 using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
@@ -107,8 +104,8 @@ namespace LibGit2Sharp
                     {
                         Version = 1,
                         CheckoutOptions = gitCheckoutOptions,
-                        RemoteCallbacks = gitRemoteCallbacks,
-                        CloneCheckoutStrategy = CheckoutStrategy.GIT_CHECKOUT_SAFE_CREATE
+                        FetchOptions = new GitFetchOptions { RemoteCallbacks = gitRemoteCallbacks },
+                        CloneCheckoutStrategy = CheckoutStrategy.GIT_CHECKOUT_SAFE
                     };
 
                     Proxy.git_submodule_update(handle, options.Init, ref gitSubmoduleUpdateOpts);
@@ -138,17 +135,18 @@ namespace LibGit2Sharp
 
         internal bool TryStage(string relativePath, bool writeIndex)
         {
-            return Lookup(relativePath, handle =>
-                                            {
-                                                if (handle == null)
-                                                    return false;
+            return Lookup(relativePath,
+                          handle =>
+                          {
+                              if (handle == null)
+                                  return false;
 
-                                                Proxy.git_submodule_add_to_index(handle, writeIndex);
-                                                return true;
-                                            });
+                              Proxy.git_submodule_add_to_index(handle, writeIndex);
+                              return true;
+                          });
         }
 
-        internal T Lookup<T>(string name, Func<SubmoduleSafeHandle, T> selector, bool throwIfNotFound = false)
+        internal T Lookup<T>(string name, Func<SubmoduleHandle, T> selector, bool throwIfNotFound = false)
         {
             using (var handle = Proxy.git_submodule_lookup(repo.Handle, name))
             {
@@ -160,9 +158,7 @@ namespace LibGit2Sharp
 
                 if (throwIfNotFound)
                 {
-                    throw new LibGit2SharpException(string.Format(
-                        CultureInfo.InvariantCulture,
-                        "Submodule lookup failed for '{0}'.", name));
+                    throw new LibGit2SharpException("Submodule lookup failed for '{0}'.", name);
                 }
 
                 return default(T);
@@ -173,8 +169,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format(CultureInfo.InvariantCulture,
-                                     "Count = {0}", this.Count());
+                return string.Format(CultureInfo.InvariantCulture, "Count = {0}", this.Count());
             }
         }
     }

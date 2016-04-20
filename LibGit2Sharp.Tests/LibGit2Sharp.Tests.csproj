@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\xunit.runner.visualstudio.2.0.0-rc1-build1030\build\net20\xunit.runner.visualstudio.props" Condition="Exists('..\packages\xunit.runner.visualstudio.2.0.0-rc1-build1030\build\net20\xunit.runner.visualstudio.props')" />
+  <Import Project="..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props" Condition="Exists('..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -23,6 +23,7 @@
     <DefineConstants>TRACE;DEBUG;NET40</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,11 +32,11 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Moq, Version=4.2.1409.1722, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Moq.4.2.1409.1722\lib\net40\Moq.dll</HintPath>
+    <Reference Include="Moq, Version=4.2.1507.118, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\packages\Moq.4.2.1507.0118\lib\net40\Moq.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -52,16 +53,24 @@
     <Compile Include="..\LibGit2Sharp\Core\Epoch.cs">
       <Link>TestHelpers\Epoch.cs</Link>
     </Compile>
+    <Compile Include="..\LibGit2Sharp\Core\Platform.cs">
+      <Link>TestHelpers\Platform.cs</Link>
+    </Compile>
     <Compile Include="BlameFixture.cs" />
     <Compile Include="ArchiveTarFixture.cs" />
     <Compile Include="CheckoutFixture.cs" />
     <Compile Include="CherryPickFixture.cs" />
     <Compile Include="DescribeFixture.cs" />
+    <Compile Include="FileHistoryFixture.cs" />
+    <Compile Include="FilterFixture.cs" />
     <Compile Include="GlobalSettingsFixture.cs" />
+    <Compile Include="PackBuilderFixture.cs" />
     <Compile Include="PatchStatsFixture.cs" />
+    <Compile Include="RebaseFixture.cs" />
     <Compile Include="RefSpecFixture.cs" />
     <Compile Include="EqualityFixture.cs" />
     <Compile Include="RevertFixture.cs" />
+    <Compile Include="SetErrorFixture.cs" />
     <Compile Include="SignatureFixture.cs" />
     <Compile Include="FilterBranchFixture.cs" />
     <Compile Include="RemoveFixture.cs" />
@@ -98,6 +107,7 @@
     <Compile Include="ResetIndexFixture.cs" />
     <Compile Include="SmartSubtransportFixture.cs" />
     <Compile Include="StatusFixture.cs" />
+    <Compile Include="FilterSubstitutionCipherFixture.cs" />
     <Compile Include="TestHelpers\BaseFixture.cs" />
     <Compile Include="BlobFixture.cs" />
     <Compile Include="BranchFixture.cs" />
@@ -110,15 +120,19 @@
     <Compile Include="ReferenceFixture.cs" />
     <Compile Include="RepositoryFixture.cs" />
     <Compile Include="TagFixture.cs" />
+    <Compile Include="TestHelpers\DateTimeOffsetExtensions.cs" />
+    <Compile Include="TestHelpers\FileExportFilter.cs" />
     <Compile Include="TestHelpers\OdbHelper.cs" />
     <Compile Include="TestHelpers\DirectoryHelper.cs" />
     <Compile Include="TestHelpers\ExpectedFetchState.cs" />
+    <Compile Include="TestHelpers\SubstitutionCipherFilter.cs" />
     <Compile Include="TestHelpers\TestRemoteInfo.cs" />
     <Compile Include="TestHelpers\IPostTestDirectoryRemover.cs" />
     <Compile Include="TestHelpers\SelfCleaningDirectory.cs" />
     <Compile Include="TestHelpers\SignatureExtensions.cs" />
     <Compile Include="TestHelpers\SkippableFactAttribute.cs" />
     <Compile Include="LogFixture.cs" />
+    <Compile Include="TestHelpers\TestRemoteRefs.cs" />
     <Compile Include="TreeDefinitionFixture.cs" />
     <Compile Include="TreeFixture.cs" />
     <Compile Include="UnstageFixture.cs" />
@@ -134,10 +148,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <NativeBinariesDirectory>$(MSBuildProjectDirectory)\..\Lib\NativeBinaries</NativeBinariesDirectory>
-  </PropertyGroup>
-  <Import Project="..\LibGit2Sharp\CopyWindowsNativeDependencies.targets" />
   <Import Project="..\LibGit2Sharp\ExtraDefine.targets" />
   <Import Project="VisualStudio.Tests.targets" />
   <PropertyGroup>
@@ -148,7 +158,7 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\xunit.runner.visualstudio.2.0.0-rc1-build1030\build\net20\xunit.runner.visualstudio.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\xunit.runner.visualstudio.2.0.0-rc1-build1030\build\net20\xunit.runner.visualstudio.props'))" />
+    <Error Condition="!Exists('..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props'))" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

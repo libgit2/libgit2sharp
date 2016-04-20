@@ -13,8 +13,7 @@
 
         internal Tag(Repository repo, Reference reference, string canonicalName)
             : base(repo, reference, _ => canonicalName)
-        {
-        }
+        { }
 
         /// <summary>
         /// Gets the optional information associated to this tag.

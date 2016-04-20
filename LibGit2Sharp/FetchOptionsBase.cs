@@ -8,8 +8,7 @@ namespace LibGit2Sharp
     public abstract class FetchOptionsBase
     {
         internal FetchOptionsBase()
-        {
-        }
+        { }
 
         /// <summary>
         /// Handler for network transfer and indexing progress information.
@@ -33,5 +32,21 @@ namespace LibGit2Sharp
         /// Handler to generate <see cref="LibGit2Sharp.Credentials"/> for authentication.
         /// </summary>
         public CredentialsHandler CredentialsProvider { get; set; }
+
+        /// <summary>
+        /// This hanlder will be called to let the user make a decision on whether to allow
+        /// the connection to preoceed based on the certificate presented by the server.
+        /// </summary>
+        public CertificateCheckHandler CertificateCheck { get; set; }
+
+        /// <summary>
+        /// Starting to operate on a new repository.
+        /// </summary>
+        public RepositoryOperationStarting RepositoryOperationStarting { get; set; }
+
+        /// <summary>
+        /// Completed operating on the current repository.
+        /// </summary>
+        public RepositoryOperationCompleted RepositoryOperationCompleted { get; set; }
     }
 }

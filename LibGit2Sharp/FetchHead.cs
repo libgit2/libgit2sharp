@@ -15,11 +15,20 @@ namespace LibGit2Sharp
         protected FetchHead()
         { }
 
-        internal FetchHead(Repository repo, string remoteCanonicalName,
-            string url, ObjectId targetId, bool forMerge, int index)
-            : base(repo, new DirectReference(
-                string.Format(CultureInfo.InvariantCulture, "FETCH_HEAD[{0}]", index),
-                repo, targetId), r => r.CanonicalName)
+        internal FetchHead(
+            Repository repo,
+            string remoteCanonicalName,
+            string url,
+            ObjectId targetId,
+            bool forMerge,
+            int index)
+            : base(repo,
+                   new DirectReference(string.Format(CultureInfo.InvariantCulture,
+                                                     "FETCH_HEAD[{0}]",
+                                                     index),
+                                       repo,
+                                       targetId),
+                   r => r.CanonicalName)
         {
             Url = url;
             ForMerge = forMerge;

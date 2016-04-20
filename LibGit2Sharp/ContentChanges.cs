@@ -20,12 +20,15 @@ namespace LibGit2Sharp
         protected ContentChanges()
         { }
 
-        internal ContentChanges(Repository repo, Blob oldBlob, Blob newBlob, GitDiffOptions options)
+        internal unsafe ContentChanges(Repository repo, Blob oldBlob, Blob newBlob, GitDiffOptions options)
         {
             Proxy.git_diff_blobs(repo.Handle,
                                  oldBlob != null ? oldBlob.Id : null,
                                  newBlob != null ? newBlob.Id : null,
-                                 options, FileCallback, HunkCallback, LineCallback);
+                                 options,
+                                 FileCallback,
+                                 HunkCallback,
+                                 LineCallback);
         }
 
         internal ContentChanges(bool isBinaryComparison)
@@ -61,9 +64,9 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual bool IsBinaryComparison { get; private set; }
 
-        private int FileCallback(GitDiffDelta delta, float progress, IntPtr payload)
+        private unsafe int FileCallback(git_diff_delta* delta, float progress, IntPtr payload)
         {
-            IsBinaryComparison = delta.IsBinary();
+            IsBinaryComparison = delta->flags.HasFlag(GitDiffFlags.GIT_DIFF_FLAG_BINARY);
 
             if (!IsBinaryComparison)
             {
@@ -75,7 +78,7 @@ namespace LibGit2Sharp
             return 0;
         }
 
-        private int HunkCallback(GitDiffDelta delta, GitDiffHunk hunk, IntPtr payload)
+        private unsafe int HunkCallback(git_diff_delta* delta, GitDiffHunk hunk, IntPtr payload)
         {
             string decodedContent = LaxUtf8Marshaler.FromBuffer(hunk.Header, (int)hunk.HeaderLen);
 
@@ -83,7 +86,7 @@ namespace LibGit2Sharp
             return 0;
         }
 
-        private int LineCallback(GitDiffDelta delta, GitDiffHunk hunk, GitDiffLine line, IntPtr payload)
+        private unsafe int LineCallback(git_diff_delta* delta, GitDiffHunk hunk, GitDiffLine line, IntPtr payload)
         {
             string decodedContent = LaxUtf8Marshaler.FromNative(line.content, (int)line.contentLen);
 
@@ -120,7 +123,9 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    @"{{+{0}, -{1}}}", LinesAdded, LinesDeleted);
+                                     @"{{+{0}, -{1}}}",
+                                     LinesAdded,
+                                     LinesDeleted);
             }
         }
     }

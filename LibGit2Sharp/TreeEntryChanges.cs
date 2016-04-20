@@ -16,19 +16,35 @@ namespace LibGit2Sharp
         protected TreeEntryChanges()
         { }
 
-        internal TreeEntryChanges(GitDiffDelta delta)
+        internal unsafe TreeEntryChanges(git_diff_delta* delta)
         {
-            Path = LaxFilePathMarshaler.FromNative(delta.NewFile.Path).Native;
-            OldPath = LaxFilePathMarshaler.FromNative(delta.OldFile.Path).Native;
+            Path = LaxFilePathMarshaler.FromNative(delta->new_file.Path).Native;
+            OldPath = LaxFilePathMarshaler.FromNative(delta->old_file.Path).Native;
 
-            Mode = (Mode)delta.NewFile.Mode;
-            OldMode = (Mode)delta.OldFile.Mode;
-            Oid = delta.NewFile.Id;
-            OldOid = delta.OldFile.Id;
+            Mode = (Mode)delta->new_file.Mode;
+            OldMode = (Mode)delta->old_file.Mode;
+            Oid = ObjectId.BuildFromPtr(&delta->new_file.Id);
+            OldOid = ObjectId.BuildFromPtr(&delta->old_file.Id);
+            Exists = (delta->new_file.Flags & GitDiffFlags.GIT_DIFF_FLAG_EXISTS) != 0;
+            OldExists = (delta->old_file.Flags & GitDiffFlags.GIT_DIFF_FLAG_EXISTS) != 0;
 
-            Status = (delta.Status == ChangeKind.Untracked || delta.Status == ChangeKind.Ignored)
-                ? ChangeKind.Added
-                : delta.Status;
+            Status = GetStatusFromChangeKind(delta->status);
+        }
+
+        // This treatment of change kind was apparently introduced in order to be able
+        // to compare a tree against the index, see commit fdc972b. It's extracted
+        // here so that TreeEntry can use the same rules without having to instantiate
+        // a TreeEntryChanges object.
+        internal static ChangeKind GetStatusFromChangeKind(ChangeKind changeKind)
+        {
+            switch (changeKind)
+            {
+                case ChangeKind.Untracked:
+                case ChangeKind.Ignored:
+                    return ChangeKind.Added;
+                default:
+                    return changeKind;
+            }
         }
 
         /// <summary>
@@ -45,6 +61,17 @@ namespace LibGit2Sharp
         /// The new content hash.
         /// </summary>
         public virtual ObjectId Oid { get; private set; }
+
+        /// <summary>
+        /// The file exists in the new side of the diff.
+        /// This is useful in determining if you have content in
+        /// the ours or theirs side of a conflict.  This will
+        /// be false during a conflict that deletes both the
+        /// "ours" and "theirs" sides, or when the diff is a
+        /// delete and the status is
+        /// <see cref="ChangeKind.Deleted"/>.
+        /// </summary>
+        public virtual bool Exists { get; private set; }
 
         /// <summary>
         /// The kind of change that has been done (added, deleted, modified ...).
@@ -66,13 +93,26 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual ObjectId OldOid { get; private set; }
 
+        /// <summary>
+        /// The file exists in the old side of the diff.
+        /// This is useful in determining if you have an ancestor
+        /// side to a conflict.  This will be false during a
+        /// conflict that involves both the "ours" and "theirs"
+        /// side being added, or when the diff is an add and the
+        /// status is <see cref="ChangeKind.Added"/>.
+        /// </summary>
+        public virtual bool OldExists { get; private set; }
+
         private string DebuggerDisplay
         {
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    "Path = {0}, File {1}",
-                    !string.IsNullOrEmpty(Path) ? Path : OldPath, Status);
+                                     "Path = {0}, File {1}",
+                                     !string.IsNullOrEmpty(Path)
+                                         ? Path
+                                         : OldPath,
+                                     Status);
             }
         }
     }

@@ -43,10 +43,8 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(name, "name");
 
-            using (RemoteSafeHandle handle = Proxy.git_remote_lookup(repository.Handle, name, shouldThrowIfNotFound))
-            {
-                return handle == null ? null : Remote.BuildFromPtr(handle, this.repository);
-            }
+            RemoteHandle handle = Proxy.git_remote_lookup(repository.Handle, name, shouldThrowIfNotFound);
+            return handle == null ? null : new Remote(handle, this.repository);
         }
 
         /// <summary>
@@ -55,17 +53,36 @@ namespace LibGit2Sharp
         /// <param name="remote">The remote to update.</param>
         /// <param name="actions">Delegate to perform updates on the remote.</param>
         /// <returns>The updated remote.</returns>
+        [Obsolete("This method is deprecated. Use the overload with a remote name")]
         public virtual Remote Update(Remote remote, params Action<RemoteUpdater>[] actions)
         {
-            using (var updater = new RemoteUpdater(this.repository, remote))
+            var updater = new RemoteUpdater(repository, remote);
+
+            foreach (Action<RemoteUpdater> action in actions)
             {
+                action(updater);
+            }
+
+            return this[remote.Name];
+        }
+
+        /// <summary>
+        /// Update properties of a remote.
+        ///
+        /// These updates will be performed as a bulk update at the end of the method.
+        /// </summary>
+        /// <param name="remote">The name of the remote to update.</param>
+        /// <param name="actions">Delegate to perform updates on the remote.</param>
+        public virtual void Update(string remote, params Action<RemoteUpdater>[] actions)
+        {
+            var updater = new RemoteUpdater(repository, remote);
+
+            repository.Config.WithinTransaction(() => {
                 foreach (Action<RemoteUpdater> action in actions)
                 {
                     action(updater);
                 }
-            }
-
-            return this[remote.Name];
+            });
         }
 
         /// <summary>
@@ -103,10 +120,8 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(name, "name");
             Ensure.ArgumentNotNull(url, "url");
 
-            using (RemoteSafeHandle handle = Proxy.git_remote_create(repository.Handle, name, url))
-            {
-                return Remote.BuildFromPtr(handle, this.repository);
-            }
+            RemoteHandle handle = Proxy.git_remote_create(repository.Handle, name, url);
+            return new Remote(handle, this.repository);
         }
 
         /// <summary>
@@ -122,10 +137,8 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(url, "url");
             Ensure.ArgumentNotNull(fetchRefSpec, "fetchRefSpec");
 
-            using (RemoteSafeHandle handle = Proxy.git_remote_create_with_fetchspec(repository.Handle, name, url, fetchRefSpec))
-            {
-                return Remote.BuildFromPtr(handle, this.repository);
-            }
+            RemoteHandle handle = Proxy.git_remote_create_with_fetchspec(repository.Handle, name, url, fetchRefSpec);
+            return new Remote(handle, this.repository);
         }
 
         /// <summary>
@@ -145,9 +158,20 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="name">The current remote name.</param>
         /// <param name="newName">The new name the existing remote should bear.</param>
+        /// <returns>A new <see cref="Remote"/>.</returns>
+        public virtual Remote Rename(string name, string newName)
+        {
+            return Rename(name, newName, null);
+        }
+
+        /// <summary>
+        /// Renames an existing <see cref="Remote"/>.
+        /// </summary>
+        /// <param name="name">The current remote name.</param>
+        /// <param name="newName">The new name the existing remote should bear.</param>
         /// <param name="callback">The callback to be used when problems with renaming occur. (e.g. non-default fetch refspecs)</param>
         /// <returns>A new <see cref="Remote"/>.</returns>
-        public virtual Remote Rename(string name, string newName, RemoteRenameFailureHandler callback = null)
+        public virtual Remote Rename(string name, string newName, RemoteRenameFailureHandler callback)
         {
             Ensure.ArgumentNotNull(name, "name");
             Ensure.ArgumentNotNull(newName, "newName");
@@ -160,8 +184,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format(CultureInfo.InvariantCulture,
-                    "Count = {0}", this.Count());
+                return string.Format(CultureInfo.InvariantCulture, "Count = {0}", this.Count());
             }
         }
     }

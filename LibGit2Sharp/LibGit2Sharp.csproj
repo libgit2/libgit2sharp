@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\LibGit2Sharp.NativeBinaries.1.0.137\build\LibGit2Sharp.NativeBinaries.props" Condition="Exists('..\packages\LibGit2Sharp.NativeBinaries.1.0.137\build\LibGit2Sharp.NativeBinaries.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -13,6 +14,8 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,7 +25,6 @@
     <DefineConstants>TRACE;DEBUG;NET40</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\Debug\LibGit2Sharp.xml</DocumentationFile>
@@ -35,25 +37,30 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <DocumentationFile>bin\Release\LibGit2Sharp.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>libgit2sharp.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AfterRebaseStepInfo.cs" />
     <Compile Include="AmbiguousSpecificationException.cs" />
     <Compile Include="ArchiverBase.cs" />
     <Compile Include="BareRepositoryException.cs" />
+    <Compile Include="BeforeRebaseStepInfo.cs" />
     <Compile Include="BlameHunkCollection.cs" />
     <Compile Include="BlameHunk.cs" />
     <Compile Include="BlameOptions.cs" />
     <Compile Include="Blob.cs" />
-    <Compile Include="BlobExtensions.cs" />
     <Compile Include="Branch.cs" />
     <Compile Include="BranchCollection.cs" />
-    <Compile Include="BranchCollectionExtensions.cs" />
     <Compile Include="BranchTrackingDetails.cs" />
     <Compile Include="BranchUpdater.cs" />
     <Compile Include="CheckoutCallbacks.cs" />
@@ -68,17 +75,34 @@
     <Compile Include="CommitOptions.cs" />
     <Compile Include="CommitSortStrategies.cs" />
     <Compile Include="CompareOptions.cs" />
+    <Compile Include="Core\FileHistory.cs" />
+    <Compile Include="Core\GitFetchOptions.cs" />
+    <Compile Include="Core\GitPushUpdate.cs" />
+    <Compile Include="Core\GitSubmoduleIgnore.cs" />
+    <Compile Include="Core\GitWriteStream.cs" />
+    <Compile Include="Core\Platform.cs" />
+    <Compile Include="Core\WriteStream.cs" />
+    <Compile Include="Core\GitRebaseOperation.cs" />
+    <Compile Include="Core\GitRebaseOptions.cs" />
     <Compile Include="DescribeOptions.cs" />
     <Compile Include="DescribeStrategy.cs" />
     <Compile Include="Core\GitDescribeFormatOptions.cs" />
     <Compile Include="Core\GitIndexReucEntry.cs" />
     <Compile Include="Core\GitSubmoduleOptions.cs" />
-    <Compile Include="Core\Handles\DescribeResultSafeHandle.cs" />
-    <Compile Include="Core\Handles\IndexNameEntrySafeHandle.cs" />
-    <Compile Include="Core\Handles\IndexReucEntrySafeHandle.cs" />
+    <Compile Include="DiffAlgorithm.cs" />
     <Compile Include="EntryExistsException.cs" />
     <Compile Include="FetchOptionsBase.cs" />
+    <Compile Include="Core\FetchPruneStrategy.cs" />
+    <Compile Include="LogEntry.cs" />
+    <Compile Include="FollowFilter.cs" />
     <Compile Include="IBelongToARepository.cs" />
+    <Compile Include="Identity.cs" />
+    <Compile Include="Core\GitFilter.cs" />
+    <Compile Include="FilterAttributeEntry.cs" />
+    <Compile Include="FilterMode.cs" />
+    <Compile Include="FilterRegistration.cs" />
+    <Compile Include="FilterSource.cs" />
+    <Compile Include="Filter.cs" />
     <Compile Include="IndexNameEntryCollection.cs" />
     <Compile Include="ContentChangeStats.cs" />
     <Compile Include="BuiltInFeatures.cs" />
@@ -88,8 +112,6 @@
     <Compile Include="Core\GitIndexNameEntry.cs" />
     <Compile Include="Core\GitRevertOpts.cs" />
     <Compile Include="Core\Handles\DisposableExtensions.cs" />
-    <Compile Include="Core\Handles\PatchSafeHandle.cs" />
-    <Compile Include="Core\IntPtrExtensions.cs" />
     <Compile Include="DefaultCredentials.cs" />
     <Compile Include="EmptyCommitException.cs" />
     <Compile Include="FetchOptions.cs" />
@@ -97,23 +119,32 @@
     <Compile Include="IndexReucEntry.cs" />
     <Compile Include="IndexReucEntryCollection.cs" />
     <Compile Include="IndexNameEntry.cs" />
+    <Compile Include="MergeAndCheckoutOptionsBase.cs" />
+    <Compile Include="CheckoutConflictException.cs" />
     <Compile Include="MergeOptions.cs" />
+    <Compile Include="MergeOptionsBase.cs" />
     <Compile Include="MergeResult.cs" />
+    <Compile Include="MergeTreeOptions.cs" />
+    <Compile Include="MergeTreeResult.cs" />
     <Compile Include="NotFoundException.cs" />
     <Compile Include="GitObjectMetadata.cs" />
+    <Compile Include="PackBuilder.cs" />
     <Compile Include="PatchEntryChanges.cs" />
     <Compile Include="PatchStats.cs" />
     <Compile Include="PeelException.cs" />
     <Compile Include="PullOptions.cs" />
+    <Compile Include="PushUpdate.cs" />
+    <Compile Include="RecurseSubmodulesException.cs" />
+    <Compile Include="RebaseOperationImpl.cs" />
+    <Compile Include="RebaseOptions.cs" />
+    <Compile Include="RebaseResult.cs" />
+    <Compile Include="Rebase.cs" />
+    <Compile Include="RebaseStepInfo.cs" />
     <Compile Include="RefSpec.cs" />
     <Compile Include="RefSpecCollection.cs" />
     <Compile Include="Core\EncodingMarshaler.cs" />
     <Compile Include="Core\GitMergeOpts.cs" />
-    <Compile Include="Core\Handles\BranchIteratorSafeHandle.cs" />
-    <Compile Include="Core\Handles\ConfigurationIteratorSafeHandle.cs" />
     <Compile Include="Core\GitBlame.cs" />
-    <Compile Include="Core\Handles\BlameSafeHandle.cs" />
-    <Compile Include="Core\Handles\GitAnnotatedCommitHandle.cs" />
     <Compile Include="Core\PushTransferProgressCallbacks.cs" />
     <Compile Include="Core\PackbuilderCallbacks.cs" />
     <Compile Include="HistoryDivergence.cs" />
@@ -121,17 +152,15 @@
     <Compile Include="Core\GitBuf.cs" />
     <Compile Include="FilteringOptions.cs" />
     <Compile Include="MergeFetchHeadNotFoundException.cs" />
+    <Compile Include="RepositoryOperationContext.cs" />
     <Compile Include="ResetMode.cs" />
-    <Compile Include="NoteCollectionExtensions.cs" />
     <Compile Include="RefSpecDirection.cs" />
     <Compile Include="Core\GitStatusEntry.cs" />
     <Compile Include="Core\GitStatusOptions.cs" />
-    <Compile Include="Core\Handles\StatusEntrySafeHandle.cs" />
-    <Compile Include="Core\Handles\StatusListSafeHandle.cs" />
     <Compile Include="RenameDetails.cs" />
     <Compile Include="RevertResult.cs" />
-    <Compile Include="SignatureExtensions.cs" />
     <Compile Include="RevertOptions.cs" />
+    <Compile Include="SecureUsernamePasswordCredentials.cs" />
     <Compile Include="StageOptions.cs" />
     <Compile Include="StatusOptions.cs" />
     <Compile Include="SimilarityOptions.cs" />
@@ -158,21 +187,15 @@
     <Compile Include="ConflictCollection.cs" />
     <Compile Include="RemoteUpdater.cs" />
     <Compile Include="RemoveFromIndexException.cs" />
-    <Compile Include="Core\Handles\GitRefSpecHandle.cs" />
-    <Compile Include="Core\Handles\NullRepositorySafeHandle.cs" />
     <Compile Include="GitLink.cs" />
     <Compile Include="Core\RepositoryOpenFlags.cs" />
     <Compile Include="RewriteHistoryOptions.cs" />
     <Compile Include="StashModifiers.cs" />
-    <Compile Include="TreeDefinitionExtensions.cs" />
     <Compile Include="TreeEntryTargetType.cs" />
     <Compile Include="UnmatchedPathException.cs" />
-    <Compile Include="Core\Handles\ReflogEntrySafeHandle.cs" />
-    <Compile Include="Core\Handles\ReflogSafeHandle.cs" />
     <Compile Include="ReflogCollection.cs" />
     <Compile Include="Core\PathCase.cs" />
     <Compile Include="MatchedPathsAggregator.cs" />
-    <Compile Include="Core\Handles\SubmoduleSafeHandle.cs" />
     <Compile Include="Core\SubmoduleLazyGroup.cs" />
     <Compile Include="Core\GitPushOptions.cs" />
     <Compile Include="Network.cs" />
@@ -189,12 +212,10 @@
     <Compile Include="SubmoduleUpdate.cs" />
     <Compile Include="UnmergedIndexEntriesException.cs" />
     <Compile Include="Core\StringExtensions.cs" />
-    <Compile Include="ObjectDatabaseExtensions.cs" />
     <Compile Include="Commit.cs" />
     <Compile Include="CommitLog.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="ConfigurationEntry.cs" />
-    <Compile Include="ConfigurationExtensions.cs" />
     <Compile Include="ContentChanges.cs" />
     <Compile Include="InvalidSpecificationException.cs" />
     <Compile Include="Core\GitCheckoutOpts.cs" />
@@ -203,11 +224,8 @@
     <Compile Include="Core\GitObjectLazyGroup.cs" />
     <Compile Include="Core\GitSmartSubtransportRegistration.cs" />
     <Compile Include="Core\GitTransferProgress.cs" />
-    <Compile Include="Core\Handles\NullGitObjectSafeHandle.cs" />
-    <Compile Include="Core\Handles\NullIndexSafeHandle.cs" />
     <Compile Include="Core\ILazy.cs" />
     <Compile Include="Core\LazyGroup.cs" />
-    <Compile Include="Core\Handles\GitConfigEntryHandle.cs" />
     <Compile Include="Core\Proxy.cs" />
     <Compile Include="Credentials.cs" />
     <Compile Include="Core\TarWriter.cs" />
@@ -215,14 +233,11 @@
     <Compile Include="FetchHead.cs" />
     <Compile Include="Handlers.cs" />
     <Compile Include="Ignore.cs" />
-    <Compile Include="MergeConflictException.cs" />
     <Compile Include="MergeHead.cs" />
     <Compile Include="NameConflictException.cs" />
-    <Compile Include="NetworkExtensions.cs" />
     <Compile Include="NonFastForwardException.cs" />
     <Compile Include="PushResult.cs" />
     <Compile Include="PushStatusError.cs" />
-    <Compile Include="ReferenceCollectionExtensions.cs" />
     <Compile Include="Core\GitRemoteCallbacks.cs" />
     <Compile Include="RemoteCallbacks.cs" />
     <Compile Include="RemoteCompletionType.cs" />
@@ -233,7 +248,6 @@
     <Compile Include="SmartSubtransportStream.cs" />
     <Compile Include="Core\GitSmartSubtransport.cs" />
     <Compile Include="Core\GitSmartSubtransportStream.cs" />
-    <Compile Include="TagCollectionExtensions.cs" />
     <Compile Include="Core\FilePath.cs" />
     <Compile Include="Core\FilePathExtensions.cs" />
     <Compile Include="Core\FilePathMarshaler.cs" />
@@ -243,25 +257,11 @@
     <Compile Include="ChangeKind.cs" />
     <Compile Include="Core\GitBranchType.cs" />
     <Compile Include="Core\GitDiff.cs" />
-    <Compile Include="Core\GitDiffExtensions.cs" />
     <Compile Include="Core\GitDirection.cs" />
     <Compile Include="Core\GitError.cs" />
     <Compile Include="Core\GitErrorCategory.cs" />
     <Compile Include="Core\GitOdbBackend.cs" />
     <Compile Include="Core\GitOdbBackendStream.cs" />
-    <Compile Include="Core\Handles\GitErrorSafeHandle.cs" />
-    <Compile Include="Core\Handles\NoteSafeHandle.cs" />
-    <Compile Include="Core\Handles\ObjectDatabaseSafeHandle.cs" />
-    <Compile Include="Core\Handles\DiffSafeHandle.cs" />
-    <Compile Include="Core\Handles\GitObjectSafeHandle.cs" />
-    <Compile Include="Core\Handles\IndexEntrySafeHandle.cs" />
-    <Compile Include="Core\Handles\NotOwnedSafeHandleBase.cs" />
-    <Compile Include="Core\Handles\OidSafeHandle.cs" />
-    <Compile Include="Core\Handles\TreeBuilderSafeHandle.cs" />
-    <Compile Include="Core\Handles\TreeEntrySafeHandle_Owned.cs" />
-    <Compile Include="Core\Handles\ReferenceSafeHandle.cs" />
-    <Compile Include="Core\Handles\SignatureSafeHandle.cs" />
-    <Compile Include="Core\Handles\TreeEntrySafeHandle.cs" />
     <Compile Include="DetachedHead.cs" />
     <Compile Include="Diff.cs" />
     <Compile Include="IRepository.cs" />
@@ -274,7 +274,6 @@
     <Compile Include="TreeChanges.cs" />
     <Compile Include="TreeEntryChanges.cs" />
     <Compile Include="LibGit2SharpException.cs" />
-    <Compile Include="Core\Handles\ConfigurationSafeHandle.cs" />
     <Compile Include="Core\Ensure.cs" />
     <Compile Include="Core\Epoch.cs" />
     <Compile Include="Core\GitErrorCode.cs" />
@@ -285,11 +284,6 @@
     <Compile Include="Core\GitTime.cs" />
     <Compile Include="Core\NativeMethods.cs" />
     <Compile Include="Core\ObjectSafeWrapper.cs" />
-    <Compile Include="Core\Handles\RemoteSafeHandle.cs" />
-    <Compile Include="Core\Handles\RevWalkerSafeHandle.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Core\Handles\SafeHandleBase.cs" />
     <Compile Include="Core\Utf8Marshaler.cs" />
     <Compile Include="DirectReference.cs" />
     <Compile Include="Core\GitIndexTime.cs" />
@@ -300,7 +294,6 @@
     <Compile Include="ICommitLog.cs" />
     <Compile Include="Index.cs" />
     <Compile Include="IndexEntry.cs" />
-    <Compile Include="Core\Handles\IndexSafeHandle.cs" />
     <Compile Include="IQueryableCommitLog.cs" />
     <Compile Include="Core\LookUpOptions.cs" />
     <Compile Include="Mode.cs" />
@@ -319,7 +312,6 @@
     </Compile>
     <Compile Include="RepositoryInformation.cs" />
     <Compile Include="RepositoryExtensions.cs" />
-    <Compile Include="Core\Handles\RepositorySafeHandle.cs" />
     <Compile Include="RepositoryOptions.cs" />
     <Compile Include="RepositoryStatus.cs" />
     <Compile Include="Signature.cs" />
@@ -337,29 +329,60 @@
     <Compile Include="Version.cs" />
     <Compile Include="VoidReference.cs" />
     <Compile Include="Core\RawContentStream.cs" />
-    <Compile Include="Core\Handles\OdbStreamSafeHandle.cs" />
     <Compile Include="SupportedCredentialTypes.cs" />
+    <Compile Include="StashApplyProgress.cs" />
+    <Compile Include="StashApplyOptions.cs" />
+    <Compile Include="StashApplyStatus.cs" />
+    <Compile Include="Core\GitStashApplyOpts.cs" />
+    <Compile Include="Core\GitCertificateType.cs" />
+    <Compile Include="Core\GitCertificate.cs" />
+    <Compile Include="Core\GitCertificateX509.cs" />
+    <Compile Include="Certificate.cs" />
+    <Compile Include="CertificateX509.cs" />
+    <Compile Include="Core\GitCertificateSsh.cs" />
+    <Compile Include="Core\GitCertificateSshType.cs" />
+    <Compile Include="CertificateSsh.cs" />
+    <Compile Include="IDiffResult.cs" />
+    <Compile Include="Core\Opaques.cs" />
+    <Compile Include="Core\Handles\Objects.cs">
+      <DependentUpon>Objects.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Core\Handles\Libgit2Object.cs" />
+    <Compile Include="Core\GitCredential.cs" />
+    <Compile Include="Core\GitCredentialUserpass.cs" />
+    <Compile Include="Commands\Pull.cs" />
+    <Compile Include="Commands\Fetch.cs" />
+    <Compile Include="Commands\Stage.cs" />
+    <Compile Include="Commands\Remove.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="libgit2_hash.txt" />
+    <EmbeddedResource Include="libgit2sharp_hash.txt" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="libgit2sharp_hash.txt" />
+    <None Include="libgit2sharp.snk" />
+    <None Include="packages.config" />
+    <None Include="Core\Handles\Objects.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Objects.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="UniqueIdentifier.targets" />
-  <PropertyGroup>
-    <NativeBinariesDirectory>$(MSBuildProjectDirectory)\..\Lib\NativeBinaries</NativeBinariesDirectory>
-  </PropertyGroup>
-  <Import Project="CopyWindowsNativeDependencies.targets" />
+  <Import Project="NativeDllName.targets" />
   <Import Project="ExtraDefine.targets" />
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\LibGit2Sharp.NativeBinaries.1.0.137\build\LibGit2Sharp.NativeBinaries.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\LibGit2Sharp.NativeBinaries.1.0.137\build\LibGit2Sharp.NativeBinaries.props'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
@@ -367,4 +390,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup />
 </Project>

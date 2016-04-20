@@ -16,8 +16,7 @@ namespace LibGit2Sharp
 
         internal GitLink(Repository repo, ObjectId id)
             : base(repo, id)
-        {
-        }
+        { }
 
         private string DebuggerDisplay
         {

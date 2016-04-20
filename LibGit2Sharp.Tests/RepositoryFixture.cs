@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -55,6 +56,26 @@ namespace LibGit2Sharp.Tests
             Directory.CreateDirectory(scd.DirectoryPath);
 
             Assert.False(Repository.IsValid(scd.DirectoryPath));
+        }
+
+
+        [Fact]
+        public void IsValidWithNullPathThrows()
+        {
+            Assert.Throws<ArgumentNullException>(() => Repository.IsValid(null));
+        }
+
+        [Fact]
+        public void IsNotValidWithEmptyPath()
+        {
+            Assert.False(Repository.IsValid(string.Empty));
+        }
+
+        [Fact]
+        public void IsValidWithValidPath()
+        {
+            string repoPath = InitNewRepository();
+            Assert.True(Repository.IsValid(repoPath));
         }
 
         [Fact]
@@ -151,7 +172,7 @@ namespace LibGit2Sharp.Tests
             Assert.Equal(FileAttributes.Hidden, (attribs & FileAttributes.Hidden));
         }
 
-        [Fact(Skip = "Skipping due to recent github handling modification of --include-tag.")]
+        [Fact]
         public void CanFetchFromRemoteByName()
         {
             string remoteName = "testRemote";
@@ -161,7 +182,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                Remote remote = repo.Network.Remotes.Add(remoteName, url);
+                repo.Network.Remotes.Add(remoteName, url);
 
                 // We will first fetch without specifying any Tag options.
                 // After we verify this fetch, we will perform a second fetch
@@ -188,13 +209,13 @@ namespace LibGit2Sharp.Tests
                 }
 
                 // Perform the actual fetch
-                repo.Fetch(remote.Name, new FetchOptions { OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler });
+                Commands.Fetch(repo, remoteName, new string[0], new FetchOptions { OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler }, null);
 
                 // Verify the expected state
                 expectedFetchState.CheckUpdatedReferences(repo);
 
                 // Now fetch the rest of the tags
-                repo.Fetch(remote.Name, new FetchOptions { TagFetchMode = TagFetchMode.All });
+                Commands.Fetch(repo, remoteName, new string[0], new FetchOptions { TagFetchMode = TagFetchMode.All }, null);
 
                 // Verify that the "nearly-dangling" tag is now in the repo.
                 Tag nearlyDanglingTag = repo.Tags["nearly-dangling"];
@@ -244,10 +265,10 @@ namespace LibGit2Sharp.Tests
 
             Assert.Equal(0, repo.Commits.Count());
             Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter()).Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs.Head }).Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { Since = repo.Head }).Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { Since = "HEAD" }).Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { Since = expectedHeadTargetIdentifier }).Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { IncludeReachableFrom = repo.Refs.Head }).Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { IncludeReachableFrom = repo.Head }).Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { IncludeReachableFrom = "HEAD" }).Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { IncludeReachableFrom = expectedHeadTargetIdentifier }).Count());
 
             Assert.Null(repo.Head["subdir/I-do-not-exist"]);
 
@@ -423,7 +444,7 @@ namespace LibGit2Sharp.Tests
             {
                 const string filename = "new.txt";
                 Touch(repo.Info.WorkingDirectory, filename, "one ");
-                repo.Stage(filename);
+                Commands.Stage(repo, filename);
 
                 Signature author = Constants.Signature;
                 Commit commit = repo.Commit("Initial commit", author, author);
@@ -592,7 +613,7 @@ namespace LibGit2Sharp.Tests
             {
                 repo.Checkout(repo.Head.Tip.Sha, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
                 Branch trackLocal = repo.Head;
-                Assert.Null(trackLocal.Remote);
+                Assert.Null(trackLocal.RemoteName);
             }
         }
 
@@ -663,6 +684,93 @@ namespace LibGit2Sharp.Tests
                 Assert.Null(repo.Info.WorkingDirectory);
 
                 Assert.Throws<BareRepositoryException>(() => { var idx = repo.Index; });
+            }
+        }
+
+        [SkippableFact]
+        public void CanListRemoteReferencesWithCredentials()
+        {
+            InconclusiveIf(() => string.IsNullOrEmpty(Constants.PrivateRepoUrl),
+                "Populate Constants.PrivateRepo* to run this test");
+
+            IEnumerable<Reference> references = Repository.ListRemoteReferences(Constants.PrivateRepoUrl,
+                Constants.PrivateRepoCredentials);
+
+            foreach (var reference in references)
+            {
+                Assert.NotNull(reference);
+            }
+        }
+
+        [Theory]
+        [InlineData("http://github.com/libgit2/TestGitRepository")]
+        [InlineData("https://github.com/libgit2/TestGitRepository")]
+        [InlineData("git://github.com/libgit2/TestGitRepository.git")]
+        public void CanListRemoteReferences(string url)
+        {
+            IEnumerable<Reference> references = Repository.ListRemoteReferences(url).ToList();
+
+            List<Tuple<string, string>> actualRefs = references.
+                Select(reference => new Tuple<string, string>(reference.CanonicalName, reference.ResolveToDirectReference().TargetIdentifier)).ToList();
+
+            Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs.Count, actualRefs.Count);
+            Assert.True(references.Single(reference => reference.CanonicalName == "HEAD") is SymbolicReference);
+            for (int i = 0; i < TestRemoteRefs.ExpectedRemoteRefs.Count; i++)
+            {
+                Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs[i].Item2, actualRefs[i].Item2);
+                Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs[i].Item1, actualRefs[i].Item1);
+            }
+        }
+
+        [Fact]
+        public void CanListRemoteReferencesWithDetachedRemoteHead()
+        {
+            string originalRepoPath = SandboxStandardTestRepo();
+
+            string detachedHeadSha;
+
+            using (var originalRepo = new Repository(originalRepoPath))
+            {
+                detachedHeadSha = originalRepo.Head.Tip.Sha;
+                originalRepo.Checkout(detachedHeadSha);
+
+                Assert.True(originalRepo.Info.IsHeadDetached);
+            }
+
+            IEnumerable<Reference> references = Repository.ListRemoteReferences(originalRepoPath);
+
+            Reference head = references.SingleOrDefault(reference => reference.CanonicalName == "HEAD");
+
+            Assert.NotNull(head);
+            Assert.True(head is DirectReference);
+            Assert.Equal(detachedHeadSha, head.TargetIdentifier);
+        }
+
+        [Theory]
+        [InlineData("http://github.com/libgit2/TestGitRepository")]
+        public void ReadingReferenceRepositoryThroughListRemoteReferencesThrows(string url)
+        {
+            IEnumerable<Reference> references = Repository.ListRemoteReferences(url);
+
+            foreach (var reference in references)
+            {
+                IBelongToARepository repositoryReference = reference;
+                Assert.Throws<InvalidOperationException>(() => repositoryReference.Repository);
+            }
+        }
+
+        [Theory]
+        [InlineData("http://github.com/libgit2/TestGitRepository")]
+        public void ReadingReferenceTargetFromListRemoteReferencesThrows(string url)
+        {
+            IEnumerable<Reference> references = Repository.ListRemoteReferences(url);
+
+            foreach (var reference in references)
+            {
+                Assert.Throws<InvalidOperationException>(() =>
+                {
+                    var target = reference.ResolveToDirectReference().Target;
+                });
             }
         }
     }

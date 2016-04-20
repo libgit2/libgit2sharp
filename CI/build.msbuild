@@ -6,7 +6,7 @@
     <DeployFolder>$(RootDir)\Build</DeployFolder>
   </PropertyGroup>
 
-  <UsingTask AssemblyFile="$(RootDir)\packages\xunit.runners.1.9.2\tools\xunit.runner.msbuild.dll"
+  <UsingTask AssemblyFile="$(RootDir)\packages\xunit.runner.msbuild.2.0.0\build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.runner.msbuild.dll"
                TaskName="Xunit.Runner.MSBuild.xunit" />
   <Target Name="Clean">
     <Message Text="Commit SHA = $(CommitSha)" />
@@ -37,7 +37,7 @@
   </Target>
 
   <Target Name="Test" DependsOnTargets="Build">
-    <xunit Assembly="$(TestBuildDir)/LibGit2Sharp.Tests.dll" Xml="$(DeployFolder)/Test-result.xml" />
+    <xunit Assemblies="$(TestBuildDir)/LibGit2Sharp.Tests.dll" ShadowCopy="false" WorkingFolder="$(TestBuildDir)" Xml="$(DeployFolder)/Test-result.xml" />
   </Target>
 
   <Target Name="Deploy" DependsOnTargets="Test">
@@ -49,10 +49,10 @@
         DestinationFiles="@(OutputFiles->'$(DeployFolder)\%(RecursiveDir)%(Filename)%(Extension)')" />
 
     <ItemGroup>
-      <NativeBinaries Include="$(TestBuildDir)\NativeBinaries\**\*.*" />
+      <NativeBinaries Include="$(TestBuildDir)\lib\**\*.*" />
     </ItemGroup>
 
     <Copy SourceFiles="@(NativeBinaries)"
-      DestinationFiles="@(NativeBinaries->'$(DeployFolder)\NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+      DestinationFiles="@(NativeBinaries->'$(DeployFolder)\lib\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>
 </Project>

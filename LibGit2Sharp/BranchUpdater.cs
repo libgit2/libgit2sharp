@@ -125,7 +125,7 @@ namespace LibGit2Sharp
         /// <param name="mergeBranchName">The merge branch in the upstream remote's namespace.</param>
         private void SetUpstreamBranch(string mergeBranchName)
         {
-            string configKey = string.Format(CultureInfo.InvariantCulture, "branch.{0}.merge", branch.Name);
+            string configKey = string.Format(CultureInfo.InvariantCulture, "branch.{0}.merge", branch.FriendlyName);
 
             if (string.IsNullOrEmpty(mergeBranchName))
             {
@@ -143,7 +143,7 @@ namespace LibGit2Sharp
         /// <param name="remoteName">The name of the remote to set as the upstream branch.</param>
         private void SetUpstreamRemote(string remoteName)
         {
-            string configKey = string.Format(CultureInfo.InvariantCulture, "branch.{0}.remote", branch.Name);
+            string configKey = string.Format(CultureInfo.InvariantCulture, "branch.{0}.remote", branch.FriendlyName);
 
             if (string.IsNullOrEmpty(remoteName))
             {
@@ -154,7 +154,7 @@ namespace LibGit2Sharp
                 if (!remoteName.Equals(".", StringComparison.Ordinal))
                 {
                     // Verify that remote exists.
-                    repo.Network.Remotes.RemoteForName(remoteName);
+                    using (repo.Network.Remotes.RemoteForName(remoteName)) { }
                 }
 
                 repo.Config.Set(configKey, remoteName);
@@ -183,13 +183,16 @@ namespace LibGit2Sharp
             {
                 remoteName = Proxy.git_branch_remote_name(repo.Handle, canonicalName, true);
 
-                Remote remote = repo.Network.Remotes.RemoteForName(remoteName);
-                mergeBranchName = remote.FetchSpecTransformToSource(canonicalName);
+                using (var remote = repo.Network.Remotes.RemoteForName(remoteName))
+                {
+                    mergeBranchName = remote.FetchSpecTransformToSource(canonicalName);
+                }
             }
             else
             {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                    "'{0}' does not look like a valid canonical branch name.", canonicalName));
+                                                          "'{0}' does not look like a valid canonical branch name.",
+                                                          canonicalName));
             }
         }
     }

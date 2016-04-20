@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -14,13 +15,13 @@ namespace LibGit2Sharp
     public class Configuration : IDisposable,
         IEnumerable<ConfigurationEntry<string>>
     {
+        private readonly FilePath repoConfigPath;
         private readonly FilePath globalConfigPath;
         private readonly FilePath xdgConfigPath;
         private readonly FilePath systemConfigPath;
+        private readonly FilePath programDataConfigPath;
 
-        private readonly Repository repository;
-
-        private ConfigurationSafeHandle configHandle;
+        private ConfigurationHandle configHandle;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -28,19 +29,27 @@ namespace LibGit2Sharp
         protected Configuration()
         { }
 
-        internal Configuration(Repository repository, string globalConfigurationFileLocation,
-            string xdgConfigurationFileLocation, string systemConfigurationFileLocation)
+        internal Configuration(
+            Repository repository,
+            string repositoryConfigurationFileLocation,
+            string globalConfigurationFileLocation,
+            string xdgConfigurationFileLocation,
+            string systemConfigurationFileLocation)
         {
-            this.repository = repository;
+            if (repositoryConfigurationFileLocation != null)
+            {
+                repoConfigPath = NormalizeConfigPath(repositoryConfigurationFileLocation);
+            }
 
             globalConfigPath = globalConfigurationFileLocation ?? Proxy.git_config_find_global();
             xdgConfigPath = xdgConfigurationFileLocation ?? Proxy.git_config_find_xdg();
             systemConfigPath = systemConfigurationFileLocation ?? Proxy.git_config_find_system();
+            programDataConfigPath = Proxy.git_config_find_programdata();
 
-            Init();
+            Init(repository);
         }
 
-        private void Init()
+        private void Init(Repository repository)
         {
             configHandle = Proxy.git_config_new();
 
@@ -54,6 +63,10 @@ namespace LibGit2Sharp
                 Proxy.git_config_add_file_ondisk(configHandle, repoConfigLocation, ConfigurationLevel.Local);
 
                 Proxy.git_repository_set_config(repository.Handle, configHandle);
+            }
+            else if (repoConfigPath != null)
+            {
+                Proxy.git_config_add_file_ondisk(configHandle, repoConfigPath, ConfigurationLevel.Local);
             }
 
             if (globalConfigPath != null)
@@ -70,17 +83,123 @@ namespace LibGit2Sharp
             {
                 Proxy.git_config_add_file_ondisk(configHandle, systemConfigPath, ConfigurationLevel.System);
             }
+
+            if (programDataConfigPath != null)
+            {
+                Proxy.git_config_add_file_ondisk(configHandle, programDataConfigPath, ConfigurationLevel.ProgramData);
+            }
+        }
+
+        private FilePath NormalizeConfigPath(FilePath path)
+        {
+            if (File.Exists(path.Native))
+            {
+                return path;
+            }
+
+            if (!Directory.Exists(path.Native))
+            {
+                throw new FileNotFoundException("Cannot find repository configuration file", path.Native);
+            }
+
+            var configPath = Path.Combine(path.Native, "config");
+
+            if (File.Exists(configPath))
+            {
+                return configPath;
+            }
+
+            var gitConfigPath = Path.Combine(path.Native, ".git", "config");
+
+            if (File.Exists(gitConfigPath))
+            {
+                return gitConfigPath;
+            }
+
+            throw new FileNotFoundException("Cannot find repository configuration file", path.Native);
         }
 
         /// <summary>
-        /// Access configuration values without a repository. Generally you want to access configuration via an instance of <see cref="Repository"/> instead.
+        /// Access configuration values without a repository.
+        /// <para>
+        ///   Generally you want to access configuration via an instance of <see cref="Repository"/> instead.
+        /// </para>
+        /// <para>
+        ///   <paramref name="repositoryConfigurationFileLocation"/> can either contains a path to a file or a directory. In the latter case,
+        ///   this can be the working directory, the .git directory or the directory containing a bare repository.
+        /// </para>
         /// </summary>
-        /// <param name="globalConfigurationFileLocation">Path to a Global configuration file. If null, the default path for a global configuration file will be probed.</param>
-        /// <param name="xdgConfigurationFileLocation">Path to a XDG configuration file. If null, the default path for a XDG configuration file will be probed.</param>
-        /// <param name="systemConfigurationFileLocation">Path to a System configuration file. If null, the default path for a system configuration file will be probed.</param>
-        public Configuration(string globalConfigurationFileLocation = null, string xdgConfigurationFileLocation = null, string systemConfigurationFileLocation = null)
-            : this(null, globalConfigurationFileLocation, xdgConfigurationFileLocation, systemConfigurationFileLocation)
+        /// <param name="repositoryConfigurationFileLocation">Path to an existing Repository configuration file.</param>
+        /// <returns>An instance of <see cref="Configuration"/>.</returns>
+        public static Configuration BuildFrom(string repositoryConfigurationFileLocation)
         {
+            return BuildFrom(repositoryConfigurationFileLocation, null, null, null);
+        }
+
+        /// <summary>
+        /// Access configuration values without a repository.
+        /// <para>
+        ///   Generally you want to access configuration via an instance of <see cref="Repository"/> instead.
+        /// </para>
+        /// <para>
+        ///   <paramref name="repositoryConfigurationFileLocation"/> can either contains a path to a file or a directory. In the latter case,
+        ///   this can be the working directory, the .git directory or the directory containing a bare repository.
+        /// </para>
+        /// </summary>
+        /// <param name="repositoryConfigurationFileLocation">Path to an existing Repository configuration file.</param>
+        /// <param name="globalConfigurationFileLocation">Path to a Global configuration file. If null, the default path for a Global configuration file will be probed.</param>
+        /// <returns>An instance of <see cref="Configuration"/>.</returns>
+        public static Configuration BuildFrom(
+            string repositoryConfigurationFileLocation,
+            string globalConfigurationFileLocation)
+        {
+            return BuildFrom(repositoryConfigurationFileLocation, globalConfigurationFileLocation, null, null);
+        }
+
+        /// <summary>
+        /// Access configuration values without a repository.
+        /// <para>
+        ///   Generally you want to access configuration via an instance of <see cref="Repository"/> instead.
+        /// </para>
+        /// <para>
+        ///   <paramref name="repositoryConfigurationFileLocation"/> can either contains a path to a file or a directory. In the latter case,
+        ///   this can be the working directory, the .git directory or the directory containing a bare repository.
+        /// </para>
+        /// </summary>
+        /// <param name="repositoryConfigurationFileLocation">Path to an existing Repository configuration file.</param>
+        /// <param name="globalConfigurationFileLocation">Path to a Global configuration file. If null, the default path for a Global configuration file will be probed.</param>
+        /// <param name="xdgConfigurationFileLocation">Path to a XDG configuration file. If null, the default path for a XDG configuration file will be probed.</param>
+        /// <returns>An instance of <see cref="Configuration"/>.</returns>
+        public static Configuration BuildFrom(
+            string repositoryConfigurationFileLocation,
+            string globalConfigurationFileLocation,
+            string xdgConfigurationFileLocation)
+        {
+            return BuildFrom(repositoryConfigurationFileLocation, globalConfigurationFileLocation, xdgConfigurationFileLocation, null);
+        }
+
+        /// <summary>
+        /// Access configuration values without a repository.
+        /// <para>
+        ///   Generally you want to access configuration via an instance of <see cref="Repository"/> instead.
+        /// </para>
+        /// <para>
+        ///   <paramref name="repositoryConfigurationFileLocation"/> can either contains a path to a file or a directory. In the latter case,
+        ///   this can be the working directory, the .git directory or the directory containing a bare repository.
+        /// </para>
+        /// </summary>
+        /// <param name="repositoryConfigurationFileLocation">Path to an existing Repository configuration file.</param>
+        /// <param name="globalConfigurationFileLocation">Path to a Global configuration file. If null, the default path for a Global configuration file will be probed.</param>
+        /// <param name="xdgConfigurationFileLocation">Path to a XDG configuration file. If null, the default path for a XDG configuration file will be probed.</param>
+        /// <param name="systemConfigurationFileLocation">Path to a System configuration file. If null, the default path for a System configuration file will be probed.</param>
+        /// <returns>An instance of <see cref="Configuration"/>.</returns>
+        public static Configuration BuildFrom(
+            string repositoryConfigurationFileLocation,
+            string globalConfigurationFileLocation,
+            string xdgConfigurationFileLocation,
+            string systemConfigurationFileLocation)
+        {
+            return new Configuration(null, repositoryConfigurationFileLocation, globalConfigurationFileLocation, xdgConfigurationFileLocation, systemConfigurationFileLocation);
         }
 
         /// <summary>
@@ -88,8 +207,8 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual bool HasConfig(ConfigurationLevel level)
         {
-            using (ConfigurationSafeHandle snapshot = Snapshot ())
-            using (ConfigurationSafeHandle handle = RetrieveConfigurationHandle(level, false, snapshot))
+            using (ConfigurationHandle snapshot = Snapshot())
+            using (ConfigurationHandle handle = RetrieveConfigurationHandle(level, false, snapshot))
             {
                 return handle != null;
             }
@@ -110,17 +229,36 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
+        /// Unset a configuration variable (key and value) in the local configuration.
+        /// </summary>
+        /// <param name="key">The key to unset.</param>
+        public virtual void Unset(string key)
+        {
+            Unset(key, ConfigurationLevel.Local);
+        }
+
+        /// <summary>
         /// Unset a configuration variable (key and value).
         /// </summary>
         /// <param name="key">The key to unset.</param>
         /// <param name="level">The configuration file which should be considered as the target of this operation</param>
-        public virtual void Unset(string key, ConfigurationLevel level = ConfigurationLevel.Local)
+        public virtual void Unset(string key, ConfigurationLevel level)
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true, configHandle))
+            using (ConfigurationHandle h = RetrieveConfigurationHandle(level, true, configHandle))
             {
                 Proxy.git_config_delete(h, key);
+            }
+        }
+
+        internal void UnsetMultivar(string key, ConfigurationLevel level)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(key, "key");
+
+            using (ConfigurationHandle h = RetrieveConfigurationHandle(level, true, configHandle))
+            {
+                Proxy.git_config_delete_multivar(h, key);
             }
         }
 
@@ -130,6 +268,64 @@ namespace LibGit2Sharp
         protected virtual void Dispose(bool disposing)
         {
             configHandle.SafeDispose();
+        }
+
+        /// <summary>
+        /// Get a configuration value for the given key parts.
+        /// <para>
+        ///   For example in order to get the value for this in a .git\config file:
+        ///
+        ///   <code>
+        ///   [core]
+        ///   bare = true
+        ///   </code>
+        ///
+        ///   You would call:
+        ///
+        ///   <code>
+        ///   bool isBare = repo.Config.Get&lt;bool&gt;(new []{ "core", "bare" }).Value;
+        ///   </code>
+        /// </para>
+        /// </summary>
+        /// <typeparam name="T">The configuration value type</typeparam>
+        /// <param name="keyParts">The key parts</param>
+        /// <returns>The <see cref="ConfigurationEntry{T}"/>, or null if not set</returns>
+        public virtual ConfigurationEntry<T> Get<T>(string[] keyParts)
+        {
+            Ensure.ArgumentNotNull(keyParts, "keyParts");
+
+            return Get<T>(string.Join(".", keyParts));
+        }
+
+        /// <summary>
+        /// Get a configuration value for the given key parts.
+        /// <para>
+        ///   For example in order to get the value for this in a .git\config file:
+        ///
+        ///   <code>
+        ///   [difftool "kdiff3"]
+        ///     path = c:/Program Files/KDiff3/kdiff3.exe
+        ///   </code>
+        ///
+        ///   You would call:
+        ///
+        ///   <code>
+        ///   string where = repo.Config.Get&lt;string&gt;("difftool", "kdiff3", "path").Value;
+        ///   </code>
+        /// </para>
+        /// </summary>
+        /// <typeparam name="T">The configuration value type</typeparam>
+        /// <param name="firstKeyPart">The first key part</param>
+        /// <param name="secondKeyPart">The second key part</param>
+        /// <param name="thirdKeyPart">The third key part</param>
+        /// <returns>The <see cref="ConfigurationEntry{T}"/>, or null if not set</returns>
+        public virtual ConfigurationEntry<T> Get<T>(string firstKeyPart, string secondKeyPart, string thirdKeyPart)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(firstKeyPart, "firstKeyPart");
+            Ensure.ArgumentNotNullOrEmptyString(secondKeyPart, "secondKeyPart");
+            Ensure.ArgumentNotNullOrEmptyString(thirdKeyPart, "thirdKeyPart");
+
+            return Get<T>(new[] { firstKeyPart, secondKeyPart, thirdKeyPart });
         }
 
         /// <summary>
@@ -165,7 +361,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            using (ConfigurationSafeHandle snapshot = Snapshot())
+            using (ConfigurationHandle snapshot = Snapshot())
             {
                 return Proxy.git_config_get_entry<T>(snapshot, key);
             }
@@ -196,8 +392,8 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            using (ConfigurationSafeHandle snapshot = Snapshot())
-            using (ConfigurationSafeHandle handle = RetrieveConfigurationHandle(level, false, snapshot))
+            using (ConfigurationHandle snapshot = Snapshot())
+            using (ConfigurationHandle handle = RetrieveConfigurationHandle(level, false, snapshot))
             {
                 if (handle == null)
                 {
@@ -206,6 +402,202 @@ namespace LibGit2Sharp
 
                 return Proxy.git_config_get_entry<T>(handle, key);
             }
+        }
+
+        /// <summary>
+        /// Get a configuration value for the given key.
+        /// </summary>
+        /// <typeparam name="T">The configuration value type.</typeparam>
+        /// <param name="key">The key</param>
+        /// <returns>The configuration value, or the default value for the selected <see typeparamref="T"/>if not found</returns>
+        public virtual T GetValueOrDefault<T>(string key)
+        {
+            return ValueOrDefault(Get<T>(key), default(T));
+        }
+
+        /// <summary>
+        /// Get a configuration value for the given key,
+        /// or <paramref name="defaultValue" /> if the key is not set.
+        /// </summary>
+        /// <typeparam name="T">The configuration value type.</typeparam>
+        /// <param name="key">The key</param>
+        /// <param name="defaultValue">The default value if the key is not set.</param>
+        /// <returns>The configuration value, or the default value</returns>
+        public virtual T GetValueOrDefault<T>(string key, T defaultValue)
+        {
+            return ValueOrDefault(Get<T>(key), defaultValue);
+        }
+
+        /// <summary>
+        /// Get a configuration value for the given key
+        /// </summary>
+        /// <typeparam name="T">The configuration value type.</typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="level">The configuration file into which the key should be searched for.</param>
+        /// <returns>The configuration value, or the default value for <see typeparamref="T"/> if not found</returns>
+        public virtual T GetValueOrDefault<T>(string key, ConfigurationLevel level)
+        {
+            return ValueOrDefault(Get<T>(key, level), default(T));
+        }
+
+        /// <summary>
+        /// Get a configuration value for the given key,
+        /// or <paramref name="defaultValue" /> if the key is not set.
+        /// </summary>
+        /// <typeparam name="T">The configuration value type.</typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="level">The configuration file into which the key should be searched for.</param>
+        /// <param name="defaultValue">The selector used to generate a default value if the key is not set.</param>
+        /// <returns>The configuration value, or the default value.</returns>
+        public virtual T GetValueOrDefault<T>(string key, ConfigurationLevel level, T defaultValue)
+        {
+            return ValueOrDefault(Get<T>(key, level), defaultValue);
+        }
+
+        /// <summary>
+        /// Get a configuration value for the given key parts
+        /// </summary>
+        /// <typeparam name="T">The configuration value type.</typeparam>
+        /// <param name="keyParts">The key parts.</param>
+        /// <returns>The configuration value, or the default value for<see typeparamref="T"/> if not found</returns>
+        public virtual T GetValueOrDefault<T>(string[] keyParts)
+        {
+            return ValueOrDefault(Get<T>(keyParts), default(T));
+        }
+
+        /// <summary>
+        /// Get a configuration value for the given key parts,
+        /// or <paramref name="defaultValue" /> if the key is not set.
+        /// </summary>
+        /// <typeparam name="T">The configuration value type.</typeparam>
+        /// <param name="keyParts">The key parts.</param>
+        /// <param name="defaultValue">The default value if the key is not set.</param>
+        /// <returns>The configuration value, or the default value.</returns>
+        public virtual T GetValueOrDefault<T>(string[] keyParts, T defaultValue)
+        {
+            return ValueOrDefault(Get<T>(keyParts), defaultValue);
+        }
+
+        /// <summary>
+        /// Get a configuration value for the given key parts.
+        /// </summary>
+        /// <typeparam name="T">The configuration value type.</typeparam>
+        /// <param name="firstKeyPart">The first key part.</param>
+        /// <param name="secondKeyPart">The second key part.</param>
+        /// <param name="thirdKeyPart">The third key part.</param>
+        /// <returns>The configuration value, or the default value for the selected <see typeparamref="T"/> if not found</returns>
+        public virtual T GetValueOrDefault<T>(string firstKeyPart, string secondKeyPart, string thirdKeyPart)
+        {
+            return ValueOrDefault(Get<T>(firstKeyPart, secondKeyPart, thirdKeyPart), default(T));
+        }
+
+        /// <summary>
+        /// Get a configuration value for the given key parts,
+        /// or <paramref name="defaultValue" /> if the key is not set.
+        /// </summary>
+        /// <typeparam name="T">The configuration value type.</typeparam>
+        /// <param name="firstKeyPart">The first key part.</param>
+        /// <param name="secondKeyPart">The second key part.</param>
+        /// <param name="thirdKeyPart">The third key part.</param>
+        /// <param name="defaultValue">The default value if the key is not set.</param>
+        /// <returns>The configuration value, or the default.</returns>
+        public virtual T GetValueOrDefault<T>(string firstKeyPart, string secondKeyPart, string thirdKeyPart, T defaultValue)
+        {
+            return ValueOrDefault(Get<T>(firstKeyPart, secondKeyPart, thirdKeyPart), defaultValue);
+        }
+
+        /// <summary>
+        /// Get a configuration value for the given key,
+        /// or a value generated by <paramref name="defaultValueSelector" />
+        /// if the key is not set.
+        /// </summary>
+        /// <typeparam name="T">The configuration value type.</typeparam>
+        /// <param name="key">The key</param>
+        /// <param name="defaultValueSelector">The selector used to generate a default value if the key is not set.</param>
+        /// <returns>The configuration value, or a generated default.</returns>
+        public virtual T GetValueOrDefault<T>(string key, Func<T> defaultValueSelector)
+        {
+            return ValueOrDefault(Get<T>(key), defaultValueSelector);
+        }
+
+        /// <summary>
+        /// Get a configuration value for the given key,
+        /// or a value generated by <paramref name="defaultValueSelector" />
+        /// if the key is not set.
+        /// </summary>
+        /// <typeparam name="T">The configuration value type.</typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="level">The configuration file into which the key should be searched for.</param>
+        /// <param name="defaultValueSelector">The selector used to generate a default value if the key is not set.</param>
+        /// <returns>The configuration value, or a generated default.</returns>
+        public virtual T GetValueOrDefault<T>(string key, ConfigurationLevel level, Func<T> defaultValueSelector)
+        {
+            return ValueOrDefault(Get<T>(key, level), defaultValueSelector);
+        }
+
+        /// <summary>
+        /// Get a configuration value for the given key parts,
+        /// or a value generated by <paramref name="defaultValueSelector" />
+        /// if the key is not set.
+        /// </summary>
+        /// <typeparam name="T">The configuration value type.</typeparam>
+        /// <param name="keyParts">The key parts.</param>
+        /// <param name="defaultValueSelector">The selector used to generate a default value if the key is not set.</param>
+        /// <returns>The configuration value, or a generated default.</returns>
+        public virtual T GetValueOrDefault<T>(string[] keyParts, Func<T> defaultValueSelector)
+        {
+            return ValueOrDefault(Get<T>(keyParts), defaultValueSelector);
+        }
+
+        /// <summary>
+        /// Get a configuration value for the given key parts,
+        /// or a value generated by <paramref name="defaultValueSelector" />
+        /// if the key is not set.
+        /// </summary>
+        /// <typeparam name="T">The configuration value type.</typeparam>
+        /// <param name="firstKeyPart">The first key part.</param>
+        /// <param name="secondKeyPart">The second key part.</param>
+        /// <param name="thirdKeyPart">The third key part.</param>
+        /// <param name="defaultValueSelector">The selector used to generate a default value if the key is not set.</param>
+        /// <returns>The configuration value, or a generated default.</returns>
+        public virtual T GetValueOrDefault<T>(string firstKeyPart, string secondKeyPart, string thirdKeyPart, Func<T> defaultValueSelector)
+        {
+            return ValueOrDefault(Get<T>(firstKeyPart, secondKeyPart, thirdKeyPart), defaultValueSelector);
+        }
+
+        private static T ValueOrDefault<T>(ConfigurationEntry<T> value, T defaultValue)
+        {
+            return value == null ? defaultValue : value.Value;
+        }
+
+        private static T ValueOrDefault<T>(ConfigurationEntry<T> value, Func<T> defaultValueSelector)
+        {
+            Ensure.ArgumentNotNull(defaultValueSelector, "defaultValueSelector");
+
+            return value == null
+                       ? defaultValueSelector()
+                       : value.Value;
+        }
+
+        /// <summary>
+        /// Set a configuration value for a key in the local configuration. Keys are in the form 'section.name'.
+        /// <para>
+        ///   For example in order to set the value for this in a .git\config file:
+        ///
+        ///   [test]
+        ///   boolsetting = true
+        ///
+        ///   You would call:
+        ///
+        ///   repo.Config.Set("test.boolsetting", true);
+        /// </para>
+        /// </summary>
+        /// <typeparam name="T">The configuration value type</typeparam>
+        /// <param name="key">The key parts</param>
+        /// <param name="value">The value</param>
+        public virtual void Set<T>(string key, T value)
+        {
+            Set(key, value, ConfigurationLevel.Local);
         }
 
         /// <summary>
@@ -225,12 +617,12 @@ namespace LibGit2Sharp
         /// <param name="key">The key parts</param>
         /// <param name="value">The value</param>
         /// <param name="level">The configuration file which should be considered as the target of this operation</param>
-        public virtual void Set<T>(string key, T value, ConfigurationLevel level = ConfigurationLevel.Local)
+        public virtual void Set<T>(string key, T value, ConfigurationLevel level)
         {
             Ensure.ArgumentNotNull(value, "value");
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true, configHandle))
+            using (ConfigurationHandle h = RetrieveConfigurationHandle(level, true, configHandle))
             {
                 if (!configurationTypedUpdater.ContainsKey(typeof(T)))
                 {
@@ -245,23 +637,32 @@ namespace LibGit2Sharp
         /// Find configuration entries matching <paramref name="regexp"/>.
         /// </summary>
         /// <param name="regexp">A regular expression.</param>
+        /// <returns>Matching entries.</returns>
+        public virtual IEnumerable<ConfigurationEntry<string>> Find(string regexp)
+        {
+            return Find(regexp, ConfigurationLevel.Local);
+        }
+
+        /// <summary>
+        /// Find configuration entries matching <paramref name="regexp"/>.
+        /// </summary>
+        /// <param name="regexp">A regular expression.</param>
         /// <param name="level">The configuration file into which the key should be searched for.</param>
         /// <returns>Matching entries.</returns>
-        public virtual IEnumerable<ConfigurationEntry<string>> Find(string regexp,
-                                                                     ConfigurationLevel level = ConfigurationLevel.Local)
+        public virtual IEnumerable<ConfigurationEntry<string>> Find(string regexp, ConfigurationLevel level)
         {
             Ensure.ArgumentNotNullOrEmptyString(regexp, "regexp");
 
-            using (ConfigurationSafeHandle snapshot = Snapshot())
-            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true, snapshot))
+            using (ConfigurationHandle snapshot = Snapshot())
+            using (ConfigurationHandle h = RetrieveConfigurationHandle(level, true, snapshot))
             {
-                return Proxy.git_config_iterator_glob(h, regexp, BuildConfigEntry).ToList();
+                return Proxy.git_config_iterator_glob(h, regexp).ToList();
             }
         }
 
-        private ConfigurationSafeHandle RetrieveConfigurationHandle(ConfigurationLevel level, bool throwIfStoreHasNotBeenFound, ConfigurationSafeHandle fromHandle)
+        private ConfigurationHandle RetrieveConfigurationHandle(ConfigurationLevel level, bool throwIfStoreHasNotBeenFound, ConfigurationHandle fromHandle)
         {
-            ConfigurationSafeHandle handle = null;
+            ConfigurationHandle handle = null;
             if (fromHandle != null)
             {
                 handle = Proxy.git_config_open_level(fromHandle, level);
@@ -269,20 +670,19 @@ namespace LibGit2Sharp
 
             if (handle == null && throwIfStoreHasNotBeenFound)
             {
-                throw new LibGit2SharpException(
-                    string.Format(CultureInfo.InvariantCulture, "No {0} configuration file has been found.",
-                    Enum.GetName(typeof(ConfigurationLevel), level)));
+                throw new LibGit2SharpException("No {0} configuration file has been found.",
+                                                              Enum.GetName(typeof(ConfigurationLevel), level));
             }
 
             return handle;
         }
 
-        private static Action<string, object, ConfigurationSafeHandle> GetUpdater<T>(Action<ConfigurationSafeHandle, string, T> setter)
+        private static Action<string, object, ConfigurationHandle> GetUpdater<T>(Action<ConfigurationHandle, string, T> setter)
         {
             return (key, val, handle) => setter(handle, key, (T)val);
         }
 
-        private readonly static IDictionary<Type, Action<string, object, ConfigurationSafeHandle>> configurationTypedUpdater = new Dictionary<Type, Action<string, object, ConfigurationSafeHandle>>
+        private readonly static IDictionary<Type, Action<string, object, ConfigurationHandle>> configurationTypedUpdater = new Dictionary<Type, Action<string, object, ConfigurationHandle>>
         {
             { typeof(int), GetUpdater<int>(Proxy.git_config_set_int32) },
             { typeof(long), GetUpdater<long>(Proxy.git_config_set_int64) },
@@ -299,7 +699,7 @@ namespace LibGit2Sharp
             return BuildConfigEntries().GetEnumerator();
         }
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        IEnumerator IEnumerable.GetEnumerator()
         {
             return ((IEnumerable<ConfigurationEntry<string>>)this).GetEnumerator();
         }
@@ -309,22 +709,17 @@ namespace LibGit2Sharp
             return Proxy.git_config_foreach(configHandle, BuildConfigEntry);
         }
 
-        private static ConfigurationEntry<string> BuildConfigEntry(IntPtr entryPtr)
+        internal static unsafe ConfigurationEntry<string> BuildConfigEntry(IntPtr entryPtr)
         {
-            var entry = entryPtr.MarshalAs<GitConfigEntry>();
-
-            return new ConfigurationEntry<string>(LaxUtf8Marshaler.FromNative(entry.namePtr),
-                                                  LaxUtf8Marshaler.FromNative(entry.valuePtr),
-                                                  (ConfigurationLevel)entry.level);
+            var entry = (GitConfigEntry*)entryPtr.ToPointer();
+            return new ConfigurationEntry<string>(LaxUtf8Marshaler.FromNative(entry->namePtr),
+                                                  LaxUtf8Marshaler.FromNative(entry->valuePtr),
+                                                  (ConfigurationLevel)entry->level);
         }
 
         /// <summary>
-        /// Builds a <see cref="Signature"/> based on current configuration.
-        /// <para>
-        ///    Name is populated from the user.name setting, and is "unknown" if unspecified.
-        ///    Email is populated from the user.email setting, and is built from
-        ///    <see cref="Environment.UserName"/> and <see cref="Environment.UserDomainName"/> if unspecified.
-        /// </para>
+        /// Builds a <see cref="Signature"/> based on current configuration. If it is not found or
+        /// some configuration is missing, <code>null</code> is returned.
         /// <para>
         ///    The same escalation logic than in git.git will be used when looking for the key in the config files:
         ///       - local: the Git file in the current repository
@@ -334,50 +729,59 @@ namespace LibGit2Sharp
         /// </para>
         /// </summary>
         /// <param name="now">The timestamp to use for the <see cref="Signature"/>.</param>
-        /// <returns>The signature.</returns>
+        /// <returns>The signature or null if no user identity can be found in the configuration.</returns>
         public virtual Signature BuildSignature(DateTimeOffset now)
         {
-            return BuildSignature(now, false);
-        }
+            var name = this.GetValueOrDefault<string>("user.name");
+            var email = this.GetValueOrDefault<string>("user.email");
 
-        internal Signature BuildSignature(DateTimeOffset now, bool shouldThrowIfNotFound)
-        {
-            const string userNameKey = "user.name";
-            var name = this.GetValueOrDefault<string>(userNameKey);
-            var normalizedName = NormalizeUserSetting(shouldThrowIfNotFound, userNameKey, name,
-                () => "unknown");
-
-            const string userEmailKey = "user.email";
-            var email = this.GetValueOrDefault<string>(userEmailKey);
-            var normalizedEmail = NormalizeUserSetting(shouldThrowIfNotFound, userEmailKey, email,
-                () => string.Format(
-                    CultureInfo.InvariantCulture, "{0}@{1}", Environment.UserName, Environment.UserDomainName));
-
-            return new Signature(normalizedName, normalizedEmail, now);
-        }
-
-        private string NormalizeUserSetting(bool shouldThrowIfNotFound, string entryName, string currentValue, Func<string> defaultValue)
-        {
-            if (!string.IsNullOrEmpty(currentValue))
+            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email))
             {
-                return currentValue;
+                return null;
             }
 
-            string message = string.Format("Configuration value '{0}' is missing or invalid.", entryName);
-
-            if (shouldThrowIfNotFound)
-            {
-                throw new LibGit2SharpException(message);
-            }
-
-            Log.Write(LogLevel.Warning, message);
-
-            return defaultValue();
+            return new Signature(name, email, now);
         }
 
-        private ConfigurationSafeHandle Snapshot()
+        internal Signature BuildSignatureOrThrow(DateTimeOffset now)
+        {
+            var signature = BuildSignature(now);
+            if (signature == null)
+            {
+                throw new LibGit2SharpException("This overload requires 'user.name' and 'user.email' to be set. " +
+                                                "Use a different overload or set those variables in the configuation");
+            }
+
+            return signature;
+        }
+
+        private ConfigurationHandle Snapshot()
         {
             return Proxy.git_config_snapshot(configHandle);
+        }
+
+        /// <summary>
+        /// Perform a series of actions within a transaction.
+        ///
+        /// The configuration will be locked during this function and the changes will be committed at the end. These
+        /// changes will not be visible in the configuration until the end of this method.
+        ///
+        /// If the action throws an exception, the changes will be rolled back.
+        /// </summary>
+        /// <param name="action">The code to run under the transaction</param>
+        public virtual unsafe void WithinTransaction(Action action)
+        {
+            IntPtr txn = IntPtr.Zero;
+            try
+            {
+                txn = Proxy.git_config_lock(configHandle);
+                action();
+                Proxy.git_transaction_commit(txn);
+            }
+            finally
+            {
+                Proxy.git_transaction_free(txn);
+            }
         }
     }
 }

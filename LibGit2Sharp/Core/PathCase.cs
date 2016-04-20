@@ -16,6 +16,7 @@ namespace LibGit2Sharp.Core
                     comparer = StringComparer.OrdinalIgnoreCase;
                     comparison = StringComparison.OrdinalIgnoreCase;
                     break;
+
                 default:
                     comparer = StringComparer.Ordinal;
                     comparison = StringComparison.Ordinal;

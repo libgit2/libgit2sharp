@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace LibGit2Sharp
+﻿namespace LibGit2Sharp
 {
     /// <summary>
     /// Flags controlling what files are reported by status.
@@ -81,5 +76,13 @@ namespace LibGit2Sharp
         /// as explicit paths, and NOT as pathspecs containing globs.
         /// </summary>
         public bool DisablePathSpecMatch { get; set; }
+
+        /// <summary>
+        /// Include unaltered files when scanning for status
+        /// </summary>
+        /// <remarks>
+        /// Unaltered meaning the file is identical in the working directory, the index and HEAD.
+        /// </remarks>
+        public bool IncludeUnaltered { get; set; }
     }
 }

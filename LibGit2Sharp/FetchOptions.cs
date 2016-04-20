@@ -1,7 +1,4 @@
-﻿using System;
-using LibGit2Sharp.Handlers;
-
-namespace LibGit2Sharp
+﻿namespace LibGit2Sharp
 {
     /// <summary>
     /// Collection of parameters controlling Fetch behavior.
@@ -19,5 +16,14 @@ namespace LibGit2Sharp
         /// retrieved during this fetch will be retrieved as well).</para>
         /// </summary>
         public TagFetchMode? TagFetchMode { get; set; }
+
+        /// <summary>
+        /// Specifies the pruning behaviour for the fetch operation
+        /// <para>
+        /// If not set, the configuration's setting will take effect. If true, the branches which no longer
+        /// exist on the remote will be removed from the remote-tracking branches.
+        /// </para>
+        /// </summary>
+        public bool? Prune { get; set; }
     }
 }

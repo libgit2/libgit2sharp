@@ -45,48 +45,34 @@ namespace LibGit2Sharp
         /// <summary>
         /// If true, then it is legal to call the Read method.
         /// </summary>
-        public abstract bool CanRead
-        {
-            get;
-        }
+        public abstract bool CanRead { get; }
 
         /// <summary>
         /// If true, then it is legal to call the Write and FinalizeWrite methods.
         /// </summary>
-        public abstract bool CanWrite
-        {
-            get;
-        }
+        public abstract bool CanWrite { get; }
 
         /// <summary>
         /// Requests that the stream write the next length bytes of the stream to the provided Stream object.
         /// </summary>
-        public abstract int Read(
-            Stream dataStream,
-            long length);
+        public abstract int Read(Stream dataStream, long length);
 
         /// <summary>
         /// Requests that the stream write the first length bytes of the provided Stream object to the stream.
         /// </summary>
-        public abstract int Write(
-            Stream dataStream,
-            long length);
+        public abstract int Write(Stream dataStream, long length);
 
         /// <summary>
         /// After all bytes have been written to the stream, the object ID is provided to FinalizeWrite.
         /// </summary>
-        public abstract int FinalizeWrite(
-            ObjectId id);
+        public abstract int FinalizeWrite(ObjectId id);
 
         /// <summary>
         /// The backend object this stream was created by.
         /// </summary>
         public virtual OdbBackend Backend
         {
-            get
-            {
-                return this.backend;
-            }
+            get { return this.backend; }
         }
 
         private readonly OdbBackend backend;
@@ -138,10 +124,7 @@ namespace LibGit2Sharp
             public static readonly GitOdbBackendStream.finalize_write_callback FinalizeWriteCallback = FinalizeWrite;
             public static readonly GitOdbBackendStream.free_callback FreeCallback = Free;
 
-            private unsafe static int Read(
-                IntPtr stream,
-                IntPtr buffer,
-                UIntPtr len)
+            private unsafe static int Read(IntPtr stream, IntPtr buffer, UIntPtr len)
             {
                 OdbBackendStream odbBackendStream = GCHandle.FromIntPtr(Marshal.ReadIntPtr(stream, GitOdbBackendStream.GCHandleOffset)).Target as OdbBackendStream;
 
@@ -165,10 +148,7 @@ namespace LibGit2Sharp
                 return (int)GitErrorCode.Error;
             }
 
-            private static unsafe int Write(
-                IntPtr stream,
-                IntPtr buffer,
-                UIntPtr len)
+            private static unsafe int Write(IntPtr stream, IntPtr buffer, UIntPtr len)
             {
                 OdbBackendStream odbBackendStream = GCHandle.FromIntPtr(Marshal.ReadIntPtr(stream, GitOdbBackendStream.GCHandleOffset)).Target as OdbBackendStream;
 
@@ -192,9 +172,7 @@ namespace LibGit2Sharp
                 return (int)GitErrorCode.Error;
             }
 
-            private static int FinalizeWrite(
-                IntPtr stream,
-                ref GitOid oid)
+            private static int FinalizeWrite(IntPtr stream, ref GitOid oid)
             {
                 OdbBackendStream odbBackendStream = GCHandle.FromIntPtr(Marshal.ReadIntPtr(stream, GitOdbBackendStream.GCHandleOffset)).Target as OdbBackendStream;
 
@@ -213,8 +191,7 @@ namespace LibGit2Sharp
                 return (int)GitErrorCode.Error;
             }
 
-            private static void Free(
-                IntPtr stream)
+            private static void Free(IntPtr stream)
             {
                 OdbBackendStream odbBackendStream = GCHandle.FromIntPtr(Marshal.ReadIntPtr(stream, GitOdbBackendStream.GCHandleOffset)).Target as OdbBackendStream;
 

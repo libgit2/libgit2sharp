@@ -41,7 +41,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("dc53d4c6b8684c21b0b57db29da4a2afea011565", blob.Sha);
 
                 /* The file is unknown from the Index nor the Head ... */
-                Assert.Equal(FileStatus.Untracked, repo.RetrieveStatus("hello.txt"));
+                Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus("hello.txt"));
 
                 /* ...however, it's indeed stored in the repository. */
                 var fetchedBlob = repo.Lookup<Blob>(blob.Id);
@@ -103,15 +103,13 @@ namespace LibGit2Sharp.Tests
         [InlineData("e9671e138a780833cb689753570fd10a55be84fb", "dummy.guess")]
         public void CanCreateABlobFromAStream(string expectedSha, string hintPath)
         {
-            string path = InitNewRepository();
-
             var sb = new StringBuilder();
             for (int i = 0; i < 6; i++)
             {
                 sb.Append("libgit2\n\r\n");
             }
 
-            using (var repo = new Repository(path))
+            using (var repo = new Repository(InitNewRepository()))
             {
                 CreateAttributesFiles(Path.Combine(repo.Info.Path, "info"), "attributes");
 
@@ -678,7 +676,7 @@ namespace LibGit2Sharp.Tests
 
                 Touch(repo.Info.WorkingDirectory, "README", "Yeah!\n");
                 repo.Index.Clear();
-                repo.Stage("README");
+                Commands.Stage(repo, "README");
 
                 repo.Commit("A new world, free of the burden of the history", Constants.Signature, Constants.Signature);
 

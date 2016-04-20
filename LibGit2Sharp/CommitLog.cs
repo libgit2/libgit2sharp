@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
@@ -23,8 +22,7 @@ namespace LibGit2Sharp
         /// <param name="repo">The repository.</param>
         internal CommitLog(Repository repo)
             : this(repo, new CommitFilter())
-        {
-        }
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommitLog"/> class.
@@ -75,40 +73,42 @@ namespace LibGit2Sharp
         public ICommitLog QueryBy(CommitFilter filter)
         {
             Ensure.ArgumentNotNull(filter, "filter");
-            Ensure.ArgumentNotNull(filter.Since, "filter.Since");
-            Ensure.ArgumentNotNullOrEmptyString(filter.Since.ToString(), "filter.Since");
+            Ensure.ArgumentNotNull(filter.IncludeReachableFrom, "filter.IncludeReachableFrom");
+            Ensure.ArgumentNotNullOrEmptyString(filter.IncludeReachableFrom.ToString(), "filter.IncludeReachableFrom");
 
             return new CommitLog(repo, filter);
         }
 
         /// <summary>
-        /// Find the best possible merge base given two <see cref="Commit"/>s.
+        /// Returns the list of commits of the repository representing the history of a file beyond renames.
         /// </summary>
-        /// <param name="first">The first <see cref="Commit"/>.</param>
-        /// <param name="second">The second <see cref="Commit"/>.</param>
-        /// <returns>The merge base or null if none found.</returns>
-        [Obsolete("This method will be removed in the next release. Please use ObjectDatabase.FindMergeBase() instead.")]
-        public Commit FindMergeBase(Commit first, Commit second)
+        /// <param name="path">The file's path.</param>
+        /// <returns>A list of file history entries, ready to be enumerated.</returns>
+        public IEnumerable<LogEntry> QueryBy(string path)
         {
-            return repo.ObjectDatabase.FindMergeBase(first, second);
+            Ensure.ArgumentNotNull(path, "path");
+
+            return new FileHistory(repo, path);
         }
 
         /// <summary>
-        /// Find the best possible merge base given two or more <see cref="Commit"/> according to the <see cref="MergeBaseFindingStrategy"/>.
+        /// Returns the list of commits of the repository representing the history of a file beyond renames.
         /// </summary>
-        /// <param name="commits">The <see cref="Commit"/>s for which to find the merge base.</param>
-        /// <param name="strategy">The strategy to leverage in order to find the merge base.</param>
-        /// <returns>The merge base or null if none found.</returns>
-        [Obsolete("This method will be removed in the next release. Please use ObjectDatabase.FindMergeBase() instead.")]
-        public Commit FindMergeBase(IEnumerable<Commit> commits, MergeBaseFindingStrategy strategy)
+        /// <param name="path">The file's path.</param>
+        /// <param name="filter">The options used to control which commits will be returned.</param>
+        /// <returns>A list of file history entries, ready to be enumerated.</returns>
+        public IEnumerable<LogEntry> QueryBy(string path, FollowFilter filter)
         {
-            return repo.ObjectDatabase.FindMergeBase(commits, strategy);
+            Ensure.ArgumentNotNull(path, "path");
+            Ensure.ArgumentNotNull(filter, "filter");
+
+            return new FileHistory(repo, path, new CommitFilter { SortBy = filter.SortBy });
         }
 
         private class CommitEnumerator : IEnumerator<Commit>
         {
             private readonly Repository repo;
-            private readonly RevWalkerSafeHandle handle;
+            private readonly RevWalkerHandle handle;
             private ObjectId currentOid;
 
             public CommitEnumerator(Repository repo, CommitFilter filter)
@@ -167,7 +167,7 @@ namespace LibGit2Sharp
                 handle.SafeDispose();
             }
 
-            private delegate void HidePushSignature(RevWalkerSafeHandle handle, ObjectId id);
+            private delegate void HidePushSignature(RevWalkerHandle handle, ObjectId id);
 
             private void InternalHidePush(IList<object> identifier, HidePushSignature hidePush)
             {
@@ -207,7 +207,6 @@ namespace LibGit2Sharp
                 }
             }
         }
-
     }
 
     /// <summary>

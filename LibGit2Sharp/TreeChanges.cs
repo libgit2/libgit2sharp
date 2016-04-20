@@ -15,32 +15,10 @@ namespace LibGit2Sharp
     /// <para>To obtain the actual patch of the diff, use the <see cref="Patch"/> class when calling Compare.</para>.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class TreeChanges : IEnumerable<TreeEntryChanges>
+    public class TreeChanges : IEnumerable<TreeEntryChanges>, IDiffResult
     {
-        private readonly IDictionary<FilePath, TreeEntryChanges> changes = new Dictionary<FilePath, TreeEntryChanges>();
-        private readonly List<TreeEntryChanges> added = new List<TreeEntryChanges>();
-        private readonly List<TreeEntryChanges> deleted = new List<TreeEntryChanges>();
-        private readonly List<TreeEntryChanges> modified = new List<TreeEntryChanges>();
-        private readonly List<TreeEntryChanges> typeChanged = new List<TreeEntryChanges>();
-        private readonly List<TreeEntryChanges> unmodified = new List<TreeEntryChanges>();
-        private readonly List<TreeEntryChanges> renamed = new List<TreeEntryChanges>();
-        private readonly List<TreeEntryChanges> copied = new List<TreeEntryChanges>();
-
-        private readonly IDictionary<ChangeKind, Action<TreeChanges, TreeEntryChanges>> fileDispatcher = Build();
-
-        private static IDictionary<ChangeKind, Action<TreeChanges, TreeEntryChanges>> Build()
-        {
-            return new Dictionary<ChangeKind, Action<TreeChanges, TreeEntryChanges>>
-                       {
-                           { ChangeKind.Modified,    (de, d) => de.modified.Add(d) },
-                           { ChangeKind.Deleted,     (de, d) => de.deleted.Add(d) },
-                           { ChangeKind.Added,       (de, d) => de.added.Add(d) },
-                           { ChangeKind.TypeChanged, (de, d) => de.typeChanged.Add(d) },
-                           { ChangeKind.Unmodified,  (de, d) => de.unmodified.Add(d) },
-                           { ChangeKind.Renamed,     (de, d) => de.renamed.Add(d) },
-                           { ChangeKind.Copied,      (de, d) => de.copied.Add(d) },
-                       };
-        }
+        private readonly DiffHandle diff;
+        private readonly Lazy<int> count;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -48,23 +26,47 @@ namespace LibGit2Sharp
         protected TreeChanges()
         { }
 
-        internal TreeChanges(DiffSafeHandle diff)
+        internal unsafe TreeChanges(DiffHandle diff)
         {
-            Proxy.git_diff_foreach(diff, FileCallback, null, null);
+            this.diff = diff;
+            this.count = new Lazy<int>(() => Proxy.git_diff_num_deltas(diff));
         }
 
-        private int FileCallback(GitDiffDelta delta, float progress, IntPtr payload)
+        /// <summary>
+        /// Enumerates the diff and yields deltas with the specified change kind.
+        /// </summary>
+        /// <param name="changeKind">Change type to filter on.</param>
+        private IEnumerable<TreeEntryChanges> GetChangesOfKind(ChangeKind changeKind)
         {
-            AddFileChange(delta);
-            return 0;
+            TreeEntryChanges entry;
+            for (int i = 0; i < Count; i++)
+            {
+                if (TryGetEntryWithChangeTypeAt(i, changeKind, out entry))
+                {
+                    yield return entry;
+                }
+            }
         }
 
-        private void AddFileChange(GitDiffDelta delta)
+        /// <summary>
+        /// This is method exists to work around .net not allowing unsafe code
+        /// in iterators.
+        /// </summary>
+        private unsafe bool TryGetEntryWithChangeTypeAt(int index, ChangeKind changeKind, out TreeEntryChanges entry)
         {
-            var treeEntryChanges = new TreeEntryChanges(delta);
+            if (index < 0 || index > count.Value)
+                throw new ArgumentOutOfRangeException("index", "Index was out of range. Must be non-negative and less than the size of the collection.");
 
-            fileDispatcher[treeEntryChanges.Status](this, treeEntryChanges);
-            changes.Add(treeEntryChanges.Path, treeEntryChanges);
+            var delta = Proxy.git_diff_get_delta(diff, index);
+
+            if (TreeEntryChanges.GetStatusFromChangeKind(delta->status) == changeKind)
+            {
+                entry = new TreeEntryChanges(delta);
+                return true;
+            }
+
+            entry = null;
+            return false;
         }
 
         #region IEnumerable<TreeEntryChanges> Members
@@ -75,7 +77,22 @@ namespace LibGit2Sharp
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<TreeEntryChanges> GetEnumerator()
         {
-            return changes.Values.GetEnumerator();
+            for (int i = 0; i < Count; i++)
+            {
+                yield return GetEntryAt(i);
+            }
+        }
+
+        /// <summary>
+        /// This is method exists to work around .net not allowing unsafe code
+        /// in iterators.
+        /// </summary>
+        private unsafe TreeEntryChanges GetEntryAt(int index)
+        {
+            if (index < 0 || index > count.Value)
+                throw new ArgumentOutOfRangeException("index", "Index was out of range. Must be non-negative and less than the size of the collection.");
+
+            return new TreeEntryChanges(Proxy.git_diff_get_delta(diff, index));
         }
 
         /// <summary>
@@ -90,33 +107,11 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
-        /// Gets the <see cref="TreeEntryChanges"/> corresponding to the specified <paramref name="path"/>.
-        /// </summary>
-        public virtual TreeEntryChanges this[string path]
-        {
-            get { return this[(FilePath)path]; }
-        }
-
-        private TreeEntryChanges this[FilePath path]
-        {
-            get
-            {
-                TreeEntryChanges treeEntryChanges;
-                if (changes.TryGetValue(path, out treeEntryChanges))
-                {
-                    return treeEntryChanges;
-                }
-
-                return null;
-            }
-        }
-
-        /// <summary>
         /// List of <see cref="TreeEntryChanges"/> that have been been added.
         /// </summary>
         public virtual IEnumerable<TreeEntryChanges> Added
         {
-            get { return added; }
+            get { return GetChangesOfKind(ChangeKind.Added); }
         }
 
         /// <summary>
@@ -124,7 +119,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual IEnumerable<TreeEntryChanges> Deleted
         {
-            get { return deleted; }
+            get { return GetChangesOfKind(ChangeKind.Deleted); }
         }
 
         /// <summary>
@@ -132,7 +127,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual IEnumerable<TreeEntryChanges> Modified
         {
-            get { return modified; }
+            get { return GetChangesOfKind(ChangeKind.Modified); }
         }
 
         /// <summary>
@@ -140,7 +135,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual IEnumerable<TreeEntryChanges> TypeChanged
         {
-            get { return typeChanged; }
+            get { return GetChangesOfKind(ChangeKind.TypeChanged); }
         }
 
         /// <summary>
@@ -148,7 +143,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual IEnumerable<TreeEntryChanges> Renamed
         {
-            get { return renamed; }
+            get { return GetChangesOfKind(ChangeKind.Renamed); }
         }
 
         /// <summary>
@@ -156,7 +151,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual IEnumerable<TreeEntryChanges> Copied
         {
-            get { return copied; }
+            get { return GetChangesOfKind(ChangeKind.Copied); }
         }
 
         /// <summary>
@@ -164,7 +159,23 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual IEnumerable<TreeEntryChanges> Unmodified
         {
-            get { return unmodified; }
+            get { return GetChangesOfKind(ChangeKind.Unmodified); }
+        }
+
+        /// <summary>
+        /// List of <see cref="TreeEntryChanges"/> which are conflicted
+        /// </summary>
+        public virtual IEnumerable<TreeEntryChanges> Conflicted
+        {
+            get { return GetChangesOfKind(ChangeKind.Conflicted); }
+        }
+
+        /// <summary>
+        /// Gets the number of <see cref="TreeEntryChanges"/> in this comparison.
+        /// </summary>
+        public virtual int Count
+        {
+            get { return count.Value; }
         }
 
         private string DebuggerDisplay
@@ -172,10 +183,32 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    "+{0} ~{1} -{2} \u00B1{3} R{4} C{5}",
-                    Added.Count(), Modified.Count(), Deleted.Count(),
-                    TypeChanged.Count(), Renamed.Count(), Copied.Count());
+                                     "+{0} ~{1} -{2} \u00B1{3} R{4} C{5}",
+                                     Added.Count(),
+                                     Modified.Count(),
+                                     Deleted.Count(),
+                                     TypeChanged.Count(),
+                                     Renamed.Count(),
+                                     Copied.Count());
             }
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            diff.SafeDispose();
         }
     }
 }

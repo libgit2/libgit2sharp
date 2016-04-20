@@ -47,16 +47,16 @@ namespace LibGit2Sharp
             get { return RetrieveFromPath(relativePath); }
         }
 
-        private TreeEntry RetrieveFromPath(FilePath relativePath)
+        private unsafe TreeEntry RetrieveFromPath(FilePath relativePath)
         {
             if (relativePath.IsNullOrEmpty())
             {
                 return null;
             }
 
-            using (TreeEntrySafeHandle_Owned treeEntryPtr = Proxy.git_tree_entry_bypath(repo.Handle, Id, relativePath))
+            using (TreeEntryHandle treeEntry = Proxy.git_tree_entry_bypath(repo.Handle, Id, relativePath))
             {
-                if (treeEntryPtr == null)
+                if (treeEntry == null)
                 {
                     return null;
                 }
@@ -64,7 +64,7 @@ namespace LibGit2Sharp
                 string posixPath = relativePath.Posix;
                 string filename = posixPath.Split('/').Last();
                 string parentPath = posixPath.Substring(0, posixPath.Length - filename.Length);
-                return new TreeEntry(treeEntryPtr, Id, repo, path.Combine(parentPath));
+                return new TreeEntry(treeEntry, Id, repo, path.Combine(parentPath));
             }
         }
 
@@ -75,6 +75,14 @@ namespace LibGit2Sharp
 
         #region IEnumerable<TreeEntry> Members
 
+        unsafe TreeEntry byIndex(ObjectSafeWrapper obj, uint i, ObjectId parentTreeId, Repository repo, FilePath parentPath)
+        {
+            using (var entryHandle = Proxy.git_tree_entry_byindex(obj.ObjectPtr, i))
+            {
+                return new TreeEntry(entryHandle, parentTreeId, repo, parentPath);
+            }
+        }
+
         /// <summary>
         /// Returns an enumerator that iterates through the collection.
         /// </summary>
@@ -83,10 +91,8 @@ namespace LibGit2Sharp
         {
             using (var obj = new ObjectSafeWrapper(Id, repo.Handle))
             {
-                for (uint i = 0; i < Count; i++)
-                {
-                    TreeEntrySafeHandle handle = Proxy.git_tree_entry_byindex(obj.ObjectPtr, i);
-                    yield return new TreeEntry(handle, Id, repo, path);
+                for (uint i = 0; i < Count; i++) {
+                    yield return byIndex(obj, i, Id, repo, path);
                 }
             }
         }
@@ -107,7 +113,9 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    "{0}, Count = {1}", Id.ToString(7), Count);
+                                     "{0}, Count = {1}",
+                                     Id.ToString(7),
+                                     Count);
             }
         }
     }

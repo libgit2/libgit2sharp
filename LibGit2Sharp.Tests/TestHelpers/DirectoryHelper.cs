@@ -15,6 +15,8 @@ namespace LibGit2Sharp.Tests.TestHelpers
             { "gitmodules", ".gitmodules" },
         };
 
+        private static readonly Type[] whitelist = { typeof(IOException), typeof(UnauthorizedAccessException) };
+
         public static void CopyFilesRecursively(DirectoryInfo source, DirectoryInfo target)
         {
             // From http://stackoverflow.com/questions/58744/best-way-to-copy-the-entire-contents-of-a-directory-in-c/58779#58779
@@ -34,15 +36,6 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return toRename.ContainsKey(name) ? toRename[name] : name;
         }
 
-        public static void DeleteSubdirectories(string parentPath)
-        {
-            string[] dirs = Directory.GetDirectories(parentPath);
-            foreach (string dir in dirs)
-            {
-                DeleteDirectory(dir);
-            }
-        }
-
         public static void DeleteDirectory(string directoryPath)
         {
             // From http://stackoverflow.com/questions/329355/cannot-delete-directory-with-directory-deletepath-true/329502#329502
@@ -53,28 +46,26 @@ namespace LibGit2Sharp.Tests.TestHelpers
                 return;
             }
             NormalizeAttributes(directoryPath);
-            TryDeleteDirectory(directoryPath, maxAttempts: 5, initialTimeout: 16, timeoutFactor: 2);
+            DeleteDirectory(directoryPath, maxAttempts: 5, initialTimeout: 16, timeoutFactor: 2);
         }
 
         private static void NormalizeAttributes(string directoryPath)
         {
-            string[] files = Directory.GetFiles(directoryPath);
-            string[] dirs = Directory.GetDirectories(directoryPath);
+            string[] filePaths = Directory.GetFiles(directoryPath);
+            string[] subdirectoryPaths = Directory.GetDirectories(directoryPath);
 
-            foreach (string file in files)
+            foreach (string filePath in filePaths)
             {
-                File.SetAttributes(file, FileAttributes.Normal);
+                File.SetAttributes(filePath, FileAttributes.Normal);
             }
-            foreach (string dir in dirs)
+            foreach (string subdirectoryPath in subdirectoryPaths)
             {
-                NormalizeAttributes(dir);
+                NormalizeAttributes(subdirectoryPath);
             }
             File.SetAttributes(directoryPath, FileAttributes.Normal);
         }
 
-        private static readonly Type[] whitelist = { typeof(IOException), typeof(UnauthorizedAccessException) };
-
-        private static void TryDeleteDirectory(string directoryPath, int maxAttempts, int initialTimeout, int timeoutFactor)
+        private static void DeleteDirectory(string directoryPath, int maxAttempts, int initialTimeout, int timeoutFactor)
         {
             for (int attempt = 1; attempt <= maxAttempts; attempt++)
             {

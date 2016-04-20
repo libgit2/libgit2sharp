@@ -27,8 +27,7 @@ namespace LibGit2Sharp.Core
         #region ICustomMarshaler
 
         public override void CleanUpNativeData(IntPtr pNativeData)
-        {
-        }
+        { }
 
         #endregion
     }
@@ -70,8 +69,9 @@ namespace LibGit2Sharp.Core
 
         public override Object MarshalNativeToManaged(IntPtr pNativeData)
         {
-            throw new InvalidOperationException(
-                string.Format(CultureInfo.InvariantCulture, "{0} cannot be used to retrieve data from libgit2.", GetType().Name));
+            throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+                                                              "{0} cannot be used to retrieve data from libgit2.",
+                                                              GetType().Name));
         }
 
         #endregion
@@ -105,11 +105,17 @@ namespace LibGit2Sharp.Core
 
         public override IntPtr MarshalManagedToNative(object managedObj)
         {
-            throw new InvalidOperationException(
-                string.Format(CultureInfo.InvariantCulture, "{0} cannot be used to pass data to libgit2.", GetType().Name));
+            throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+                                                              "{0} cannot be used to pass data to libgit2.",
+                                                              GetType().Name));
         }
 
         #endregion
+
+        public static unsafe string FromNative(char* pNativeData)
+        {
+            return FromNative(Encoding, (byte*)pNativeData);
+        }
 
         public static string FromNative(IntPtr pNativeData)
         {

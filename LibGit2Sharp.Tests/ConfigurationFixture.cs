@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -11,35 +13,6 @@ namespace LibGit2Sharp.Tests
         private static void AssertValueInLocalConfigFile(string repoPath, string regex)
         {
             var configFilePath = Path.Combine(repoPath, ".git/config");
-            AssertValueInConfigFile(configFilePath, regex);
-        }
-
-        private static string RetrieveGlobalConfigLocation()
-        {
-            string[] variables = { "HOME", "USERPROFILE", };
-
-            foreach (string variable in variables)
-            {
-                string potentialLocation = Environment.GetEnvironmentVariable(variable);
-                if (string.IsNullOrEmpty(potentialLocation))
-                {
-                    continue;
-                }
-
-                string potentialPath = Path.Combine(potentialLocation, ".gitconfig");
-
-                if (File.Exists(potentialPath))
-                {
-                    return potentialPath;
-                }
-            }
-
-            throw new InvalidOperationException("Unable to determine the location of '.gitconfig' file.");
-        }
-
-        private static void AssertValueInGlobalConfigFile(string regex)
-        {
-            string configFilePath = RetrieveGlobalConfigLocation();
             AssertValueInConfigFile(configFilePath, regex);
         }
 
@@ -63,12 +36,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanUnsetAnEntryFromTheGlobalConfiguration()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-
-            var options = BuildFakeConfigs(scd);
-
             string path = SandboxBareTestRepo();
-            using (var repo = new Repository(path, options))
+            using (var repo = new Repository(path))
             {
                 Assert.True(repo.Config.HasConfig(ConfigurationLevel.Global));
                 Assert.Equal(42, repo.Config.Get<int>("Wow.Man-I-am-totally-global").Value);
@@ -170,12 +139,10 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanEnumerateGlobalConfig()
         {
-            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
-            var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
-
             var path = SandboxStandardTestRepoGitDir();
-            using (var repo = new Repository(path, options))
+            using (var repo = new Repository(path))
             {
+                CreateConfigurationWithDummyUser(repo, Constants.Identity);
                 var entry = repo.Config.FirstOrDefault<ConfigurationEntry<string>>(e => e.Key == "user.name");
                 Assert.NotNull(entry);
                 Assert.Equal(Constants.Signature.Name, entry.Value);
@@ -227,16 +194,14 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanFindInGlobalConfig()
         {
-            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
-            var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
 
             var path = SandboxStandardTestRepoGitDir();
-            using (var repo = new Repository(path, options))
+            using (var repo = new Repository(path))
             {
-                var matches = repo.Config.Find(@"\.name", ConfigurationLevel.Global);
+                var matches = repo.Config.Find("-rocks", ConfigurationLevel.Global);
 
                 Assert.NotNull(matches);
-                Assert.Equal(new[] { "user.name" },
+                Assert.Equal(new[] { "woot.this-rocks" },
                              matches.Select(m => m.Key).ToArray());
             }
         }
@@ -256,7 +221,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void SettingLocalConfigurationOutsideAReposThrows()
         {
-            using (var config = new Configuration())
+            using (var config = Configuration.BuildFrom(null, null, null, null))
             {
                 Assert.Throws<LibGit2SharpException>(() => config.Set("unittests.intsetting", 3));
             }
@@ -358,12 +323,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanGetAnEntryFromASpecificStore()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-
-            var options = BuildFakeConfigs(scd);
-
             string path = SandboxStandardTestRepo();
-            using (var repo = new Repository(path, options))
+            using (var repo = new Repository(path))
             {
                 Assert.True(repo.Config.HasConfig(ConfigurationLevel.Local));
                 Assert.True(repo.Config.HasConfig(ConfigurationLevel.Global));
@@ -383,17 +344,195 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanTellIfASpecificStoreContainsAKey()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-
-            var options = BuildFakeConfigs(scd);
-
             string path = SandboxBareTestRepo();
-            using (var repo = new Repository(path, options))
+            using (var repo = new Repository(path))
             {
                 Assert.True(repo.Config.HasConfig(ConfigurationLevel.System));
 
                 Assert.Null(repo.Config.Get<string>("MCHammer.You-cant-touch-this", ConfigurationLevel.System));
             }
+        }
+
+        public static IEnumerable<object[]> ConfigAccessors
+        {
+            get
+            {
+                return new List<object[]>
+                {
+                    new[] { new Func<string, string>(p => Path.Combine(p, ".git", "config")) },
+                    new[] { new Func<string, string>(p => Path.Combine(p, ".git")) },
+                    new[] { new Func<string, string>(p => p) },
+                };
+            }
+        }
+
+        [Theory, PropertyData("ConfigAccessors")]
+        public void CanAccessConfigurationWithoutARepository(Func<string, string> localConfigurationPathProvider)
+        {
+            var path = SandboxStandardTestRepoGitDir();
+
+            using (var repo = new Repository(path))
+            {
+                repo.Config.Set("my.key", "local");
+                repo.Config.Set("my.key", "mouse", ConfigurationLevel.Global);
+            }
+
+            var globalPath = Path.Combine(GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Global).Single(), ".gitconfig");
+            using (var config = Configuration.BuildFrom(localConfigurationPathProvider(path), globalPath))
+            {
+                Assert.Equal("local", config.Get<string>("my.key").Value);
+                Assert.Equal("mouse", config.Get<string>("my.key", ConfigurationLevel.Global).Value);
+            }
+        }
+
+        [Fact]
+        public void PassingANonExistingLocalConfigurationFileToBuildFromthrowss()
+        {
+            Assert.Throws<FileNotFoundException>(() => Configuration.BuildFrom(
+                Path.Combine(Path.GetTempPath(), Path.GetRandomFileName())));
+        }
+
+        [Theory]
+        [InlineData(null, "x@example.com")]
+        [InlineData("", "x@example.com")]
+        [InlineData("X", null)]
+        [InlineData("X", "")]
+        public void CannotBuildAProperSignatureFromConfigWhenFullIdentityCannotBeFoundInTheConfig(string name, string email)
+        {
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                CreateConfigurationWithDummyUser(repo, name, email);
+                Assert.Equal(name, repo.Config.GetValueOrDefault<string>("user.name"));
+                Assert.Equal(email, repo.Config.GetValueOrDefault<string>("user.email"));
+
+                Signature signature = repo.Config.BuildSignature(DateTimeOffset.Now);
+
+                Assert.Null(signature);
+            }
+        }
+
+        [Fact]
+        public void CanSetAndGetSearchPath()
+        {
+            string globalPath = Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName());
+            string systemPath = Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName());
+            string xdgPath    = Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName());
+
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, globalPath);
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.System, systemPath);
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Xdg,    xdgPath);
+
+            Assert.Equal(globalPath, GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Global).Single());
+            Assert.Equal(systemPath, GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.System).Single());
+            Assert.Equal(xdgPath,    GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Xdg).Single());
+
+            // reset the search paths to their defaults
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, null);
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.System, null);
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Xdg,    null);
+        }
+
+        [Fact]
+        public void CanSetAndGetMultipleSearchPaths()
+        {
+            string[] paths =
+            {
+                Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName()),
+                Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName()),
+                Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName()),
+            };
+
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, paths);
+
+            Assert.Equal(paths, GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Global));
+
+            // set back to the defaults
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, null);
+        }
+
+        [Fact]
+        public void CanResetSearchPaths()
+        {
+            // all of these calls should reset the config path to the default
+            Action[] resetActions =
+            {
+                () => GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global),
+                () => GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, null),
+                () => GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, string.Empty),
+                () => GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, new string[] { }),
+            };
+
+            // record the default search path
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, null);
+            var oldPaths = GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Global);
+            Assert.NotNull(oldPaths);
+
+            // generate a non-default path to set
+            var newPaths = new string[] { Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName()) };
+
+            foreach (var tryToReset in resetActions)
+            {
+                // change to the non-default path
+                GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, newPaths);
+                Assert.Equal(newPaths, GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Global));
+
+                // set it back to the default
+                tryToReset();
+                Assert.Equal(oldPaths, GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Global));
+            }
+
+            // make sure the config paths are reset after the test ends
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, null);
+        }
+
+        [Fact]
+        public void CanAppendToSearchPaths()
+        {
+            string appendMe = Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName());
+            var prevPaths = GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Global);
+
+            // append using the special name $PATH
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, "$PATH", appendMe);
+
+            var currentPaths = GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Global);
+            Assert.Equal(currentPaths, prevPaths.Concat(new[] { appendMe }));
+
+            // set it back to the default
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, null);
+        }
+
+        [Fact]
+        public void CanRedirectConfigAccess()
+        {
+            var scd1 = BuildSelfCleaningDirectory();
+            var scd2 = BuildSelfCleaningDirectory();
+
+            Touch(scd1.RootedDirectoryPath, ".gitconfig");
+            Touch(scd2.RootedDirectoryPath, ".gitconfig");
+
+            // redirect global access to the first path
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, scd1.RootedDirectoryPath);
+
+            // set a value in the first config
+            using (var config = Configuration.BuildFrom(null))
+            {
+                config.Set("luggage.code", 9876, ConfigurationLevel.Global);
+                Assert.Equal(9876, config.Get<int>("luggage.code", ConfigurationLevel.Global).Value);
+            }
+
+            // redirect global config access to path2
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, scd2.RootedDirectoryPath);
+
+            // if the redirect succeeds, the value set in the prior config should not be visible
+            using (var config = Configuration.BuildFrom(null))
+            {
+                Assert.Equal(-1, config.GetValueOrDefault<int>("luggage.code", ConfigurationLevel.Global, -1));
+            }
+
+            // reset the search path to the default
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, null);
         }
     }
 }

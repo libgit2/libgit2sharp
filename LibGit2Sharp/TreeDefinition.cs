@@ -58,6 +58,24 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Removes the <see cref="TreeEntryDefinition"/> located at each of the
+        /// specified <paramref name="treeEntryPaths"/>.
+        /// </summary>
+        /// <param name="treeEntryPaths">The paths within this <see cref="TreeDefinition"/>.</param>
+        /// <returns>The current <see cref="TreeDefinition"/>.</returns>
+        public virtual TreeDefinition Remove(IEnumerable<string> treeEntryPaths)
+        {
+            Ensure.ArgumentNotNull(treeEntryPaths, "treeEntryPaths");
+
+            foreach (var treeEntryPath in treeEntryPaths)
+            {
+                Remove(treeEntryPath);
+            }
+
+            return this;
+        }
+
+        /// <summary>
         /// Removes a <see cref="TreeEntryDefinition"/> located the specified <paramref name="treeEntryPath"/> path.
         /// </summary>
         /// <param name="treeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
@@ -116,9 +134,12 @@ namespace LibGit2Sharp
             if (treeEntryDefinition is TransientTreeTreeEntryDefinition)
             {
                 throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
-                    "The {0} references a target which hasn't been created in the {1} yet. " +
-                    "This situation can occur when the target is a whole new {2} being created, or when an existing {2} is being updated because some of its children were added/removed.",
-                    typeof(TreeEntryDefinition).Name, typeof(ObjectDatabase).Name, typeof(Tree).Name));
+                                                                  "The {0} references a target which hasn't been created in the {1} yet. " +
+                                                                  "This situation can occur when the target is a whole new {2} being created, " +
+                                                                  "or when an existing {2} is being updated because some of its children were added/removed.",
+                                                                  typeof(TreeEntryDefinition).Name,
+                                                                  typeof(ObjectDatabase).Name,
+                                                                  typeof(Tree).Name));
             }
 
             Tuple<string, string> segments = ExtractPosixLeadingSegment(targetTreeEntryPath);
@@ -310,7 +331,12 @@ namespace LibGit2Sharp
                 builtTreeEntryDefinitions.ForEach(t => entries[t.Item1] = t.Item2);
 
                 ObjectId treeId = builder.Write();
-                return repository.Lookup<Tree>(treeId);
+                var result = repository.Lookup<Tree>(treeId);
+                if (result == null)
+                {
+                    throw new LibGit2SharpException("Unable to read created tree");
+                }
+                return result;
             }
         }
 
@@ -347,7 +373,9 @@ namespace LibGit2Sharp
                 if (segments.Item2 != null)
                 {
                     TreeDefinition td = RetrieveOrBuildTreeDefinition(segments.Item1, false);
-                    return td == null ? null : td[segments.Item2];
+                    return td == null
+                        ? null
+                        : td[segments.Item2];
                 }
 
                 TreeEntryDefinition treeEntryDefinition;
@@ -369,7 +397,7 @@ namespace LibGit2Sharp
 
         private class TreeBuilder : IDisposable
         {
-            private readonly TreeBuilderSafeHandle handle;
+            private readonly TreeBuilderHandle handle;
 
             public TreeBuilder(Repository repo)
             {

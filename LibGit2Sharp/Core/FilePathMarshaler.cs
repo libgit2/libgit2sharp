@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace LibGit2Sharp.Core
 {
@@ -69,8 +68,9 @@ namespace LibGit2Sharp.Core
 
             if (null == filePath)
             {
-                throw new MarshalDirectiveException(
-                    string.Format(CultureInfo.InvariantCulture, "{0} must be used on a FilePath.", GetType().Name));
+                throw new MarshalDirectiveException(string.Format(CultureInfo.InvariantCulture,
+                                                    "{0} must be used on a FilePath.",
+                                                    GetType().Name));
             }
 
             return FromManaged(filePath);
@@ -115,6 +115,11 @@ namespace LibGit2Sharp.Core
         public new static FilePath FromNative(IntPtr pNativeData)
         {
             return LaxUtf8Marshaler.FromNative(pNativeData);
+        }
+
+        public new static unsafe FilePath FromNative(char* buffer)
+        {
+            return LaxUtf8Marshaler.FromNative(buffer);
         }
 
         public new static FilePath FromBuffer(byte[] buffer)

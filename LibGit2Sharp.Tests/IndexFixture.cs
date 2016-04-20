@@ -101,10 +101,10 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(FileStatus.Nonexistent, repo.RetrieveStatus(oldName));
 
                 Touch(repo.Info.WorkingDirectory, oldName, "hello test file\n");
-                Assert.Equal(FileStatus.Untracked, repo.RetrieveStatus(oldName));
+                Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus(oldName));
 
-                repo.Stage(oldName);
-                Assert.Equal(FileStatus.Added, repo.RetrieveStatus(oldName));
+                Commands.Stage(repo, oldName);
+                Assert.Equal(FileStatus.NewInIndex, repo.RetrieveStatus(oldName));
 
                 // Generated through
                 // $ echo "hello test file" | git hash-object --stdin
@@ -120,9 +120,9 @@ namespace LibGit2Sharp.Tests
 
                 const string newName = "being.frakking.polite.txt";
 
-                repo.Move(oldName, newName);
-                Assert.Equal(FileStatus.Removed, repo.RetrieveStatus(oldName));
-                Assert.Equal(FileStatus.Added, repo.RetrieveStatus(newName));
+                Commands.Move(repo, oldName, newName);
+                Assert.Equal(FileStatus.DeletedFromIndex, repo.RetrieveStatus(oldName));
+                Assert.Equal(FileStatus.NewInIndex, repo.RetrieveStatus(newName));
 
                 Assert.Equal(1, repo.Index.Count);
                 Assert.Equal(expectedHash, repo.Index[newName].Id.Sha);
@@ -138,10 +138,10 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("README", FileStatus.Unaltered, "deleted_unstaged_file.txt", FileStatus.Missing, FileStatus.Removed, FileStatus.Staged)]
-        [InlineData("new_tracked_file.txt", FileStatus.Added, "deleted_unstaged_file.txt", FileStatus.Missing, FileStatus.Nonexistent, FileStatus.Staged)]
-        [InlineData("modified_staged_file.txt", FileStatus.Staged, "deleted_unstaged_file.txt", FileStatus.Missing, FileStatus.Removed, FileStatus.Staged)]
-        [InlineData("modified_unstaged_file.txt", FileStatus.Modified, "deleted_unstaged_file.txt", FileStatus.Missing, FileStatus.Removed, FileStatus.Staged)]
+        [InlineData("README", FileStatus.Unaltered, "deleted_unstaged_file.txt", FileStatus.DeletedFromWorkdir, FileStatus.DeletedFromIndex, FileStatus.ModifiedInIndex)]
+        [InlineData("new_tracked_file.txt", FileStatus.NewInIndex, "deleted_unstaged_file.txt", FileStatus.DeletedFromWorkdir, FileStatus.Nonexistent, FileStatus.ModifiedInIndex)]
+        [InlineData("modified_staged_file.txt", FileStatus.ModifiedInIndex, "deleted_unstaged_file.txt", FileStatus.DeletedFromWorkdir, FileStatus.DeletedFromIndex, FileStatus.ModifiedInIndex)]
+        [InlineData("modified_unstaged_file.txt", FileStatus.ModifiedInWorkdir, "deleted_unstaged_file.txt", FileStatus.DeletedFromWorkdir, FileStatus.DeletedFromIndex, FileStatus.ModifiedInIndex)]
         public void CanMoveAnExistingFileOverANonExistingFile(string sourcePath, FileStatus sourceStatus, string destPath, FileStatus destStatus, FileStatus sourcePostStatus, FileStatus destPostStatus)
         {
             string path = SandboxStandardTestRepo();
@@ -150,7 +150,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(sourceStatus, repo.RetrieveStatus(sourcePath));
                 Assert.Equal(destStatus, repo.RetrieveStatus(destPath));
 
-                repo.Move(sourcePath, destPath);
+                Commands.Move(repo, sourcePath, destPath);
 
                 Assert.Equal(sourcePostStatus, repo.RetrieveStatus(sourcePath));
                 Assert.Equal(destPostStatus, repo.RetrieveStatus(destPath));
@@ -159,24 +159,24 @@ namespace LibGit2Sharp.Tests
 
         [Theory]
         [InlineData("README", FileStatus.Unaltered, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" })]
-        [InlineData("new_tracked_file.txt", FileStatus.Added, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" })]
-        [InlineData("modified_staged_file.txt", FileStatus.Staged, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" })]
-        [InlineData("modified_unstaged_file.txt", FileStatus.Modified, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" })]
+        [InlineData("new_tracked_file.txt", FileStatus.NewInIndex, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" })]
+        [InlineData("modified_staged_file.txt", FileStatus.ModifiedInIndex, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" })]
+        [InlineData("modified_unstaged_file.txt", FileStatus.ModifiedInWorkdir, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" })]
         public void MovingOverAnExistingFileThrows(string sourcePath, FileStatus sourceStatus, IEnumerable<string> destPaths)
         {
             InvalidMoveUseCases(sourcePath, sourceStatus, destPaths);
         }
 
         [Theory]
-        [InlineData("new_untracked_file.txt", FileStatus.Untracked, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" })]
+        [InlineData("new_untracked_file.txt", FileStatus.NewInWorkdir, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" })]
         public void MovingAFileWichIsNotUnderSourceControlThrows(string sourcePath, FileStatus sourceStatus, IEnumerable<string> destPaths)
         {
             InvalidMoveUseCases(sourcePath, sourceStatus, destPaths);
         }
 
         [Theory]
-        [InlineData("deleted_unstaged_file.txt", FileStatus.Missing, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" })]
-        [InlineData("deleted_staged_file.txt", FileStatus.Removed, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" })]
+        [InlineData("deleted_unstaged_file.txt", FileStatus.DeletedFromWorkdir, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" })]
+        [InlineData("deleted_staged_file.txt", FileStatus.DeletedFromIndex, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" })]
         [InlineData("i_dont_exist.txt", FileStatus.Nonexistent, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" })]
         public void MovingAFileNotInTheWorkingDirectoryThrows(string sourcePath, FileStatus sourceStatus, IEnumerable<string> destPaths)
         {
@@ -193,7 +193,7 @@ namespace LibGit2Sharp.Tests
                 foreach (var destPath in destPaths)
                 {
                     string path = destPath;
-                    Assert.Throws<LibGit2SharpException>(() => repo.Move(sourcePath, path));
+                    Assert.Throws<LibGit2SharpException>(() => Commands.Move(repo, sourcePath, path));
                 }
             }
         }
@@ -211,7 +211,7 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, relFilePath, "Anybody out there?");
 
                 // Stage the file
-                repo.Stage(relFilePath);
+                Commands.Stage(repo, relFilePath);
 
                 // Get the index
                 Index index = repo.Index;
@@ -248,7 +248,7 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.Path, "index.lock");
 
                 Touch(repo.Info.WorkingDirectory, "newfile", "my my, this is gonna crash\n");
-                Assert.Throws<LockedFileException>(() => repo.Stage("newfile"));
+                Assert.Throws<LockedFileException>(() => Commands.Stage(repo, "newfile"));
             }
         }
 
@@ -273,7 +273,7 @@ namespace LibGit2Sharp.Tests
                 Assert.True(readStatus.IsDirty);
                 Assert.Equal(0, repoRead.Index.Count);
 
-                repoWrite.Stage("*");
+                Commands.Stage(repoWrite, "*");
                 repoWrite.Commit("message", Constants.Signature, Constants.Signature);
 
                 writeStatus = repoWrite.RetrieveStatus();
@@ -300,20 +300,22 @@ namespace LibGit2Sharp.Tests
                 const string headIndexTreeSha = "e5d221fc5da11a3169bf503d76497c81be3207b6";
 
                 Assert.True(repo.Index.IsFullyMerged);
-                Assert.Equal(FileStatus.Added, repo.RetrieveStatus(testFile));
+                Assert.Equal(FileStatus.NewInIndex, repo.RetrieveStatus(testFile));
 
                 var headIndexTree = repo.Lookup<Tree>(headIndexTreeSha);
                 Assert.NotNull(headIndexTree);
-                repo.Index.Replace(headIndexTree);
+                var index = repo.Index;
+                index.Replace(headIndexTree);
+                index.Write();
 
-                Assert.True(repo.Index.IsFullyMerged);
-                Assert.Equal(FileStatus.Untracked, repo.RetrieveStatus(testFile));
+                Assert.True(index.IsFullyMerged);
+                Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus(testFile));
             }
 
             // Check that the index was persisted to disk.
             using (var repo = new Repository(path))
             {
-                Assert.Equal(FileStatus.Untracked, repo.RetrieveStatus(testFile));
+                Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus(testFile));
             }
         }
 
@@ -331,20 +333,22 @@ namespace LibGit2Sharp.Tests
                 const string headIndexTreeSha = "1cb365141a52dfbb24933515820eb3045fbca12b";
 
                 Assert.False(repo.Index.IsFullyMerged);
-                Assert.Equal(FileStatus.Staged, repo.RetrieveStatus(testFile));
+                Assert.Equal(FileStatus.ModifiedInIndex, repo.RetrieveStatus(testFile));
 
                 var headIndexTree = repo.Lookup<Tree>(headIndexTreeSha);
                 Assert.NotNull(headIndexTree);
-                repo.Index.Replace(headIndexTree);
+                var index = repo.Index;
+                index.Replace(headIndexTree);
+                index.Write();
 
-                Assert.True(repo.Index.IsFullyMerged);
-                Assert.Equal(FileStatus.Modified, repo.RetrieveStatus(testFile));
+                Assert.True(index.IsFullyMerged);
+                Assert.Equal(FileStatus.ModifiedInWorkdir, repo.RetrieveStatus(testFile));
             }
 
             // Check that the index was persisted to disk.
             using (var repo = new Repository(path))
             {
-                Assert.Equal(FileStatus.Modified, repo.RetrieveStatus(testFile));
+                Assert.Equal(FileStatus.ModifiedInWorkdir, repo.RetrieveStatus(testFile));
             }
         }
 
@@ -359,24 +363,25 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 Assert.Equal(FileStatus.Unaltered, repo.RetrieveStatus(testFile));
-                Assert.NotEqual(0, repo.Index.Count);
+                var index = repo.Index;
+                Assert.NotEqual(0, index.Count);
+                index.Clear();
+                Assert.Equal(0, index.Count);
+                index.Write();
 
-                repo.Index.Clear();
-                Assert.Equal(0, repo.Index.Count);
-
-                Assert.Equal(FileStatus.Removed | FileStatus.Untracked, repo.RetrieveStatus(testFile));
+                Assert.Equal(FileStatus.DeletedFromIndex | FileStatus.NewInWorkdir, repo.RetrieveStatus(testFile));
             }
 
             // Check that the index was persisted to disk.
             using (var repo = new Repository(path))
             {
-                Assert.Equal(FileStatus.Removed | FileStatus.Untracked, repo.RetrieveStatus(testFile));
+                Assert.Equal(FileStatus.DeletedFromIndex | FileStatus.NewInWorkdir, repo.RetrieveStatus(testFile));
             }
         }
 
         [Theory]
-        [InlineData("new_tracked_file.txt", FileStatus.Added, FileStatus.Untracked)]
-        [InlineData("modified_staged_file.txt", FileStatus.Staged, FileStatus.Removed | FileStatus.Untracked)]
+        [InlineData("new_tracked_file.txt", FileStatus.NewInIndex, FileStatus.NewInWorkdir)]
+        [InlineData("modified_staged_file.txt", FileStatus.ModifiedInIndex, FileStatus.DeletedFromIndex | FileStatus.NewInWorkdir)]
         [InlineData("i_dont_exist.txt", FileStatus.Nonexistent, FileStatus.Nonexistent)]
         public void CanRemoveAnEntryFromTheIndex(string pathInTheIndex, FileStatus expectedBeforeStatus, FileStatus expectedAfterStatus)
         {
@@ -394,8 +399,8 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("new_untracked_file.txt", FileStatus.Untracked, FileStatus.Added)]
-        [InlineData("modified_unstaged_file.txt", FileStatus.Modified, FileStatus.Staged)]
+        [InlineData("new_untracked_file.txt", FileStatus.NewInWorkdir, FileStatus.NewInIndex)]
+        [InlineData("modified_unstaged_file.txt", FileStatus.ModifiedInWorkdir, FileStatus.ModifiedInIndex)]
         public void CanAddAnEntryToTheIndexFromAFileInTheWorkdir(string pathInTheWorkdir, FileStatus expectedBeforeStatus, FileStatus expectedAfterStatus)
         {
             var path = SandboxStandardTestRepoGitDir();
@@ -426,7 +431,7 @@ namespace LibGit2Sharp.Tests
                 repo.Index.Add(blob, targetIndexEntryPath, Mode.NonExecutableFile);
 
                 var after = repo.RetrieveStatus(targetIndexEntryPath);
-                Assert.Equal(FileStatus.Staged | FileStatus.Modified, after);
+                Assert.Equal(FileStatus.ModifiedInIndex | FileStatus.ModifiedInWorkdir, after);
             }
         }
 
@@ -451,18 +456,18 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 var before = repo.RetrieveStatus();
-                Assert.True(before.Any(se => se.State == FileStatus.Untracked));
-                Assert.True(before.Any(se => se.State == FileStatus.Modified));
-                Assert.True(before.Any(se => se.State == FileStatus.Missing));
+                Assert.True(before.Any(se => se.State == FileStatus.NewInWorkdir));
+                Assert.True(before.Any(se => se.State == FileStatus.ModifiedInWorkdir));
+                Assert.True(before.Any(se => se.State == FileStatus.DeletedFromWorkdir));
 
                 AddSomeCornerCases(repo);
 
-                repo.Stage("*");
+                Commands.Stage(repo, "*");
 
                 var after = repo.RetrieveStatus();
-                Assert.False(after.Any(se => se.State == FileStatus.Untracked));
-                Assert.False(after.Any(se => se.State == FileStatus.Modified));
-                Assert.False(after.Any(se => se.State == FileStatus.Missing));
+                Assert.False(after.Any(se => se.State == FileStatus.NewInWorkdir));
+                Assert.False(after.Any(se => se.State == FileStatus.ModifiedInWorkdir));
+                Assert.False(after.Any(se => se.State == FileStatus.DeletedFromWorkdir));
             }
         }
 
@@ -471,12 +476,12 @@ namespace LibGit2Sharp.Tests
         {
             var path = SandboxAssumeUnchangedTestRepo();
             using (var repo = new Repository(path))
-            {             
+            {
                 var regularFile = repo.Index["hello.txt"];
                 Assert.False(regularFile.AssumeUnchanged);
 
                 var assumeUnchangedFile = repo.Index["world.txt"];
-                Assert.True(assumeUnchangedFile.AssumeUnchanged);                
+                Assert.True(assumeUnchangedFile.AssumeUnchanged);
             }
         }
 

@@ -47,22 +47,22 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData(true, "ancestor-and-ours.txt", true, false, FileStatus.Removed, 2)]
-        [InlineData(false, "ancestor-and-ours.txt", true, true, FileStatus.Removed |FileStatus.Untracked, 2)]
+        [InlineData(true, "ancestor-and-ours.txt", true, false, FileStatus.DeletedFromIndex, 2)]
+        [InlineData(false, "ancestor-and-ours.txt", true, true, FileStatus.DeletedFromIndex |FileStatus.NewInWorkdir, 2)]
         [InlineData(true, "ancestor-and-theirs.txt", true, false, FileStatus.Nonexistent, 2)]
-        [InlineData(false, "ancestor-and-theirs.txt", true, true, FileStatus.Untracked, 2)]
+        [InlineData(false, "ancestor-and-theirs.txt", true, true, FileStatus.NewInWorkdir, 2)]
         [InlineData(true, "ancestor-only.txt", false, false, FileStatus.Nonexistent, 1)]
         [InlineData(false, "ancestor-only.txt", false, false, FileStatus.Nonexistent, 1)]
-        [InlineData(true, "conflicts-one.txt", true, false, FileStatus.Removed, 3)]
-        [InlineData(false, "conflicts-one.txt", true, true, FileStatus.Removed | FileStatus.Untracked, 3)]
-        [InlineData(true, "conflicts-two.txt", true, false, FileStatus.Removed, 3)]
-        [InlineData(false, "conflicts-two.txt", true, true, FileStatus.Removed | FileStatus.Untracked, 3)]
-        [InlineData(true, "ours-and-theirs.txt", true, false, FileStatus.Removed, 2)]
-        [InlineData(false, "ours-and-theirs.txt", true, true, FileStatus.Removed | FileStatus.Untracked, 2)]
-        [InlineData(true, "ours-only.txt", true, false, FileStatus.Removed, 1)]
-        [InlineData(false, "ours-only.txt", true, true, FileStatus.Removed | FileStatus.Untracked, 1)]
+        [InlineData(true, "conflicts-one.txt", true, false, FileStatus.DeletedFromIndex, 3)]
+        [InlineData(false, "conflicts-one.txt", true, true, FileStatus.DeletedFromIndex | FileStatus.NewInWorkdir, 3)]
+        [InlineData(true, "conflicts-two.txt", true, false, FileStatus.DeletedFromIndex, 3)]
+        [InlineData(false, "conflicts-two.txt", true, true, FileStatus.DeletedFromIndex | FileStatus.NewInWorkdir, 3)]
+        [InlineData(true, "ours-and-theirs.txt", true, false, FileStatus.DeletedFromIndex, 2)]
+        [InlineData(false, "ours-and-theirs.txt", true, true, FileStatus.DeletedFromIndex | FileStatus.NewInWorkdir, 2)]
+        [InlineData(true, "ours-only.txt", true, false, FileStatus.DeletedFromIndex, 1)]
+        [InlineData(false, "ours-only.txt", true, true, FileStatus.DeletedFromIndex | FileStatus.NewInWorkdir, 1)]
         [InlineData(true, "theirs-only.txt", true, false, FileStatus.Nonexistent, 1)]
-        [InlineData(false, "theirs-only.txt", true, true, FileStatus.Untracked, 1)]
+        [InlineData(false, "theirs-only.txt", true, true, FileStatus.NewInWorkdir, 1)]
         public void CanResolveConflictsByRemovingFromTheIndex(
             bool removeFromWorkdir, string filename, bool existsBeforeRemove, bool existsAfterRemove, FileStatus lastStatus, int removedIndexEntries)
         {
@@ -77,7 +77,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(repo.Index.Conflicts[filename]);
                 Assert.Equal(0, repo.Index.Conflicts.ResolvedConflicts.Count());
 
-                repo.Remove(filename, removeFromWorkdir);
+                Commands.Remove(repo, filename, removeFromWorkdir);
 
                 Assert.Null(repo.Index.Conflicts[filename]);
                 Assert.Equal(count - removedIndexEntries, repo.Index.Count);

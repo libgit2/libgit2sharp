@@ -15,9 +15,9 @@ namespace LibGit2Sharp
     {
         private static readonly LambdaEqualityHelper<IndexReucEntry> equalityHelper =
             new LambdaEqualityHelper<IndexReucEntry>(x => x.Path,
-                x => x.AncestorId, x => x.AncestorMode,
-                x => x.OurId, x => x.OurMode,
-                x => x.TheirId, x => x.TheirMode);
+                                                     x => x.AncestorId, x => x.AncestorMode,
+                                                     x => x.OurId, x => x.OurMode,
+                                                     x => x.TheirId, x => x.TheirMode);
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -25,26 +25,24 @@ namespace LibGit2Sharp
         protected IndexReucEntry()
         { }
 
-        internal static IndexReucEntry BuildFromPtr(IndexReucEntrySafeHandle handle)
+        internal static unsafe IndexReucEntry BuildFromPtr(git_index_reuc_entry* entry)
         {
-            if (handle == null || handle.IsZero)
+            if (entry == null)
             {
                 return null;
             }
 
-            GitIndexReucEntry entry = handle.MarshalAsGitIndexReucEntry();
-
-            FilePath path = LaxFilePathMarshaler.FromNative(entry.Path);
+            FilePath path = LaxUtf8Marshaler.FromNative(entry->Path);
 
             return new IndexReucEntry
             {
                 Path = path.Native,
-                AncestorId = entry.AncestorId,
-                AncestorMode = (Mode)entry.AncestorMode,
-                OurId = entry.OurId,
-                OurMode = (Mode)entry.OurMode,
-                TheirId = entry.TheirId,
-                TheirMode = (Mode)entry.TheirMode,
+                AncestorId = ObjectId.BuildFromPtr(&entry->AncestorId),
+                AncestorMode = (Mode)entry->AncestorMode,
+                OurId = ObjectId.BuildFromPtr(&entry->OurId),
+                OurMode = (Mode)entry->OurMode,
+                TheirId = ObjectId.BuildFromPtr(&entry->TheirId),
+                TheirMode = (Mode)entry->TheirMode,
             };
         }
 
@@ -145,7 +143,11 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    "{0}: {1} {2} {3}", Path, AncestorId, OurId, TheirId);
+                                     "{0}: {1} {2} {3}",
+                                     Path,
+                                     AncestorId,
+                                     OurId,
+                                     TheirId);
             }
         }
     }

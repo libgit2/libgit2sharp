@@ -13,7 +13,7 @@ namespace LibGit2Sharp
     /// <para>The individual patches for each file can be accessed through the indexer of this class.</para>
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class PatchStats : IEnumerable<ContentChangeStats>
+    public class PatchStats : IEnumerable<ContentChangeStats>, IDiffResult
     {
         private readonly IDictionary<FilePath, ContentChangeStats> changes = new Dictionary<FilePath, ContentChangeStats>();
         private readonly int totalLinesAdded;
@@ -25,25 +25,27 @@ namespace LibGit2Sharp
         protected PatchStats()
         { }
 
-        internal PatchStats(DiffSafeHandle diff)
+        internal unsafe PatchStats(DiffHandle diff)
         {
-            int count = Proxy.git_diff_num_deltas(diff);
-            for (int i = 0; i < count; i++)
+            using (diff)
             {
-                using (var patch = Proxy.git_patch_from_diff(diff, i))
+                int count = Proxy.git_diff_num_deltas(diff);
+                for (int i = 0; i < count; i++)
                 {
-                    var delta = Proxy.git_diff_get_delta(diff, i);
-                    var pathPtr = delta.NewFile.Path != IntPtr.Zero ? delta.NewFile.Path : delta.OldFile.Path;
-                    var newFilePath = LaxFilePathMarshaler.FromNative(pathPtr);
+                    using (var patch = Proxy.git_patch_from_diff(diff, i))
+                    {
+                        var delta = Proxy.git_diff_get_delta(diff, i);
+                        var pathPtr = delta->new_file.Path != null ? delta->new_file.Path : delta->old_file.Path;
+                        var newFilePath = LaxFilePathMarshaler.FromNative(pathPtr);
 
-                    var stats = Proxy.git_patch_line_stats(patch);
-                    int added = stats.Item1;
-                    int deleted = stats.Item2;
-                    changes.Add(newFilePath, new ContentChangeStats(added, deleted));
-                    totalLinesAdded += added;
-                    totalLinesDeleted += deleted;
+                        var stats = Proxy.git_patch_line_stats(patch);
+                        int added = stats.Item1;
+                        int deleted = stats.Item2;
+                        changes.Add(newFilePath, new ContentChangeStats(added, deleted));
+                        totalLinesAdded += added;
+                        totalLinesDeleted += deleted;
+                    }
                 }
-
             }
         }
 
@@ -75,7 +77,7 @@ namespace LibGit2Sharp
         /// <param name="path"></param>
         public virtual ContentChangeStats this[string path]
         {
-            get { return this[(FilePath) path]; }
+            get { return this[(FilePath)path]; }
         }
 
         private ContentChangeStats this[FilePath path]
@@ -111,9 +113,30 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format(CultureInfo.InvariantCulture, "+{0} -{1}",
-                    TotalLinesAdded, TotalLinesDeleted);
+                return string.Format(CultureInfo.InvariantCulture,
+                                     "+{0} -{1}",
+                                     TotalLinesAdded,
+                                     TotalLinesDeleted);
             }
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            // This doesn't do anything yet because it loads everything
+            // eagerly and disposes of the diff handle in the constructor.
         }
     }
 }

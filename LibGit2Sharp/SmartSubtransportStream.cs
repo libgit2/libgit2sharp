@@ -46,27 +46,19 @@ namespace LibGit2Sharp
         /// <summary>
         /// Requests that the stream write the next length bytes of the stream to the provided Stream object.
         /// </summary>
-        public abstract int Read(
-            Stream dataStream,
-            long length,
-            out long bytesRead);
+        public abstract int Read(Stream dataStream, long length, out long bytesRead);
 
         /// <summary>
         /// Requests that the stream write the first length bytes of the provided Stream object to the stream.
         /// </summary>
-        public abstract int Write(
-            Stream dataStream,
-            long length);
+        public abstract int Write(Stream dataStream, long length);
 
         /// <summary>
         /// The smart transport that this stream represents a connection over.
         /// </summary>
         public virtual SmartSubtransport SmartTransport
         {
-            get
-            {
-                return this.subtransport;
-            }
+            get { return this.subtransport; }
         }
 
         private SmartSubtransport subtransport;
@@ -112,12 +104,15 @@ namespace LibGit2Sharp
             {
                 bytes_read = UIntPtr.Zero;
 
-                SmartSubtransportStream transportStream = GCHandle.FromIntPtr(Marshal.ReadIntPtr(stream, GitSmartSubtransportStream.GCHandleOffset)).Target as SmartSubtransportStream;
+                SmartSubtransportStream transportStream =
+                    GCHandle.FromIntPtr(Marshal.ReadIntPtr(stream, GitSmartSubtransportStream.GCHandleOffset)).Target as SmartSubtransportStream;
 
                 if (transportStream != null &&
                     buf_size.ToUInt64() < (ulong)long.MaxValue)
                 {
-                    using (UnmanagedMemoryStream memoryStream = new UnmanagedMemoryStream((byte*)buffer, 0, (long)buf_size.ToUInt64(), FileAccess.ReadWrite))
+                    using (UnmanagedMemoryStream memoryStream = new UnmanagedMemoryStream((byte*)buffer, 0,
+                                                                                          (long)buf_size.ToUInt64(),
+                                                                                          FileAccess.ReadWrite))
                     {
                         try
                         {
@@ -139,15 +134,12 @@ namespace LibGit2Sharp
                 return (int)GitErrorCode.Error;
             }
 
-            private static unsafe int Write(
-                IntPtr stream,
-                IntPtr buffer,
-                UIntPtr len)
+            private static unsafe int Write(IntPtr stream, IntPtr buffer, UIntPtr len)
             {
-                SmartSubtransportStream transportStream = GCHandle.FromIntPtr(Marshal.ReadIntPtr(stream, GitSmartSubtransportStream.GCHandleOffset)).Target as SmartSubtransportStream;
+                SmartSubtransportStream transportStream =
+                    GCHandle.FromIntPtr(Marshal.ReadIntPtr(stream, GitSmartSubtransportStream.GCHandleOffset)).Target as SmartSubtransportStream;
 
-                if (transportStream != null &&
-                    len.ToUInt64() < (ulong)long.MaxValue)
+                if (transportStream != null && len.ToUInt64() < (ulong)long.MaxValue)
                 {
                     long length = (long)len.ToUInt64();
 
@@ -167,10 +159,10 @@ namespace LibGit2Sharp
                 return (int)GitErrorCode.Error;
             }
 
-            private static void Free(
-                IntPtr stream)
+            private static void Free(IntPtr stream)
             {
-                SmartSubtransportStream transportStream = GCHandle.FromIntPtr(Marshal.ReadIntPtr(stream, GitSmartSubtransportStream.GCHandleOffset)).Target as SmartSubtransportStream;
+                SmartSubtransportStream transportStream =
+                    GCHandle.FromIntPtr(Marshal.ReadIntPtr(stream, GitSmartSubtransportStream.GCHandleOffset)).Target as SmartSubtransportStream;
 
                 if (transportStream != null)
                 {

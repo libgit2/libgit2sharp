@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text;
+using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -21,6 +23,15 @@ namespace LibGit2Sharp
             }
 
             return NativeMethods.git_cred_userpass_plaintext_new(out cred, Username, Password);
+        }
+
+        static internal unsafe UsernamePasswordCredentials FromNative(GitCredentialUserpass* gitCred)
+        {
+            return new UsernamePasswordCredentials()
+            {
+                Username = LaxUtf8Marshaler.FromNative(gitCred->username),
+                Password = LaxUtf8Marshaler.FromNative(gitCred->password),
+            };
         }
 
         /// <summary>

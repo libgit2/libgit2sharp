@@ -5,7 +5,7 @@ namespace LibGit2Sharp.Core
     [StructLayout(LayoutKind.Sequential)]
     internal class GitIndexTime
     {
-        public long seconds;
+        public int seconds;
         public uint nanoseconds;
     }
 }

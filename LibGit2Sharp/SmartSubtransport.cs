@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -49,6 +49,84 @@ namespace LibGit2Sharp
     /// </summary>
     public abstract class SmartSubtransport
     {
+        internal IntPtr Transport { get; set; }
+
+        /// <summary>
+        /// Call the certificate check callback
+        /// </summary>
+        /// <param name="cert">The certificate to send</param>
+        /// <param name="valid">Whether we consider the certificate to be valid</param>
+        /// <param name="hostname">The hostname we connected to</param>
+        public int CertificateCheck(Certificate cert, bool valid, string hostname)
+        {
+            CertificateSsh sshCert = cert as CertificateSsh;
+            CertificateX509 x509Cert = cert as CertificateX509;
+
+            if (sshCert == null && x509Cert == null)
+            {
+                throw new InvalidOperationException("Unsupported certificate type");
+            }
+
+            int ret;
+            if (sshCert != null)
+            {
+                var certPtr = sshCert.ToPointer();
+                ret = NativeMethods.git_transport_smart_certificate_check(Transport, certPtr, valid ? 1 : 0, hostname);
+                Marshal.FreeHGlobal(certPtr);
+            } else {
+                IntPtr certPtr, dataPtr;
+                certPtr = x509Cert.ToPointers(out dataPtr);
+                ret = NativeMethods.git_transport_smart_certificate_check(Transport, certPtr, valid ? 1 : 0, hostname);
+                Marshal.FreeHGlobal(dataPtr);
+                Marshal.FreeHGlobal(certPtr);
+            }
+
+            return ret;
+        }
+
+        public int AcquireCredentials(out Credentials cred, string user, params Type[] methods)
+        {
+            // Convert the user-provided types to libgit2's flags
+            int allowed = 0;
+            foreach (var method in methods)
+            {
+                if (method == typeof(UsernamePasswordCredentials))
+                {
+                    allowed |= (int)GitCredentialType.UserPassPlaintext;
+                }
+                else
+                {
+                    throw new InvalidOperationException("Unknown type passes as allowed credential");
+                }
+            }
+
+            IntPtr credHandle = IntPtr.Zero;
+            int res = Proxy.git_transport_smart_credentials(out credHandle, Transport, user, allowed);
+            if (res != 0)
+            {
+                cred = null;
+                return res;
+            }
+
+            if (credHandle == IntPtr.Zero)
+            {
+                throw new InvalidOperationException("creditals callback indicated success but returned no credentials");
+            }
+
+            unsafe
+            {
+                var baseCred = (GitCredential*) credHandle;
+                switch (baseCred->credtype)
+                {
+                    case GitCredentialType.UserPassPlaintext:
+                        cred = UsernamePasswordCredentials.FromNative((GitCredentialUserpass*) credHandle);
+                        return 0;
+                    default:
+                        throw new InvalidOperationException("User returned an unkown credential type");
+                }
+            }
+        }
+
         /// <summary>
         /// Invoked by libgit2 to create a connection using this subtransport.
         /// </summary>
@@ -62,8 +140,7 @@ namespace LibGit2Sharp
         /// Override this method to add additional cleanup steps to your subclass. Be sure to call base.Close().
         /// </summary>
         protected virtual void Close()
-        {
-        }
+        { }
 
         /// <summary>
         /// Invoked by libgit2 when this subtransport is being freed. Override this method to add additional
