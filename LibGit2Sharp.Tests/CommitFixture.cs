@@ -34,11 +34,11 @@ namespace LibGit2Sharp.Tests
                 repo.Reset(ResetMode.Hard);
                 repo.RemoveUntrackedFiles();
 
-                repo.Checkout("test");
+                Commands.Checkout(repo, "test");
                 Assert.Equal(2, repo.Commits.Count());
                 Assert.Equal("e90810b8df3e80c413d903f631643c716887138d", repo.Commits.First().Id.Sha);
 
-                repo.Checkout("master");
+                Commands.Checkout(repo, "master");
                 Assert.Equal(9, repo.Commits.Count());
                 Assert.Equal("32eab9cb1f450b5fe7ab663462b77d7f4b703344", repo.Commits.First().Id.Sha);
             }
@@ -274,7 +274,7 @@ namespace LibGit2Sharp.Tests
                 repoClone.RemoveUntrackedFiles();
 
                 string headSha = repoClone.Head.Tip.Sha;
-                repoClone.Checkout(headSha);
+                Commands.Checkout(repoClone, headSha);
 
                 AssertEnumerationOfCommitsInRepo(repoClone,
                     repo => new CommitFilter { IncludeReachableFrom = repo.Head },
@@ -708,7 +708,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(reflogEntry.To, repo.Refs.Log("HEAD").First().From);
 
                 Branch firstCommitBranch = repo.CreateBranch("davidfowl-rules", commit);
-                repo.Checkout(firstCommitBranch);
+                Commands.Checkout(repo, firstCommitBranch);
 
                 File.WriteAllText(filePath, "davidfowl commits!\n");
 

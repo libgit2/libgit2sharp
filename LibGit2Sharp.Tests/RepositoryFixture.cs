@@ -611,8 +611,10 @@ namespace LibGit2Sharp.Tests
             string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                repo.Checkout(repo.Head.Tip.Sha, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
+                Console.WriteLine("head, {0}", repo.Head);
+                Commands.Checkout(repo, repo.Head.Tip.Sha, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
                 Branch trackLocal = repo.Head;
+                Console.WriteLine("head, {0}", repo.Head);
                 Assert.Null(trackLocal.RemoteName);
             }
         }
@@ -732,7 +734,7 @@ namespace LibGit2Sharp.Tests
             using (var originalRepo = new Repository(originalRepoPath))
             {
                 detachedHeadSha = originalRepo.Head.Tip.Sha;
-                originalRepo.Checkout(detachedHeadSha);
+                Commands.Checkout(originalRepo, detachedHeadSha);
 
                 Assert.True(originalRepo.Info.IsHeadDetached);
             }

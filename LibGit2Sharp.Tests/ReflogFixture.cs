@@ -140,7 +140,7 @@ namespace LibGit2Sharp.Tests
                 Assert.False(repo.Info.IsHeadDetached);
 
                 var parentCommit = repo.Head.Tip.Parents.First();
-                repo.Checkout(parentCommit.Sha);
+                Commands.Checkout(repo, parentCommit.Sha);
                 Assert.True(repo.Info.IsHeadDetached);
 
                 const string relativeFilepath = "new.txt";

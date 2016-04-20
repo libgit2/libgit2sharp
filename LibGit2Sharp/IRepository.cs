@@ -79,6 +79,7 @@ namespace LibGit2Sharp
         /// <param name="branch">The <see cref="Branch"/> to check out.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Checkout()")]
         Branch Checkout(Branch branch, CheckoutOptions options);
 
         /// <summary>
@@ -91,6 +92,7 @@ namespace LibGit2Sharp
         /// <param name="committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Checkout()")]
         Branch Checkout(string committishOrBranchSpec, CheckoutOptions options);
 
         /// <summary>
@@ -102,7 +104,16 @@ namespace LibGit2Sharp
         /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to check out.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Checkout()")]
         Branch Checkout(Commit commit, CheckoutOptions options);
+
+        /// <summary>
+        /// Checkout the specified tree.
+        /// </summary>
+        /// <param name="tree">The <see cref="Tree"/> to checkout.</param>
+        /// <param name="paths">The paths to checkout.</param>
+        /// <param name="opts">Collection of parameters controlling checkout behavior.</param>
+        void Checkout(Tree tree, IEnumerable<string> paths, CheckoutOptions opts);
 
         /// <summary>
         /// Updates specifed paths in the index and working directory with the versions from the specified branch, reference, or SHA.
@@ -401,5 +412,14 @@ namespace LibGit2Sharp
         /// <param name="options">Determines how the commit will be described.</param>
         /// <returns>A descriptive identifier for the commit based on the nearest annotated tag.</returns>
         string Describe(Commit commit, DescribeOptions options);
+
+        /// <summary>
+        /// Parse an extended SHA-1 expression and retrieve the object and the reference
+        /// mentioned in the revision (if any).
+        /// </summary>
+        /// <param name="revision">An extended SHA-1 expression for the object to look up</param>
+        /// <param name="reference">The reference mentioned in the revision (if any)</param>
+        /// <param name="obj">The object which the revision resolves to</param>
+        void RevParse(string revision, out Reference reference, out GitObject obj);
     }
 }

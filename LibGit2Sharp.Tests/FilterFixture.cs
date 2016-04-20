@@ -284,7 +284,7 @@ namespace LibGit2Sharp.Tests
                     Commands.Stage(repo, contentFile.Name);
                     repo.Commit("test", Constants.Signature, Constants.Signature);
                     contentFile.Delete();
-                    repo.Checkout("HEAD", new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
+                    Commands.Checkout(repo, "HEAD", new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
                 }
 
                 contentFile = new FileInfo(filePath);
@@ -392,9 +392,9 @@ namespace LibGit2Sharp.Tests
 
                 expectedPath = CommitFileOnBranch(repo, branchName, content);
 
-                repo.Checkout("master");
+                Commands.Checkout(repo, "master");
 
-                repo.Checkout(branchName);
+                Commands.Checkout(repo, branchName);
             }
             return expectedPath;
         }
@@ -402,7 +402,7 @@ namespace LibGit2Sharp.Tests
         private static FileInfo CommitFileOnBranch(Repository repo, string branchName, String content)
         {
             var branch = repo.CreateBranch(branchName);
-            repo.Checkout(branch.FriendlyName);
+            Commands.Checkout(repo, branch.FriendlyName);
 
             FileInfo expectedPath = StageNewFile(repo, content);
             repo.Commit("Commit", Constants.Signature, Constants.Signature);

@@ -40,7 +40,7 @@ namespace LibGit2Sharp.Tests
             {
                 ConstructRebaseTestRepository(repo);
 
-                repo.Checkout(initialBranchName);
+                Commands.Checkout(repo, initialBranchName);
                 Assert.False(repo.RetrieveStatus().IsDirty);
 
                 Branch branch = (branchName == null) ? null : repo.Branches[branchName];
@@ -127,7 +127,7 @@ namespace LibGit2Sharp.Tests
             using (Repository repo = new Repository(path))
             {
                 ConstructRebaseTestRepository(repo);
-                repo.Checkout(topicBranch2Name);
+                Commands.Checkout(repo, topicBranch2Name);
                 Branch b = repo.Branches[topicBranch2Name];
 
                 RebaseResult result = repo.Rebase.Start(b, b, null, Constants.Identity, new RebaseOptions());
@@ -209,7 +209,7 @@ namespace LibGit2Sharp.Tests
                 Branch initialBranch = repo.Branches[topicBranch1Name];
                 Branch upstreamBranch = repo.Branches[masterBranch2Name];
 
-                repo.Checkout(initialBranch);
+                Commands.Checkout(repo, initialBranch);
                 Assert.False(repo.RetrieveStatus().IsDirty);
 
                 bool wasCheckoutProgressCalled = false;
@@ -296,7 +296,7 @@ namespace LibGit2Sharp.Tests
             {
                 ConstructRebaseTestRepository(repo);
 
-                repo.Checkout(topicBranch1Name);
+                Commands.Checkout(repo, topicBranch1Name);
                 Assert.False(repo.RetrieveStatus().IsDirty);
 
                 Branch branch = repo.Branches[topicBranch1Name];
@@ -370,7 +370,7 @@ namespace LibGit2Sharp.Tests
             {
                 ConstructRebaseTestRepository(repo);
 
-                repo.Checkout(topicBranch1Name);
+                Commands.Checkout(repo, topicBranch1Name);
                 Assert.False(repo.RetrieveStatus().IsDirty);
 
                 Branch branch = repo.Branches[topicBranch1Name];
@@ -419,7 +419,7 @@ namespace LibGit2Sharp.Tests
             {
                 ConstructRebaseTestRepository(repo);
 
-                repo.Checkout(topicBranch1Name);
+                Commands.Checkout(repo, topicBranch1Name);
                 Assert.False(repo.RetrieveStatus().IsDirty);
 
                 Branch branch = repo.Branches[topicBranch1Name];
@@ -466,7 +466,7 @@ namespace LibGit2Sharp.Tests
             {
                 ConstructRebaseTestRepository(repo);
 
-                repo.Checkout(topicBranch1Name);
+                Commands.Checkout(repo, topicBranch1Name);
                 Assert.False(repo.RetrieveStatus().IsDirty);
 
                 Branch branch = repo.Branches[topicBranch1Name];
@@ -499,7 +499,7 @@ namespace LibGit2Sharp.Tests
             {
                 ConstructRebaseTestRepository(repo);
 
-                repo.Checkout(topicBranch1Name);
+                Commands.Checkout(repo, topicBranch1Name);
                 Assert.False(repo.RetrieveStatus().IsDirty);
 
                 Branch branch = repo.Branches[topicBranch1Name];
@@ -545,7 +545,7 @@ namespace LibGit2Sharp.Tests
             {
                 ConstructRebaseTestRepository(repo);
 
-                repo.Checkout(topicBranch1Name);
+                Commands.Checkout(repo, topicBranch1Name);
                 Assert.False(repo.RetrieveStatus().IsDirty);
 
                 Branch branch = repo.Branches[topicBranch1Name];
@@ -573,7 +573,7 @@ namespace LibGit2Sharp.Tests
             {
                 ConstructRebaseTestRepository(repo);
 
-                repo.Checkout(topicBranch1Name);
+                Commands.Checkout(repo, topicBranch1Name);
 
                 Assert.Throws<NotFoundException>(() =>
                     repo.Rebase.Continue(Constants.Identity, new RebaseOptions()));
@@ -591,7 +591,7 @@ namespace LibGit2Sharp.Tests
             using (Repository repo = new Repository(path))
             {
                 ConstructRebaseTestRepository(repo);
-                repo.Checkout(topicBranch1Name);
+                Commands.Checkout(repo, topicBranch1Name);
 
                 Assert.Null(repo.Rebase.GetCurrentStepInfo());
             }
@@ -612,7 +612,7 @@ namespace LibGit2Sharp.Tests
             {
                 ConstructRebaseTestRepository(repo, attributes, lineEnding);
 
-                repo.Checkout(topicBranch1Name);
+                Commands.Checkout(repo, topicBranch1Name);
 
                 Branch topicBranch1Prime = repo.CreateBranch(topicBranch1PrimeName, masterBranch1Name);
 
@@ -621,7 +621,7 @@ namespace LibGit2Sharp.Tests
                 Commands.Stage(repo, newFileRelativePath);
                 Commit commit = repo.Commit("new commit 1", Constants.Signature, Constants.Signature, new CommitOptions());
 
-                repo.Checkout(topicBranch1Prime);
+                Commands.Checkout(repo, topicBranch1Prime);
                 var cherryPickResult = repo.CherryPick(commit, Constants.Signature2);
                 Assert.Equal(CherryPickStatus.CherryPicked, cherryPickResult.Status);
 
@@ -759,7 +759,7 @@ namespace LibGit2Sharp.Tests
 
             repo.CreateBranch(topicBranch2Name, commit);
 
-            repo.Checkout(masterBranch1.Tip);
+            Commands.Checkout(repo, masterBranch1.Tip);
             Touch(workdir, filePathD, fileContentD1);
             Commands.Stage(repo, filePathD);
             commit = repo.Commit("commit 10", Constants.Signature, Constants.Signature, new CommitOptions());

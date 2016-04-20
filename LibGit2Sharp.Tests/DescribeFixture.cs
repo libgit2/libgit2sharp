@@ -64,11 +64,11 @@ namespace LibGit2Sharp.Tests
                 repo.ApplyTag("firstParentTag");
 
                 // Make a later tag on branch
-                repo.Checkout(branch);
+                Commands.Checkout(repo, branch);
                 repo.Commit("B", Constants.Signature, Constants.Signature, new CommitOptions { AllowEmptyCommit = true });
                 repo.ApplyTag("mostRecentTag");
 
-                repo.Checkout("master");
+                Commands.Checkout(repo, "master");
                 repo.Commit("C", Constants.Signature, Constants.Signature, new CommitOptions { AllowEmptyCommit = true });
                 repo.Merge(branch, Constants.Signature, new MergeOptions() { FastForwardStrategy = FastForwardStrategy.NoFastForward });
 
