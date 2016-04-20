@@ -1045,5 +1045,15 @@ namespace LibGit2Sharp.Tests
                     new CommitOptions { AmendPreviousCommit = true }));
             }
         }
+
+        [Fact]
+        public void CanPrettifyAMessage()
+        {
+            string input = "# Comment\nA line that will remain\n# And another character\n\n\n";
+            string expected = "A line that will remain\n";
+
+            Assert.Equal(expected, Commit.PrettifyMessage(input, '#'));
+            Assert.Equal(expected, Commit.PrettifyMessage(input.Replace('#', ';'), ';'));
+        }
     }
 }

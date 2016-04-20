@@ -113,6 +113,20 @@ namespace LibGit2Sharp
             return encoding ?? "UTF-8";
         }
 
+        /// <summary>
+        /// Prettify a commit message
+        /// <para>
+        /// Remove comment lines and trailing lines
+        /// </para>
+        /// </summary>
+        /// <returns>The prettified message</returns>
+        /// <param name="message">The message to prettify.</param>
+        /// <param name="commentChar">Comment character. Lines starting with it will be removed</param>
+        public static string PrettifyMessage(string message, char commentChar)
+        {
+            return Proxy.git_message_prettify(message, commentChar);
+        }
+
         private string DebuggerDisplay
         {
             get
