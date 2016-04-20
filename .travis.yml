@@ -1,30 +1,35 @@
 # Travis-CI Build for libgit2sharp
 # see travis-ci.org for details
 
-language: c
+language: csharp
+mono:
+ - 3.12.0
+ - 4.2.3
 
 os:
  - osx
  - linux
+
+env:
+ global:
+  - MONO_OPTIONS=--debug
 
 before_install:
  - date -u
  - uname -a
  - env | sort
 
-# Make sure CMake and Mono are installed
-install:
- - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then ./CI/travis.linux.install.deps.sh; fi
- - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then ./CI/travis.osx.install.deps.sh; fi
+solution: LibGit2Sharp.sln
 
 # Build libgit2, LibGit2Sharp and run the tests
 script:
- - ./build.libgit2sharp.sh
+ - ./build.libgit2sharp.sh 'LEAKS_IDENTIFYING'
 
 # Only watch the development branch
 branches:
  only:
    - vNext
+   - master
 
 # Notify of build changes
 notifications:

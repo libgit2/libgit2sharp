@@ -19,37 +19,43 @@ namespace LibGit2Sharp
                                                 x => x.InitialSignature,
                                                 x => x.InitialCommit);
 
-
-        internal BlameHunk(IRepository repository, GitBlameHunk rawHunk)
+        internal unsafe BlameHunk(IRepository repository, git_blame_hunk* rawHunk)
         {
-            finalCommit = new Lazy<Commit>(() => repository.Lookup<Commit>(rawHunk.FinalCommitId));
-            origCommit = new Lazy<Commit>(() => repository.Lookup<Commit>(rawHunk.OrigCommitId));
+            var origId = ObjectId.BuildFromPtr(&rawHunk->orig_commit_id);
+            var finalId = ObjectId.BuildFromPtr(&rawHunk->final_commit_id);
 
-            if (rawHunk.OrigPath != IntPtr.Zero)
+            finalCommit = new Lazy<Commit>(() => repository.Lookup<Commit>(finalId));
+            origCommit = new Lazy<Commit>(() => repository.Lookup<Commit>(origId));
+
+
+            if (rawHunk->orig_path != null)
             {
-                InitialPath = LaxUtf8Marshaler.FromNative(rawHunk.OrigPath);
+                InitialPath = LaxUtf8Marshaler.FromNative(rawHunk->orig_path);
             }
-            LineCount = rawHunk.LinesInHunk;
+
+            LineCount = (int)rawHunk->lines_in_hunk.ToUInt32();
 
             // Libgit2's line numbers are 1-based
-            FinalStartLineNumber = rawHunk.FinalStartLineNumber - 1;
-            InitialStartLineNumber = rawHunk.OrigStartLineNumber - 1;
+            FinalStartLineNumber = (int)rawHunk->final_start_line_number.ToUInt32() - 1;
+            InitialStartLineNumber = (int)rawHunk->orig_start_line_number.ToUInt32() - 1;
 
             // Signature objects need to have ownership of their native pointers
-            if (rawHunk.FinalSignature != IntPtr.Zero)
+            if (rawHunk->final_signature != null)
             {
-                FinalSignature = new Signature(Proxy.git_signature_dup(rawHunk.FinalSignature));
+                FinalSignature = new Signature(rawHunk->final_signature);
             }
-            if (rawHunk.OrigSignature != IntPtr.Zero)
+
+            if (rawHunk->orig_signature != null)
             {
-                InitialSignature = new Signature(Proxy.git_signature_dup(rawHunk.OrigSignature));
+                InitialSignature = new Signature(rawHunk->orig_signature);
             }
         }
 
         /// <summary>
         /// For easier mocking
         /// </summary>
-        protected BlameHunk() { }
+        protected BlameHunk()
+        { }
 
         /// <summary>
         /// Determine if this hunk contains a given line.

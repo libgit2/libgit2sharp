@@ -18,3 +18,5 @@
 	url = ../submodule_target_wd
 [submodule "sm_added_and_uncommited"]
 	url = ../submodule_target_wd
+[submodule "sm_branch_only"]
+	url = ../submodule_target_wd

@@ -11,16 +11,16 @@ namespace LibGit2Sharp
     /// A GitObject
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public abstract class GitObject : IEquatable<GitObject>
+    public abstract class GitObject : IEquatable<GitObject>, IBelongToARepository
     {
         internal static IDictionary<Type, ObjectType> TypeToKindMap =
             new Dictionary<Type, ObjectType>
-                {
-                    { typeof(Commit), ObjectType.Commit },
-                    { typeof(Tree), ObjectType.Tree },
-                    { typeof(Blob), ObjectType.Blob },
-                    { typeof(TagAnnotation), ObjectType.Tag },
-                };
+            {
+                { typeof(Commit), ObjectType.Commit },
+                { typeof(Tree), ObjectType.Tree },
+                { typeof(Blob), ObjectType.Blob },
+                { typeof(TagAnnotation), ObjectType.Tag },
+            };
 
         private static readonly LambdaEqualityHelper<GitObject> equalityHelper =
             new LambdaEqualityHelper<GitObject>(x => x.Id);
@@ -66,20 +66,26 @@ namespace LibGit2Sharp
             {
                 case GitObjectType.Commit:
                     return new Commit(repo, id);
+
                 case GitObjectType.Tree:
                     return new Tree(repo, id, path);
+
                 case GitObjectType.Tag:
                     return new TagAnnotation(repo, id);
+
                 case GitObjectType.Blob:
                     return new Blob(repo, id);
+
                 default:
-                    throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unexpected type '{0}' for object '{1}'.", type, id));
+                    throw new LibGit2SharpException("Unexpected type '{0}' for object '{1}'.",
+                                                    type,
+                                                    id);
             }
         }
 
         internal Commit DereferenceToCommit(bool throwsIfCanNotBeDereferencedToACommit)
         {
-            using (GitObjectSafeHandle peeledHandle = Proxy.git_object_peel(repo.Handle, Id, GitObjectType.Commit, throwsIfCanNotBeDereferencedToACommit))
+            using (ObjectHandle peeledHandle = Proxy.git_object_peel(repo.Handle, Id, GitObjectType.Commit, throwsIfCanNotBeDereferencedToACommit))
             {
                 if (peeledHandle == null)
                 {
@@ -154,5 +160,7 @@ namespace LibGit2Sharp
         {
             get { return Id.ToString(7); }
         }
+
+        IRepository IBelongToARepository.Repository { get { return repo; } }
     }
 }

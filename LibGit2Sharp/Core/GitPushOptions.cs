@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp.Core
 {
@@ -8,5 +7,7 @@ namespace LibGit2Sharp.Core
     {
         public int Version = 1;
         public int PackbuilderDegreeOfParallelism;
+        public GitRemoteCallbacks RemoteCallbacks;
+        public GitStrArrayManaged CustomHeaders;
     }
 }

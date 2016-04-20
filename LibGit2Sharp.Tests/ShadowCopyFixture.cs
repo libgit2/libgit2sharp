@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Reflection;
 using System.Security;
@@ -10,14 +10,14 @@ namespace LibGit2Sharp.Tests
 {
     public class ShadowCopyFixture : BaseFixture
     {
-        [SkippableFact]
+        [Fact]
         public void CanProbeForNativeBinariesFromAShadowCopiedAssembly()
         {
             Type type = typeof(Wrapper);
             Assembly assembly = type.Assembly;
 
             // Build a new domain which will shadow copy assemblies
-            string cachePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            string cachePath = Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName());
             Directory.CreateDirectory(cachePath);
 
             var setup = new AppDomainSetup
@@ -51,24 +51,23 @@ namespace LibGit2Sharp.Tests
 
             // ...but are currently loaded from different locations...
             string cachedAssemblyLocation = wrapper.AssemblyLocation;
-            if (cachedAssemblyLocation.StartsWith("/private"))
-            {
-                // On OS X, sometimes you get /private/var/… instead of /var/…, but they map to the same place.
-                cachedAssemblyLocation = cachedAssemblyLocation.Substring("/private".Length);
-            }
             Assert.NotEqual(sourceAssembly.Location, cachedAssemblyLocation);
 
             // ...that the assembly in the other domain is stored in the shadow copy cache...
             string cachedAssembliesPath = Path.Combine(setup.CachePath, setup.ApplicationName);
             Assert.True(cachedAssemblyLocation.StartsWith(cachedAssembliesPath));
 
-            // ...that this cache doesn't contain the `NativeBinaries` folder
-            string cachedAssemblyParentPath = Path.GetDirectoryName(cachedAssemblyLocation);
-            Assert.False(Directory.Exists(Path.Combine(cachedAssemblyParentPath, "NativeBinaries")));
+            if (!Constants.IsRunningOnUnix)
+            {
+                // ...that this cache doesn't contain the `lib` folder
+                string cachedAssemblyParentPath = Path.GetDirectoryName(cachedAssemblyLocation);
+                Assert.False(Directory.Exists(Path.Combine(cachedAssemblyParentPath, "lib")));
 
-            // ...whereas `NativeBinaries` of course exists next to the source assembly
-            string sourceAssemblyParentPath = Path.GetDirectoryName(new Uri(sourceAssembly.EscapedCodeBase).LocalPath);
-            Assert.True(Directory.Exists(Path.Combine(sourceAssemblyParentPath, "NativeBinaries")));
+                // ...whereas `lib` of course exists next to the source assembly
+                string sourceAssemblyParentPath =
+                    Path.GetDirectoryName(new Uri(sourceAssembly.EscapedCodeBase).LocalPath);
+                Assert.True(Directory.Exists(Path.Combine(sourceAssemblyParentPath, "lib")));
+            }
 
             AppDomain.Unload(domain);
         }

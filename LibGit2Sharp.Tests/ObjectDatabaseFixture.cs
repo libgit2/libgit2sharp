@@ -17,7 +17,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("deadbeefdeadbeefdeadbeefdeadbeefdeadbeef", false)]
         public void CanTellIfObjectsExists(string sha, bool shouldExists)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var oid = new ObjectId(sha);
 
@@ -31,7 +32,7 @@ namespace LibGit2Sharp.Tests
             string path = InitNewRepository();
             using (var repo = new Repository(path))
             {
-                Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus("hello.txt"));
+                Assert.Equal(FileStatus.Nonexistent, repo.RetrieveStatus("hello.txt"));
 
                 File.AppendAllText(Path.Combine(repo.Info.WorkingDirectory, "hello.txt"), "I'm a new file\n");
 
@@ -40,11 +41,30 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("dc53d4c6b8684c21b0b57db29da4a2afea011565", blob.Sha);
 
                 /* The file is unknown from the Index nor the Head ... */
-                Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus("hello.txt"));
+                Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus("hello.txt"));
 
                 /* ...however, it's indeed stored in the repository. */
                 var fetchedBlob = repo.Lookup<Blob>(blob.Id);
                 Assert.Equal(blob, fetchedBlob);
+            }
+        }
+
+        [Fact]
+        public void RetrieveObjectMetadataReturnsCorrectSizeAndTypeForBlob()
+        {
+            string path = InitNewRepository();
+
+            using (var repo = new Repository(path))
+            {
+                Blob blob = CreateBlob(repo, "I'm a new file\n");
+                Assert.NotNull(blob);
+
+                GitObjectMetadata blobMetadata = repo.ObjectDatabase.RetrieveObjectMetadata(blob.Id);
+                Assert.Equal(blobMetadata.Size, blob.Size);
+                Assert.Equal(blobMetadata.Type, ObjectType.Blob);
+
+                Blob fetchedBlob = repo.Lookup<Blob>(blob.Id);
+                Assert.Equal(blobMetadata.Size, fetchedBlob.Size);
             }
         }
 
@@ -83,15 +103,13 @@ namespace LibGit2Sharp.Tests
         [InlineData("e9671e138a780833cb689753570fd10a55be84fb", "dummy.guess")]
         public void CanCreateABlobFromAStream(string expectedSha, string hintPath)
         {
-            string path = InitNewRepository();
-
             var sb = new StringBuilder();
             for (int i = 0; i < 6; i++)
             {
                 sb.Append("libgit2\n\r\n");
             }
 
-            using (var repo = new Repository(path))
+            using (var repo = new Repository(InitNewRepository()))
             {
                 CreateAttributesFiles(Path.Combine(repo.Info.Path, "info"), "attributes");
 
@@ -183,7 +201,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("1")]
         public void CanCreateATreeByAlteringAnExistingOne(string targetPath)
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var blob = repo.Lookup<Blob>(new ObjectId("a8233120f6ad708f843d861ce2b7228ec4e3dec6"));
@@ -199,7 +217,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateATreeByRemovingEntriesFromExistingOne()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree)
@@ -220,7 +238,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RemovingANonExistingEntryFromATreeDefinitionHasNoSideEffect()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 Tree head = repo.Head.Tip.Tree;
@@ -256,7 +274,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanReplaceAnExistingTreeWithAnotherPersitedTree()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
@@ -277,10 +295,10 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateATreeContainingABlobFromAFileInTheWorkingDirectory()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus("hello.txt"));
+                Assert.Equal(FileStatus.Nonexistent, repo.RetrieveStatus("hello.txt"));
                 File.AppendAllText(Path.Combine(repo.Info.WorkingDirectory, "hello.txt"), "I'm a new file\n");
 
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree)
@@ -309,7 +327,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateATreeContainingAGitLinkFromAnUntrackedSubmoduleInTheWorkingDirectory()
         {
-            string path = CloneSubmoduleTestRepo();
+            string path = SandboxSubmoduleTestRepo();
             using (var repo = new Repository(path))
             {
                 const string submodulePath = "sm_added_and_uncommited";
@@ -351,7 +369,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CannotCreateATreeContainingABlobFromARelativePathAgainstABareRepository()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var td = new TreeDefinition()
                     .Add("1/new file", "hello.txt", Mode.NonExecutableFile);
@@ -361,9 +380,44 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CreatingATreeFromIndexWithUnmergedEntriesThrows()
+        {
+            var path = SandboxMergedTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Assert.False(repo.Index.IsFullyMerged);
+
+                Assert.Throws<UnmergedIndexEntriesException>(
+                    () => repo.ObjectDatabase.CreateTree(repo.Index));
+            }
+        }
+
+        [Fact]
+        public void CanCreateATreeFromIndex()
+        {
+            string path = SandboxStandardTestRepo();
+
+            using (var repo = new Repository(path))
+            {
+                const string expectedIndexTreeSha = "0fe0fd1943a1b63ecca36fa6bbe9bbe045f791a4";
+
+                // The tree representing the index is not in the db.
+                Assert.Null(repo.Lookup(expectedIndexTreeSha));
+
+                var tree = repo.ObjectDatabase.CreateTree(repo.Index);
+                Assert.NotNull(tree);
+                Assert.Equal(expectedIndexTreeSha, tree.Id.Sha);
+
+                // The tree representing the index is now in the db.
+                tree = repo.Lookup<Tree>(expectedIndexTreeSha);
+                Assert.NotNull(tree);
+            }
+        }
+
+        [Fact]
         public void CanCreateACommit()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 Branch head = repo.Head;
@@ -403,7 +457,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateATagAnnotationPointingToAGitObject()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var blob = repo.Head.Tip["README"].Target as Blob;
@@ -429,7 +483,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanEnumerateTheGitObjectsFromBareRepository()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 int count = 0;
 
@@ -451,7 +506,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("\0\0\0")]
         public void CreatingACommitWithMessageContainingZeroByteThrows(string message)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.ObjectDatabase.CreateCommit(
                     Constants.Signature, Constants.Signature, message, repo.Head.Tip.Tree, Enumerable.Empty<Commit>(), false));
@@ -466,7 +522,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("\0\0\0")]
         public void CreatingATagAnnotationWithNameOrMessageContainingZeroByteThrows(string input)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.ObjectDatabase.CreateTagAnnotation(
                     input, repo.Head.Tip, Constants.Signature, "message"));
@@ -478,7 +535,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CreatingATagAnnotationWithBadParametersThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentNullException>(() => repo.ObjectDatabase.CreateTagAnnotation(
                     null, repo.Head.Tip, Constants.Signature, "message"));
@@ -496,7 +554,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateATagAnnotationWithAnEmptyMessage()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var tagAnnotation = repo.ObjectDatabase.CreateTagAnnotation(
@@ -513,7 +571,8 @@ namespace LibGit2Sharp.Tests
             string sinceSha, string untilSha,
             string expectedAncestorSha, int? expectedAheadBy, int? expectedBehindBy)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var since = repo.Lookup<Commit>(sinceSha);
                 var until = repo.Lookup<Commit>(untilSha);
@@ -532,7 +591,8 @@ namespace LibGit2Sharp.Tests
             string sinceSha, string untilSha,
             int? expectedAheadBy, int? expectedBehindBy)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var since = repo.Lookup<Commit>(sinceSha);
                 var until = repo.Lookup<Commit>(untilSha);
@@ -548,7 +608,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CalculatingHistoryDivergenceWithBadParamsThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentNullException>(
                     () => repo.ObjectDatabase.CalculateHistoryDivergence(repo.Head.Tip, null));
@@ -568,7 +629,7 @@ namespace LibGit2Sharp.Tests
              * dea509d097ce692e167dfc6a48a7a280cc5e877e
              */
 
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Config.Set("core.abbrev", 4);
@@ -588,6 +649,90 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal("dea509d0b3cb", repo.ObjectDatabase.ShortenObjectId(blob1, 12));
                 Assert.Equal("dea509d097ce", repo.ObjectDatabase.ShortenObjectId(blob2, 12));
+            }
+        }
+
+        [Fact]
+        public void TestMergeIntoSelfHasNoConflicts()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var master = repo.Lookup<Commit>("master");
+
+                var result = repo.ObjectDatabase.CanMergeWithoutConflict(master, master);
+
+                Assert.True(result);
+            }
+        }
+
+        [Fact]
+        public void TestMergeIntoOtherUnbornBranchHasNoConflicts()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Refs.UpdateTarget("HEAD", "refs/heads/unborn");
+
+                Touch(repo.Info.WorkingDirectory, "README", "Yeah!\n");
+                repo.Index.Clear();
+                Commands.Stage(repo, "README");
+
+                repo.Commit("A new world, free of the burden of the history", Constants.Signature, Constants.Signature);
+
+                var master = repo.Branches["master"].Tip;
+                var branch = repo.Branches["unborn"].Tip;
+
+                Assert.True(repo.ObjectDatabase.CanMergeWithoutConflict(master, branch));
+            }
+        }
+
+        [Fact]
+        public void TestMergeIntoOtherUnbornBranchHasConflicts()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Refs.UpdateTarget("HEAD", "refs/heads/unborn");
+
+                repo.Index.Replace(repo.Lookup<Commit>("conflicts"));
+
+                repo.Commit("A conflicting world, free of the burden of the history", Constants.Signature, Constants.Signature);
+
+                var master = repo.Branches["master"].Tip;
+                var branch = repo.Branches["unborn"].Tip;
+
+                Assert.False(repo.ObjectDatabase.CanMergeWithoutConflict(master, branch));
+            }
+        }
+
+        [Fact]
+        public void TestMergeIntoOtherBranchHasNoConflicts()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var master = repo.Lookup<Commit>("master");
+                var branch = repo.Lookup<Commit>("fast_forward");
+
+                var result = repo.ObjectDatabase.CanMergeWithoutConflict(master, branch);
+
+                Assert.True(result);
+            }
+        }
+
+        [Fact]
+        public void TestMergeIntoWrongBranchHasConflicts()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var master = repo.Lookup<Commit>("master");
+                var branch = repo.Lookup<Commit>("conflicts");
+
+                var result = repo.ObjectDatabase.CanMergeWithoutConflict(master, branch);
+
+                Assert.False(result);
             }
         }
 

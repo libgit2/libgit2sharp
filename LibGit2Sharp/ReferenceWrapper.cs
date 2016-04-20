@@ -10,16 +10,17 @@ namespace LibGit2Sharp
     /// </summary>
     /// <typeparam name="TObject">The type of the referenced Git object.</typeparam>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public abstract class ReferenceWrapper<TObject> : IEquatable<ReferenceWrapper<TObject>> where TObject : GitObject
+    public abstract class ReferenceWrapper<TObject> : IEquatable<ReferenceWrapper<TObject>>, IBelongToARepository where TObject : GitObject
     {
         /// <summary>
         /// The repository.
         /// </summary>
         protected readonly Repository repo;
+        private readonly Reference reference;
         private readonly Lazy<TObject> objectBuilder;
 
         private static readonly LambdaEqualityHelper<ReferenceWrapper<TObject>> equalityHelper =
-            new LambdaEqualityHelper<ReferenceWrapper<TObject>>(x => x.CanonicalName, x => x.TargetObject);
+            new LambdaEqualityHelper<ReferenceWrapper<TObject>>(x => x.CanonicalName, x => x.reference.TargetIdentifier);
 
         private readonly string canonicalName;
 
@@ -40,6 +41,7 @@ namespace LibGit2Sharp
 
             this.repo = repo;
             canonicalName = canonicalNameSelector(reference);
+            this.reference = reference;
             objectBuilder = new Lazy<TObject>(() => RetrieveTargetObject(reference));
         }
 
@@ -52,11 +54,22 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Gets the name of this reference.
+        /// Gets the human-friendly name of this reference.
         /// </summary>
-        public virtual string Name
+        public virtual string FriendlyName
         {
             get { return Shorten(); }
+        }
+
+        /// <summary>
+        /// The underlying <see cref="Reference"/>
+        /// </summary>
+        public virtual Reference Reference
+        {
+            get
+            {
+                return reference;
+            }
         }
 
         /// <summary>
@@ -156,9 +169,13 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    "{0} => \"{1}\"", CanonicalName,
-                    (TargetObject != null) ? TargetObject.Id.ToString(7) : "?");
+                                     "{0} => \"{1}\"", CanonicalName,
+                                     (TargetObject != null)
+                                        ? TargetObject.Id.ToString(7)
+                                        : "?");
             }
         }
+
+        IRepository IBelongToARepository.Repository { get { return repo; } }
     }
 }

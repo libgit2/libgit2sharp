@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -20,24 +21,32 @@ namespace LibGit2Sharp
         /// </summary>
         protected BlameHunkCollection() { }
 
-        internal BlameHunkCollection(Repository repo, RepositorySafeHandle repoHandle, string path, BlameOptions options)
+        internal unsafe BlameHunkCollection(Repository repo, RepositoryHandle repoHandle, string path, BlameOptions options)
         {
             this.repo = repo;
 
-            var rawopts = new GitBlameOptions
+            var rawopts = new git_blame_options
             {
                 version = 1,
                 flags = options.Strategy.ToGitBlameOptionFlags(),
-                MinLine = (uint)options.MinLine,
-                MaxLine = (uint)options.MaxLine,
+                min_line = new UIntPtr((uint)options.MinLine),
+                max_line = new UIntPtr((uint)options.MaxLine),
             };
+
             if (options.StartingAt != null)
             {
-                rawopts.NewestCommit = repo.Committish(options.StartingAt).Oid;
+                fixed (byte* p = rawopts.newest_commit.Id)
+                {
+                    Marshal.Copy(repo.Committish(options.StartingAt).Oid.Id, 0, new IntPtr(p), git_oid.Size);
+                }
             }
+
             if (options.StoppingAt != null)
             {
-                rawopts.OldestCommit = repo.Committish(options.StoppingAt).Oid;
+                fixed (byte* p = rawopts.oldest_commit.Id)
+                {
+                    Marshal.Copy(repo.Committish(options.StoppingAt).Oid.Id, 0, new IntPtr(p), git_oid.Size);
+                }
             }
 
             using (var blameHandle = Proxy.git_blame_file(repoHandle, path, rawopts))

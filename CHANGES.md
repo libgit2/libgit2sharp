@@ -7,8 +7,140 @@
  - Issue tracker: <https://github.com/libgit2/libgit2sharp/issues>
  - @libgit2sharp: <http://twitter.com/libgit2sharp>
  - CI servers:
-  - CodeBetter TeamCity: <http://teamcity.codebetter.com/project.html?projectId=LibGit2Sharp&guest=1>
-  - Travis: <https://travis-ci.org/libgit2/libgit2sharp>
+  - Windows (x86/amd64): <https://ci.appveyor.com/project/libgit2/libgit2sharp>
+  - Linux/Mac OS X: <https://travis-ci.org/libgit2/libgit2sharp>
+
+## v0.22 + 1
+
+### Additions
+
+### Changes
+
+ - The native libraries are now expected to be in the `lib` directory,
+   instead of `NativeBinaries` for improved mono compatibility.  In
+   addition, the names of platform architectures now better reflect
+   the vendor naming (eg, `x86_64` instead of `amd64` on Linux).
+ - Obsolete the config paths in RepositoryOptions
+
+### Fixes
+
+## v0.22 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.21.1...v0.22))
+
+### Additions
+
+ - Add CustomHeaders in the push options (#1217)
+ - Expose the minimal diff algorithm (#1229)
+ - Expose Reset() with checkout options (#1219)
+ - Add a prettify option to history rewrite options (#1185)
+ - Add option to describe to only follow the first parent (#1190)
+ - Allow setting the config search path (#1123)
+ - Provide access to the remote's host HTTPS certificate (#1134)
+ - Add support for rebase (#964)
+ - ListReferences() now accepts a credentials provider (#1099)
+ - Introduce FileStatus.Conflicted and introduce staging of conflicts (#1062)
+ - Support streaming filters written in C# (#1030)
+ - Add support for the pre-push callback (#1061)
+ - Add support for listing remote references without a Repository instance (#1065)
+ - Add StashCollection.Apply() and .Pop() (#1068)
+ - Support retrieving a configuration for a repository without instantiating it (#1042)
+ - Implement 'log --follow'-like functionality (#963)
+ - Introduce in-memory merging via Repository.MergeCommits() (#990)
+ - Allow setting whether to prune during a fetch (#1258)
+
+### Changes
+
+ - Deprecate MergeConflictException in a backwards-compatible way (#1243)
+ - Improve type safety in the generic type for Diff.Compare() (#1180)
+ - Obsolete Repository.Commit(), NoteCollection.Add() and
+   NoteCollection.Remove() overloads which do not require a signature (#1173)
+ - BuildSignature() no longer tries to build a signature from the
+   environment if there is none configured (#1171)
+ - Rename the commit walker's Since to IncludeReachableFrom and Until to ExcludeReachableFrom (#1069)
+ - Rename MergeConflictException to CheckoutConflictException to more
+   accurately reflect what it means (#1059)
+ - Specify the diff algorithm instead of setting a boolean to use patience (#1043)
+ - Remove optional parameters (#1031)
+ - Move Repository.Reset(paths) into Index (#959)
+ - Move FindMergeBase() overloads to ObjectDatabase (#957)
+
+### Fixes
+
+ - ListReferences() is now able to handle symbolic references (#1132)
+ - Repository.IsValid() returns false on empty paths (#1156)
+ - The included version of libgit2 includes racy-git support
+ - Fix a racy NRE in the filters (#1113)
+
+## v0.21.1 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.21...v0.21.1))
+
+### Changes
+
+- Fix Fetch() related tests to cope with recent GitHub policy change regarding include-tag handling (#995, #1001)
+
+## v0.21 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.20.2...v0.21))
+
+### Additions
+
+ - Introduce repo.Index.Add() and repo.Index.Remove() (#907)
+ - Introduce repo.Describe() (#848)
+ - Teach Repository.Clone to accept a specific branch to checkout (#650, #882)
+ - Expose IndexEntry.AssumeUnchanged (#928, #929)
+ - Introduce GlobalSettings.Version.InformationalVersion (#921)
+
+### Changes
+
+ - Deprecate Branch.Checkout() (#937)
+ - Deprecate GlobalSettings.Version.MajorMinorPatch (#921)
+ - Change Blob.Size output to a long (#892)
+ - Update libgit2 binaries to libgit2/libgit2@e0902fb
+
+### Fixes
+
+ - Fix Network.Fetch() tags retrieval (#927)
+ - Fix repo.Stage("*") behavior (#907)
+ - Plug some memory leaks (#883, #910)
+ - Protect Repository.Clone() from null parameters (#891)
+
+## v0.20.2 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.20.1...v0.20.2))
+
+### Fixes
+
+ - Update libgit2 to prevent issues around symbolic links to ".git" folders in trees on Mac
+
+## v0.20.1 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.20...v0.20.1))
+
+### Fixes
+
+ - Update libgit2 to prevent issues around ".git" folders in trees on Windows and Mac
+
+## v0.20 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.19...v0.20))
+
+### Additions
+
+ - Teach RemoteUpdater to update the remote url (#803)
+ - Introduce ObjectDatabase.CreateTree(Index) and Index.Reset(Tree) (#788, #799)
+ - Add process wide logging feature (#832)
+ - Add process wide SmartSubtransport registration/unregistration (#528)
+ - Expose Index.Clear() (#814)
+
+### Changes
+
+ - Require Mono 3.6+ on non Windows platform (#800)
+ - Require NuGet 2.7+ to install the package (#836)
+ - Throw MergeFetchHeadNotFoundException when Pull cannot find ref to merge (#841)
+ - Drop Remote.IsSupportedUrl() (#857)
+ - Deprecate repo.Version in favor of GlobalSettings.Version (#726, #820)
+ - Remove optional parameters from IRepository (#779, #815)
+ - Move higher level Index operations to IRepository (#822, #851)
+ - Deprecate repo.Refs.Move() in favor of repo.Refs.Rename() (#752, #819)
+ - Update libgit2 binaries to libgit2/libgit2@3f8d005
+
+### Fixes
+
+ - Fix compareOptions handling in Diff.Compare<T> (#827, #828)
+ - Honor MSBuild Publish mechanism (#597, #821)
+ - Make Configuration.BuildSignature() throw a more descriptive message (#831, #858)
+ - Prevent Branch.Remote property from throwing when the remote is unresolvable (#823)
+ - Teach Revert() to clean up repository state when there is nothing to revert (#816)
 
 ## v0.19 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.18.1...v0.19))
 

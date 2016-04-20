@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -53,7 +52,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Provides access to diffing functionalities to show changes between the working tree and the index or a tree, changes between the index and a tree, changes between two trees, or changes between two files on disk.
         /// </summary>
-        Diff Diff {get;}
+        Diff Diff { get; }
 
         /// <summary>
         /// Gets the database.
@@ -79,9 +78,8 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="branch">The <see cref="Branch"/> to check out.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        Branch Checkout(Branch branch, CheckoutOptions options, Signature signature = null);
+        Branch Checkout(Branch branch, CheckoutOptions options);
 
         /// <summary>
         /// Checkout the specified branch, reference or SHA.
@@ -92,9 +90,8 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        Branch Checkout(string committishOrBranchSpec, CheckoutOptions options, Signature signature = null);
+        Branch Checkout(string committishOrBranchSpec, CheckoutOptions options);
 
         /// <summary>
         /// Checkout the specified <see cref="LibGit2Sharp.Commit"/>.
@@ -104,9 +101,8 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to check out.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        Branch Checkout(Commit commit, CheckoutOptions options, Signature signature = null);
+        Branch Checkout(Commit commit, CheckoutOptions options);
 
         /// <summary>
         /// Updates specifed paths in the index and working directory with the versions from the specified branch, reference, or SHA.
@@ -117,7 +113,7 @@ namespace LibGit2Sharp
         /// <param name = "committishOrBranchSpec">A revparse spec for the commit or branch to checkout paths from.</param>
         /// <param name="paths">The paths to checkout.</param>
         /// <param name="checkoutOptions">Collection of parameters controlling checkout behavior.</param>
-        void CheckoutPaths(string committishOrBranchSpec, IEnumerable<string> paths, CheckoutOptions checkoutOptions = null);
+        void CheckoutPaths(string committishOrBranchSpec, IEnumerable<string> paths, CheckoutOptions checkoutOptions);
 
         /// <summary>
         /// Try to lookup an object by its <see cref="ObjectId"/>. If no matching object is found, null will be returned.
@@ -159,7 +155,7 @@ namespace LibGit2Sharp
         /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
         /// <param name="options">The <see cref="CommitOptions"/> that specify the commit behavior.</param>
         /// <returns>The generated <see cref="LibGit2Sharp.Commit"/>.</returns>
-        Commit Commit(string message, Signature author, Signature committer, CommitOptions options = null);
+        Commit Commit(string message, Signature author, Signature committer, CommitOptions options);
 
         /// <summary>
         /// Sets the current <see cref="Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
@@ -167,20 +163,16 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="resetMode">Flavor of reset operation to perform.</param>
         /// <param name="commit">The target commit object.</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
-        /// <param name="logMessage">Message to use when updating the reflog.</param>
-        void Reset(ResetMode resetMode, Commit commit, Signature signature = null, string logMessage = null);
+        void Reset(ResetMode resetMode, Commit commit);
 
         /// <summary>
-        /// Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
+        /// Sets <see cref="Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
+        /// the content of the working tree to match.
         /// </summary>
+        /// <param name="resetMode">Flavor of reset operation to perform.</param>
         /// <param name="commit">The target commit object.</param>
-        /// <param name="paths">The list of paths (either files or directories) that should be considered.</param>
-        /// <param name="explicitPathsOptions">
-        /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
-        /// Use these options to determine how unmatched explicit paths should be handled.
-        /// </param>
-        void Reset(Commit commit, IEnumerable<string> paths = null, ExplicitPathsOptions explicitPathsOptions = null);
+        /// <param name="options">Collection of parameters controlling checkout behavior.</param>
+        void Reset(ResetMode resetMode, Commit commit, CheckoutOptions options);
 
         /// <summary>
         /// Clean the working tree by removing files that are not under version control.
@@ -194,7 +186,7 @@ namespace LibGit2Sharp
         /// <param name="reverter">The <see cref="Signature"/> of who is performing the reverte.</param>
         /// <param name="options"><see cref="RevertOptions"/> controlling revert behavior.</param>
         /// <returns>The result of the revert.</returns>
-        RevertResult Revert(Commit commit, Signature reverter, RevertOptions options = null);
+        RevertResult Revert(Commit commit, Signature reverter, RevertOptions options);
 
         /// <summary>
         /// Merge changes from commit into the branch pointed at by HEAD..
@@ -203,7 +195,7 @@ namespace LibGit2Sharp
         /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
         /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        MergeResult Merge(Commit commit, Signature merger, MergeOptions options = null);
+        MergeResult Merge(Commit commit, Signature merger, MergeOptions options);
 
         /// <summary>
         /// Merges changes from branch into the branch pointed at by HEAD..
@@ -212,7 +204,7 @@ namespace LibGit2Sharp
         /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
         /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        MergeResult Merge(Branch branch, Signature merger, MergeOptions options = null);
+        MergeResult Merge(Branch branch, Signature merger, MergeOptions options);
 
         /// <summary>
         /// Merges changes from the commit into the branch pointed at by HEAD.
@@ -221,7 +213,24 @@ namespace LibGit2Sharp
         /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
         /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        MergeResult Merge(string committish, Signature merger, MergeOptions options = null);
+        MergeResult Merge(string committish, Signature merger, MergeOptions options);
+
+        /// <summary>
+        /// Access to Rebase functionality.
+        /// </summary>
+        Rebase Rebase { get; }
+
+        /// <summary>
+        /// Merge the reference that was recently fetched. This will merge
+        /// the branch on the fetched remote that corresponded to the
+        /// current local branch when we did the fetch. This is the
+        /// second step in performing a pull operation (after having
+        /// performed said fetch).
+        /// </summary>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        MergeResult MergeFetchedRefs(Signature merger, MergeOptions options);
 
         /// <summary>
         /// Cherry picks changes from the commit into the branch pointed at by HEAD.
@@ -230,7 +239,7 @@ namespace LibGit2Sharp
         /// <param name="committer">The <see cref="Signature"/> of who is performing the cherry pick.</param>
         /// <param name="options">Specifies optional parameters controlling cherry pick behavior; if null, the defaults are used.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        CherryPickResult CherryPick(Commit commit, Signature committer, CherryPickOptions options = null);
+        CherryPickResult CherryPick(Commit commit, Signature committer, CherryPickOptions options);
 
         /// <summary>
         /// Manipulate the currently ignored files.
@@ -253,6 +262,144 @@ namespace LibGit2Sharp
         /// <param name="path">Path of the file to blame.</param>
         /// <param name="options">Specifies optional parameters; if null, the defaults are used.</param>
         /// <returns>The blame for the file.</returns>
-        BlameHunkCollection Blame(string path, BlameOptions options = null);
+        BlameHunkCollection Blame(string path, BlameOptions options);
+
+        /// <summary>
+        /// Promotes to the staging area the latest modifications of a file in the working directory (addition, updation or removal).
+        ///
+        /// If this path is ignored by configuration then it will not be staged unless <see cref="StageOptions.IncludeIgnored"/> is unset.
+        /// </summary>
+        /// <param name="path">The path of the file within the working directory.</param>
+        /// <param name="stageOptions">Determines how paths will be staged.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Stage()")]
+        void Stage(string path, StageOptions stageOptions);
+
+        /// <summary>
+        /// Promotes to the staging area the latest modifications of a collection of files in the working directory (addition, updation or removal).
+        ///
+        /// Any paths (even those listed explicitly) that are ignored by configuration will not be staged unless <see cref="StageOptions.IncludeIgnored"/> is unset.
+        /// </summary>
+        /// <param name="paths">The collection of paths of the files within the working directory.</param>
+        /// <param name="stageOptions">Determines how paths will be staged.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Stage()")]
+        void Stage(IEnumerable<string> paths, StageOptions stageOptions);
+
+        /// <summary>
+        /// Removes from the staging area all the modifications of a file since the latest commit (addition, updation or removal).
+        /// </summary>
+        /// <param name="path">The path of the file within the working directory.</param>
+        /// <param name="explicitPathsOptions">
+        /// The passed <paramref name="path"/> will be treated as explicit paths.
+        /// Use these options to determine how unmatched explicit paths should be handled.
+        /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Unstage()")]
+        void Unstage(string path, ExplicitPathsOptions explicitPathsOptions);
+
+        /// <summary>
+        /// Removes from the staging area all the modifications of a collection of file since the latest commit (addition, updation or removal).
+        /// </summary>
+        /// <param name="paths">The collection of paths of the files within the working directory.</param>
+        /// <param name="explicitPathsOptions">
+        /// The passed <paramref name="paths"/> will be treated as explicit paths.
+        /// Use these options to determine how unmatched explicit paths should be handled.
+        /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Unstage()")]
+        void Unstage(IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions);
+
+        /// <summary>
+        /// Moves and/or renames a file in the working directory and promotes the change to the staging area.
+        /// </summary>
+        /// <param name="sourcePath">The path of the file within the working directory which has to be moved/renamed.</param>
+        /// <param name="destinationPath">The target path of the file within the working directory.</param>
+        [Obsolete("This method is deprecatd. Please use LibGit2Sharp.Commands.Move()")]
+        void Move(string sourcePath, string destinationPath);
+
+        /// <summary>
+        /// Moves and/or renames a collection of files in the working directory and promotes the changes to the staging area.
+        /// </summary>
+        /// <param name="sourcePaths">The paths of the files within the working directory which have to be moved/renamed.</param>
+        /// <param name="destinationPaths">The target paths of the files within the working directory.</param>
+        [Obsolete("This method is deprecatd. Please use LibGit2Sharp.Commands.Move()")]
+        void Move(IEnumerable<string> sourcePaths, IEnumerable<string> destinationPaths);
+
+        /// <summary>
+        /// Removes a file from the staging area, and optionally removes it from the working directory as well.
+        /// <para>
+        ///   If the file has already been deleted from the working directory, this method will only deal
+        ///   with promoting the removal to the staging area.
+        /// </para>
+        /// <para>
+        ///   The default behavior is to remove the file from the working directory as well.
+        /// </para>
+        /// <para>
+        ///   When not passing a <paramref name="explicitPathsOptions"/>, the passed path will be treated as
+        ///   a pathspec. You can for example use it to pass the relative path to a folder inside the working directory,
+        ///   so that all files beneath this folders, and the folder itself, will be removed.
+        /// </para>
+        /// </summary>
+        /// <param name="path">The path of the file within the working directory.</param>
+        /// <param name="removeFromWorkingDirectory">True to remove the file from the working directory, False otherwise.</param>
+        /// <param name="explicitPathsOptions">
+        /// The passed <paramref name="path"/> will be treated as an explicit path.
+        /// Use these options to determine how unmatched explicit paths should be handled.
+        /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Remove()")]
+        void Remove(string path, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions);
+
+        /// <summary>
+        /// Removes a collection of fileS from the staging, and optionally removes them from the working directory as well.
+        /// <para>
+        ///   If a file has already been deleted from the working directory, this method will only deal
+        ///   with promoting the removal to the staging area.
+        /// </para>
+        /// <para>
+        ///   The default behavior is to remove the files from the working directory as well.
+        /// </para>
+        /// <para>
+        ///   When not passing a <paramref name="explicitPathsOptions"/>, the passed paths will be treated as
+        ///   a pathspec. You can for example use it to pass the relative paths to folders inside the working directory,
+        ///   so that all files beneath these folders, and the folders themselves, will be removed.
+        /// </para>
+        /// </summary>
+        /// <param name="paths">The collection of paths of the files within the working directory.</param>
+        /// <param name="removeFromWorkingDirectory">True to remove the files from the working directory, False otherwise.</param>
+        /// <param name="explicitPathsOptions">
+        /// The passed <paramref name="paths"/> will be treated as explicit paths.
+        /// Use these options to determine how unmatched explicit paths should be handled.
+        /// </param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Unstage()")]
+        void Remove(IEnumerable<string> paths, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions);
+
+        /// <summary>
+        /// Retrieves the state of a file in the working directory, comparing it against the staging area and the latest commit.
+        /// </summary>
+        /// <param name="filePath">The relative path within the working directory to the file.</param>
+        /// <returns>A <see cref="FileStatus"/> representing the state of the <paramref name="filePath"/> parameter.</returns>
+        FileStatus RetrieveStatus(string filePath);
+
+        /// <summary>
+        /// Retrieves the state of all files in the working directory, comparing them against the staging area and the latest commit.
+        /// </summary>
+        /// <param name="options">If set, the options that control the status investigation.</param>
+        /// <returns>A <see cref="RepositoryStatus"/> holding the state of all the files.</returns>
+        RepositoryStatus RetrieveStatus(StatusOptions options);
+
+        /// <summary>
+        /// Finds the most recent annotated tag that is reachable from a commit.
+        /// <para>
+        ///   If the tag points to the commit, then only the tag is shown. Otherwise,
+        ///   it suffixes the tag name with the number of additional commits on top
+        ///   of the tagged object and the abbreviated object name of the most recent commit.
+        /// </para>
+        /// <para>
+        ///   Optionally, the <paramref name="options"/> parameter allow to tweak the
+        ///   search strategy (considering lightweith tags, or even branches as reference points)
+        ///   and the formatting of the returned identifier.
+        /// </para>
+        /// </summary>
+        /// <param name="commit">The commit to be described.</param>
+        /// <param name="options">Determines how the commit will be described.</param>
+        /// <returns>A descriptive identifier for the commit based on the nearest annotated tag.</returns>
+        string Describe(Commit commit, DescribeOptions options);
     }
 }

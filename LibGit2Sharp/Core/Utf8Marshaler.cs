@@ -27,8 +27,7 @@ namespace LibGit2Sharp.Core
         #region ICustomMarshaler
 
         public override void CleanUpNativeData(IntPtr pNativeData)
-        {
-        }
+        { }
 
         #endregion
     }
@@ -70,8 +69,9 @@ namespace LibGit2Sharp.Core
 
         public override Object MarshalNativeToManaged(IntPtr pNativeData)
         {
-            throw new InvalidOperationException(
-                string.Format(CultureInfo.InvariantCulture, "{0} cannot be used to retrieve data from libgit2.", GetType().Name));
+            throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+                                                              "{0} cannot be used to retrieve data from libgit2.",
+                                                              GetType().Name));
         }
 
         #endregion
@@ -91,9 +91,9 @@ namespace LibGit2Sharp.Core
     {
         private static readonly LaxUtf8Marshaler staticInstance = new LaxUtf8Marshaler();
 
-        private static readonly Encoding encoding = new UTF8Encoding(false, false);
+        public static readonly Encoding Encoding = new UTF8Encoding(false, false);
 
-        public LaxUtf8Marshaler() : base(encoding)
+        public LaxUtf8Marshaler() : base(Encoding)
         { }
 
         public static ICustomMarshaler GetInstance(String cookie)
@@ -105,30 +105,36 @@ namespace LibGit2Sharp.Core
 
         public override IntPtr MarshalManagedToNative(object managedObj)
         {
-            throw new InvalidOperationException(
-                string.Format(CultureInfo.InvariantCulture, "{0} cannot be used to pass data to libgit2.", GetType().Name));
+            throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+                                                              "{0} cannot be used to pass data to libgit2.",
+                                                              GetType().Name));
         }
 
         #endregion
 
+        public static unsafe string FromNative(char* pNativeData)
+        {
+            return FromNative(Encoding, (byte*)pNativeData);
+        }
+
         public static string FromNative(IntPtr pNativeData)
         {
-            return FromNative(encoding, pNativeData);
+            return FromNative(Encoding, pNativeData);
         }
 
         public static string FromNative(IntPtr pNativeData, int length)
         {
-            return FromNative(encoding, pNativeData, length);
+            return FromNative(Encoding, pNativeData, length);
         }
 
         public static string FromBuffer(byte[] buffer)
         {
-            return FromBuffer(encoding, buffer);
+            return FromBuffer(Encoding, buffer);
         }
 
         public static string FromBuffer(byte[] buffer, int length)
         {
-            return FromBuffer(encoding, buffer, length);
+            return FromBuffer(Encoding, buffer, length);
         }
     }
 }

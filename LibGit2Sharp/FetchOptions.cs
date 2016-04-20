@@ -1,12 +1,9 @@
-﻿using System;
-using LibGit2Sharp.Handlers;
-
-namespace LibGit2Sharp
+﻿namespace LibGit2Sharp
 {
     /// <summary>
     /// Collection of parameters controlling Fetch behavior.
     /// </summary>
-    public sealed class FetchOptions : ICredentialsProvider
+    public sealed class FetchOptions : FetchOptionsBase
     {
         /// <summary>
         /// Specifies the tag-following behavior of the fetch operation.
@@ -21,33 +18,12 @@ namespace LibGit2Sharp
         public TagFetchMode? TagFetchMode { get; set; }
 
         /// <summary>
-        /// Delegate that progress updates of the network transfer portion of fetch
-        /// will be reported through.
-        /// </summary>
-        public ProgressHandler OnProgress { get; set; }
-
-        /// <summary>
-        /// Delegate that updates of remote tracking branches will be reported through.
-        /// </summary>
-        public UpdateTipsHandler OnUpdateTips { get; set; }
-
-        /// <summary>
-        /// Callback method that transfer progress will be reported through.
+        /// Specifies the pruning behaviour for the fetch operation
         /// <para>
-        /// Reports the client's state regarding the received and processed (bytes, objects) from the server.
+        /// If not set, the configuration's setting will take effect. If true, the branches which no longer
+        /// exist on the remote will be removed from the remote-tracking branches.
         /// </para>
         /// </summary>
-        public TransferProgressHandler OnTransferProgress { get; set; }
-
-        /// <summary>
-        /// Credentials to use for username/password authentication.
-        /// </summary>
-        [Obsolete("This will be removed in future release. Use CredentialsProvider.")]
-        public Credentials Credentials { get; set; }
-
-        /// <summary>
-        /// Handler to generate <see cref="LibGit2Sharp.Credentials"/> for authentication.
-        /// </summary>
-        public CredentialsHandler CredentialsProvider { get; set; }
+        public bool? Prune { get; set; }
     }
 }

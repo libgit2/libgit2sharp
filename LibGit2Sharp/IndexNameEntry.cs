@@ -22,21 +22,22 @@ namespace LibGit2Sharp
         protected IndexNameEntry()
         { }
 
-        internal static IndexNameEntry BuildFromPtr(IndexNameEntrySafeHandle handle)
+        internal static unsafe IndexNameEntry BuildFromPtr(git_index_name_entry* entry)
         {
-            if (handle == null || handle.IsZero)
+            if (entry == null)
             {
                 return null;
             }
 
-            GitIndexNameEntry entry = handle.MarshalAsGitIndexNameEntry();
-
-            string ancestor = entry.Ancestor != IntPtr.Zero ?
-                LaxFilePathMarshaler.FromNative(entry.Ancestor).Native : null;
-            string ours = entry.Ours != IntPtr.Zero ?
-                LaxFilePathMarshaler.FromNative(entry.Ours).Native : null;
-            string theirs = entry.Theirs != IntPtr.Zero ?
-                LaxFilePathMarshaler.FromNative(entry.Theirs).Native : null;
+            string ancestor = entry->ancestor != null
+                ? LaxFilePathMarshaler.FromNative(entry->ancestor).Native
+                : null;
+            string ours = entry->ours != null
+                ? LaxFilePathMarshaler.FromNative(entry->ours).Native
+                : null;
+            string theirs = entry->theirs != null
+                ? LaxFilePathMarshaler.FromNative(entry->theirs).Native
+                : null;
 
             return new IndexNameEntry
             {
@@ -117,7 +118,10 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    "{0} {1} {2}", Ancestor, Ours, Theirs);
+                                     "{0} {1} {2}",
+                                     Ancestor,
+                                     Ours,
+                                     Theirs);
             }
         }
     }

@@ -8,22 +8,27 @@ namespace LibGit2Sharp
         /// <summary>
         /// Reset to the last saved update rule.
         /// </summary>
-        Default = -1,
+        Reset = -1,
         /// <summary>
-        /// Checkout the commit recorded in the superproject.
+        /// Only used when you don't want to specify any particular update
+        /// rule.
         /// </summary>
-        Checkout = 0,
+        Unspecified = 0,
+        /// <summary>
+        /// This is the default - checkout the commit recorded in the superproject.
+        /// </summary>
+        Checkout = 1,
         /// <summary>
         /// Rebase the current branch of the submodule onto the commit recorded in the superproject.
         /// </summary>
-        Rebase = 1,
+        Rebase = 2,
         /// <summary>
         /// Merge the commit recorded in the superproject into the current branch of the submodule.
         /// </summary>
-        Merge = 2,
+        Merge = 3,
         /// <summary>
         /// Do not update the submodule.
         /// </summary>
-        None = 3,
+        None = 4,
     }
 }

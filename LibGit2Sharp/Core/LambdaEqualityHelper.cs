@@ -48,7 +48,7 @@ namespace LibGit2Sharp.Core
                 foreach (Func<T, object> accessor in equalityContributorAccessors)
                 {
                     object item = accessor(instance);
-                    hashCode = (hashCode*397) ^ (item != null ? item.GetHashCode() : 0);
+                    hashCode = (hashCode * 397) ^ (item != null ? item.GetHashCode() : 0);
                 }
             }
 

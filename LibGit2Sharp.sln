@@ -5,23 +5,23 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp", "LibGit2Shar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp.Tests", "LibGit2Sharp.Tests\LibGit2Sharp.Tests.csproj", "{286E63EB-04DD-4ADE-88D6-041B57800761}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{19D079A4-A273-4630-B2D2-79EADE3E7CA1}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
-		Leaks|Any CPU = Leaks|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{EE6ED99F-CB12-4683-B055-D28FC7357A34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EE6ED99F-CB12-4683-B055-D28FC7357A34}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EE6ED99F-CB12-4683-B055-D28FC7357A34}.Leaks|Any CPU.ActiveCfg = Leaks|Any CPU
-		{EE6ED99F-CB12-4683-B055-D28FC7357A34}.Leaks|Any CPU.Build.0 = Leaks|Any CPU
 		{EE6ED99F-CB12-4683-B055-D28FC7357A34}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE6ED99F-CB12-4683-B055-D28FC7357A34}.Release|Any CPU.Build.0 = Release|Any CPU
 		{286E63EB-04DD-4ADE-88D6-041B57800761}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{286E63EB-04DD-4ADE-88D6-041B57800761}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{286E63EB-04DD-4ADE-88D6-041B57800761}.Leaks|Any CPU.ActiveCfg = Leaks|Any CPU
-		{286E63EB-04DD-4ADE-88D6-041B57800761}.Leaks|Any CPU.Build.0 = Leaks|Any CPU
 		{286E63EB-04DD-4ADE-88D6-041B57800761}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{286E63EB-04DD-4ADE-88D6-041B57800761}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
@@ -29,7 +29,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = LibGit2Sharp.Core.Generator\LibGit2Sharp.Core.Generator.csproj
 		Policies = $0
 		$0.TextStylePolicy = $1
 		$1.inheritsSet = null

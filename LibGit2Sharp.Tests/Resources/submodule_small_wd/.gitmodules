@@ -1,0 +1,3 @@
+[submodule "submodule_target_wd"]
+	path = submodule_target_wd
+	url = ../submodule_target_wd

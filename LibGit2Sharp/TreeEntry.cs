@@ -1,13 +1,16 @@
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
     /// <summary>
     /// Representation of an entry in a <see cref="Tree"/>.
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class TreeEntry : IEquatable<TreeEntry>
     {
         private readonly ObjectId parentTreeId;
@@ -25,19 +28,19 @@ namespace LibGit2Sharp
         protected TreeEntry()
         { }
 
-        internal TreeEntry(SafeHandle obj, ObjectId parentTreeId, Repository repo, FilePath parentPath)
+        internal unsafe TreeEntry(TreeEntryHandle entry, ObjectId parentTreeId, Repository repo, FilePath parentPath)
         {
             this.parentTreeId = parentTreeId;
             this.repo = repo;
-            targetOid = Proxy.git_tree_entry_id(obj);
+            targetOid = Proxy.git_tree_entry_id(entry);
 
-            GitObjectType treeEntryTargetType = Proxy.git_tree_entry_type(obj);
+            GitObjectType treeEntryTargetType = Proxy.git_tree_entry_type(entry);
             TargetType = treeEntryTargetType.ToTreeEntryTargetType();
 
             target = new Lazy<GitObject>(RetrieveTreeEntryTarget);
 
-            Mode = Proxy.git_tree_entry_attributes(obj);
-            Name = Proxy.git_tree_entry_name(obj);
+            Mode = Proxy.git_tree_entry_attributes(entry);
+            Name = Proxy.git_tree_entry_name(entry);
             path = new Lazy<string>(() => System.IO.Path.Combine(parentPath.Native, Name));
         }
 
@@ -84,10 +87,9 @@ namespace LibGit2Sharp
                     return GitObject.BuildFrom(repo, targetOid, TargetType.ToGitObjectType(), Path);
 
                 default:
-                    throw new InvalidOperationException(
-                        string.Format(CultureInfo.InvariantCulture,
-                                      "TreeEntry target of type '{0}' is not supported.",
-                                      TargetType));
+                    throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+                                                                      "TreeEntry target of type '{0}' is not supported.",
+                                                                      TargetType));
             }
         }
 
@@ -140,6 +142,17 @@ namespace LibGit2Sharp
         public static bool operator !=(TreeEntry left, TreeEntry right)
         {
             return !Equals(left, right);
+        }
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                return string.Format(CultureInfo.InvariantCulture,
+                                     "TreeEntry: {0} => {1}",
+                                     Path,
+                                     TargetId);
+            }
         }
     }
 }

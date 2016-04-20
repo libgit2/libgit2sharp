@@ -1,1 +1,6 @@
 *.sample
+COMMIT_EDITMSG
+exclude
+logs/
+!testrepo_wd/dot_git/logs/
+description

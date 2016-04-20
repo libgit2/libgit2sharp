@@ -33,10 +33,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// In your subclass, override this member to provide the list of actions your backend supports.
         /// </summary>
-        protected abstract OdbBackendOperations SupportedOperations
-        {
-            get;
-        }
+        protected abstract OdbBackendOperations SupportedOperations { get; }
 
         /// <summary>
         /// Call this method from your implementations of Read and ReadPrefix to allocate a buffer in
@@ -64,8 +61,7 @@ namespace LibGit2Sharp
         /// <returns>A Stream for you to write to and then return. Do not dispose this object before returning it.</returns>
         protected unsafe UnmanagedMemoryStream Allocate(long size)
         {
-            if (size < 0 ||
-                (UIntPtr.Size == sizeof(int) && size > int.MaxValue))
+            if (size < 0 || (UIntPtr.Size == sizeof(int) && size > int.MaxValue))
             {
                 throw new ArgumentOutOfRangeException("size");
             }
@@ -330,7 +326,7 @@ namespace LibGit2Sharp
 
                 try
                 {
-                    var shortSha = ObjectId.ToString(short_oid.Id, (int) len);
+                    var shortSha = ObjectId.ToString(short_oid.Id, (int)len);
 
                     ObjectId oid;
                     ObjectType objectType;
@@ -440,12 +436,10 @@ namespace LibGit2Sharp
             private static int WriteStream(
                 out IntPtr stream_out,
                 IntPtr backend,
-                UIntPtr len,
+                long len,
                 GitObjectType type)
             {
                 stream_out = IntPtr.Zero;
-
-                long length = ConverToLong(len);
 
                 OdbBackend odbBackend = MarshalOdbBackend(backend);
                 if (odbBackend == null)
@@ -458,7 +452,7 @@ namespace LibGit2Sharp
                 try
                 {
                     OdbBackendStream stream;
-                    int toReturn = odbBackend.WriteStream(length, objectType, out stream);
+                    int toReturn = odbBackend.WriteStream(len, objectType, out stream);
 
                     if (toReturn == 0)
                     {
@@ -547,7 +541,7 @@ namespace LibGit2Sharp
                     found_oid.Id = ObjectId.Zero.RawId;
                     int result = odbBackend.ExistsPrefix(shortSha, out found);
 
-                    if (result == (int) GitErrorCode.Ok)
+                    if (result == (int)GitErrorCode.Ok)
                     {
                         found_oid.Id = found.RawId;
                     }
@@ -624,7 +618,7 @@ namespace LibGit2Sharp
                 {
                     var oid = id.RawId;
 
-                    fixed(void* ptr = &oid[0])
+                    fixed (void* ptr = &oid[0])
                     {
                         return cb(new IntPtr(ptr), data);
                     }
@@ -641,11 +635,10 @@ namespace LibGit2Sharp
         {
             if (len.ToUInt64() > long.MaxValue)
             {
-                throw new InvalidOperationException(
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        "Provided length ({0}) exceeds long.MaxValue ({1}).",
-                        len.ToUInt64(), long.MaxValue));
+                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+                                                                  "Provided length ({0}) exceeds long.MaxValue ({1}).",
+                                                                  len.ToUInt64(),
+                                                                  long.MaxValue));
             }
 
             return (long)len.ToUInt64();

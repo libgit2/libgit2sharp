@@ -2,8 +2,8 @@
 {
     internal class VoidReference : Reference
     {
-        internal VoidReference(string canonicalName)
-            : base(canonicalName, null)
+        internal VoidReference(IRepository repo, string canonicalName)
+            : base(repo, canonicalName, null)
         { }
 
         public override DirectReference ResolveToDirectReference()

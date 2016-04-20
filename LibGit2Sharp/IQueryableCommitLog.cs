@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace LibGit2Sharp
 {
@@ -15,19 +16,18 @@ namespace LibGit2Sharp
         ICommitLog QueryBy(CommitFilter filter);
 
         /// <summary>
-        /// Find the best possible merge base given two <see cref="Commit"/>s.
+        /// Returns the list of commits of the repository representing the history of a file beyond renames.
         /// </summary>
-        /// <param name="first">The first <see cref="Commit"/>.</param>
-        /// <param name="second">The second <see cref="Commit"/>.</param>
-        /// <returns>The merge base or null if none found.</returns>
-        Commit FindMergeBase(Commit first, Commit second);
+        /// <param name="path">The file's path.</param>
+        /// <returns>A list of file history entries, ready to be enumerated.</returns>
+        IEnumerable<LogEntry> QueryBy(string path);
 
         /// <summary>
-        /// Find the best possible merge base given two or more <see cref="Commit"/> according to the <see cref="MergeBaseFindingStrategy"/>.
+        /// Returns the list of commits of the repository representing the history of a file beyond renames.
         /// </summary>
-        /// <param name="commits">The <see cref="Commit"/>s for which to find the merge base.</param>
-        /// <param name="strategy">The strategy to leverage in order to find the merge base.</param>
-        /// <returns>The merge base or null if none found.</returns>
-        Commit FindMergeBase(IEnumerable<Commit> commits, MergeBaseFindingStrategy strategy);
+        /// <param name="path">The file's path.</param>
+        /// <param name="filter">The options used to control which commits will be returned.</param>
+        /// <returns>A list of file history entries, ready to be enumerated.</returns>
+        IEnumerable<LogEntry> QueryBy(string path, FollowFilter filter);
     }
 }

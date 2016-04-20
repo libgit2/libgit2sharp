@@ -16,14 +16,23 @@ namespace LibGit2Sharp
         { }
 
         internal DirectReference(string canonicalName, IRepository repo, ObjectId targetId)
-            : base(canonicalName, targetId.Sha)
+            : base(repo, canonicalName, targetId.Sha)
         {
-            targetBuilder = new Lazy<GitObject>(() => repo.Lookup(targetId));
+            targetBuilder = new Lazy<GitObject>(() =>
+            {
+                if (repo == null)
+                {
+                    throw new InvalidOperationException("Target requires a local repository");
+                }
+
+                return repo.Lookup(targetId);
+            });
         }
 
         /// <summary>
         /// Gets the target of this <see cref="DirectReference"/>
         /// </summary>
+        /// <exception cref="InvalidOperationException">Throws if Local Repository is not set.</exception>
         public virtual GitObject Target
         {
             get { return targetBuilder.Value; }

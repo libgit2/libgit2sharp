@@ -10,10 +10,12 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanGetRemoteOrigin()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Remote origin = repo.Network.Remotes["origin"];
                 Assert.NotNull(origin);
+                AssertBelongsToARepository(repo, origin);
                 Assert.Equal("origin", origin.Name);
                 Assert.Equal("c:/GitHub/libgit2sharp/Resources/testrepo.git", origin.Url);
             }
@@ -22,7 +24,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void GettingRemoteThatDoesntExistReturnsNull()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Null(repo.Network.Remotes["test"]);
             }
@@ -31,13 +34,15 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanEnumerateTheRemotes()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 int count = 0;
 
                 foreach (Remote remote in repo.Network.Remotes)
                 {
                     Assert.NotNull(remote);
+                    AssertBelongsToARepository(repo, remote);
                     count++;
                 }
 
@@ -51,7 +56,7 @@ namespace LibGit2Sharp.Tests
         [InlineData(TagFetchMode.None)]
         public void CanSetTagFetchMode(TagFetchMode tagFetchMode)
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 const string name = "upstream";
@@ -61,39 +66,74 @@ namespace LibGit2Sharp.Tests
                 Remote remote = repo.Network.Remotes[name];
                 Assert.NotNull(remote);
 
-                Remote updatedremote = repo.Network.Remotes.Update(remote,
+                repo.Network.Remotes.Update(name,
                     r => r.TagFetchMode = tagFetchMode);
 
-                Assert.Equal(tagFetchMode, updatedremote.TagFetchMode);
+                using (var updatedremote = repo.Network.Remotes[name])
+                {
+                    Assert.Equal(tagFetchMode, updatedremote.TagFetchMode);
+                }
             }
         }
 
         [Fact]
-        public void CanCheckEqualityOfRemote()
+        public void CanSetRemoteUrl()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
-                Remote oneOrigin = repo.Network.Remotes["origin"];
-                Assert.NotNull(oneOrigin);
+                const string name = "upstream";
+                const string url = "https://github.com/libgit2/libgit2sharp.git";
+                const string newUrl = "https://github.com/libgit2/libgit2.git";
 
-                Remote otherOrigin = repo.Network.Remotes["origin"];
-                Assert.Equal(oneOrigin, otherOrigin);
+                repo.Network.Remotes.Add(name, url);
+                Remote remote = repo.Network.Remotes[name];
+                Assert.NotNull(remote);
 
-                Remote createdRemote = repo.Network.Remotes.Add("origin2", oneOrigin.Url);
+                repo.Network.Remotes.Update(name, r => r.Url = newUrl);
 
-                Remote loadedRemote = repo.Network.Remotes["origin2"];
-                Assert.NotNull(loadedRemote);
-                Assert.Equal(createdRemote, loadedRemote);
+                using (var updatedremote = repo.Network.Remotes[name])
+                {
+                    Assert.Equal(newUrl, updatedremote.Url);
+                    // with no push url set, PushUrl defaults to the fetch url
+                    Assert.Equal(newUrl, updatedremote.PushUrl);
+                }
+            }
+        }
 
-                Assert.NotEqual(oneOrigin, loadedRemote);
+        [Fact]
+        public void CanSetRemotePushUrl()
+        {
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
+            {
+                const string name = "upstream";
+                const string url = "https://github.com/libgit2/libgit2sharp.git";
+                const string pushurl = "https://github.com/libgit2/libgit2.git";
+
+                repo.Network.Remotes.Add(name, url);
+                Remote remote = repo.Network.Remotes[name];
+                Assert.NotNull(remote);
+
+                // before setting push, both push and fetch urls should match
+                Assert.Equal(url, remote.Url);
+                Assert.Equal(url, remote.PushUrl);
+
+                repo.Network.Remotes.Update(name, r => r.PushUrl = pushurl);
+
+                using (var updatedremote = repo.Network.Remotes[name])
+                {
+                    // url should not change, push url should be set to new value
+                    Assert.Equal(url, updatedremote.Url);
+                    Assert.Equal(pushurl, updatedremote.PushUrl);
+                }
             }
         }
 
         [Fact]
         public void CreatingANewRemoteAddsADefaultRefSpec()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 const string name = "upstream";
@@ -116,7 +156,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanAddANewRemoteWithAFetchRefSpec()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 const string name = "pull-requests";
@@ -137,7 +177,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("/")]
         public void AddingARemoteWithAnInvalidNameThrows(string name)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string url = "https://github.com/libgit2/libgit2sharp.git";
 
@@ -157,7 +198,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void DoesNotThrowWhenARemoteHasNoUrlSet()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 var noUrlRemote = repo.Network.Remotes["no_url"];
                 Assert.NotNull(noUrlRemote);
@@ -171,7 +213,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CreatingARemoteAddsADefaultFetchRefSpec()
         {
-            var path = CloneStandardTestRepo();
+            var path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 var remote = repo.Network.Remotes.Add("one", "http://github.com/up/stream");
@@ -182,7 +224,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateARemoteWithASpecifiedFetchRefSpec()
         {
-            var path = CloneStandardTestRepo();
+            var path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 var remote = repo.Network.Remotes.Add("two", "http://github.com/up/stream", "+refs/heads/*:refs/remotes/grmpf/*");
@@ -193,7 +235,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanDeleteExistingRemote()
         {
-            var path = CloneStandardTestRepo();
+            var path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Assert.NotNull(repo.Network.Remotes["origin"]);
@@ -208,7 +250,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanDeleteNonExistingRemote()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Null(repo.Network.Remotes["i_dont_exist"]);
                 repo.Network.Remotes.Remove("i_dont_exist");
@@ -218,7 +261,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRenameExistingRemote()
         {
-            var path = CloneStandardTestRepo();
+            var path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Assert.NotNull(repo.Network.Remotes["origin"]);
@@ -236,27 +279,27 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanRenameNonExistingRemote()
+        public void RenamingNonExistingRemoteThrows()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
-                Assert.Null(repo.Network.Remotes["i_dont_exist"]);
-
-                repo.Network.Remotes.Rename("i_dont_exist", "i_dont_either", problem => Assert.True(false));
-                Assert.Null(repo.Network.Remotes["i_dont_either"]);
+                Assert.Throws<NotFoundException>(() =>
+                {
+                    repo.Network.Remotes.Rename("i_dont_exist", "i_dont_either");
+                });
             }
         }
 
         [Fact]
         public void ReportsRemotesWithNonDefaultRefSpecs()
         {
-            var path = CloneStandardTestRepo();
+            var path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Assert.NotNull(repo.Network.Remotes["origin"]);
 
-                repo.Network.Remotes.Update(
-                    repo.Network.Remotes["origin"],
+                repo.Network.Remotes.Update("origin",
                     r => r.FetchRefSpecs = new[] { "+refs/heads/*:refs/remotes/upstream/*" });
 
                 repo.Network.Remotes.Rename("origin", "nondefault", problem => Assert.Equal("+refs/heads/*:refs/remotes/upstream/*", problem));
@@ -272,7 +315,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void DoesNotReportRemotesWithAlreadyExistingRefSpec()
         {
-            var path = CloneStandardTestRepo();
+            var path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Assert.NotNull(repo.Network.Remotes["origin"]);
@@ -295,7 +338,7 @@ namespace LibGit2Sharp.Tests
             const string name = "upstream";
             const string url = "https://github.com/libgit2/libgit2sharp.git";
 
-            var path = CloneStandardTestRepo();
+            var path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Assert.NotNull(repo.Network.Remotes["origin"]);
@@ -306,18 +349,40 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("git@github.com:org/repo.git", false)]
-        [InlineData("git://site.com:80/org/repo.git", true)]
-        [InlineData("ssh://user@host.com:80/org/repo.git", false)]
-        [InlineData("http://site.com:80/org/repo.git", true)]
-        [InlineData("https://github.com:80/org/repo.git", true)]
-        [InlineData("ftp://site.com:80/org/repo.git", false)]
-        [InlineData("ftps://site.com:80/org/repo.git", false)]
-        [InlineData("file:///path/repo.git", true)]
-        [InlineData("protocol://blah.meh/whatever.git", false)]
-        public void CanCheckIfUrlisSupported(string url, bool supported)
+        [InlineData(null, null, false)]
+        [InlineData(null, false, false)]
+        [InlineData(null, true, true)]
+        [InlineData(false, null, false)]
+        [InlineData(false, false, false)]
+        [InlineData(false, true, true)]
+        [InlineData(true, null, true)]
+        [InlineData(true, false, false)]
+        [InlineData(true, true, true)]
+        public void ShoudlPruneOnFetchReflectsTheConfiguredSetting(bool? fetchPrune, bool? remotePrune, bool expectedFetchPrune)
         {
-            Assert.Equal(supported, Remote.IsSupportedUrl(url));
+            var path = SandboxStandardTestRepo();
+
+            using (var repo = new Repository(path))
+            {
+                Assert.Null(repo.Config.Get<bool>("fetch.prune"));
+                Assert.Null(repo.Config.Get<bool>("remote.origin.prune"));
+
+                SetIfNotNull(repo, "fetch.prune", fetchPrune);
+                SetIfNotNull(repo, "remote.origin.prune", remotePrune);
+
+                var remote = repo.Network.Remotes["origin"];
+                Assert.Equal(expectedFetchPrune, remote.AutomaticallyPruneOnFetch);
+            }
+        }
+
+        private void SetIfNotNull(IRepository repo, string configName, bool? value)
+        {
+            if (!value.HasValue)
+            {
+                return;
+            }
+
+            repo.Config.Set(configName, value.Value);
         }
     }
 }

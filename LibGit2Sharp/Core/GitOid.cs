@@ -2,6 +2,12 @@
 
 namespace LibGit2Sharp.Core
 {
+    internal struct git_oid
+    {
+        public const int Size = 20;
+        public unsafe fixed byte Id[20];
+    }
+
     /// <summary>
     /// Represents a unique id in git which is the sha1 hash of this id's content.
     /// </summary>
@@ -26,6 +32,14 @@ namespace LibGit2Sharp.Core
         public static implicit operator ObjectId(GitOid? oid)
         {
             return oid == null ? null : new ObjectId(oid.Value);
+        }
+
+        /// <summary>
+        /// Static convenience property to return an id (all zeros).
+        /// </summary>
+        public static GitOid Empty
+        {
+            get { return new GitOid(); }
         }
     }
 }

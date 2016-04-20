@@ -17,7 +17,7 @@ using System.Runtime.InteropServices;
 #endif
 
 [assembly: AssemblyProduct("LibGit2Sharp")]
-[assembly: AssemblyCopyright("Copyright © 2011-2014 LibGit2Sharp contributors")]
+[assembly: AssemblyCopyright("Copyright © LibGit2Sharp contributors")]
 
 [assembly: CLSCompliant(true)]
 
@@ -42,5 +42,6 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("0.19.0")]
-[assembly: AssemblyFileVersion("0.19.0")]
+[assembly: AssemblyVersion("0.23.0")]
+[assembly: AssemblyFileVersion("0.23.0")]
+[assembly: AssemblyInformationalVersion("0.23.0-dev00000000000000")]

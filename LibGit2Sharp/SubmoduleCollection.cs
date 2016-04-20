@@ -41,10 +41,75 @@ namespace LibGit2Sharp
             {
                 Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-                return Lookup(name, handle =>
-                                    new Submodule(repo, name,
-                                                  Proxy.git_submodule_path(handle),
-                                                  Proxy.git_submodule_url(handle)));
+                return Lookup(name, handle => new Submodule(repo, name,
+                                                            Proxy.git_submodule_path(handle),
+                                                            Proxy.git_submodule_url(handle)));
+            }
+        }
+
+        /// <summary>
+        /// Initialize specified submodule.
+        /// <para>
+        /// Existing entries in the config file for this submodule are not be
+        /// modified unless <paramref name="overwrite"/> is true.
+        /// </para>
+        /// </summary>
+        /// <param name="name">The name of the submodule to update.</param>
+        /// <param name="overwrite">Overwrite existing entries.</param>
+        public virtual void Init(string name, bool overwrite)
+        {
+            using (var handle = Proxy.git_submodule_lookup(repo.Handle, name))
+            {
+                if (handle == null)
+                {
+                    throw new NotFoundException("Submodule lookup failed for '{0}'.",
+                                                name);
+                }
+
+                Proxy.git_submodule_init(handle, overwrite);
+            }
+        }
+
+        /// <summary>
+        /// Update specified submodule.
+        /// <para>
+        ///   This will:
+        ///   1) Optionally initialize the if it not already initialzed,
+        ///   2) clone the sub repository if it has not already been cloned, and
+        ///   3) checkout the commit ID for the submodule in the sub repository.
+        /// </para>
+        /// </summary>
+        /// <param name="name">The name of the submodule to update.</param>
+        /// <param name="options">Options controlling submodule udpate behavior and callbacks.</param>
+        public virtual void Update(string name, SubmoduleUpdateOptions options)
+        {
+            options = options ?? new SubmoduleUpdateOptions();
+
+            using (var handle = Proxy.git_submodule_lookup(repo.Handle, name))
+            {
+                if (handle == null)
+                {
+                    throw new NotFoundException("Submodule lookup failed for '{0}'.",
+                                                              name);
+                }
+
+                using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
+                {
+                    var gitCheckoutOptions = checkoutOptionsWrapper.Options;
+
+                    var remoteCallbacks = new RemoteCallbacks(options);
+                    var gitRemoteCallbacks = remoteCallbacks.GenerateCallbacks();
+
+                    var gitSubmoduleUpdateOpts = new GitSubmoduleOptions
+                    {
+                        Version = 1,
+                        CheckoutOptions = gitCheckoutOptions,
+                        FetchOptions = new GitFetchOptions { RemoteCallbacks = gitRemoteCallbacks },
+                        CloneCheckoutStrategy = CheckoutStrategy.GIT_CHECKOUT_SAFE
+                    };
+
+                    Proxy.git_submodule_update(handle, options.Init, ref gitSubmoduleUpdateOpts);
+                }
             }
         }
 
@@ -70,17 +135,18 @@ namespace LibGit2Sharp
 
         internal bool TryStage(string relativePath, bool writeIndex)
         {
-            return Lookup(relativePath, handle =>
-                                            {
-                                                if (handle == null)
-                                                    return false;
+            return Lookup(relativePath,
+                          handle =>
+                          {
+                              if (handle == null)
+                                  return false;
 
-                                                Proxy.git_submodule_add_to_index(handle, writeIndex);
-                                                return true;
-                                            });
+                              Proxy.git_submodule_add_to_index(handle, writeIndex);
+                              return true;
+                          });
         }
 
-        internal T Lookup<T>(string name, Func<SubmoduleSafeHandle, T> selector, bool throwIfNotFound = false)
+        internal T Lookup<T>(string name, Func<SubmoduleHandle, T> selector, bool throwIfNotFound = false)
         {
             using (var handle = Proxy.git_submodule_lookup(repo.Handle, name))
             {
@@ -92,9 +158,7 @@ namespace LibGit2Sharp
 
                 if (throwIfNotFound)
                 {
-                    throw new LibGit2SharpException(string.Format(
-                        CultureInfo.InvariantCulture,
-                        "Submodule lookup failed for '{0}'.", name));
+                    throw new LibGit2SharpException("Submodule lookup failed for '{0}'.", name);
                 }
 
                 return default(T);
@@ -105,8 +169,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format(CultureInfo.InvariantCulture,
-                                     "Count = {0}", this.Count());
+                return string.Format(CultureInfo.InvariantCulture, "Count = {0}", this.Count());
             }
         }
     }

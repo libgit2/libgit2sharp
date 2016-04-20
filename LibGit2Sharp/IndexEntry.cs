@@ -31,28 +31,32 @@ namespace LibGit2Sharp
         public virtual StageLevel StageLevel { get; private set; }
 
         /// <summary>
+        /// Whether the file is marked as assume-unchanged
+        /// </summary>
+        public virtual bool AssumeUnchanged { get; private set; }
+
+        /// <summary>
         /// Gets the id of the <see cref="Blob"/> pointed at by this index entry.
         /// </summary>
         public virtual ObjectId Id { get; private set; }
 
-        internal static IndexEntry BuildFromPtr(IndexEntrySafeHandle handle)
+        internal static unsafe IndexEntry BuildFromPtr(git_index_entry* entry)
         {
-            if (handle == null || handle.IsZero)
+            if (entry == null)
             {
                 return null;
             }
 
-            GitIndexEntry entry = handle.MarshalAsGitIndexEntry();
-
-            FilePath path = LaxFilePathMarshaler.FromNative(entry.Path);
+            FilePath path = LaxFilePathMarshaler.FromNative(entry->path);
 
             return new IndexEntry
-                       {
-                           Path = path.Native,
-                           Id = entry.Id,
-                           StageLevel = Proxy.git_index_entry_stage(handle),
-                           Mode = (Mode)entry.Mode
-                       };
+            {
+                Path = path.Native,
+                Id = new ObjectId(entry->id.Id),
+                StageLevel = Proxy.git_index_entry_stage(entry),
+                Mode = (Mode)entry->mode,
+                AssumeUnchanged = (git_index_entry.GIT_IDXENTRY_VALID & entry->flags) == git_index_entry.GIT_IDXENTRY_VALID
+            };
         }
 
         /// <summary>
@@ -111,7 +115,10 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    "{0} ({1}) => \"{2}\"", Path, StageLevel, Id.ToString(7));
+                                     "{0} ({1}) => \"{2}\"",
+                                     Path,
+                                     StageLevel,
+                                     Id.ToString(7));
             }
         }
     }

@@ -17,7 +17,7 @@ namespace LibGit2Sharp.Core
         public uint Version;
 
         public GitCheckoutOpts CheckoutOpts;
-        public GitRemoteCallbacks RemoteCallbacks;
+        public GitFetchOptions FetchOpts;
 
         public int Bare;
         public GitCloneLocal Local;

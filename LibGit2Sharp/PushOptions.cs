@@ -1,23 +1,22 @@
-﻿using System;
-using LibGit2Sharp.Handlers;
+﻿using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
     /// <summary>
     /// Collection of parameters controlling Push behavior.
     /// </summary>
-    public sealed class PushOptions : ICredentialsProvider
+    public sealed class PushOptions
     {
-        /// <summary>
-        /// The <see cref="LibGit2Sharp.Credentials"/> to authenticate with during the push.
-        /// </summary>
-        [Obsolete("This will be removed in future release. Use CredentialsProvider.")]
-        public Credentials Credentials { get; set; }
-
         /// <summary>
         /// Handler to generate <see cref="LibGit2Sharp.Credentials"/> for authentication.
         /// </summary>
         public CredentialsHandler CredentialsProvider { get; set; }
+
+        /// <summary>
+        /// This hanlder will be called to let the user make a decision on whether to allow
+        /// the connection to preoceed based on the certificate presented by the server.
+        /// </summary>
+        public CertificateCheckHandler CertificateCheck { get; set; }
 
         /// <summary>
         /// If the transport being used to push to the remote requires the creation
@@ -46,5 +45,11 @@ namespace LibGit2Sharp
         /// be more than once every 0.5 seconds (in general).
         /// </summary>
         public PackBuilderProgressHandler OnPackBuilderProgress { get; set; }
+
+        /// <summary>
+        /// Called once between the negotiation step and the upload. It provides
+        /// information about what updates will be performed.
+        /// </summary>
+        public PrePushHandler OnNegotiationCompletedBeforePush { get; set; }
     }
 }

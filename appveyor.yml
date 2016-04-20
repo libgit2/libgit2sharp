@@ -1,0 +1,184 @@
+version: '{build}'
+
+branches:
+  only:
+  - master
+  - vNext
+
+skip_tags: true
+
+clone_folder: C:\projects\libgit2sharp
+
+environment:
+  coveralls_token:
+    secure: ixIsBslo9NheDb5lJknF58EYdgvZ0r3/L0ecRiXjfXmjHBLvoSU6/ZRwaMM+BAlG
+  coverity_token:
+    secure: nuzUT+HecXGIi3KaPd/1hgFEZJan/j6+oNbPV75JKjk=
+  coverity_email:
+    secure: eGVilNg1Yuq+Xj+SW8r3WCtjnzhoDV0sNJkma4NRq7A=
+  version : 0.23.0
+  matrix:
+  - xunit_runner: xunit.console.x86.exe
+    Arch: 32
+    publish_on_success: False
+  - xunit_runner: xunit.console.exe
+    Arch: 64
+    publish_on_success: True
+
+matrix:
+  fast_finish: true
+
+install:
+- ps: |
+    Write-Host "Commit being built = " -NoNewLine
+    Write-Host $Env:APPVEYOR_REPO_COMMIT -ForegroundColor "Green"
+    Write-Host "Current build version = " -NoNewLine
+    Write-Host $Env:VERSION -ForegroundColor "Green"
+    Write-Host "Target branch = " -NoNewLine
+    Write-Host $Env:APPVEYOR_REPO_BRANCH -ForegroundColor "Green"
+    Write-Host "Is a Pull Request = " -NoNewLine
+    Write-Host $($Env:APPVEYOR_PULL_REQUEST_NUMBER -ne $null) -ForegroundColor "Green"
+
+    $CommitDate = [DateTime]::Parse($Env:APPVEYOR_REPO_COMMIT_TIMESTAMP)
+    $BuildDate = $CommitDate.ToUniversalTime().ToString("yyyyMMddHHmmss")
+    Write-Host "Merge commit UTC timestamp = " -NoNewLine
+    Write-Host $BuildDate -ForegroundColor "Green"
+
+    $VersionSuffix = ""
+    If ($Env:APPVEYOR_REPO_BRANCH -ne "master")
+    {
+      $VersionSuffix = "-pre$BuildDate"
+    }
+    $Version = "$($Env:VERSION)$($VersionSuffix)"
+    $Env:ASSEMBLY_INFORMATIONAL_VERSION = $Version
+    Write-Host "Assembly informational version = " -NoNewLine
+    Write-Host $Env:ASSEMBLY_INFORMATIONAL_VERSION -ForegroundColor "Green"
+
+    $Env:SHOULD_RUN_COVERITY_ANALYSIS = $($Env:APPVEYOR_SCHEDULED_BUILD -eq $True)
+    Write-Host "Should run Coverity analysis = " -NoNewLine
+    Write-Host $Env:SHOULD_RUN_COVERITY_ANALYSIS -ForegroundColor "Green"
+
+    $Env:SHOULD_PACKAGE_NUGET_ARTIFACT = -not $Env:APPVEYOR_PULL_REQUEST_NUMBER -and -not $Env:APPVEYOR_SCHEDULED_BUILD
+    Write-Host "Should package Nuget artifact = " -NoNewLine
+    Write-Host $Env:SHOULD_PACKAGE_NUGET_ARTIFACT -ForegroundColor "Green"
+
+    $Env:SHOULD_RUN_COVERALLS = $($Env:APPVEYOR_SCHEDULED_BUILD -eq $True)
+    Write-Host "Should run Coveralls = " -NoNewLine
+    Write-Host $Env:SHOULD_RUN_COVERALLS -ForegroundColor "Green"
+
+    Write-Host "Should publish on success = " -NoNewLine
+    Write-Host $Env:publish_on_success -ForegroundColor "Green"
+
+    If ($Env:SHOULD_PACKAGE_NUGET_ARTIFACT -eq $True)
+    {
+      cinst sourcelink -y
+    }
+
+    If ($Env:SHOULD_RUN_COVERALLS -eq $True)
+    {
+      nuget install OpenCover -Version 4.6.166 -ExcludeVersion -OutputDirectory .\packages
+      nuget install coveralls.net -Version 0.6.0 -ExcludeVersion -OutputDirectory .\packages
+    }
+
+    If ($Env:SHOULD_RUN_COVERITY_ANALYSIS -eq $True)
+    {
+      cinst curl -y
+    }
+
+assembly_info:
+  patch: true
+  file: LibGit2Sharp\Properties\AssemblyInfo.cs
+  assembly_version: '$(VERSION)'
+  assembly_file_version: '$(VERSION)'
+  assembly_informational_version: '$(ASSEMBLY_INFORMATIONAL_VERSION)'
+
+cache:
+  - packages
+
+before_build:
+- ps: nuget restore "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln"
+
+build_script:
+- ps: |
+    & cov-build.exe --dir cov-int msbuild "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln" `
+      /verbosity:normal `
+      /p:Configuration=Release `
+      /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" `
+      /property:ExtraDefine="LEAKS_IDENTIFYING"
+
+test_script:
+- ps: |
+    If ($Env:SHOULD_RUN_COVERALLS -eq $True -and $Env:publish_on_success -eq $True)
+    {
+      .\packages\OpenCover\tools\OpenCover.Console.exe `
+        -register:user `
+        "-target:""$Env:APPVEYOR_BUILD_FOLDER\packages\xunit.runner.console.2.0.0\tools\$Env:xunit_runner""" `
+        "-targetargs:""$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll"" -noshadow" `
+        "-filter:+[LibGit2Sharp]* -[LibGit2Sharp.Tests]*" `
+        -hideskipped:All `
+        -output:opencoverCoverage.xml
+    }
+    ElseIf ($Env:SHOULD_RUN_COVERITY_ANALYSIS -eq $False)
+    {
+      & "$Env:APPVEYOR_BUILD_FOLDER\packages\xunit.runner.console.2.0.0\tools\$Env:xunit_runner" `
+          "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll" -noshadow
+    }
+
+after_test:
+- ps: |
+    If ($Env:SHOULD_PACKAGE_NUGET_ARTIFACT -eq $True -and $Env:publish_on_success -eq $True)
+    {
+      & "$Env:APPVEYOR_BUILD_FOLDER\nuget.package\BuildNugetPackage.ps1" `
+        -commitSha "$Env:APPVEYOR_REPO_COMMIT" `
+        -postBuild  { sourcelink index `
+                        -pr LibGit2Sharp.csproj `
+                        -pp Configuration Release `
+                        -nf Core\NativeDllName.cs `
+                        -nf Core\UniqueIdentifier.cs `
+                        -nf Properties\AssemblyInfo.cs `
+                        -r .. `
+                        -u 'https://raw.githubusercontent.com/libgit2/libgit2sharp/{0}/%var2%' }
+
+      Add-Type -Path "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp\bin\Release\LibGit2Sharp.dll"
+      Write-Host "LibGit2Sharp version = $([LibGit2Sharp.GlobalSettings]::Version)" -ForegroundColor "Magenta"
+
+      Get-ChildItem "$Env:APPVEYOR_BUILD_FOLDER\LibGit2sharp\*.nupkg" | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+    }
+
+    If ($Env:SHOULD_RUN_COVERALLS -eq $True -and $Env:publish_on_success -eq $True)
+    {
+      Write-Host "Uploading code coverage result..." -ForegroundColor "Green"
+
+      .\packages\coveralls.net\tools\csmacnz.Coveralls.exe `
+        --opencover -i opencoverCoverage.xml `
+        --repoToken $Env:coveralls_token `
+        --useRelativePaths `
+        --basePath "$Env:APPVEYOR_BUILD_FOLDER\"`
+    }
+
+    If ($Env:SHOULD_RUN_COVERITY_ANALYSIS -eq $True -and $Env:publish_on_success -eq $True)
+    {
+      7z a "$Env:APPVEYOR_BUILD_FOLDER\$Env:APPVEYOR_PROJECT_NAME.zip" "$Env:APPVEYOR_BUILD_FOLDER\cov-int\"
+
+      # cf. http://stackoverflow.com/a/25045154/335418
+      Remove-item alias:curl
+
+      Write-Host "Uploading Coverity analysis result..." -ForegroundColor "Green"
+
+      curl --silent --show-error `
+        --output curl-out.txt `
+        --form token="$Env:coverity_token" `
+        --form email="$Env:coverity_email" `
+        --form "file=@$Env:APPVEYOR_BUILD_FOLDER\$Env:APPVEYOR_PROJECT_NAME.zip" `
+        --form version="$Env:APPVEYOR_REPO_COMMIT" `
+        --form description="CI server scheduled build." `
+        https://scan.coverity.com/builds?project=libgit2%2Flibgit2sharp
+
+        cat .\curl-out.txt
+    }
+
+notifications:
+- provider: Email
+  to:
+    - emeric.fermas@gmail.com
+  on_build_status_changed: true

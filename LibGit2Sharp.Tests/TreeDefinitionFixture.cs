@@ -18,7 +18,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanBuildATreeDefinitionFromATree()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
                 Assert.NotNull(td);
@@ -34,7 +35,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RequestingANonExistingEntryReturnsNull()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
 
@@ -48,7 +50,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RequestingAnEntryWithBadParamsThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
 
@@ -70,7 +73,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("1",                 "040000", TreeEntryTargetType.Tree, "7f76480d939dc401415927ea7ef25c676b8ddb8f")]
         public void CanRetrieveEntries(string path, string expectedAttributes, TreeEntryTargetType expectedType, string expectedSha)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string repoPath = SandboxBareTestRepo();
+            using (var repo = new Repository(repoPath))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
 
@@ -100,7 +104,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("1", "2/3")]
         public void CanAddAnExistingTreeEntryDefinition(string sourcePath, string targetPath)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
                 Assert.Null(td[targetPath]);
@@ -121,7 +126,8 @@ namespace LibGit2Sharp.Tests
             const string sourcePath = "sm_unchanged";
             const string targetPath = "sm_from_td";
 
-            using (var repo = new Repository(SubmoduleTestRepoWorkingDirPath))
+            var path = SandboxSubmoduleTestRepo();
+            using (var repo = new Repository(path))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
                 Assert.Null(td[targetPath]);
@@ -148,7 +154,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("1", "2/3")]
         public void CanAddAnExistingTreeEntry(string sourcePath, string targetPath)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var tree = repo.Head.Tip.Tree;
                 var td = TreeDefinition.From(tree);
@@ -172,7 +179,8 @@ namespace LibGit2Sharp.Tests
         {
             const string sourcePath = "sm_unchanged";
 
-            using (var repo = new Repository(SubmoduleTestRepoWorkingDirPath))
+            var path = SandboxSubmoduleTestRepo();
+            using (var repo = new Repository(path))
             {
                 var tree = repo.Head.Tip.Tree;
                 var td = TreeDefinition.From(tree);
@@ -195,7 +203,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("45b983be36b73c0788dc9cbcb76cbb80fc7bb057", "another_one.txt")]
         public void CanAddAnExistingBlob(string blobSha, string targetPath)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
                 Assert.Null(td[targetPath]);
@@ -218,7 +227,8 @@ namespace LibGit2Sharp.Tests
         {
             const string submodulePath = "sm_unchanged";
 
-            using (var repo = new Repository(SubmoduleTestRepoWorkingDirPath))
+            var path = SandboxSubmoduleTestRepo();
+            using (var repo = new Repository(path))
             {
                 var submodule = repo.Submodules[submodulePath];
                 Assert.NotNull(submodule);
@@ -246,7 +256,8 @@ namespace LibGit2Sharp.Tests
             const string treeSha = "7f76480d939dc401415927ea7ef25c676b8ddb8f";
             const string targetPath = "1/2";
 
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
 
@@ -271,7 +282,8 @@ namespace LibGit2Sharp.Tests
             const string blobSha = "a8233120f6ad708f843d861ce2b7228ec4e3dec6";
             const string targetPath = "1";
 
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
                 Assert.Equal(TreeEntryTargetType.Tree, td[targetPath].TargetType);
@@ -301,7 +313,8 @@ namespace LibGit2Sharp.Tests
         {
             const string treeSha = "7f76480d939dc401415927ea7ef25c676b8ddb8f";
 
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
                 Assert.NotNull(td[targetPath]);
@@ -327,7 +340,8 @@ namespace LibGit2Sharp.Tests
             var commitId = (ObjectId)"480095882d281ed676fe5b863569520e54a7d5c0";
             const string targetPath = "just_a_dir";
 
-            using (var repo = new Repository(SubmoduleTestRepoWorkingDirPath))
+            var path = SandboxSubmoduleTestRepo();
+            using (var repo = new Repository(path))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
                 Assert.Equal(TreeEntryTargetType.Tree, td[targetPath].TargetType);
@@ -353,7 +367,8 @@ namespace LibGit2Sharp.Tests
             const string treeSha = "607d96653d4d0a4f733107f7890c2e67b55b620d";
             const string targetPath = "sm_unchanged";
 
-            using (var repo = new Repository(SubmoduleTestRepoWorkingDirPath))
+            var path = SandboxSubmoduleTestRepo();
+            using (var repo = new Repository(path))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
                 Assert.NotNull(td[targetPath]);
@@ -380,7 +395,8 @@ namespace LibGit2Sharp.Tests
             var commitId = (ObjectId)"480095882d281ed676fe5b863569520e54a7d5c0";
             const string targetPath = "just_a_file";
 
-            using (var repo = new Repository(SubmoduleTestRepoWorkingDirPath))
+            var path = SandboxSubmoduleTestRepo();
+            using (var repo = new Repository(path))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
                 Assert.NotNull(td[targetPath]);
@@ -403,7 +419,8 @@ namespace LibGit2Sharp.Tests
             const string blobSha = "42cfb95cd01bf9225b659b5ee3edcc78e8eeb478";
             const string targetPath = "sm_unchanged";
 
-            using (var repo = new Repository(SubmoduleTestRepoWorkingDirPath))
+            var path = SandboxSubmoduleTestRepo();
+            using (var repo = new Repository(path))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
                 Assert.NotNull(td[targetPath]);
@@ -427,7 +444,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanNotReplaceAnExistingTreeWithATreeBeingAssembled()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
                 Assert.Equal(TreeEntryTargetType.Tree, td["1"].TargetType);
@@ -446,7 +464,8 @@ namespace LibGit2Sharp.Tests
             const string blobSha = "a8233120f6ad708f843d861ce2b7228ec4e3dec6";
             const string targetPath = "1/another_branch_file.txt";
 
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
 
@@ -464,7 +483,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanAddAnExistingBlobEntryWithAnExistingTree()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
                 TreeEntryDefinition original = td["README"];

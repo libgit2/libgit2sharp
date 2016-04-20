@@ -21,17 +21,17 @@ namespace LibGit2Sharp
         /// <summary>
         /// New file has been added to the Index. It's unknown from the Head.
         /// </summary>
-        Added = (1 << 0), /* GIT_STATUS_INDEX_NEW */
+        NewInIndex = (1 << 0), /* GIT_STATUS_INDEX_NEW */
 
         /// <summary>
         /// New version of a file has been added to the Index. A previous version exists in the Head.
         /// </summary>
-        Staged = (1 << 1), /* GIT_STATUS_INDEX_MODIFIED */
+        ModifiedInIndex = (1 << 1), /* GIT_STATUS_INDEX_MODIFIED */
 
         /// <summary>
         /// The deletion of a file has been promoted from the working directory to the Index. A previous version exists in the Head.
         /// </summary>
-        Removed = (1 << 2), /* GIT_STATUS_INDEX_DELETED */
+        DeletedFromIndex = (1 << 2), /* GIT_STATUS_INDEX_DELETED */
 
         /// <summary>
         /// The renaming of a file has been promoted from the working directory to the Index. A previous version exists in the Head.
@@ -41,32 +41,32 @@ namespace LibGit2Sharp
         /// <summary>
         /// A change in type for a file has been promoted from the working directory to the Index. A previous version exists in the Head.
         /// </summary>
-        StagedTypeChange = (1 << 4), /* GIT_STATUS_INDEX_TYPECHANGE */
+        TypeChangeInIndex = (1 << 4), /* GIT_STATUS_INDEX_TYPECHANGE */
 
         /// <summary>
         /// New file in the working directory, unknown from the Index and the Head.
         /// </summary>
-        Untracked = (1 << 7), /* GIT_STATUS_WT_NEW */
+        NewInWorkdir = (1 << 7), /* GIT_STATUS_WT_NEW */
 
         /// <summary>
         /// The file has been updated in the working directory. A previous version exists in the Index.
         /// </summary>
-        Modified = (1 << 8), /* GIT_STATUS_WT_MODIFIED */
+        ModifiedInWorkdir = (1 << 8), /* GIT_STATUS_WT_MODIFIED */
 
         /// <summary>
         /// The file has been deleted from the working directory. A previous version exists in the Index.
         /// </summary>
-        Missing = (1 << 9), /* GIT_STATUS_WT_DELETED */
+        DeletedFromWorkdir = (1 << 9), /* GIT_STATUS_WT_DELETED */
 
         /// <summary>
         /// The file type has been changed in the working directory. A previous version exists in the Index.
         /// </summary>
-        TypeChanged = (1 << 10), /* GIT_STATUS_WT_TYPECHANGE */
+        TypeChangeInWorkdir = (1 << 10), /* GIT_STATUS_WT_TYPECHANGE */
 
         /// <summary>
         /// The file has been renamed in the working directory.  The previous version at the previous name exists in the Index.
         /// </summary>
-        RenamedInWorkDir = (1 << 11), /* GIT_STATUS_WT_RENAMED */
+        RenamedInWorkdir = (1 << 11), /* GIT_STATUS_WT_RENAMED */
 
         /// <summary>
         /// The file is unreadable in the working directory.
@@ -74,8 +74,13 @@ namespace LibGit2Sharp
         Unreadable = (1 << 12), /* GIT_STATUS_WT_UNREADABLE */
 
         /// <summary>
-        /// The file is <see cref="Untracked"/> but its name and/or path matches an exclude pattern in a <c>gitignore</c> file.
+        /// The file is <see cref="NewInWorkdir"/> but its name and/or path matches an exclude pattern in a <c>gitignore</c> file.
         /// </summary>
         Ignored = (1 << 14), /* GIT_STATUS_IGNORED */
+
+        /// <summary>
+        /// The file is <see cref="Conflicted"/> due to a merge.
+        /// </summary>
+        Conflicted = (1 << 15), /* GIT_STATUS_CONFLICTED */
     }
 }

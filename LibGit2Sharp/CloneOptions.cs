@@ -1,5 +1,4 @@
-﻿using System;
-using LibGit2Sharp.Core;
+﻿using LibGit2Sharp.Core;
 using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
@@ -7,7 +6,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// Options to define clone behaviour
     /// </summary>
-    public sealed class CloneOptions : IConvertableToGitCheckoutOpts, ICredentialsProvider
+    public sealed class CloneOptions : FetchOptionsBase, IConvertableToGitCheckoutOpts
     {
         /// <summary>
         /// Creates default <see cref="CloneOptions"/> for a non-bare clone
@@ -29,25 +28,20 @@ namespace LibGit2Sharp
         public bool Checkout { get; set; }
 
         /// <summary>
-        /// Handler for network transfer and indexing progress information
+        /// The name of the branch to checkout. When unspecified the
+        /// remote's default branch will be used instead.
         /// </summary>
-        public TransferProgressHandler OnTransferProgress { get; set; }
+        public string BranchName { get; set; }
 
         /// <summary>
-        /// Handler for checkout progress information
+        /// Recursively clone submodules.
+        /// </summary>
+        public bool RecurseSubmodules { get; set; }
+
+        /// <summary>
+        /// Handler for checkout progress information.
         /// </summary>
         public CheckoutProgressHandler OnCheckoutProgress { get; set; }
-
-        /// <summary>
-        /// Credentials to use for user/pass authentication
-        /// </summary>
-        [Obsolete("This will be removed in future release. Use CredentialsProvider.")]
-        public Credentials Credentials { get; set; }
-
-        /// <summary>
-        /// Handler to generate <see cref="LibGit2Sharp.Credentials"/> for authentication.
-        /// </summary>
-        public CredentialsHandler CredentialsProvider { get; set; }
 
         #region IConvertableToGitCheckoutOpts
 
@@ -60,9 +54,9 @@ namespace LibGit2Sharp
         {
             get
             {
-                return this.Checkout ?
-                    CheckoutStrategy.GIT_CHECKOUT_SAFE_CREATE :
-                    CheckoutStrategy.GIT_CHECKOUT_NONE;
+                return this.Checkout
+                    ? CheckoutStrategy.GIT_CHECKOUT_SAFE
+                    : CheckoutStrategy.GIT_CHECKOUT_NONE;
             }
         }
 

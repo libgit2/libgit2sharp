@@ -2,14 +2,14 @@ namespace LibGit2Sharp.Core
 {
     internal static class FilePathExtensions
     {
-        internal static FilePath Combine(this FilePath @this, string childPath)
+        internal static FilePath Combine(this FilePath filePath, string childPath)
         {
-            return @this.IsNullOrEmpty() ? childPath : @this.Posix + "/" + childPath;
+            return filePath.IsNullOrEmpty() ? childPath : filePath.Posix + "/" + childPath;
         }
 
-        internal static bool IsNullOrEmpty(this FilePath @this)
+        internal static bool IsNullOrEmpty(this FilePath filePath)
         {
-            return ReferenceEquals(@this, null) || @this.Posix.Length == 0;
+            return ReferenceEquals(filePath, null) || filePath.Posix.Length == 0;
         }
     }
 }

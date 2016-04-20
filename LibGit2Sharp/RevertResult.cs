@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace LibGit2Sharp
+﻿namespace LibGit2Sharp
 {
     /// <summary>
     /// Class to report the result of a revert.
@@ -52,6 +47,11 @@ namespace LibGit2Sharp
         /// <summary>
         /// The revert resulted in conflicts.
         /// </summary>
-        Conflicts
+        Conflicts,
+
+        /// <summary>
+        /// Revert was run, but there were no changes to commit.
+        /// </summary>
+        NothingToRevert,
     }
 }

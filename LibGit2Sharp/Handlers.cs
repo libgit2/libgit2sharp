@@ -1,4 +1,7 @@
-﻿namespace LibGit2Sharp.Handlers
+﻿using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
+
+namespace LibGit2Sharp.Handlers
 {
     /// <summary>
     /// Delegate definition to handle Progress callback.
@@ -31,11 +34,35 @@
     public delegate Credentials CredentialsHandler(string url, string usernameFromUrl, SupportedCredentialTypes types);
 
     /// <summary>
+    /// Delegate definition for the certificate validation
+    /// </summary>
+    /// <param name="certificate">The certificate which the server sent</param>
+    /// <param name="host">The hostname which we tried to connect to</param>
+    /// <param name="valid">Whether libgit2 thinks this certificate is valid</param>
+    /// <returns>True to continue, false to cancel</returns>
+    public delegate bool CertificateCheckHandler(Certificate certificate, bool valid, string host);
+
+    /// <summary>
     /// Delegate definition for transfer progress callback.
     /// </summary>
     /// <param name="progress">The <see cref="TransferProgress"/> object containing progress information.</param>
     /// <returns>True to continue, false to cancel.</returns>
     public delegate bool TransferProgressHandler(TransferProgress progress);
+
+    /// <summary>
+    /// Delegate definition to indicate that a repository is about to be operated on.
+    /// (In the context of a recursive operation).
+    /// </summary>
+    /// <param name="context">Context on the repository that is being operated on.</param>
+    /// <returns>true to continue, false to cancel.</returns>
+    public delegate bool RepositoryOperationStarting(RepositoryOperationContext context);
+
+    /// <summary>
+    /// Delegate definition to indicate that an operation is done in a repository.
+    /// (In the context of a recursive operation).
+    /// </summary>
+    /// <param name="context">Context on the repository that is being operated on.</param>
+    public delegate void RepositoryOperationCompleted(RepositoryOperationContext context);
 
     /// <summary>
     /// Delegate definition for callback reporting push network progress.
@@ -54,6 +81,13 @@
     /// <param name="total">The total number of objects to process for the current stage.</param>
     /// <returns>True to continue, false to cancel.</returns>
     public delegate bool PackBuilderProgressHandler(PackBuilderStage stage, int current, int total);
+
+    /// <summary>
+    /// Provides information about what updates will be performed before a push occurs
+    /// </summary>
+    /// <param name="updates">List of updates about to be performed via push</param>
+    /// <returns>True to continue, false to cancel.</returns>
+    public delegate bool PrePushHandler(IEnumerable<PushUpdate> updates);
 
     /// <summary>
     /// Delegate definition to handle reporting errors when updating references on the remote.
@@ -97,6 +131,25 @@
     public delegate void RemoteRenameFailureHandler(string problematicRefspec);
 
     /// <summary>
+    /// Delegate definition for stash application callback.
+    /// </summary>
+    /// <param name="progress">The current step of the stash application.</param>
+    /// <returns>True to continue checkout operation; false to cancel checkout operation.</returns>
+    public delegate bool StashApplyProgressHandler(StashApplyProgress progress);
+
+    /// <summary>
+    /// Delegate to report information on a rebase step that is about to be performed.
+    /// </summary>
+    /// <param name="beforeRebaseStep"></param>
+    public delegate void RebaseStepStartingHandler(BeforeRebaseStepInfo beforeRebaseStep);
+
+    /// <summary>
+    /// Delegate to report information on the rebase step that was just completed.
+    /// </summary>
+    /// <param name="afterRebaseStepInfo"></param>
+    public delegate void RebaseStepCompletedHandler(AfterRebaseStepInfo afterRebaseStepInfo);
+
+    /// <summary>
     /// The stages of pack building.
     /// </summary>
     public enum PackBuilderStage
@@ -111,4 +164,12 @@
         /// </summary>
         Deltafying
     }
+
+    /// <summary>
+    /// Delegate definition for logging.  This callback will be used to
+    /// write logging messages in libgit2 and LibGit2Sharp.
+    /// </summary>
+    /// <param name="level">The level of the log message.</param>
+    /// <param name="message">The log message.</param>
+    public delegate void LogHandler(LogLevel level, string message);
 }

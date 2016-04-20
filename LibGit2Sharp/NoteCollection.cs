@@ -65,10 +65,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual IEnumerable<string> Namespaces
         {
-            get
-            {
-                return NamespaceRefs.Select(UnCanonicalizeName);
-            }
+            get { return NamespaceRefs.Select(UnCanonicalizeName); }
         }
 
         internal IEnumerable<string> NamespaceRefs
@@ -108,8 +105,9 @@ namespace LibGit2Sharp
 
                 string canonicalNamespace = NormalizeToCanonicalName(@namespace);
 
-                return Proxy.git_note_foreach(repo.Handle, canonicalNamespace,
-                    (blobId,annotatedObjId) => this[canonicalNamespace, annotatedObjId]);
+                return Proxy.git_note_foreach(repo.Handle,
+                                              canonicalNamespace,
+                                              (blobId, annotatedObjId) => this[canonicalNamespace, annotatedObjId]);
             }
         }
 
@@ -125,7 +123,7 @@ namespace LibGit2Sharp
 
                 string canonicalNamespace = NormalizeToCanonicalName(@namespace);
 
-                using (NoteSafeHandle noteHandle = Proxy.git_note_read(repo.Handle, canonicalNamespace, id))
+                using (NoteHandle noteHandle = Proxy.git_note_read(repo.Handle, canonicalNamespace, id))
                 {
                     return noteHandle == null
                         ? null
@@ -186,7 +184,7 @@ namespace LibGit2Sharp
 
             Remove(targetId, author, committer, @namespace);
 
-            Proxy.git_note_create(repo.Handle, author, committer, canonicalNamespace, targetId, message, true);
+            Proxy.git_note_create(repo.Handle, canonicalNamespace, author, committer, targetId, message, true);
 
             return this[canonicalNamespace, targetId];
         }
@@ -214,8 +212,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format(CultureInfo.InvariantCulture,
-                    "Count = {0}", this.Count());
+                return string.Format(CultureInfo.InvariantCulture, "Count = {0}", this.Count());
             }
         }
     }

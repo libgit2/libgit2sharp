@@ -43,8 +43,9 @@ namespace LibGit2Sharp.Core
 
             if (str == null)
             {
-                throw new MarshalDirectiveException(
-                    string.Format(CultureInfo.InvariantCulture, "{0} must be used on a string.", GetType().Name));
+                throw new MarshalDirectiveException(string.Format(CultureInfo.InvariantCulture,
+                                                                  "{0} must be used on a string.",
+                                                                  GetType().Name));
             }
 
             return FromManaged(encoding, str);
@@ -59,7 +60,7 @@ namespace LibGit2Sharp.Core
 
         public static unsafe IntPtr FromManaged(Encoding encoding, String value)
         {
-            if (value == null)
+            if (encoding == null || value == null)
             {
                 return IntPtr.Zero;
             }
@@ -92,7 +93,12 @@ namespace LibGit2Sharp.Core
 
         public static unsafe string FromNative(Encoding encoding, IntPtr pNativeData)
         {
-            if (pNativeData == IntPtr.Zero)
+            return FromNative(encoding, (byte*)pNativeData);
+        }
+
+        public static unsafe string FromNative(Encoding encoding, byte* pNativeData)
+        {
+            if (pNativeData == null)
             {
                 return null;
             }
@@ -111,7 +117,7 @@ namespace LibGit2Sharp.Core
                 return String.Empty;
             }
 
-            return new String((sbyte*)pNativeData.ToPointer(), 0, (int)(walk - start), encoding);
+            return new String((sbyte*)pNativeData, 0, (int)(walk - start), encoding);
         }
 
         public static unsafe string FromNative(Encoding encoding, IntPtr pNativeData, int length)

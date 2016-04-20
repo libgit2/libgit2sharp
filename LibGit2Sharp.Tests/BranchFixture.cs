@@ -17,16 +17,18 @@ namespace LibGit2Sharp.Tests
         [InlineData("Ångström")]
         public void CanCreateBranch(string name)
         {
-            string path = CloneBareTestRepo();
-            using (var repo = new Repository(path))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path, new RepositoryOptions { Identity = Constants.Identity }))
             {
                 EnableRefLog(repo);
 
                 const string committish = "be3563ae3f795b2b4353bcce3a527ad0a4f7f644";
 
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 Branch newBranch = repo.CreateBranch(name, committish);
                 Assert.NotNull(newBranch);
-                Assert.Equal(name, newBranch.Name);
+                Assert.Equal(name, newBranch.FriendlyName);
                 Assert.Equal("refs/heads/" + name, newBranch.CanonicalName);
                 Assert.NotNull(newBranch.Tip);
                 Assert.Equal(committish, newBranch.Tip.Sha);
@@ -36,13 +38,15 @@ namespace LibGit2Sharp.Tests
                 // when they're read back:
                 // - from InlineData: C5-00-6E-00-67-00-73-00-74-00-72-00-F6-00-6D-00
                 // - from filesystem: 41-00-0A-03-6E-00-67-00-73-00-74-00-72-00-6F-00-08-03-6D-00
-                Assert.NotNull(repo.Branches.SingleOrDefault(p => p.Name.Normalize() == name));
+                Assert.NotNull(repo.Branches.SingleOrDefault(p => p.FriendlyName.Normalize() == name));
 
                 AssertRefLogEntry(repo, newBranch.CanonicalName,
+                                  "branch: Created from " + committish,
+                                  null,
                                   newBranch.Tip.Id,
-                                  "branch: Created from " + committish);
+                                  Constants.Identity, before);
 
-                repo.Branches.Remove(newBranch.Name);
+                repo.Branches.Remove(newBranch.FriendlyName);
                 Assert.Null(repo.Branches[name]);
             }
         }
@@ -50,7 +54,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateAnUnbornBranch()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 // No branch named orphan
@@ -75,6 +79,7 @@ namespace LibGit2Sharp.Tests
                 // The branch now exists...
                 Branch orphan = repo.Branches["orphan"];
                 Assert.NotNull(orphan);
+                AssertBelongsToARepository(repo, orphan);
 
                 // ...and points to that newly created commit
                 Assert.Equal(c, orphan.Tip);
@@ -84,21 +89,25 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateBranchUsingAbbreviatedSha()
         {
-            string path = CloneBareTestRepo();
-            using (var repo = new Repository(path))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path, new RepositoryOptions{ Identity = Constants.Identity }))
             {
                 EnableRefLog(repo);
 
                 const string name = "unit_test";
                 const string committish = "be3563a";
 
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 Branch newBranch = repo.CreateBranch(name, committish);
                 Assert.Equal("refs/heads/" + name, newBranch.CanonicalName);
                 Assert.Equal("be3563ae3f795b2b4353bcce3a527ad0a4f7f644", newBranch.Tip.Sha);
 
                 AssertRefLogEntry(repo, newBranch.CanonicalName,
+                                  "branch: Created from " + committish,
+                                  null,
                                   newBranch.Tip.Id,
-                                  "branch: Created from " + committish);
+                                  Constants.Identity, before);
             }
         }
 
@@ -107,26 +116,31 @@ namespace LibGit2Sharp.Tests
         [InlineData("master")]
         public void CanCreateBranchFromImplicitHead(string headCommitOrBranchSpec)
         {
-            string path = CloneStandardTestRepo();
-            using (var repo = new Repository(path))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path, new RepositoryOptions { Identity = Constants.Identity }))
             {
                 EnableRefLog(repo);
 
                 repo.Checkout(headCommitOrBranchSpec);
 
                 const string name = "unit_test";
+
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 Branch newBranch = repo.CreateBranch(name);
                 Assert.NotNull(newBranch);
-                Assert.Equal(name, newBranch.Name);
+                Assert.Equal(name, newBranch.FriendlyName);
                 Assert.Equal("refs/heads/" + name, newBranch.CanonicalName);
                 Assert.False(newBranch.IsCurrentRepositoryHead);
                 Assert.NotNull(newBranch.Tip);
                 Assert.Equal("32eab9cb1f450b5fe7ab663462b77d7f4b703344", newBranch.Tip.Sha);
-                Assert.NotNull(repo.Branches.SingleOrDefault(p => p.Name == name));
+                Assert.NotNull(repo.Branches.SingleOrDefault(p => p.FriendlyName == name));
 
                 AssertRefLogEntry(repo, newBranch.CanonicalName,
+                                  "branch: Created from " + headCommitOrBranchSpec,
+                                  null,
                                   newBranch.Tip.Id,
-                                  "branch: Created from " + headCommitOrBranchSpec);
+                                  Constants.Identity, before);
             }
         }
 
@@ -135,62 +149,76 @@ namespace LibGit2Sharp.Tests
         [InlineData("master")]
         public void CanCreateBranchFromExplicitHead(string headCommitOrBranchSpec)
         {
-            string path = CloneStandardTestRepo();
-            using (var repo = new Repository(path))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path, new RepositoryOptions { Identity = Constants.Identity }))
             {
                 EnableRefLog(repo);
 
                 repo.Checkout(headCommitOrBranchSpec);
 
                 const string name = "unit_test";
+
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 Branch newBranch = repo.CreateBranch(name, "HEAD");
                 Assert.NotNull(newBranch);
                 Assert.Equal("32eab9cb1f450b5fe7ab663462b77d7f4b703344", newBranch.Tip.Sha);
 
                 AssertRefLogEntry(repo, newBranch.CanonicalName,
+                                  "branch: Created from HEAD",
+                                  null,
                                   newBranch.Tip.Id,
-                                  "branch: Created from " + headCommitOrBranchSpec);
+                                  Constants.Identity, before);
             }
         }
 
         [Fact]
         public void CanCreateBranchFromCommit()
         {
-            string path = CloneBareTestRepo();
-            using (var repo = new Repository(path))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path, new RepositoryOptions { Identity = Constants.Identity }))
             {
                 EnableRefLog(repo);
 
                 const string name = "unit_test";
                 var commit = repo.Lookup<Commit>("HEAD");
+
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 Branch newBranch = repo.CreateBranch(name, commit);
                 Assert.NotNull(newBranch);
                 Assert.Equal("4c062a6361ae6959e06292c1fa5e2822d9c96345", newBranch.Tip.Sha);
 
                 AssertRefLogEntry(repo, newBranch.CanonicalName,
+                                  "branch: Created from " + newBranch.Tip.Sha,
+                                  null,
                                   newBranch.Tip.Id,
-                                  "branch: Created from " + newBranch.Tip.Sha);
+                                  Constants.Identity, before);
             }
         }
 
         [Fact]
         public void CanCreateBranchFromRevparseSpec()
         {
-            string path = CloneBareTestRepo();
-            using (var repo = new Repository(path))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path, new RepositoryOptions { Identity = Constants.Identity }))
             {
                 EnableRefLog(repo);
 
                 const string name = "revparse_branch";
                 const string committish = "master~2";
 
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 Branch newBranch = repo.CreateBranch(name, committish);
                 Assert.NotNull(newBranch);
                 Assert.Equal("9fd738e8f7967c078dceed8190330fc8648ee56a", newBranch.Tip.Sha);
 
                 AssertRefLogEntry(repo, newBranch.CanonicalName,
+                                  "branch: Created from " + committish,
+                                  null,
                                   newBranch.Tip.Id,
-                                  "branch: Created from " + committish);
+                                  Constants.Identity, before);
             }
         }
 
@@ -199,27 +227,31 @@ namespace LibGit2Sharp.Tests
         [InlineData("refs/tags/test")]
         public void CreatingABranchFromATagPeelsToTheCommit(string committish)
         {
-            string path = CloneBareTestRepo();
-            using (var repo = new Repository(path))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path, new RepositoryOptions { Identity = Constants.Identity }))
             {
                 EnableRefLog(repo);
 
                 const string name = "i-peel-tag";
+
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
 
                 Branch newBranch = repo.CreateBranch(name, committish);
                 Assert.NotNull(newBranch);
                 Assert.Equal("e90810b8df3e80c413d903f631643c716887138d", newBranch.Tip.Sha);
 
                 AssertRefLogEntry(repo, newBranch.CanonicalName,
+                                  "branch: Created from " + committish,
+                                  null,
                                   newBranch.Tip.Id,
-                                  "branch: Created from " + committish);
+                                  Constants.Identity, before);
             }
         }
 
         [Fact]
         public void CreatingABranchTriggersTheCreationOfADirectReference()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 Branch newBranch = repo.CreateBranch("clone-of-master");
@@ -237,38 +269,42 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CreatingABranchFromANonCommitObjectThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string name = "sorry-dude-i-do-not-do-blobs-nor-trees";
-                Assert.Throws<LibGit2SharpException>(() => repo.CreateBranch(name, "refs/tags/point_to_blob"));
-                Assert.Throws<LibGit2SharpException>(() => repo.CreateBranch(name, "53fc32d"));
-                Assert.Throws<LibGit2SharpException>(() => repo.CreateBranch(name, "0266163"));
+                Assert.Throws<InvalidSpecificationException>(() => repo.CreateBranch(name, "refs/tags/point_to_blob"));
+                Assert.Throws<InvalidSpecificationException>(() => repo.CreateBranch(name, "53fc32d"));
+                Assert.Throws<InvalidSpecificationException>(() => repo.CreateBranch(name, "0266163"));
             }
         }
 
         [Fact]
         public void CreatingBranchWithUnknownNamedTargetThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Add("my_new_branch", "my_old_branch"));
+                Assert.Throws<NotFoundException>(() => repo.Branches.Add("my_new_branch", "my_old_branch"));
             }
         }
 
         [Fact]
         public void CreatingBranchWithUnknownShaTargetThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Add("my_new_branch", Constants.UnknownSha));
-                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Add("my_new_branch", Constants.UnknownSha.Substring(0, 7)));
+                Assert.Throws<NotFoundException>(() => repo.Branches.Add("my_new_branch", Constants.UnknownSha));
+                Assert.Throws<NotFoundException>(() => repo.Branches.Add("my_new_branch", Constants.UnknownSha.Substring(0, 7)));
             }
         }
 
         [Fact]
         public void CreatingBranchWithBadParamsThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentNullException>(() => repo.Branches.Add(null, repo.Head.CanonicalName));
                 Assert.Throws<ArgumentException>(() => repo.Branches.Add(string.Empty, repo.Head.CanonicalName));
@@ -281,9 +317,10 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanListAllBranches()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
-                Assert.Equal(expectedBranches, SortedBranches(repo.Branches, b => b.Name));
+                Assert.Equal(expectedBranches, SortedBranches(repo.Branches, b => b.FriendlyName));
 
                 Assert.Equal(5, repo.Branches.Count());
             }
@@ -292,7 +329,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanListBranchesWithRemoteAndLocalBranchWithSameShortName()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 // Create a local branch with the same short name as a remote branch.
@@ -304,14 +341,15 @@ namespace LibGit2Sharp.Tests
                                              };
 
                 Assert.Equal(expectedWdBranches,
-                             SortedBranches(repo.Branches.Where(b => !b.IsRemote), b => b.Name));
+                             SortedBranches(repo.Branches.Where(b => !b.IsRemote), b => b.FriendlyName));
             }
         }
 
         [Fact]
         public void CanListAllBranchesWhenGivenWorkingDir()
         {
-            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 var expectedWdBranches = new[]
                                              {
@@ -320,14 +358,15 @@ namespace LibGit2Sharp.Tests
                                                  "origin/test"
                                              };
 
-                Assert.Equal(expectedWdBranches, SortedBranches(repo.Branches, b => b.Name));
+                Assert.Equal(expectedWdBranches, SortedBranches(repo.Branches, b => b.FriendlyName));
             }
         }
 
         [Fact]
         public void CanListAllBranchesIncludingRemoteRefs()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 var expectedBranchesIncludingRemoteRefs = new[]
                                                               {
@@ -344,27 +383,29 @@ namespace LibGit2Sharp.Tests
                                                                   new { Name = "origin/test", Sha = "e90810b8df3e80c413d903f631643c716887138d", IsRemote = true },
                                                               };
                 Assert.Equal(expectedBranchesIncludingRemoteRefs,
-                             SortedBranches(repo.Branches, b => new { b.Name, b.Tip.Sha, b.IsRemote }));
+                             SortedBranches(repo.Branches, b => new { Name = b.FriendlyName, b.Tip.Sha, b.IsRemote }));
             }
         }
 
         [Fact]
         public void CanResolveRemote()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch master = repo.Branches["master"];
-                Assert.Equal(repo.Network.Remotes["origin"], master.Remote);
+                Assert.Equal("origin", master.RemoteName);
             }
         }
 
         [Fact]
         public void RemoteAndUpstreamBranchCanonicalNameForNonTrackingBranchIsNull()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch test = repo.Branches["i-do-numbers"];
-                Assert.Null(test.Remote);
+                Assert.Null(test.RemoteName);
                 Assert.Null(test.UpstreamBranchCanonicalName);
             }
         }
@@ -373,17 +414,19 @@ namespace LibGit2Sharp.Tests
         public void QueryRemoteForLocalTrackingBranch()
         {
             // There is not a Remote to resolve for a local tracking branch.
-            using (var repo = new Repository(StandardTestRepoPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch trackLocal = repo.Branches["track-local"];
-                Assert.Null(trackLocal.Remote);
+                Assert.Null(trackLocal.RemoteName);
             }
         }
 
         [Fact]
         public void QueryUpstreamBranchCanonicalNameForLocalTrackingBranch()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch trackLocal = repo.Branches["track-local"];
                 Assert.Equal("refs/heads/master", trackLocal.UpstreamBranchCanonicalName);
@@ -391,17 +434,75 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void QueryRemoteForRemoteBranch()
+        {
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var master = repo.Branches["origin/master"];
+                Assert.Equal("origin", master.RemoteName);
+            }
+        }
+
+        [Fact]
+        public void QueryUnresolvableRemoteForRemoteBranch()
+        {
+            var fetchRefSpecs = new string[] { "+refs/heads/notfound/*:refs/remotes/origin/notfound/*" };
+
+            var path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                // Update the remote config such that the remote for a
+                // remote branch cannot be resolved
+                Remote remote = repo.Network.Remotes["origin"];
+                Assert.NotNull(remote);
+
+                repo.Network.Remotes.Update("origin", r => r.FetchRefSpecs = fetchRefSpecs);
+
+                Branch branch = repo.Branches["refs/remotes/origin/master"];
+
+                Assert.NotNull(branch);
+                Assert.True(branch.IsRemote);
+
+                Assert.Null(branch.RemoteName);
+            }
+        }
+
+        [Fact]
+        public void QueryAmbigousRemoteForRemoteBranch()
+        {
+            const string fetchRefSpec = "+refs/heads/*:refs/remotes/origin/*";
+            const string url = "http://github.com/libgit2/TestGitRepository";
+
+            var path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                // Add a second remote so that it is ambiguous which remote
+                // the remote-tracking branch tracks.
+                repo.Network.Remotes.Add("ambiguous", url, fetchRefSpec);
+
+                Branch branch = repo.Branches["refs/remotes/origin/master"];
+
+                Assert.NotNull(branch);
+                Assert.True(branch.IsRemote);
+
+                Assert.Null(branch.RemoteName);
+            }
+        }
+
+        [Fact]
         public void CanLookupABranchByItsCanonicalName()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch branch = repo.Branches["refs/heads/br2"];
                 Assert.NotNull(branch);
-                Assert.Equal("br2", branch.Name);
+                Assert.Equal("br2", branch.FriendlyName);
 
                 Branch branch2 = repo.Branches["refs/heads/br2"];
                 Assert.NotNull(branch2);
-                Assert.Equal("br2", branch2.Name);
+                Assert.Equal("br2", branch2.FriendlyName);
 
                 Assert.Equal(branch, branch2);
                 Assert.True((branch2 == branch));
@@ -411,12 +512,13 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanLookupLocalBranch()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch master = repo.Branches["master"];
                 Assert.NotNull(master);
                 Assert.False(master.IsRemote);
-                Assert.Equal("master", master.Name);
+                Assert.Equal("master", master.FriendlyName);
                 Assert.Equal("refs/heads/master", master.CanonicalName);
                 Assert.True(master.IsCurrentRepositoryHead);
                 Assert.Equal("4c062a6361ae6959e06292c1fa5e2822d9c96345", master.Tip.Sha);
@@ -426,7 +528,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanLookupABranchWhichNameIsMadeOfNon7BitsAsciiCharacters()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 const string name = "Ångström";
@@ -442,7 +544,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void LookingOutABranchByNameWithBadParamsThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch branch;
                 Assert.Throws<ArgumentNullException>(() => branch = repo.Branches[null]);
@@ -463,7 +566,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(0, head.Commits.Count());
                 Assert.True(head.IsCurrentRepositoryHead);
                 Assert.False(head.IsRemote);
-                Assert.Equal("master", head.Name);
+                Assert.Equal("master", head.FriendlyName);
                 Assert.Null(head.Tip);
                 Assert.Null(head["huh?"]);
 
@@ -480,15 +583,16 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanGetTrackingInformationFromBranchSharingNoHistoryWithItsTrackedBranch()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Branch master = repo.Branches["master"];
                 const string logMessage = "update target message";
-                repo.Refs.UpdateTarget("refs/remotes/origin/master", "origin/test", Constants.Signature, logMessage);
+                repo.Refs.UpdateTarget("refs/remotes/origin/master", "origin/test", logMessage);
 
                 Assert.True(master.IsTracking);
                 Assert.NotNull(master.TrackedBranch);
+                AssertBelongsToARepository(repo, master.TrackedBranch);
 
                 Assert.NotNull(master.TrackingDetails);
                 Assert.Equal(9, master.TrackingDetails.AheadBy);
@@ -503,9 +607,32 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void TrackingInformationIsEmptyForBranchTrackingPrunedRemoteBranch()
+        {
+            var path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                const string remoteRef = "refs/remotes/origin/master";
+                repo.Refs.Remove(remoteRef);
+
+                Branch master = repo.Branches["master"];
+                Assert.True(master.IsTracking);
+                Assert.NotNull(master.TrackedBranch);
+                Assert.Equal(remoteRef, master.TrackedBranch.CanonicalName);
+                Assert.Null(master.TrackedBranch.Tip);
+
+                Assert.NotNull(master.TrackingDetails);
+                Assert.Null(master.TrackingDetails.AheadBy);
+                Assert.Null(master.TrackingDetails.BehindBy);
+                Assert.Null(master.TrackingDetails.CommonAncestor);
+            }
+        }
+
+        [Fact]
         public void TrackingInformationIsEmptyForNonTrackingBranch()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch branch = repo.Branches["test"];
                 Assert.False(branch.IsTracking);
@@ -521,7 +648,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanGetTrackingInformationForTrackingBranch()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch master = repo.Branches["master"];
                 Assert.True(master.IsTracking);
@@ -537,7 +665,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanGetTrackingInformationForLocalTrackingBranch()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 var branch = repo.Branches["track-local"];
                 Assert.True(branch.IsTracking);
@@ -553,7 +682,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RenamingARemoteTrackingBranchThrows()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch master = repo.Branches["refs/remotes/origin/master"];
                 Assert.True(master.IsRemote);
@@ -565,7 +695,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanWalkCommitsFromAnotherBranch()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch master = repo.Branches["test"];
                 Assert.Equal(2, master.Commits.Count());
@@ -578,13 +709,15 @@ namespace LibGit2Sharp.Tests
             const string testBranchName = "branchToSetUpstreamInfoFor";
             const string trackedBranchName = "refs/remotes/origin/master";
 
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                Branch branch = repo.CreateBranch(testBranchName);
+                Branch trackedBranch = repo.Branches[trackedBranchName];
+                Assert.True(trackedBranch.IsRemote);
+
+                Branch branch = repo.CreateBranch(testBranchName, trackedBranch.Tip);
                 Assert.False(branch.IsTracking);
 
-                Branch trackedBranch = repo.Branches[trackedBranchName];
                 repo.Branches.Update(branch,
                     b => b.TrackedBranch = trackedBranch.CanonicalName);
 
@@ -599,7 +732,34 @@ namespace LibGit2Sharp.Tests
 
                 Assert.True(branch.IsTracking);
                 Assert.Equal(trackedBranch, branch.TrackedBranch);
-                Assert.Equal(upstreamRemote, branch.Remote);
+                Assert.Equal("origin", branch.RemoteName);
+            }
+        }
+
+        [Fact]
+        public void SetTrackedBranchForUnreasolvableRemoteThrows()
+        {
+            const string testBranchName = "branchToSetUpstreamInfoFor";
+            const string trackedBranchName = "refs/remotes/origin/master";
+            var fetchRefSpecs = new string[] { "+refs/heads/notfound/*:refs/remotes/origin/notfound/*" };
+
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                // Modify the fetch spec so that the remote for the remote-tracking branch
+                // cannot be resolved.
+                Remote remote = repo.Network.Remotes["origin"];
+                Assert.NotNull(remote);
+                repo.Network.Remotes.Update("origin", r => r.FetchRefSpecs = fetchRefSpecs);
+
+                // Now attempt to update the tracked branch
+                Branch branch = repo.CreateBranch(testBranchName);
+                Assert.False(branch.IsTracking);
+
+                Branch trackedBranch = repo.Branches[trackedBranchName];
+
+                Assert.Throws<NotFoundException>(() => repo.Branches.Update(branch,
+                                                                                b => b.TrackedBranch = trackedBranch.CanonicalName));
             }
         }
 
@@ -611,13 +771,15 @@ namespace LibGit2Sharp.Tests
             const string trackedBranchName = "refs/remotes/origin/master";
             const string remoteName = "origin";
 
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                Branch branch = repo.CreateBranch(testBranchName);
+                Branch trackedBranch = repo.Branches[trackedBranchName];
+                Assert.True(trackedBranch.IsRemote);
+
+                Branch branch = repo.CreateBranch(testBranchName, trackedBranch.Tip);
                 Assert.False(branch.IsTracking);
 
-                Branch trackedBranch = repo.Branches[trackedBranchName];
                 Branch updatedBranch = repo.Branches.Update(branch,
                     b => b.Remote = remoteName,
                     b => b.UpstreamBranch = upstreamBranchName);
@@ -631,7 +793,7 @@ namespace LibGit2Sharp.Tests
                 Assert.True(updatedBranch.IsTracking);
                 Assert.Equal(trackedBranch, updatedBranch.TrackedBranch);
                 Assert.Equal(upstreamBranchName, updatedBranch.UpstreamBranchCanonicalName);
-                Assert.Equal(upstreamRemote, updatedBranch.Remote);
+                Assert.Equal(remoteName, updatedBranch.RemoteName);
             }
         }
 
@@ -641,13 +803,14 @@ namespace LibGit2Sharp.Tests
             const string testBranchName = "branchToSetUpstreamInfoFor";
             const string localTrackedBranchName = "refs/heads/master";
 
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                Branch branch = repo.CreateBranch(testBranchName);
-                Assert.False(branch.IsTracking);
-
                 Branch trackedBranch = repo.Branches[localTrackedBranchName];
+                Assert.False(trackedBranch.IsRemote);
+
+                Branch branch = repo.CreateBranch(testBranchName, trackedBranch.Tip);
+                Assert.False(branch.IsTracking);
 
                 repo.Branches.Update(branch,
                     b => b.TrackedBranch = trackedBranch.CanonicalName);
@@ -657,7 +820,7 @@ namespace LibGit2Sharp.Tests
 
                 // Branches that track the local remote do not have the "Remote" property set.
                 // Verify (through the configuration entry) that the local remote is set as expected.
-                Assert.Null(branch.Remote);
+                Assert.Null(branch.RemoteName);
                 ConfigurationEntry<string> remoteConfigEntry = repo.Config.Get<string>("branch", testBranchName, "remote");
                 Assert.NotNull(remoteConfigEntry);
                 Assert.Equal(".", remoteConfigEntry.Value);
@@ -679,14 +842,16 @@ namespace LibGit2Sharp.Tests
             const string testBranchName = "branchToSetUpstreamInfoFor";
             const string trackedBranchName = "refs/remotes/origin/master";
 
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                Branch branch = repo.CreateBranch(testBranchName);
+                Branch trackedBranch = repo.Branches[trackedBranchName];
+
+                Branch branch = repo.CreateBranch(testBranchName, trackedBranch.Tip);
                 Assert.False(branch.IsTracking);
 
                 branch = repo.Branches.Update(branch,
-                    b => b.TrackedBranch = trackedBranchName);
+                    b => b.TrackedBranch = trackedBranch.CanonicalName);
 
                 // Got the updated branch from the Update() method
                 Assert.True(branch.IsTracking);
@@ -696,7 +861,7 @@ namespace LibGit2Sharp.Tests
 
                 // Verify this is no longer a tracking branch
                 Assert.False(branch.IsTracking);
-                Assert.Null(branch.Remote);
+                Assert.Null(branch.RemoteName);
                 Assert.Null(branch.UpstreamBranchCanonicalName);
             }
         }
@@ -704,7 +869,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanWalkCommitsFromBranch()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch master = repo.Branches["master"];
                 Assert.Equal(7, master.Commits.Count());
@@ -713,7 +879,7 @@ namespace LibGit2Sharp.Tests
 
         private void AssertRemoval(string branchName, bool isRemote, bool shouldPreviouslyAssertExistence)
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 if (shouldPreviouslyAssertExistence)
@@ -740,7 +906,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("origin/br2")]
         public void CanRemoveAnExistingBranch(string branchName)
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Branch curBranch = repo.Branches[branchName];
@@ -748,6 +914,24 @@ namespace LibGit2Sharp.Tests
                 repo.Branches.Remove(curBranch);
                 Branch branch = repo.Branches[branchName];
                 Assert.Null(branch);
+            }
+        }
+
+        [Fact]
+        public void CanCreateBranchInDeletedNestedBranchNamespace()
+        {
+            const string namespaceName = "level_one";
+            string branchWithNamespaceName = string.Join("/", namespaceName, "level_two");
+
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Commit commit = repo.Head.Tip;
+
+                Branch branchWithNamespace = repo.Branches.Add(branchWithNamespaceName, commit);
+                repo.Branches.Remove(branchWithNamespace);
+
+                repo.Branches.Add(namespaceName, commit);
             }
         }
 
@@ -762,26 +946,30 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RemovingABranchWhichIsTheCurrentHeadThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Remove(repo.Head.Name));
+                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Remove(repo.Head.FriendlyName));
             }
         }
 
         [Fact]
         public void RemovingABranchWithBadParamsThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.Branches.Remove(string.Empty));
-                Assert.Throws<ArgumentNullException>(() => repo.Branches.Remove(null));
+                Assert.Throws<ArgumentNullException>(() => repo.Branches.Remove(default(string)));
+                Assert.Throws<ArgumentNullException>(() => repo.Branches.Remove(default(Branch)));
             }
         }
 
         [Fact]
         public void OnlyOneBranchIsTheHead()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch head = null;
 
@@ -810,7 +998,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void TwoBranchesPointingAtTheSameCommitAreNotBothCurrent()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 Branch master = repo.Branches["refs/heads/master"];
@@ -823,8 +1011,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRenameABranch()
         {
-            string path = CloneBareTestRepo();
-            using (var repo = new Repository(path))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path, new RepositoryOptions { Identity = Constants.Identity }))
             {
                 EnableRefLog(repo);
 
@@ -832,23 +1020,28 @@ namespace LibGit2Sharp.Tests
                 var br2 = repo.Branches["br2"];
                 Assert.NotNull(br2);
 
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 Branch newBranch = repo.Branches.Rename("br2", "br3");
 
-                Assert.Equal("br3", newBranch.Name);
+                Assert.Equal("br3", newBranch.FriendlyName);
 
                 Assert.Null(repo.Branches["br2"]);
                 Assert.NotNull(repo.Branches["br3"]);
 
                 AssertRefLogEntry(repo, newBranch.CanonicalName,
+                                  string.Format("branch: renamed {0} to {1}", br2.CanonicalName, newBranch.CanonicalName),
+                                  br2.Tip.Id,
                                   newBranch.Tip.Id,
-                                  string.Format("branch: renamed {0} to {1}", br2.CanonicalName, newBranch.CanonicalName));
+                                  Constants.Identity, before);
             }
         }
 
         [Fact]
         public void BlindlyRenamingABranchOverAnExistingOneThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<NameConflictException>(() => repo.Branches.Rename("br2", "test"));
             }
@@ -857,8 +1050,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRenameABranchWhileOverwritingAnExistingOne()
         {
-            string path = CloneBareTestRepo();
-            using (var repo = new Repository(path))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path, new RepositoryOptions { Identity = Constants.Identity }))
             {
                 EnableRefLog(repo);
 
@@ -868,8 +1061,10 @@ namespace LibGit2Sharp.Tests
                 Branch br2 = repo.Branches["br2"];
                 Assert.NotNull(br2);
 
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 Branch newBranch = repo.Branches.Rename("br2", "test", true);
-                Assert.Equal("test", newBranch.Name);
+                Assert.Equal("test", newBranch.FriendlyName);
 
                 Assert.Null(repo.Branches["br2"]);
 
@@ -880,16 +1075,17 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(br2.Tip, newTest.Tip);
 
                 AssertRefLogEntry(repo, newBranch.CanonicalName,
-                                  newBranch.Tip.Id,
                                   string.Format("branch: renamed {0} to {1}", br2.CanonicalName, newBranch.CanonicalName),
-                                  test.Tip.Id);
+                                  br2.Tip.Id,
+                                  newTest.Tip.Id,
+                                  Constants.Identity, before);
             }
         }
 
         [Fact]
         public void DetachedHeadIsNotATrackingBranch()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Reset(ResetMode.Hard);
@@ -927,7 +1123,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(clonedRepoPath))
             {
                 Assert.Empty(Directory.GetFiles(scd2.RootedDirectoryPath));
-                Assert.Equal(repo.Head.Name, "master");
+                Assert.Equal(repo.Head.FriendlyName, "master");
 
                 Assert.Null(repo.Head.Tip);
                 Assert.NotNull(repo.Head.TrackedBranch);
@@ -938,11 +1134,10 @@ namespace LibGit2Sharp.Tests
                 Assert.Null(repo.Head.TrackingDetails.BehindBy);
                 Assert.Null(repo.Head.TrackingDetails.CommonAncestor);
 
-                Assert.NotNull(repo.Head.Remote);
-                Assert.Equal("origin", repo.Head.Remote.Name);
+                Assert.Equal("origin", repo.Head.RemoteName);
 
                 Touch(repo.Info.WorkingDirectory, "a.txt", "a");
-                repo.Index.Stage("a.txt");
+                Commands.Stage(repo, "a.txt");
                 repo.Commit("A file", Constants.Signature, Constants.Signature);
 
                 Assert.NotNull(repo.Head.Tip);
@@ -959,14 +1154,15 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RemoteBranchesDoNotTrackAnything()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 var branches = repo.Branches.Where(b => b.IsRemote);
 
                 foreach (var branch in branches)
                 {
                     Assert.True(branch.IsRemote);
-                    Assert.NotNull(branch.Remote);
+                    Assert.NotNull(branch.RemoteName);
                     Assert.False(branch.IsTracking);
                     Assert.Null(branch.TrackedBranch);
 
@@ -986,33 +1182,53 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CreatingABranchIncludesTheCorrectReflogEntries()
         {
-            string path = CloneStandardTestRepo();
-            using (var repo = new Repository(path))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path, new RepositoryOptions { Identity = Constants.Identity }))
             {
                 EnableRefLog(repo);
-                var branch = repo.Branches.Add("foo", repo.Head.Tip);
-                AssertRefLogEntry(repo, branch.CanonicalName, branch.Tip.Id,
-                    string.Format("branch: Created from {0}", repo.Head.Tip.Sha));
 
-                branch = repo.Branches.Add("bar", repo.Head.Tip, null, "BAR");
-                AssertRefLogEntry(repo, branch.CanonicalName, repo.Head.Tip.Id, "BAR");
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
+                var branch = repo.Branches.Add("foo", repo.Head.Tip);
+
+                AssertRefLogEntry(repo, branch.CanonicalName,
+                                  string.Format("branch: Created from {0}", repo.Head.Tip.Sha),
+                                  null, branch.Tip.Id,
+                                  Constants.Identity, before);
+
+                before = DateTimeOffset.Now.TruncateMilliseconds();
+
+                branch = repo.Branches.Add("bar", repo.Head.Tip);
+
+                AssertRefLogEntry(repo, branch.CanonicalName,
+                                  "branch: Created from " + repo.Head.Tip.Sha,
+                                  null, repo.Head.Tip.Id,
+                                  Constants.Identity, before);
             }
         }
 
         [Fact]
         public void RenamingABranchIncludesTheCorrectReflogEntries()
         {
-            string path = CloneStandardTestRepo();
-            using (var repo = new Repository(path))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path, new RepositoryOptions { Identity = Constants.Identity }))
             {
                 EnableRefLog(repo);
                 var master = repo.Branches["master"];
-                var newMaster = repo.Branches.Rename(master, "new-master");
-                AssertRefLogEntry(repo, newMaster.CanonicalName, newMaster.Tip.Id,
-                    "branch: renamed refs/heads/master to refs/heads/new-master");
 
-                newMaster = repo.Branches.Rename(newMaster, "new-master2", null, "MOVE");
-                AssertRefLogEntry(repo, newMaster.CanonicalName, newMaster.Tip.Id, "MOVE");
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
+                var newMaster = repo.Branches.Rename(master, "new-master");
+                AssertRefLogEntry(repo, newMaster.CanonicalName, "branch: renamed refs/heads/master to refs/heads/new-master",
+                                  newMaster.Tip.Id, newMaster.Tip.Id,
+                                  Constants.Identity, before);
+
+                before = DateTimeOffset.Now.TruncateMilliseconds();
+
+                var newMaster2 = repo.Branches.Rename(newMaster, "new-master2");
+                AssertRefLogEntry(repo, newMaster2.CanonicalName, "branch: renamed refs/heads/new-master to refs/heads/new-master2",
+                                  newMaster.Tip.Id, newMaster2.Tip.Id,
+                                  Constants.Identity, before);
             }
         }
     }

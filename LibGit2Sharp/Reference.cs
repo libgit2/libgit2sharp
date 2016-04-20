@@ -10,11 +10,12 @@ namespace LibGit2Sharp
     /// A Reference to another git object
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public abstract class Reference : IEquatable<Reference>
+    public abstract class Reference : IEquatable<Reference>, IBelongToARepository
     {
         private static readonly LambdaEqualityHelper<Reference> equalityHelper =
             new LambdaEqualityHelper<Reference>(x => x.CanonicalName, x => x.TargetIdentifier);
 
+        private readonly IRepository repo;
         private readonly string canonicalName;
         private readonly string targetIdentifier;
 
@@ -24,18 +25,24 @@ namespace LibGit2Sharp
         protected Reference()
         { }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Reference"/> class.
-        /// </summary>
-        /// <param name="canonicalName">The canonical name.</param>
-        /// <param name="targetIdentifier">The target identifier.</param>
-        protected Reference(string canonicalName, string targetIdentifier)
+        /// <remarks>
+        /// This would be protected+internal, were that supported by C#.
+        /// Do not use except in subclasses.
+        /// </remarks>
+        internal Reference(IRepository repo, string canonicalName, string targetIdentifier)
         {
+            this.repo = repo;
             this.canonicalName = canonicalName;
             this.targetIdentifier = targetIdentifier;
         }
 
-        internal static T BuildFromPtr<T>(ReferenceSafeHandle handle, Repository repo) where T : Reference
+        // This overload lets public-facing methods avoid having to use the pointers directly
+        internal static unsafe T BuildFromPtr<T>(ReferenceHandle handle, Repository repo) where T : Reference
+        {
+            return BuildFromPtr<T>((git_reference*) handle.Handle, repo);
+        }
+
+        internal static unsafe T BuildFromPtr<T>(git_reference* handle, Repository repo) where T : Reference
         {
             GitReferenceType type = Proxy.git_reference_type(handle);
             string name = Proxy.git_reference_name(handle);
@@ -48,7 +55,7 @@ namespace LibGit2Sharp
                     string targetIdentifier = Proxy.git_reference_symbolic_target(handle);
 
                     var targetRef = repo.Refs[targetIdentifier];
-                    reference = new SymbolicReference(name, targetIdentifier, targetRef);
+                    reference = new SymbolicReference(repo, name, targetIdentifier, targetRef);
                     break;
 
                 case GitReferenceType.Oid:
@@ -58,7 +65,7 @@ namespace LibGit2Sharp
                     break;
 
                 default:
-                    throw new LibGit2SharpException(String.Format(CultureInfo.InvariantCulture, "Unable to build a new reference from a type '{0}'.", type));
+                    throw new LibGit2SharpException("Unable to build a new reference from a type '{0}'.", type);
             }
 
             return reference as T;
@@ -80,6 +87,42 @@ namespace LibGit2Sharp
         public static bool IsValidName(string canonicalName)
         {
             return Proxy.git_reference_is_valid_name(canonicalName);
+        }
+
+        /// <summary>
+        /// Determine if the current <see cref="Reference"/> is a local branch.
+        /// </summary>
+        /// <returns>true if the current <see cref="Reference"/> is a local branch, false otherwise.</returns>
+        public virtual bool IsLocalBranch
+        {
+            get { return CanonicalName.LooksLikeLocalBranch(); }
+        }
+
+        /// <summary>
+        /// Determine if the current <see cref="Reference"/> is a remote tracking branch.
+        /// </summary>
+        /// <returns>true if the current <see cref="Reference"/> is a remote tracking branch, false otherwise.</returns>
+        public virtual bool IsRemoteTrackingBranch
+        {
+            get { return CanonicalName.LooksLikeRemoteTrackingBranch(); }
+        }
+
+        /// <summary>
+        /// Determine if the current <see cref="Reference"/> is a tag.
+        /// </summary>
+        /// <returns>true if the current <see cref="Reference"/> is a tag, false otherwise.</returns>
+        public virtual bool IsTag
+        {
+            get { return CanonicalName.LooksLikeTag(); }
+        }
+
+        /// <summary>
+        /// Determine if the current <see cref="Reference"/> is a note.
+        /// </summary>
+        /// <returns>true if the current <see cref="Reference"/> is a note, false otherwise.</returns>
+        public virtual bool IsNote
+        {
+            get { return CanonicalName.LooksLikeNote(); }
         }
 
         /// <summary>
@@ -194,7 +237,22 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    "{0} => \"{1}\"", CanonicalName, TargetIdentifier);
+                                     "{0} => \"{1}\"",
+                                     CanonicalName,
+                                     TargetIdentifier);
+            }
+        }
+
+        IRepository IBelongToARepository.Repository
+        {
+            get
+            {
+                if (repo == null)
+                {
+                    throw new InvalidOperationException("Repository requires a local repository");
+                }
+
+                return repo;
             }
         }
     }

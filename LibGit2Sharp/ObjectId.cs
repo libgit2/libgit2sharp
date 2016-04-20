@@ -57,6 +57,32 @@ namespace LibGit2Sharp
             Ensure.ArgumentConformsTo(rawId, b => b.Length == rawSize, "rawId");
         }
 
+        internal static unsafe ObjectId BuildFromPtr(IntPtr ptr)
+        {
+            return BuildFromPtr((git_oid*) ptr.ToPointer());
+        }
+
+        internal static unsafe ObjectId BuildFromPtr(git_oid* id)
+        {
+            return id == null ? null : new ObjectId(id->Id);
+        }
+
+        internal unsafe ObjectId(byte* rawId)
+        {
+            byte[] id = new byte[GitOid.Size];
+
+            fixed(byte* p = id)
+            {
+                for (int i = 0; i < rawSize; i++)
+                {
+                    p[i] = rawId[i];
+                }
+            }
+
+            this.oid = new GitOid { Id = id };
+            this.sha = ToString(oid.Id, oid.Id.Length * 2);
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ObjectId"/> class.
         /// </summary>
@@ -297,9 +323,11 @@ namespace LibGit2Sharp
                     return false;
                 }
 
-                throw new ArgumentException(
-                    string.Format(CultureInfo.InvariantCulture, "'{0}' is not a valid object identifier. Its length should be {1}.", objectId, HexSize),
-                    "objectId");
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                                                          "'{0}' is not a valid object identifier. Its length should be {1}.",
+                                                          objectId,
+                                                          HexSize),
+                                            "objectId");
             }
 
             return objectId.All(c => hexDigits.Contains(c.ToString(CultureInfo.InvariantCulture)));

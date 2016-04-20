@@ -9,7 +9,7 @@ namespace LibGit2Sharp
     /// A Submodule.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class Submodule : IEquatable<Submodule>
+    public class Submodule : IEquatable<Submodule>, IBelongToARepository
     {
         private static readonly LambdaEqualityHelper<Submodule> equalityHelper =
             new LambdaEqualityHelper<Submodule>(x => x.Name, x => x.HeadCommitId);
@@ -21,7 +21,7 @@ namespace LibGit2Sharp
         private readonly ILazy<ObjectId> headCommitId;
         private readonly ILazy<ObjectId> indexCommitId;
         private readonly ILazy<ObjectId> workdirCommitId;
-        private readonly ILazy<bool> fetchRecurseSubmodulesRule;
+        private readonly ILazy<SubmoduleRecurse> fetchRecurseSubmodulesRule;
         private readonly ILazy<SubmoduleIgnore> ignoreRule;
         private readonly ILazy<SubmoduleUpdate> updateRule;
 
@@ -46,7 +46,7 @@ namespace LibGit2Sharp
             var rules = new SubmoduleLazyGroup(repo, name);
             fetchRecurseSubmodulesRule = rules.AddLazy(Proxy.git_submodule_fetch_recurse_submodules);
             ignoreRule = rules.AddLazy(Proxy.git_submodule_ignore);
-            updateRule = rules.AddLazy(Proxy.git_submodule_update);
+            updateRule = rules.AddLazy(Proxy.git_submodule_update_strategy);
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace LibGit2Sharp
         /// Note that at this time, LibGit2Sharp does not honor this setting and the
         /// fetch functionality current ignores submodules.
         /// </summary>
-        public virtual bool FetchRecurseSubmodulesRule { get { return fetchRecurseSubmodulesRule.Value; } }
+        public virtual SubmoduleRecurse FetchRecurseSubmodulesRule { get { return fetchRecurseSubmodulesRule.Value; } }
 
         /// <summary>
         /// The ignore rule of the submodule.
@@ -98,15 +98,12 @@ namespace LibGit2Sharp
         public virtual SubmoduleUpdate UpdateRule { get { return updateRule.Value; } }
 
         /// <summary>
-        /// Retrieves the state of this submodule in the working directory compared to the staging area and the latest commmit.
+        /// Retrieves the state of this submodule in the working directory compared to the staging area and the latest commit.
         /// </summary>
         /// <returns>The <see cref="SubmoduleStatus"/> of this submodule.</returns>
         public virtual SubmoduleStatus RetrieveStatus()
         {
-            using (var handle = Proxy.git_submodule_lookup(repo.Handle, Name))
-            {
-                return Proxy.git_submodule_status(handle);
-            }
+            return Proxy.git_submodule_status(repo.Handle, Name);
         }
 
         /// <summary>
@@ -151,9 +148,10 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format(CultureInfo.InvariantCulture,
-                    "{0} => {1}", Name, Url);
+                return string.Format(CultureInfo.InvariantCulture, "{0} => {1}", Name, Url);
             }
         }
+
+        IRepository IBelongToARepository.Repository { get { return repo; } }
     }
 }

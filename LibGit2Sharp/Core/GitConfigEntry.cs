@@ -4,10 +4,12 @@ using System.Runtime.InteropServices;
 namespace LibGit2Sharp.Core
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal struct GitConfigEntry
+    internal unsafe struct GitConfigEntry
     {
-        public IntPtr namePtr;
-        public IntPtr valuePtr;
+        public char* namePtr;
+        public char* valuePtr;
         public uint level;
+        public void* freePtr;
+        public void* payloadPtr;
     }
 }

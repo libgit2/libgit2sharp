@@ -12,6 +12,6 @@ namespace LibGit2Sharp.Core
 
         public GitMergeOpts MergeOpts = new GitMergeOpts { Version = 1 };
 
-        public GitCheckoutOpts CheckoutOpts = new GitCheckoutOpts {version = 1};
+        public GitCheckoutOpts CheckoutOpts = new GitCheckoutOpts { version = 1 };
     }
 }

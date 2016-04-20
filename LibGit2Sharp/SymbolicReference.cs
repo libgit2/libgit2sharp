@@ -17,8 +17,8 @@ namespace LibGit2Sharp
         protected SymbolicReference()
         { }
 
-        internal SymbolicReference(string canonicalName, string targetIdentifier, Reference target)
-            : base(canonicalName, targetIdentifier)
+        internal SymbolicReference(IRepository repo, string canonicalName, string targetIdentifier, Reference target)
+            : base(repo, canonicalName, targetIdentifier)
         {
             this.target = target;
         }
@@ -45,9 +45,12 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    "{0} => {1} => \"{2}\"",
-                    CanonicalName, TargetIdentifier,
-                    (Target != null) ? Target.TargetIdentifier : "?");
+                                     "{0} => {1} => \"{2}\"",
+                                     CanonicalName,
+                                     TargetIdentifier,
+                                     (Target != null)
+                                         ? Target.TargetIdentifier
+                                         : "?");
             }
         }
     }

@@ -28,11 +28,51 @@ namespace LibGit2Sharp
         public static CommitRewriteInfo From(Commit commit)
         {
             return new CommitRewriteInfo
-                {
-                    Author = commit.Author,
-                    Committer = commit.Committer,
-                    Message = commit.Message
-                };
+            {
+                Author = commit.Author,
+                Committer = commit.Committer,
+                Message = commit.Message
+            };
+        }
+
+        /// <summary>
+        /// Build a <see cref="CommitRewriteInfo"/> from the <see cref="Commit"/> passed in,
+        /// optionally overriding some of its properties
+        /// </summary>
+        /// <param name="commit">The <see cref="Commit"/> whose information is to be copied</param>
+        /// <param name="author">Optional override for the author</param>
+        /// <returns>A new <see cref="CommitRewriteInfo"/> object that matches the info for the
+        /// <paramref name="commit"/> with the optional parameters replaced..</returns>
+        public static CommitRewriteInfo From(Commit commit, Signature author)
+        {
+            return From(commit, author, null, null);
+        }
+
+        /// <summary>
+        /// Build a <see cref="CommitRewriteInfo"/> from the <see cref="Commit"/> passed in,
+        /// optionally overriding some of its properties
+        /// </summary>
+        /// <param name="commit">The <see cref="Commit"/> whose information is to be copied</param>
+        /// <param name="message">Optional override for the message</param>
+        /// <returns>A new <see cref="CommitRewriteInfo"/> object that matches the info for the
+        /// <paramref name="commit"/> with the optional parameters replaced..</returns>
+        public static CommitRewriteInfo From(Commit commit, string message)
+        {
+            return From(commit, null, null, message);
+        }
+
+        /// <summary>
+        /// Build a <see cref="CommitRewriteInfo"/> from the <see cref="Commit"/> passed in,
+        /// optionally overriding some of its properties
+        /// </summary>
+        /// <param name="commit">The <see cref="Commit"/> whose information is to be copied</param>
+        /// <param name="author">Optional override for the author</param>
+        /// <param name="committer">Optional override for the committer</param>
+        /// <returns>A new <see cref="CommitRewriteInfo"/> object that matches the info for the
+        /// <paramref name="commit"/> with the optional parameters replaced..</returns>
+        public static CommitRewriteInfo From(Commit commit, Signature author, Signature committer)
+        {
+            return From(commit, author, committer, null);
         }
 
         /// <summary>
@@ -45,10 +85,11 @@ namespace LibGit2Sharp
         /// <param name="message">Optional override for the message</param>
         /// <returns>A new <see cref="CommitRewriteInfo"/> object that matches the info for the
         /// <paramref name="commit"/> with the optional parameters replaced..</returns>
-        public static CommitRewriteInfo From(Commit commit,
-                                             Signature author = null,
-                                             Signature committer = null,
-                                             string message = null)
+        public static CommitRewriteInfo From(
+            Commit commit,
+            Signature author,
+            Signature committer,
+            string message)
         {
             var cri = From(commit);
             cri.Author = author ?? cri.Author;

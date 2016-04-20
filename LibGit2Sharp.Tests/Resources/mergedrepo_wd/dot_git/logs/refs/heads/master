@@ -1,4 +1,0 @@
-0000000000000000000000000000000000000000 9107b30fe11ff310fec93876469147b263fb958c Edward Thomson <ethomson@microsoft.com> 1360632480 -0600	commit (initial): ancestor
-9107b30fe11ff310fec93876469147b263fb958c 8b19fd77de5995e6e502e7c3b82657248f510325 Edward Thomson <ethomson@microsoft.com> 1360633224 -0600	commit: ours
-8b19fd77de5995e6e502e7c3b82657248f510325 91116bad97c50a2daa278ca6cffe16d0118befe5 Edward Thomson <ethomson@microsoft.com> 1360633337 -0600	commit: ours
-91116bad97c50a2daa278ca6cffe16d0118befe5 9b2f98b1c086d3929eac387d39fae94425e0115f Edward Thomson <ethomson@microsoft.com> 1360633362 -0600	rebase -i (finish): refs/heads/master onto 8b19fd7

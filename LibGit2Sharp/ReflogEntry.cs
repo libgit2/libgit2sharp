@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -11,7 +12,7 @@ namespace LibGit2Sharp
     {
         private readonly ObjectId _from;
         private readonly ObjectId _to;
-        private readonly Signature _commiter;
+        private readonly Signature _committer;
         private readonly string message;
 
         /// <summary>
@@ -24,11 +25,11 @@ namespace LibGit2Sharp
         /// Initializes a new instance of the <see cref="ReflogEntry"/> class.
         /// </summary>
         /// <param name="entryHandle">a <see cref="SafeHandle"/> to the reflog entry</param>
-        public ReflogEntry(SafeHandle entryHandle)
+        internal unsafe ReflogEntry(git_reflog_entry* entryHandle)
         {
             _from = Proxy.git_reflog_entry_id_old(entryHandle);
             _to = Proxy.git_reflog_entry_id_new(entryHandle);
-            _commiter = Proxy.git_reflog_entry_committer(entryHandle);
+            _committer = Proxy.git_reflog_entry_committer(entryHandle);
             message = Proxy.git_reflog_entry_message(entryHandle);
         }
 
@@ -49,11 +50,11 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// <see cref="Signature"/> of the commiter of this reference update
+        /// <see cref="Signature"/> of the committer of this reference update
         /// </summary>
-        public virtual Signature Commiter
+        public virtual Signature Committer
         {
-            get { return _commiter; }
+            get { return _committer; }
         }
 
         /// <summary>

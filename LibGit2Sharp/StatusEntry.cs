@@ -58,7 +58,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Gets the rename details from the Index to the working directory, if this <see cref="FileStatus"/> contains <see cref="FileStatus.RenamedInWorkDir"/>
+        /// Gets the rename details from the Index to the working directory, if this <see cref="FileStatus"/> contains <see cref="FileStatus.RenamedInWorkdir"/>
         /// </summary>
         public virtual RenameDetails IndexToWorkDirRenameDetails
         {
@@ -121,10 +121,11 @@ namespace LibGit2Sharp
             get
             {
                 if ((State & FileStatus.RenamedInIndex) == FileStatus.RenamedInIndex ||
-                    (State & FileStatus.RenamedInWorkDir) == FileStatus.RenamedInWorkDir)
+                    (State & FileStatus.RenamedInWorkdir) == FileStatus.RenamedInWorkdir)
                 {
-                    string oldFilePath = ((State & FileStatus.RenamedInIndex) == FileStatus.RenamedInIndex) ?
-                        HeadToIndexRenameDetails.OldFilePath : IndexToWorkDirRenameDetails.OldFilePath;
+                    string oldFilePath = ((State & FileStatus.RenamedInIndex) != 0)
+                        ? HeadToIndexRenameDetails.OldFilePath
+                        : IndexToWorkDirRenameDetails.OldFilePath;
 
                     return string.Format(CultureInfo.InvariantCulture, "{0}: {1} -> {2}", State, oldFilePath, FilePath);
                 }
