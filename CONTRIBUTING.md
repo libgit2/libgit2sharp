@@ -26,7 +26,7 @@ To build libgit2 see [here](https://github.com/libgit2/libgit2sharp/wiki/How-to-
 
 ## Making Changes
 
-* Create a topic branch off vNext (don't work directly on vNext).
+* Create a topic branch off master (don't work directly on master).
 * Implement your feature or fix your bug. Please following existing coding styles and do not introduce new ones.
 * Make atomic, focused commits with good commit messages.
 * Make sure you have added the necessary tests for your changes.
@@ -35,7 +35,7 @@ To build libgit2 see [here](https://github.com/libgit2/libgit2sharp/wiki/How-to-
 ## Submitting Changes
 
 * Push your changes to a topic branch in your fork of the repository.
-* Send a Pull Request targeting the vNext branch. Note what issue/issues your patch fixes.
+* Send a Pull Request targeting the master branch. Note what issue/issues your patch fixes.
 
 Some things that will increase the chance that your pull request is accepted.
 
