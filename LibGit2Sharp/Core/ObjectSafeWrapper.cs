@@ -5,15 +5,15 @@ namespace LibGit2Sharp.Core
 {
     internal class ObjectSafeWrapper : IDisposable
     {
-        private readonly GitObjectSafeHandle objectPtr;
+        private readonly ObjectHandle objectPtr;
 
-        public ObjectSafeWrapper(ObjectId id, RepositorySafeHandle handle, bool allowNullObjectId = false)
+        public unsafe ObjectSafeWrapper(ObjectId id, RepositoryHandle handle, bool allowNullObjectId = false)
         {
             Ensure.ArgumentNotNull(handle, "handle");
 
             if (allowNullObjectId && id == null)
             {
-                objectPtr = new NullGitObjectSafeHandle();
+                objectPtr = new ObjectHandle(null, false);
             }
             else
             {
@@ -22,7 +22,7 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public GitObjectSafeHandle ObjectPtr
+        public ObjectHandle ObjectPtr
         {
             get { return objectPtr; }
         }

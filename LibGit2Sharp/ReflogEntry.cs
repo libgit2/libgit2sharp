@@ -25,7 +25,7 @@ namespace LibGit2Sharp
         /// Initializes a new instance of the <see cref="ReflogEntry"/> class.
         /// </summary>
         /// <param name="entryHandle">a <see cref="SafeHandle"/> to the reflog entry</param>
-        public ReflogEntry(SafeHandle entryHandle)
+        internal unsafe ReflogEntry(git_reflog_entry* entryHandle)
         {
             _from = Proxy.git_reflog_entry_id_old(entryHandle);
             _to = Proxy.git_reflog_entry_id_new(entryHandle);
@@ -55,15 +55,6 @@ namespace LibGit2Sharp
         public virtual Signature Committer
         {
             get { return _committer; }
-        }
-
-        /// <summary>
-        /// <see cref="Signature"/> of the committer of this reference update
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use Committer instead.")]
-        public virtual Signature Commiter
-        {
-            get { return Committer; }
         }
 
         /// <summary>

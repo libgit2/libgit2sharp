@@ -154,7 +154,7 @@ namespace LibGit2Sharp
                 if (!remoteName.Equals(".", StringComparison.Ordinal))
                 {
                     // Verify that remote exists.
-                    repo.Network.Remotes.RemoteForName(remoteName);
+                    using (repo.Network.Remotes.RemoteForName(remoteName)) { }
                 }
 
                 repo.Config.Set(configKey, remoteName);
@@ -183,8 +183,10 @@ namespace LibGit2Sharp
             {
                 remoteName = Proxy.git_branch_remote_name(repo.Handle, canonicalName, true);
 
-                Remote remote = repo.Network.Remotes.RemoteForName(remoteName);
-                mergeBranchName = remote.FetchSpecTransformToSource(canonicalName);
+                using (var remote = repo.Network.Remotes.RemoteForName(remoteName))
+                {
+                    mergeBranchName = remote.FetchSpecTransformToSource(canonicalName);
+                }
             }
             else
             {

@@ -123,7 +123,7 @@ namespace LibGit2Sharp
 
                 string canonicalNamespace = NormalizeToCanonicalName(@namespace);
 
-                using (NoteSafeHandle noteHandle = Proxy.git_note_read(repo.Handle, canonicalNamespace, id))
+                using (NoteHandle noteHandle = Proxy.git_note_read(repo.Handle, canonicalNamespace, id))
                 {
                     return noteHandle == null
                         ? null
@@ -165,22 +165,6 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Creates or updates a <see cref="Note"/> on the specified object, and for the given namespace.
-        /// <para>Both the Author and Committer will be guessed from the Git configuration. An exception will be raised if no configuration is reachable.</para>
-        /// </summary>
-        /// <param name="targetId">The target <see cref="ObjectId"/>, for which the note will be created.</param>
-        /// <param name="message">The note message.</param>
-        /// <param name="namespace">The namespace on which the note will be created. It can be either a canonical namespace or an abbreviated namespace ('refs/notes/myNamespace' or just 'myNamespace').</param>
-        /// <returns>The note which was just saved.</returns>
-        [Obsolete("This method will be removed in the next release. Please use Add(ObjectId, string, Signature, Signature, string) instead.")]
-        public virtual Note Add(ObjectId targetId, string message, string @namespace)
-        {
-            Signature author = repo.Config.BuildSignatureOrThrow(DateTimeOffset.Now);
-
-            return Add(targetId, message, author, author, @namespace);
-        }
-
-        /// <summary>
-        /// Creates or updates a <see cref="Note"/> on the specified object, and for the given namespace.
         /// </summary>
         /// <param name="targetId">The target <see cref="ObjectId"/>, for which the note will be created.</param>
         /// <param name="message">The note message.</param>
@@ -203,20 +187,6 @@ namespace LibGit2Sharp
             Proxy.git_note_create(repo.Handle, canonicalNamespace, author, committer, targetId, message, true);
 
             return this[canonicalNamespace, targetId];
-        }
-
-        /// <summary>
-        /// Deletes the note on the specified object, and for the given namespace.
-        /// <para>Both the Author and Committer will be guessed from the Git configuration. An exception will be raised if no configuration is reachable.</para>
-        /// </summary>
-        /// <param name="targetId">The target <see cref="ObjectId"/>, for which the note will be created.</param>
-        /// <param name="namespace">The namespace on which the note will be removed. It can be either a canonical namespace or an abbreviated namespace ('refs/notes/myNamespace' or just 'myNamespace').</param>
-        [Obsolete("This method will be removed in the next release. Please use Remove(ObjectId, Signature, Signature, string) instead.")]
-        public virtual void Remove(ObjectId targetId, string @namespace)
-        {
-            Signature author = repo.Config.BuildSignatureOrThrow(DateTimeOffset.Now);
-
-            Remove(targetId, author, author, @namespace);
         }
 
         /// <summary>

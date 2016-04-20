@@ -115,7 +115,7 @@ namespace LibGit2Sharp
 
         private IEnumerable<Reference> ListReferencesInternal(string url, CredentialsHandler credentialsProvider)
         {
-            using (RemoteSafeHandle remoteHandle = BuildRemoteSafeHandle(repository.Handle, url))
+            using (RemoteHandle remoteHandle = BuildRemoteHandle(repository.Handle, url))
             {
                 GitRemoteCallbacks gitCallbacks = new GitRemoteCallbacks { version = 1 };
 
@@ -130,101 +130,25 @@ namespace LibGit2Sharp
             }
         }
 
-        static RemoteSafeHandle BuildRemoteSafeHandle(RepositorySafeHandle repoHandle, Remote remote)
+        static RemoteHandle BuildRemoteHandle(RepositoryHandle repoHandle, string url)
         {
-            Debug.Assert(repoHandle != null && !repoHandle.IsClosed && !repoHandle.IsInvalid);
-            Debug.Assert(remote != null && remote.Name != null);
-
-            RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repoHandle, remote.Name, true);
-            Debug.Assert(remoteHandle != null && !(remoteHandle.IsClosed || remoteHandle.IsInvalid));
-
-            return remoteHandle;
-        }
-
-        static RemoteSafeHandle BuildRemoteSafeHandle(RepositorySafeHandle repoHandle, string url)
-        {
-            Debug.Assert(repoHandle != null && !repoHandle.IsClosed && !repoHandle.IsInvalid);
+            Debug.Assert(repoHandle != null && !repoHandle.IsNull);
             Debug.Assert(url != null);
 
-            RemoteSafeHandle remoteHandle = Proxy.git_remote_create_anonymous(repoHandle, url);
-            Debug.Assert(remoteHandle != null && !(remoteHandle.IsClosed || remoteHandle.IsInvalid));
+            RemoteHandle remoteHandle = Proxy.git_remote_create_anonymous(repoHandle, url);
+            Debug.Assert(remoteHandle != null && !(remoteHandle.IsNull));
 
             return remoteHandle;
         }
 
-        static void DoFetch(
-            RepositorySafeHandle repoHandle,
-            Remote remote,
-            FetchOptions options,
-            string logMessage,
-            IEnumerable<string> refspecs)
-        {
-            using (RemoteSafeHandle remoteHandle = BuildRemoteSafeHandle(repoHandle, remote))
-            {
-                DoFetch(options, remoteHandle, logMessage, refspecs);
-            }
-        }
-
-        static void DoFetch(
-            RepositorySafeHandle repoHandle,
-            string url,
-            FetchOptions options,
-            string logMessage,
-            IEnumerable<string> refspecs)
-        {
-            using (RemoteSafeHandle remoteHandle = BuildRemoteSafeHandle(repoHandle, url))
-            {
-                DoFetch(options, remoteHandle, logMessage, refspecs);
-            }
-        }
-
-        private static void DoFetch(FetchOptions options, RemoteSafeHandle remoteHandle, string logMessage, IEnumerable<string> refspecs)
-        {
-            Debug.Assert(remoteHandle != null && !remoteHandle.IsClosed && !remoteHandle.IsInvalid);
-
-            options = options ?? new FetchOptions();
-
-            var callbacks = new RemoteCallbacks(options);
-            GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
-
-            // It is OK to pass the reference to the GitCallbacks directly here because libgit2 makes a copy of
-            // the data in the git_remote_callbacks structure. If, in the future, libgit2 changes its implementation
-            // to store a reference to the git_remote_callbacks structure this would introduce a subtle bug
-            // where the managed layer could move the git_remote_callbacks to a different location in memory,
-            // but libgit2 would still reference the old address.
-            //
-            // Also, if GitRemoteCallbacks were a class instead of a struct, we would need to guard against
-            // GC occuring in between setting the remote callbacks and actual usage in one of the functions afterwords.
-            var fetchOptions = new GitFetchOptions
-            {
-                RemoteCallbacks = gitCallbacks,
-                download_tags = Proxy.git_remote_autotag(remoteHandle),
-            };
-
-            if (options.TagFetchMode.HasValue)
-            {
-                fetchOptions.download_tags = options.TagFetchMode.Value;
-            }
-
-            if (options.Prune.HasValue)
-            {
-                fetchOptions.Prune = options.Prune.Value ? FetchPruneStrategy.Prune : FetchPruneStrategy.NoPrune;
-            }
-            else
-            {
-                fetchOptions.Prune = FetchPruneStrategy.FromConfigurationOrDefault;
-            }
-
-            Proxy.git_remote_fetch(remoteHandle, refspecs, fetchOptions, logMessage);
-        }
-
         /// <summary>
         /// Fetch from the <see cref="Remote"/>.
         /// </summary>
         /// <param name="remote">The remote to fetch</param>
+        [Obsolete("This method is deprecated. Please us LibGit2Sharp.Commands.Fetch()")]
         public virtual void Fetch(Remote remote)
         {
-            Fetch(remote, (FetchOptions)null, null);
+            Commands.Fetch(repository, remote.Name, new string[0], null, null);
         }
 
         /// <summary>
@@ -232,9 +156,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="remote">The remote to fetch</param>
         /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Fetch()")]
         public virtual void Fetch(Remote remote, FetchOptions options)
         {
-            Fetch(remote, options, null);
+            Commands.Fetch(repository, remote.Name, new string[0], options, null);
         }
 
         /// <summary>
@@ -242,9 +167,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="remote">The remote to fetch</param>
         /// <param name="logMessage">Message to use when updating the reflog.</param>
+        [Obsolete("This method is deprecated. Please use the LibGit2Sharp.Commands.Fetch()")]
         public virtual void Fetch(Remote remote, string logMessage)
         {
-            Fetch(remote, (FetchOptions)null, logMessage);
+            Commands.Fetch(repository, remote.Name, new string[0], null, logMessage);
         }
 
         /// <summary>
@@ -253,11 +179,10 @@ namespace LibGit2Sharp
         /// <param name="remote">The remote to fetch</param>
         /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
         /// <param name="logMessage">Message to use when updating the reflog.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Fetch()")]
         public virtual void Fetch(Remote remote, FetchOptions options, string logMessage)
         {
-            Ensure.ArgumentNotNull(remote, "remote");
-
-            DoFetch(repository.Handle, remote, options, logMessage, new string[0]);
+            Commands.Fetch(repository, remote.Name, new string[0], options, logMessage);
         }
 
         /// <summary>
@@ -265,9 +190,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="remote">The remote to fetch</param>
         /// <param name="refspecs">Refspecs to use, replacing the remote's fetch refspecs</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Fetch()")]
         public virtual void Fetch(Remote remote, IEnumerable<string> refspecs)
         {
-            Fetch(remote, refspecs, null, null);
+            Commands.Fetch(repository, remote.Name, refspecs, null, null);
         }
 
         /// <summary>
@@ -276,9 +202,10 @@ namespace LibGit2Sharp
         /// <param name="remote">The remote to fetch</param>
         /// <param name="refspecs">Refspecs to use, replacing the remote's fetch refspecs</param>
         /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Fetch")]
         public virtual void Fetch(Remote remote, IEnumerable<string> refspecs, FetchOptions options)
         {
-            Fetch(remote, refspecs, options, null);
+            Commands.Fetch(repository, remote.Name, refspecs, options, null);
         }
 
         /// <summary>
@@ -287,9 +214,10 @@ namespace LibGit2Sharp
         /// <param name="remote">The remote to fetch</param>
         /// <param name="refspecs">Refspecs to use, replacing the remote's fetch refspecs</param>
         /// <param name="logMessage">Message to use when updating the reflog.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Fetch")]
         public virtual void Fetch(Remote remote, IEnumerable<string> refspecs, string logMessage)
         {
-            Fetch(remote, refspecs, null, logMessage);
+            Commands.Fetch(repository, remote.Name, refspecs, null, logMessage);
         }
 
         /// <summary>
@@ -299,12 +227,13 @@ namespace LibGit2Sharp
         /// <param name="refspecs">Refspecs to use, replacing the remote's fetch refspecs</param>
         /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
         /// <param name="logMessage">Message to use when updating the reflog.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Fetch()")]
         public virtual void Fetch(Remote remote, IEnumerable<string> refspecs, FetchOptions options, string logMessage)
         {
             Ensure.ArgumentNotNull(remote, "remote");
             Ensure.ArgumentNotNull(refspecs, "refspecs");
 
-            DoFetch(repository.Handle, remote, options, logMessage, refspecs);
+            Commands.Fetch(repository, remote.Name, refspecs, options, logMessage);
         }
 
         /// <summary>
@@ -355,7 +284,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(url, "url");
             Ensure.ArgumentNotNull(refspecs, "refspecs");
 
-            DoFetch(repository.Handle, url, options, logMessage, refspecs);
+            Commands.Fetch(repository, url, refspecs, options, logMessage);
         }
 
         /// <summary>
@@ -415,9 +344,12 @@ namespace LibGit2Sharp
 
             foreach (var branch in enumeratedBranches)
             {
-                Push(branch.Remote, string.Format(
-                    CultureInfo.InvariantCulture,
-                    "{0}:{1}", branch.CanonicalName, branch.UpstreamBranchCanonicalName), pushOptions);
+                using (var remote = repository.Network.Remotes.RemoteForName(branch.RemoteName))
+                {
+                    Push(remote, string.Format(
+                        CultureInfo.InvariantCulture,
+                        "{0}:{1}", branch.CanonicalName, branch.UpstreamBranchCanonicalName), pushOptions);
+                }
             }
         }
 
@@ -526,7 +458,7 @@ namespace LibGit2Sharp
             }
 
             // Load the remote.
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, remote.Name, true))
+            using (RemoteHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, remote.Name, true))
             {
                 var callbacks = new RemoteCallbacks(pushOptions);
                 GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
@@ -546,25 +478,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="merger">If the merge is a non-fast forward merge that generates a merge commit, the <see cref="Signature"/> of who made the merge.</param>
         /// <param name="options">Specifies optional parameters controlling merge behavior of pull; if null, the defaults are used.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Pull()")]
         public virtual MergeResult Pull(Signature merger, PullOptions options)
         {
-            Ensure.ArgumentNotNull(merger, "merger");
-            Ensure.ArgumentNotNull(options, "options");
-
-            Branch currentBranch = repository.Head;
-
-            if (!currentBranch.IsTracking)
-            {
-                throw new LibGit2SharpException("There is no tracking information for the current branch.");
-            }
-
-            if (currentBranch.Remote == null)
-            {
-                throw new LibGit2SharpException("No upstream remote for the current branch.");
-            }
-
-            Fetch(currentBranch.Remote, options.FetchOptions);
-            return repository.MergeFetchedRefs(merger, options.MergeOptions);
+            return Commands.Pull(repository, merger, options);
         }
 
         /// <summary>

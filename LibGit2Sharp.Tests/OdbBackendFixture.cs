@@ -16,7 +16,7 @@ namespace LibGit2Sharp.Tests
         {
             string relativeFilepath = "test.txt";
             Touch(repo.Info.WorkingDirectory, relativeFilepath, content);
-            repo.Stage(relativeFilepath);
+            Commands.Stage(repo, relativeFilepath);
 
             var ie = repo.Index[relativeFilepath];
             Assert.NotNull(ie);
@@ -28,7 +28,7 @@ namespace LibGit2Sharp.Tests
             relativeFilepath = "big.txt";
             var zeros = new string('0', 32*1024 + 3);
             Touch(repo.Info.WorkingDirectory, relativeFilepath, zeros);
-            repo.Stage(relativeFilepath);
+            Commands.Stage(repo, relativeFilepath);
 
             ie = repo.Index[relativeFilepath];
             Assert.NotNull(ie);

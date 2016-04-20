@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
@@ -49,7 +52,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(clone))
             {
                 Touch(repo.Info.WorkingDirectory, "file.txt", "content");
-                repo.Stage("file.txt");
+                Commands.Stage(repo, "file.txt");
 
                 RepositoryStatus status = repo.RetrieveStatus(new StatusOptions() { Show = show });
                 Assert.Equal(expected, status["file.txt"].State);
@@ -161,7 +164,7 @@ namespace LibGit2Sharp.Tests
                     "This is a file with enough data to trigger similarity matching.\r\n" +
                     "This is a file with enough data to trigger similarity matching.\r\n");
 
-                repo.Stage("old_name.txt");
+                Commands.Stage(repo, "old_name.txt");
 
                 File.Move(Path.Combine(repo.Info.WorkingDirectory, "old_name.txt"),
                     Path.Combine(repo.Info.WorkingDirectory, "rename_target.txt"));
@@ -188,8 +191,8 @@ namespace LibGit2Sharp.Tests
                     Path.Combine(repo.Info.WorkingDirectory, "1.txt"),
                     Path.Combine(repo.Info.WorkingDirectory, "rename_target.txt"));
 
-                repo.Stage("1.txt");
-                repo.Stage("rename_target.txt");
+                Commands.Stage(repo, "1.txt");
+                Commands.Stage(repo, "rename_target.txt");
 
                 RepositoryStatus status = repo.RetrieveStatus();
 
@@ -210,7 +213,7 @@ namespace LibGit2Sharp.Tests
                     "This is a file with enough data to trigger similarity matching.\r\n" +
                     "This is a file with enough data to trigger similarity matching.\r\n");
 
-                repo.Stage("file.txt");
+                Commands.Stage(repo, "file.txt");
                 repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
 
                 File.Move(Path.Combine(repo.Info.WorkingDirectory, "file.txt"),
@@ -227,8 +230,8 @@ namespace LibGit2Sharp.Tests
                 // This passes as expected
                 Assert.Equal(FileStatus.RenamedInWorkdir, status.Single().State);
 
-                repo.Stage("file.txt");
-                repo.Stage("renamed.txt");
+                Commands.Stage(repo, "file.txt");
+                Commands.Stage(repo, "renamed.txt");
 
                 status = repo.RetrieveStatus(opts);
 
@@ -281,7 +284,7 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, relFilePath, "Anybody out there?");
 
                 // Add the file to the index
-                repo.Stage(relFilePath);
+                Commands.Stage(repo, relFilePath);
 
                 // Get the repository status
                 RepositoryStatus repoStatus = repo.RetrieveStatus();
@@ -427,7 +430,7 @@ namespace LibGit2Sharp.Tests
 
                 lowerCasedPath = Touch(repo.Info.WorkingDirectory, lowercasedFilename);
 
-                repo.Stage(lowercasedFilename);
+                Commands.Stage(repo, lowercasedFilename);
                 repo.Commit("initial", Constants.Signature, Constants.Signature);
             }
 
@@ -525,6 +528,55 @@ namespace LibGit2Sharp.Tests
 
                 RepositoryStatus status = repo.RetrieveStatus(new StatusOptions() { ExcludeSubmodules = true });
                 Assert.Equal(expected, status.Modified.Select(x => x.FilePath).ToArray());
+            }
+        }
+
+        [Fact]
+        public void CanConcurrentlyDeleteFilesWhileStatusIsBeingCalculated()
+        {
+            string repoPath = InitNewRepository();
+            using (var repo = new Repository(repoPath))
+            {
+                var files = new List<string>();
+                var dirs = new List<string>();
+                const int numberOfFiles = 3000;
+                string dirFormat = "D" + Math.Ceiling(Math.Log10(numberOfFiles));
+                for (var i = 0; i < numberOfFiles; i++)
+                {
+                    string s = i.ToString(dirFormat, CultureInfo.InvariantCulture);
+                    string dirPath = Path.Combine(repo.Info.WorkingDirectory, s);
+                    Directory.CreateDirectory(dirPath);
+                    string filePath = Path.Combine(dirPath, s + ".txt");
+                    File.AppendAllText(filePath, s);
+                    files.Add(filePath);
+                    dirs.Add(dirPath);
+                }
+                bool deletionDone = false;
+                var loops = 0;
+                Assert.Equal(numberOfFiles, repo.RetrieveStatus().Untracked.Count());
+                Task task = Task.Factory.StartNew(() =>
+                {
+                    while (!deletionDone)
+                    {
+                        var filePaths = repo.RetrieveStatus().Where(entry => entry.State != FileStatus.Ignored).ToArray();
+                        Assert.NotNull(filePaths);
+                        loops++;
+                    }
+                });
+
+                dirs.Reverse();
+
+                foreach (var path in dirs)
+                {
+                    Directory.Delete(path, true);
+                    System.Threading.Thread.Sleep(3);
+                }
+                deletionDone = true;
+
+                task.Wait();
+
+                Assert.True(loops > 0);
+                Assert.Equal(0, repo.RetrieveStatus().Untracked.Count());
             }
         }
 

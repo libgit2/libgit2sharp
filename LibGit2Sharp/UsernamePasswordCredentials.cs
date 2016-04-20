@@ -25,12 +25,12 @@ namespace LibGit2Sharp
             return NativeMethods.git_cred_userpass_plaintext_new(out cred, Username, Password);
         }
 
-        static internal UsernamePasswordCredentials FromNative(GitCredentialUserpass gitCred)
+        static internal unsafe UsernamePasswordCredentials FromNative(GitCredentialUserpass* gitCred)
         {
             return new UsernamePasswordCredentials()
             {
-                Username = LaxUtf8Marshaler.FromNative(gitCred.username),
-                Password = LaxUtf8Marshaler.FromNative(gitCred.password),
+                Username = LaxUtf8Marshaler.FromNative(gitCred->username),
+                Password = LaxUtf8Marshaler.FromNative(gitCred->password),
             };
         }
 

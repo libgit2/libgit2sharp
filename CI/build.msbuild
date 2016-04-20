@@ -49,10 +49,10 @@
         DestinationFiles="@(OutputFiles->'$(DeployFolder)\%(RecursiveDir)%(Filename)%(Extension)')" />
 
     <ItemGroup>
-      <NativeBinaries Include="$(TestBuildDir)\NativeBinaries\**\*.*" />
+      <NativeBinaries Include="$(TestBuildDir)\lib\**\*.*" />
     </ItemGroup>
 
     <Copy SourceFiles="@(NativeBinaries)"
-      DestinationFiles="@(NativeBinaries->'$(DeployFolder)\NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+      DestinationFiles="@(NativeBinaries->'$(DeployFolder)\lib\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>
 </Project>

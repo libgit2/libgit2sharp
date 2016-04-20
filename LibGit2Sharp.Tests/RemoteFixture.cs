@@ -66,10 +66,13 @@ namespace LibGit2Sharp.Tests
                 Remote remote = repo.Network.Remotes[name];
                 Assert.NotNull(remote);
 
-                Remote updatedremote = repo.Network.Remotes.Update(remote,
+                repo.Network.Remotes.Update(name,
                     r => r.TagFetchMode = tagFetchMode);
 
-                Assert.Equal(tagFetchMode, updatedremote.TagFetchMode);
+                using (var updatedremote = repo.Network.Remotes[name])
+                {
+                    Assert.Equal(tagFetchMode, updatedremote.TagFetchMode);
+                }
             }
         }
 
@@ -87,12 +90,14 @@ namespace LibGit2Sharp.Tests
                 Remote remote = repo.Network.Remotes[name];
                 Assert.NotNull(remote);
 
-                Remote updatedremote = repo.Network.Remotes.Update(remote,
-                    r => r.Url = newUrl);
+                repo.Network.Remotes.Update(name, r => r.Url = newUrl);
 
-                Assert.Equal(newUrl, updatedremote.Url);
-                // with no push url set, PushUrl defaults to the fetch url
-                Assert.Equal(newUrl, updatedremote.PushUrl);
+                using (var updatedremote = repo.Network.Remotes[name])
+                {
+                    Assert.Equal(newUrl, updatedremote.Url);
+                    // with no push url set, PushUrl defaults to the fetch url
+                    Assert.Equal(newUrl, updatedremote.PushUrl);
+                }
             }
         }
 
@@ -114,34 +119,14 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(url, remote.Url);
                 Assert.Equal(url, remote.PushUrl);
 
-                Remote updatedremote = repo.Network.Remotes.Update(remote,
-                    r => r.PushUrl = pushurl);
+                repo.Network.Remotes.Update(name, r => r.PushUrl = pushurl);
 
-                // url should not change, push url should be set to new value
-                Assert.Equal(url, updatedremote.Url);
-                Assert.Equal(pushurl, updatedremote.PushUrl);
-            }
-        }
-
-        [Fact]
-        public void CanCheckEqualityOfRemote()
-        {
-            string path = SandboxStandardTestRepo();
-            using (var repo = new Repository(path))
-            {
-                Remote oneOrigin = repo.Network.Remotes["origin"];
-                Assert.NotNull(oneOrigin);
-
-                Remote otherOrigin = repo.Network.Remotes["origin"];
-                Assert.Equal(oneOrigin, otherOrigin);
-
-                Remote createdRemote = repo.Network.Remotes.Add("origin2", oneOrigin.Url);
-
-                Remote loadedRemote = repo.Network.Remotes["origin2"];
-                Assert.NotNull(loadedRemote);
-                Assert.Equal(createdRemote, loadedRemote);
-
-                Assert.NotEqual(oneOrigin, loadedRemote);
+                using (var updatedremote = repo.Network.Remotes[name])
+                {
+                    // url should not change, push url should be set to new value
+                    Assert.Equal(url, updatedremote.Url);
+                    Assert.Equal(pushurl, updatedremote.PushUrl);
+                }
             }
         }
 
@@ -314,8 +299,7 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.NotNull(repo.Network.Remotes["origin"]);
 
-                repo.Network.Remotes.Update(
-                    repo.Network.Remotes["origin"],
+                repo.Network.Remotes.Update("origin",
                     r => r.FetchRefSpecs = new[] { "+refs/heads/*:refs/remotes/upstream/*" });
 
                 repo.Network.Remotes.Rename("origin", "nondefault", problem => Assert.Equal("+refs/heads/*:refs/remotes/upstream/*", problem));
@@ -377,9 +361,8 @@ namespace LibGit2Sharp.Tests
         public void ShoudlPruneOnFetchReflectsTheConfiguredSetting(bool? fetchPrune, bool? remotePrune, bool expectedFetchPrune)
         {
             var path = SandboxStandardTestRepo();
-            var scd = BuildSelfCleaningDirectory();
 
-            using (var repo = new Repository(path, BuildFakeConfigs(scd)))
+            using (var repo = new Repository(path))
             {
                 Assert.Null(repo.Config.Get<bool>("fetch.prune"));
                 Assert.Null(repo.Config.Get<bool>("remote.origin.prune"));

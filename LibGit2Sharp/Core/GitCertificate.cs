@@ -3,7 +3,7 @@
 namespace LibGit2Sharp.Core
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal struct GitCertificate
+    internal struct git_certificate
     {
         public GitCertificateType type;
     }

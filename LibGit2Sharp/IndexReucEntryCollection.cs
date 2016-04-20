@@ -29,22 +29,22 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the <see cref="IndexReucEntry"/> with the specified relative path.
         /// </summary>
-        public virtual IndexReucEntry this[string path]
+        public virtual unsafe IndexReucEntry this[string path]
         {
             get
             {
                 Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-                IndexReucEntrySafeHandle entryHandle = Proxy.git_index_reuc_get_bypath(index.Handle, path);
+                git_index_reuc_entry* entryHandle = Proxy.git_index_reuc_get_bypath(index.Handle, path);
                 return IndexReucEntry.BuildFromPtr(entryHandle);
             }
         }
 
-        private IndexReucEntry this[int idx]
+        private  unsafe IndexReucEntry this[int idx]
         {
             get
             {
-                IndexReucEntrySafeHandle entryHandle = Proxy.git_index_reuc_get_byindex(index.Handle, (UIntPtr)idx);
+                git_index_reuc_entry* entryHandle = Proxy.git_index_reuc_get_byindex(index.Handle, (UIntPtr)idx);
                 return IndexReucEntry.BuildFromPtr(entryHandle);
             }
         }

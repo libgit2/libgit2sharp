@@ -611,7 +611,7 @@ namespace LibGit2Sharp.Tests
 
                 if (shouldStage)
                 {
-                    repo.Stage("b.txt");
+                    Commands.Stage(repo, "b.txt");
                 }
 
                 Assert.Throws<CheckoutConflictException>(() => repo.Merge(committishToMerge, Constants.Signature, new MergeOptions() { FastForwardStrategy = strategy }));
@@ -678,7 +678,7 @@ namespace LibGit2Sharp.Tests
             const string conflictBranchName = "conflicts";
 
             string path = SandboxMergeTestRepo();
-            using (var repo = InitIsolatedRepository(path))
+            using (var repo = new Repository(path))
             {
                 Branch branch = repo.Branches[conflictBranchName];
                 Assert.NotNull(branch);
@@ -750,8 +750,8 @@ namespace LibGit2Sharp.Tests
                 // Remove entries from the working directory
                 foreach(var entry in repo.RetrieveStatus())
                 {
-                    repo.Unstage(entry.FilePath);
-                    repo.Remove(entry.FilePath, true);
+                    Commands.Unstage(repo, entry.FilePath);
+                    Commands.Remove(repo, entry.FilePath, true);
                 }
 
                 // Assert that we have an empty working directory.
@@ -790,7 +790,7 @@ namespace LibGit2Sharp.Tests
 
                 Touch(repo.Info.WorkingDirectory, "README", "Yeah!\n");
                 repo.Index.Clear();
-                repo.Stage("README");
+                Commands.Stage(repo, "README");
 
                 repo.Commit("A new world, free of the burden of the history", Constants.Signature, Constants.Signature);
 
@@ -869,7 +869,7 @@ namespace LibGit2Sharp.Tests
         {
             Touch(repository.Info.WorkingDirectory, filename, content);
 
-            repository.Stage(filename);
+            Commands.Stage(repository, filename);
 
             return repository.Commit("New commit", Constants.Signature, Constants.Signature);
         }

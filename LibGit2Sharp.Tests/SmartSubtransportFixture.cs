@@ -41,7 +41,7 @@ namespace LibGit2Sharp.Tests
 
                 using (var repo = new Repository(repoPath))
                 {
-                    Remote remote = repo.Network.Remotes.Add(remoteName, url);
+                    repo.Network.Remotes.Add(remoteName, url);
 
                     // Set up structures for the expected results
                     // and verifying the RemoteUpdateTips callback.
@@ -63,7 +63,9 @@ namespace LibGit2Sharp.Tests
                     }
 
                     // Perform the actual fetch
-                    repo.Network.Fetch(remote, new FetchOptions { OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler, TagFetchMode = TagFetchMode.Auto });
+                    Commands.Fetch(repo, remoteName, new string[0],
+                        new FetchOptions { OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler, TagFetchMode = TagFetchMode.Auto },
+                    null);
 
                     // Verify the expected
                     expectedFetchState.CheckUpdatedReferences(repo);
@@ -84,7 +86,7 @@ namespace LibGit2Sharp.Tests
             string remoteName = "testRemote";
 
             var scd = BuildSelfCleaningDirectory();
-            var repoPath = Repository.Init(scd.RootedDirectoryPath);
+            Repository.Init(scd.RootedDirectoryPath);
 
             SmartSubtransportRegistration<MockSmartSubtransport> registration = null;
 
@@ -99,7 +101,7 @@ namespace LibGit2Sharp.Tests
 
                 using (var repo = new Repository(scd.DirectoryPath))
                 {
-                    Remote remote = repo.Network.Remotes.Add(remoteName, url);
+                    repo.Network.Remotes.Add(remoteName, url);
 
                     // Set up structures for the expected results
                     // and verifying the RemoteUpdateTips callback.
@@ -113,9 +115,10 @@ namespace LibGit2Sharp.Tests
                     }
 
                     // Perform the actual fetch
-                    repo.Network.Fetch(remote, new FetchOptions { OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler, TagFetchMode = TagFetchMode.Auto,
+                    Commands.Fetch(repo, remoteName, new string[0], new FetchOptions {
+                        OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler, TagFetchMode = TagFetchMode.Auto,
                         CredentialsProvider = (_user, _valid, _hostname) => new UsernamePasswordCredentials() { Username = "libgit3", Password = "libgit3" },
-                    });
+                    }, null);
 
                     // Verify the expected
                     expectedFetchState.CheckUpdatedReferences(repo);

@@ -4,10 +4,10 @@ using System.Runtime.InteropServices;
 namespace LibGit2Sharp.Core
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal class GitSignature
+    internal unsafe struct git_signature
     {
-        public IntPtr Name;
-        public IntPtr Email;
-        public GitTime When;
+        public char* name;
+        public char* email;
+        public git_time when;
     }
 }

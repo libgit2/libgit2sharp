@@ -168,12 +168,11 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanAddANoteWithSignatureFromConfig()
         {
-            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
-            var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
             string path = SandboxBareTestRepo();
 
-            using (var repo = new Repository(path, options))
+            using (var repo = new Repository(path))
             {
+                CreateConfigurationWithDummyUser(repo, Constants.Identity);
                 var commit = repo.Lookup<Commit>("9fd738e8f7967c078dceed8190330fc8648ee56a");
 
                 Signature signature = repo.Config.BuildSignature(DateTimeOffset.Now);
@@ -268,12 +267,11 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRemoveANoteWithSignatureFromConfig()
         {
-            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
-            RepositoryOptions options = new RepositoryOptions() { GlobalConfigurationLocation = configPath };
             string path = SandboxBareTestRepo();
 
-            using (var repo = new Repository(path, options))
+            using (var repo = new Repository(path))
             {
+                CreateConfigurationWithDummyUser(repo, Constants.Identity);
                 var commit = repo.Lookup<Commit>("8496071c1b46c854b31185ea97743be6a8774479");
                 var notes = repo.Notes[commit.Id];
 

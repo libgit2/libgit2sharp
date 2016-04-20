@@ -139,7 +139,7 @@ namespace LibGit2Sharp.Tests
 
                 const string staged = "staged_file_path.txt";
                 Touch(repo.Info.WorkingDirectory, staged, "I'm staged\n");
-                repo.Stage(staged);
+                Commands.Stage(repo, staged);
 
                 Stash stash = repo.Stashes.Add(stasher, "Stash with default options", StashModifiers.Default);
 
@@ -165,7 +165,7 @@ namespace LibGit2Sharp.Tests
 
                 const string filename = "staged_file_path.txt";
                 Touch(repo.Info.WorkingDirectory, filename, "I'm staged\n");
-                repo.Stage(filename);
+                Commands.Stage(repo, filename);
 
                 Stash stash = repo.Stashes.Add(stasher, "This stash will keep index", StashModifiers.KeepIndex);
 
@@ -186,7 +186,7 @@ namespace LibGit2Sharp.Tests
                 const string ignoredFilename = "ignored_file.txt";
 
                 Touch(repo.Info.WorkingDirectory, gitIgnore, ignoredFilename);
-                repo.Stage(gitIgnore);
+                Commands.Stage(repo, gitIgnore);
                 repo.Commit("Modify gitignore", Constants.Signature, Constants.Signature);
 
                 Touch(repo.Info.WorkingDirectory, ignoredFilename, "I'm ignored\n");
@@ -214,7 +214,7 @@ namespace LibGit2Sharp.Tests
 
                 const string filename = "staged_file_path.txt";
                 Touch(repo.Info.WorkingDirectory, filename, "I'm staged\n");
-                repo.Stage(filename);
+                Commands.Stage(repo, filename);
 
                 repo.Stashes.Add(stasher, "This stash with default options");
                 Assert.Equal(StashApplyStatus.Applied, repo.Stashes.Apply(0));
@@ -222,7 +222,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(FileStatus.NewInIndex, repo.RetrieveStatus(filename));
                 Assert.Equal(1, repo.Stashes.Count());
 
-                repo.Stage(filename);
+                Commands.Stage(repo, filename);
 
                 repo.Stashes.Add(stasher, "This stash with default options");
                 Assert.Equal(StashApplyStatus.Applied, repo.Stashes.Apply(
@@ -250,7 +250,7 @@ namespace LibGit2Sharp.Tests
                 const string filename = "staged_file_path.txt";
                 const string contents = "I'm staged";
                 Touch(repo.Info.WorkingDirectory, filename, contents);
-                repo.Stage(filename);
+                Commands.Stage(repo, filename);
 
                 repo.Stashes.Add(stasher, "This stash with default options");
                 Assert.Equal(1, repo.Stashes.Count());
@@ -277,13 +277,13 @@ namespace LibGit2Sharp.Tests
                 const string newContents = "I'm post-stash.";
 
                 Touch(repo.Info.WorkingDirectory, filename, originalContents);
-                repo.Stage(filename);
+                Commands.Stage(repo, filename);
                 Touch(repo.Info.WorkingDirectory, filename2, originalContents);
 
                 repo.Stashes.Add(stasher, "This stash with default options");
 
                 Touch(repo.Info.WorkingDirectory, filename, newContents);
-                repo.Stage(filename);
+                Commands.Stage(repo, filename);
                 Touch(repo.Info.WorkingDirectory, filename2, newContents);
 
                 Assert.Equal(StashApplyStatus.UncommittedChanges, repo.Stashes.Pop(0, new StashApplyOptions
@@ -310,7 +310,7 @@ namespace LibGit2Sharp.Tests
                 const string originalContents = "I'm pre-stash.";
 
                 Touch(repo.Info.WorkingDirectory, filename, originalContents);
-                repo.Stage(filename);
+                Commands.Stage(repo, filename);
                 Touch(repo.Info.WorkingDirectory, filename2, originalContents);
 
                 repo.Stashes.Add(stasher, "This stash with default options");
