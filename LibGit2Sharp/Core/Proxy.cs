@@ -1256,7 +1256,7 @@ namespace LibGit2Sharp.Core
 
             using (var buf = new GitBuf())
             {
-                int res = NativeMethods.git_message_prettify(buf, message, false, (sbyte)comment);
+                int res = NativeMethods.git_message_prettify(buf, message, true, (sbyte)comment);
                 Ensure.Int32Result(res);
 
                 return LaxUtf8Marshaler.FromNative(buf.ptr) ?? string.Empty;
