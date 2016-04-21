@@ -133,12 +133,10 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("sm_changed_head", false)]
-        [InlineData("sm_changed_head", true)]
-        public void CanStageChangeInSubmoduleViaIndexStage(string submodulePath, bool appendPathSeparator)
+        [InlineData("sm_changed_head")]
+        [InlineData("sm_changed_head/")]
+        public void CanStageChangeInSubmoduleViaIndexStage(string submodulePath)
         {
-            submodulePath += appendPathSeparator ? Path.DirectorySeparatorChar : default(char?);
-
             var path = SandboxSubmoduleTestRepo();
             using (var repo = new Repository(path))
             {
@@ -156,12 +154,10 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("sm_changed_head", false)]
-        [InlineData("sm_changed_head", true)]
-        public void CanStageChangeInSubmoduleViaIndexStageWithOtherPaths(string submodulePath, bool appendPathSeparator)
+        [InlineData("sm_changed_head")]
+        [InlineData("sm_changed_head/")]
+        public void CanStageChangeInSubmoduleViaIndexStageWithOtherPaths(string submodulePath)
         {
-            submodulePath += appendPathSeparator ? Path.DirectorySeparatorChar : default(char?);
-
             var path = SandboxSubmoduleTestRepo();
             using (var repo = new Repository(path))
             {

@@ -222,7 +222,7 @@ namespace LibGit2Sharp.Tests
 
                 const string posixifiedPath = "Project/a_file.txt";
                 Assert.NotNull(repo.Index[posixifiedPath]);
-                Assert.Equal(file, repo.Index[posixifiedPath].Path);
+                Assert.Equal(posixifiedPath, repo.Index[posixifiedPath].Path);
             }
         }
 

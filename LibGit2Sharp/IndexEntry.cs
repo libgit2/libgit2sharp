@@ -47,11 +47,11 @@ namespace LibGit2Sharp
                 return null;
             }
 
-            FilePath path = LaxFilePathMarshaler.FromNative(entry->path);
+            string path = LaxUtf8Marshaler.FromNative(entry->path);
 
             return new IndexEntry
             {
-                Path = path.Native,
+                Path = path,
                 Id = new ObjectId(entry->id.Id),
                 StageLevel = Proxy.git_index_entry_stage(entry),
                 Mode = (Mode)entry->mode,

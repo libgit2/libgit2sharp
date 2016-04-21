@@ -268,7 +268,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void RetrievingTheStatusOfARepositoryReturnNativeFilePaths()
+        public void RetrievingTheStatusOfARepositoryReturnsGitPaths()
         {
             // Build relative path
             string relFilePath = Path.Combine("directory", "Testfile.txt");
@@ -289,7 +289,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(1, repoStatus.Count());
                 StatusEntry statusEntry = repoStatus.Single();
 
-                Assert.Equal(relFilePath, statusEntry.FilePath);
+                Assert.Equal(relFilePath.Replace('\\', '/'), statusEntry.FilePath);
 
                 Assert.Equal(statusEntry.FilePath, repoStatus.Added.Select(s => s.FilePath).Single());
             }
@@ -360,6 +360,7 @@ namespace LibGit2Sharp.Tests
 
                 RepositoryStatus status = repo.RetrieveStatus();
 
+                relativePath = relativePath.Replace('\\', '/');
                 Assert.Equal(new[] { relativePath, "new_untracked_file.txt" }, status.Untracked.Select(s => s.FilePath));
 
                 Touch(repo.Info.WorkingDirectory, ".gitignore", "*.txt" + Environment.NewLine);
@@ -461,8 +462,6 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RetrievingTheStatusOfTheRepositoryHonorsTheGitIgnoreDirectivesThroughoutDirectories()
         {
-            char dirSep = Path.DirectorySeparatorChar;
-
             string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
@@ -476,7 +475,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus("bin/what-about-me.txt"));
 
                 RepositoryStatus newStatus = repo.RetrieveStatus();
-                Assert.Equal(new[] { "bin" + dirSep }, newStatus.Ignored.Select(s => s.FilePath));
+                Assert.Equal(new[] { "bin/" }, newStatus.Ignored.Select(s => s.FilePath));
 
                 var sb = new StringBuilder();
                 sb.AppendLine("bin/*");
@@ -488,8 +487,8 @@ namespace LibGit2Sharp.Tests
 
                 newStatus = repo.RetrieveStatus();
 
-                Assert.Equal(new[] { "bin" + dirSep + "look-ma.txt" }, newStatus.Ignored.Select(s => s.FilePath));
-                Assert.True(newStatus.Untracked.Select(s => s.FilePath).Contains("bin" + dirSep + "what-about-me.txt"));
+                Assert.Equal(new[] { "bin/look-ma.txt" }, newStatus.Ignored.Select(s => s.FilePath));
+                Assert.True(newStatus.Untracked.Select(s => s.FilePath).Contains("bin/what-about-me.txt"));
             }
         }
 
@@ -603,7 +602,7 @@ namespace LibGit2Sharp.Tests
             var path = SandboxStandardTestRepo();
             string[] unalteredPaths = {
                 "1.txt",
-                "1" + Path.DirectorySeparatorChar + "branch_file.txt",
+                "1/branch_file.txt",
                 "branch_file.txt",
                 "new.txt",
                 "README",

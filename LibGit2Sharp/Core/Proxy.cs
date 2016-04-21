@@ -97,7 +97,7 @@ namespace LibGit2Sharp.Core
 
         public static unsafe BlameHandle git_blame_file(
             RepositoryHandle repo,
-            FilePath path,
+            string path,
             git_blame_options options)
         {
             git_blame* ptr;
@@ -115,7 +115,7 @@ namespace LibGit2Sharp.Core
 
         #region git_blob_
 
-        public static unsafe IntPtr git_blob_create_fromstream(RepositoryHandle repo, FilePath hintpath)
+        public static unsafe IntPtr git_blob_create_fromstream(RepositoryHandle repo, string hintpath)
         {
             IntPtr writestream_ptr;
 
@@ -148,7 +148,7 @@ namespace LibGit2Sharp.Core
             return oid;
         }
 
-        public static unsafe UnmanagedMemoryStream git_blob_filtered_content_stream(RepositoryHandle repo, ObjectId id, FilePath path, bool check_for_binary_data)
+        public static unsafe UnmanagedMemoryStream git_blob_filtered_content_stream(RepositoryHandle repo, ObjectId id, string path, bool check_for_binary_data)
         {
             var buf = new GitBuf();
             var handle = new ObjectSafeWrapper(id, repo).ObjectPtr;
@@ -1008,7 +1008,7 @@ namespace LibGit2Sharp.Core
 
         public static unsafe Conflict git_index_conflict_get(
             IndexHandle index,
-            FilePath path)
+            string path)
         {
             git_index_entry* ancestor, ours, theirs;
 
@@ -1073,7 +1073,7 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_index_get_byindex(index, n);
         }
 
-        public static unsafe git_index_entry* git_index_get_bypath(IndexHandle index, FilePath path, int stage)
+        public static unsafe git_index_entry* git_index_get_bypath(IndexHandle index, string path, int stage)
         {
             return NativeMethods.git_index_get_bypath(index, path, stage);
         }
@@ -1112,7 +1112,7 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
-        public static unsafe void git_index_remove_bypath(IndexHandle index, FilePath path)
+        public static unsafe void git_index_remove_bypath(IndexHandle index, string path)
         {
             int res = NativeMethods.git_index_remove_bypath(index, path);
             Ensure.ZeroResult(res);
@@ -2922,7 +2922,7 @@ namespace LibGit2Sharp.Core
         /// Returns a handle to the corresponding submodule,
         /// or an invalid handle if a submodule is not found.
         /// </summary>
-        public static unsafe SubmoduleHandle git_submodule_lookup(RepositoryHandle repo, FilePath name)
+        public static unsafe SubmoduleHandle git_submodule_lookup(RepositoryHandle repo, string name)
         {
             git_submodule* submodule;
             var res = NativeMethods.git_submodule_lookup(out submodule, repo, name);

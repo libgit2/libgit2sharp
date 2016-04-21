@@ -10,7 +10,7 @@ namespace LibGit2Sharp.Tests
 {
     public class IndexFixture : BaseFixture
     {
-        private static readonly string subBranchFile = Path.Combine("1", "branch_file.txt");
+        private static readonly string subBranchFile = string.Join("/", "1", "branch_file.txt");
         private readonly string[] expectedEntries = new[]
                                                         {
                                                             "1.txt",
@@ -202,7 +202,7 @@ namespace LibGit2Sharp.Tests
         public void PathsOfIndexEntriesAreExpressedInNativeFormat()
         {
             // Build relative path
-            string relFilePath = Path.Combine("directory", "Testfile.txt");
+            string relFilePath = Path.Combine("directory", "Testfile.txt").Replace('\\', '/');
 
             string repoPath = InitNewRepository();
 

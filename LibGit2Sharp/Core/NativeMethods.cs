@@ -103,7 +103,7 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe int git_blame_file(
             out git_blame* blame,
             git_repository* repo,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string path,
             git_blame_options options);
 
         [DllImport(libgit2)]
@@ -130,7 +130,7 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe int git_blob_create_fromstream(
             out IntPtr stream,
             git_repository* repositoryPtr,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath hintpath);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string hintpath);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_blob_create_fromstream_commit(
@@ -141,7 +141,7 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe int git_blob_create_fromchunks(
             ref GitOid oid,
             git_repository* repositoryPtr,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath hintpath,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string hintpath,
             source_callback fileCallback,
             IntPtr data);
 
@@ -149,7 +149,7 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe int git_blob_filtered_content(
             GitBuf buf,
             git_object* blob,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath as_path,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string as_path,
             [MarshalAs(UnmanagedType.Bool)] bool check_for_binary_data);
 
         [DllImport(libgit2)]
@@ -587,9 +587,9 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern unsafe int git_diff_blobs(
             git_object* oldBlob,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath old_as_path,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string old_as_path,
             git_object* newBlob,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath new_as_path,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string new_as_path,
             GitDiffOptions options,
             git_diff_file_cb fileCallback,
             git_diff_binary_cb binaryCallback,
@@ -672,7 +672,7 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe int git_ignore_path_is_ignored(
             out int ignored,
             git_repository* repo,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string path);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_index_add_bypath(
@@ -690,7 +690,7 @@ namespace LibGit2Sharp.Core
             out git_index_entry* ours,
             out git_index_entry* theirs,
             git_index* index,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string path);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_index_conflict_iterator_new(
@@ -723,7 +723,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern unsafe git_index_entry* git_index_get_bypath(
             git_index* index,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string path,
             int stage);
 
         [DllImport(libgit2)]
@@ -748,7 +748,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern unsafe int git_index_remove_bypath(
             git_index* index,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string path);
 
 
         [DllImport(libgit2)]
@@ -760,7 +760,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern unsafe git_index_reuc_entry* git_index_reuc_get_bypath(
             git_index* handle,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string path);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_index_write(git_index* index);
@@ -1623,7 +1623,7 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe int git_submodule_lookup(
             out git_submodule* reference,
             git_repository* repo,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath name);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_submodule_resolve_url(
