@@ -10,7 +10,7 @@ namespace LibGit2Sharp.Tests
 {
     public class DiffTreeToTreeFixture : BaseFixture
     {
-        private static readonly string subBranchFilePath = Path.Combine("1", "branch_file.txt");
+        private static readonly string subBranchFilePath = String.Join("/", "1", "branch_file.txt");
 
         [Fact]
         public void ComparingATreeAgainstItselfReturnsNoDifference()

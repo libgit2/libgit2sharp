@@ -1821,7 +1821,7 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe int git_tree_entry_bypath(
             out git_tree_entry* tree,
             git_object* root,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath treeentry_path);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string treeentry_path);
 
         [DllImport(libgit2)]
         internal static extern unsafe void git_tree_entry_free(git_tree_entry* treeEntry);

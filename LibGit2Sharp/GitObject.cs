@@ -60,7 +60,7 @@ namespace LibGit2Sharp
             get { return Id.Sha; }
         }
 
-        internal static GitObject BuildFrom(Repository repo, ObjectId id, GitObjectType type, FilePath path)
+        internal static GitObject BuildFrom(Repository repo, ObjectId id, GitObjectType type, string path)
         {
             switch (type)
             {

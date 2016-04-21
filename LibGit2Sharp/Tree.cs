@@ -5,6 +5,8 @@ using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
+using System.Text;
+using System;
 
 namespace LibGit2Sharp
 {
@@ -14,7 +16,7 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Tree : GitObject, IEnumerable<TreeEntry>
     {
-        private readonly FilePath path;
+        private readonly string path;
 
         private readonly ILazy<int> lazyCount;
 
@@ -24,7 +26,7 @@ namespace LibGit2Sharp
         protected Tree()
         { }
 
-        internal Tree(Repository repo, ObjectId id, FilePath path)
+        internal Tree(Repository repo, ObjectId id, string path)
             : base(repo, id)
         {
             this.path = path ?? "";
@@ -47,9 +49,9 @@ namespace LibGit2Sharp
             get { return RetrieveFromPath(relativePath); }
         }
 
-        private unsafe TreeEntry RetrieveFromPath(FilePath relativePath)
+        private unsafe TreeEntry RetrieveFromPath(string relativePath)
         {
-            if (relativePath.IsNullOrEmpty())
+            if (string.IsNullOrEmpty(relativePath))
             {
                 return null;
             }
@@ -61,26 +63,40 @@ namespace LibGit2Sharp
                     return null;
                 }
 
-                string posixPath = relativePath.Posix;
-                string filename = posixPath.Split('/').Last();
-                string parentPath = posixPath.Substring(0, posixPath.Length - filename.Length);
-                return new TreeEntry(treeEntry, Id, repo, path.Combine(parentPath));
+                string filename = relativePath.Split('/').Last();
+                string parentPath = relativePath.Substring(0, relativePath.Length - filename.Length);
+                return new TreeEntry(treeEntry, Id, repo, Tree.CombinePath(path, parentPath));
             }
         }
 
         internal string Path
         {
-            get { return path.Native; }
+            get { return path; }
         }
 
         #region IEnumerable<TreeEntry> Members
 
-        unsafe TreeEntry byIndex(ObjectSafeWrapper obj, uint i, ObjectId parentTreeId, Repository repo, FilePath parentPath)
+        unsafe TreeEntry byIndex(ObjectSafeWrapper obj, uint i, ObjectId parentTreeId, Repository repo, string parentPath)
         {
             using (var entryHandle = Proxy.git_tree_entry_byindex(obj.ObjectPtr, i))
             {
                 return new TreeEntry(entryHandle, parentTreeId, repo, parentPath);
             }
+        }
+
+        internal static string CombinePath(string a, string b)
+        {
+            var bld = new StringBuilder();
+            bld.Append(a);
+            if (!String.IsNullOrEmpty(a) &&
+                !a.EndsWith("/", StringComparison.InvariantCulture) &&
+                !b.StartsWith("/", StringComparison.InvariantCulture))
+            {
+                bld.Append('/');
+            }
+            bld.Append(b);
+
+            return bld.ToString();
         }
 
         /// <summary>

@@ -527,7 +527,7 @@ namespace LibGit2Sharp
             return Lookup(objectish, type.ToGitObjectType(), LookUpOptions.None);
         }
 
-        internal GitObject LookupInternal(ObjectId id, GitObjectType type, FilePath knownPath)
+        internal GitObject LookupInternal(ObjectId id, GitObjectType type, string knownPath)
         {
             Ensure.ArgumentNotNull(id, "id");
 

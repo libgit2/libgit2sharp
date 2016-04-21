@@ -3220,7 +3220,7 @@ namespace LibGit2Sharp.Core
             return new TreeEntryHandle(handle, false);
         }
 
-        public static unsafe TreeEntryHandle git_tree_entry_bypath(RepositoryHandle repo, ObjectId id, FilePath treeentry_path)
+        public static unsafe TreeEntryHandle git_tree_entry_bypath(RepositoryHandle repo, ObjectId id, string treeentry_path)
         {
             using (var obj = new ObjectSafeWrapper(id, repo))
             {
