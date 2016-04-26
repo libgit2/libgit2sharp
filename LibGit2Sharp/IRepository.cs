@@ -227,6 +227,17 @@ namespace LibGit2Sharp
         MergeResult Merge(string committish, Signature merger, MergeOptions options);
 
         /// <summary>
+        /// Analyze the possibilities of updating HEAD with the given commit(s).
+        /// <para>
+        /// It expects objects convertible to annotated commits, so <see cref="LibGit2Sharp.Reference"/> and
+        /// <see cref="LibGit2Sharp.Commit"/> also work as inputs.
+        /// </para>
+        /// </summary>
+        /// <param name="commits">Commits to merge into HEAD</param>
+        /// <returns>Which update methods are possible and which preference the user has specified</returns>
+        MergeAnalysisResult AnalyzeMerge(params IAnnotatedCommit[] commits);
+
+        /// <summary>
         /// Access to Rebase functionality.
         /// </summary>
         Rebase Rebase { get; }
@@ -421,5 +432,23 @@ namespace LibGit2Sharp
         /// <param name="reference">The reference mentioned in the revision (if any)</param>
         /// <param name="obj">The object which the revision resolves to</param>
         void RevParse(string revision, out Reference reference, out GitObject obj);
+
+        /// <summary>
+        /// Initialize a <see cref="LibGit2Sharp.AnnotatedCommit"/> from extended SHA-1 syntax
+        /// </summary>
+        /// <param name="revspec">A string in extended SHA-1 syntax to look up the object</param>
+        AnnotatedCommit LookupAnnotatedCommit(string revspec);
+
+        /// <summary>
+        /// Initialize a <see cref="LibGit2Sharp.AnnotatedCommit"/> from extended SHA-1 syntax
+        /// </summary>
+        /// <param name="reference">A reference pointing to the commit</param>
+        AnnotatedCommit LookupAnnotatedCommit(Reference reference);
+
+        /// <summary>
+        /// Initialize a <see cref="LibGit2Sharp.AnnotatedCommit"/> from extended SHA-1 syntax
+        /// </summary>
+        /// <param name="commit">A commit</param>
+        AnnotatedCommit LookupAnnotatedCommit(Commit commit);
     }
 }

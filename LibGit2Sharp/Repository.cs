@@ -1412,6 +1412,32 @@ namespace LibGit2Sharp
             return result;
         }
 
+        private MergeAnalysisResult AnalyzeMerge(AnnotatedCommitHandle[] annotatedCommits)
+        {
+            GitMergeAnalysis mergeAnalysis;
+            GitMergePreference mergePreference;
+
+            Proxy.git_merge_analysis(Handle, annotatedCommits, out mergeAnalysis, out mergePreference);
+            return new MergeAnalysisResult(mergeAnalysis, mergePreference);
+        }
+
+        /// <summary>
+        /// Analyze the possibilities of updating HEAD with the given commit(s).
+        /// <para>
+        /// It expects objects convertible to annotated commits, so <see cref="LibGit2Sharp.Reference"/> and
+        /// <see cref="LibGit2Sharp.Commit"/> also work as inputs.
+        /// </para>
+        /// </summary>
+        /// <param name="commits">Commits to merge into HEAD</param>
+        /// <returns>Which update methods are possible and which preference the user has specified</returns>
+        public MergeAnalysisResult AnalyzeMerge(params IAnnotatedCommit[] commits)
+        {
+            using (var annotated = new DisposableArray<AnnotatedCommit>(commits.Select(c => c.GetAnnotatedCommit())))
+            {
+                return AnalyzeMerge(annotated.Array.Select(c => c.Handle).ToArray());
+            }
+        }
+
         private FastForwardStrategy FastForwardStrategyFromMergePreference(GitMergePreference preference)
         {
             switch (preference)
@@ -1887,6 +1913,33 @@ namespace LibGit2Sharp
                                      Info.IsBare ? "Gitdir" : "Workdir",
                                      Info.IsBare ? Info.Path : Info.WorkingDirectory);
             }
+        }
+
+        /// <summary>
+        /// Initialize a <see cref="LibGit2Sharp.AnnotatedCommit"/> from extended SHA-1 syntax
+        /// </summary>
+        /// <param name="revspec">A string in extended SHA-1 syntax to look up the object</param>
+        public AnnotatedCommit LookupAnnotatedCommit(string revspec)
+        {
+            return new AnnotatedCommit(this, revspec);
+        }
+
+        /// <summary>
+        /// Initialize a <see cref="LibGit2Sharp.AnnotatedCommit"/> from extended SHA-1 syntax
+        /// </summary>
+        /// <param name="reference">A reference pointing to the commit</param>
+        public AnnotatedCommit LookupAnnotatedCommit(Reference reference)
+        {
+            return new AnnotatedCommit(this, reference);
+        }
+
+        /// <summary>
+        /// Initialize a <see cref="LibGit2Sharp.AnnotatedCommit"/> from extended SHA-1 syntax
+        /// </summary>
+        /// <param name="commit">A commit</param>
+        public AnnotatedCommit LookupAnnotatedCommit(Commit commit)
+        {
+            return new AnnotatedCommit(this, commit);
         }
     }
 }
