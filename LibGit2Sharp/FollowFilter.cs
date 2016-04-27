@@ -9,6 +9,7 @@ namespace LibGit2Sharp
     /// The commits will be enumerated from the current HEAD of the repository.
     /// </para>
     /// </summary>
+    [Obsolete("This type is deprecated. Please use LibGit2Sharp.CommitFilter")]
     public sealed class FollowFilter
     {
         private static readonly List<CommitSortStrategies> AllowedSortStrategies = new List<CommitSortStrategies>
