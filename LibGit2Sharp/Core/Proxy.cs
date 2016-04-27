@@ -388,6 +388,61 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static unsafe string git_commit_create_buffer(
+            RepositoryHandle repo,
+            Signature author,
+            Signature committer,
+            string message,
+            Tree tree,
+            Commit[] parents)
+        {
+            using (SignatureHandle authorHandle = author.BuildHandle())
+            using (SignatureHandle committerHandle = committer.BuildHandle())
+            using (var treeHandle = Proxy.git_object_lookup(tree.repo.Handle, tree.Id, GitObjectType.Tree))
+            using (var buf = new GitBuf())
+            {
+                ObjectHandle[] handles = new ObjectHandle[0];
+                try
+                {
+                    handles = parents.Select(c => Proxy.git_object_lookup(c.repo.Handle, c.Id, GitObjectType.Commit)).ToArray();
+                    var ptrs = handles.Select(p => p.AsIntPtr()).ToArray();
+                    int res;
+                    fixed(IntPtr* objs = ptrs)
+                    {
+                        res = NativeMethods.git_commit_create_buffer(buf,
+                            repo,
+                            authorHandle,
+                            committerHandle,
+                            null,
+                            message,
+                            treeHandle,
+                            new UIntPtr((ulong)parents.LongCount()),
+                            objs);
+                    }
+                    Ensure.ZeroResult(res);
+                }
+                finally
+                {
+                    foreach (var handle in handles)
+                    {
+                        handle.Dispose();
+                    }
+                }
+
+                return LaxUtf8Marshaler.FromNative(buf.ptr);
+            }
+        }
+
+        public static unsafe ObjectId git_commit_create_with_signature(RepositoryHandle repo, string commitContent,
+            string signature, string field)
+        {
+            GitOid id;
+            int res = NativeMethods.git_commit_create_with_signature(out id, repo, commitContent, signature, field);
+            Ensure.ZeroResult(res);
+
+            return id;
+        }
+
         public static unsafe string git_commit_message(ObjectHandle obj)
         {
             return NativeMethods.git_commit_message(obj);
@@ -424,6 +479,22 @@ namespace LibGit2Sharp.Core
         public static unsafe ObjectId git_commit_tree_id(ObjectHandle obj)
         {
             return ObjectId.BuildFromPtr(NativeMethods.git_commit_tree_id(obj));
+        }
+
+        public static unsafe SignatureInfo git_commit_extract_signature(RepositoryHandle repo, ObjectId id, string field)
+        {
+            using (var signature = new GitBuf())
+            using (var signedData = new GitBuf())
+            {
+                var oid = id.Oid;
+                Ensure.ZeroResult(NativeMethods.git_commit_extract_signature(signature, signedData, repo, ref oid, field));
+
+                return new SignatureInfo()
+                {
+                    Signature = LaxUtf8Marshaler.FromNative(signature.ptr, signature.size.ConvertToInt()),
+                    SignedData = LaxUtf8Marshaler.FromNative(signedData.ptr, signedData.size.ConvertToInt()),
+                };
+            }
         }
 
         #endregion
@@ -1505,6 +1576,19 @@ namespace LibGit2Sharp.Core
         {
             GitOid id;
             int res = NativeMethods.git_odb_stream_finalize_write(out id, stream);
+            Ensure.ZeroResult(res);
+
+            return id;
+        }
+
+        public static unsafe ObjectId git_odb_write(ObjectDatabaseHandle odb, byte[] data, ObjectType type)
+        {
+            GitOid id;
+            int res;
+            fixed(byte* p = data)
+            {
+                res = NativeMethods.git_odb_write(out id, odb, p, new UIntPtr((ulong)data.LongLength), type.ToGitObjectType());
+            }
             Ensure.ZeroResult(res);
 
             return id;
