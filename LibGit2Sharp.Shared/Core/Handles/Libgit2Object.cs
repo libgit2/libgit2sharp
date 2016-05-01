@@ -15,9 +15,7 @@
 //
 // Uncomment the line below or add a conditional symbol to activate this mode
 
-#if NET40
 #define LEAKS_TRACKING
-#endif
 
 using System;
 using System.Linq;
@@ -108,7 +106,18 @@ namespace LibGit2Sharp.Core.Handles
 #if LEAKS_TRACKING
             id = Guid.NewGuid();
             Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "Allocating {0} handle ({1})", GetType().Name, id));
+#if NET40
             trace = new StackTrace(2, true).ToString();
+#else
+            try
+            {
+                throw new Exception();
+            }
+            catch (Exception ex)
+            {
+                trace = new StackTrace(ex, true).ToString();
+            }
+#endif
 #endif
         }
 
