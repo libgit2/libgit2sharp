@@ -137,11 +137,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Core\GitStrArray.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\GitStrArrayManaged.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\GitStrArrayNative.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Core\NativeDllName.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CommitRewriteInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DiffModifiers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ObjectType.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Core\UniqueIdentifier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ReferenceExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Conflict.cs" />
