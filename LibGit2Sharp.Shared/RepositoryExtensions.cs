@@ -235,6 +235,7 @@ namespace LibGit2Sharp
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="commitOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Checkout()")]
         public static Branch Checkout(this IRepository repository, string commitOrBranchSpec)
         {
             CheckoutOptions options = new CheckoutOptions();
@@ -251,6 +252,7 @@ namespace LibGit2Sharp
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="branch">The <see cref="Branch"/> to check out.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Checkout()")]
         public static Branch Checkout(this IRepository repository, Branch branch)
         {
             CheckoutOptions options = new CheckoutOptions();
@@ -266,6 +268,7 @@ namespace LibGit2Sharp
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to check out.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Checkout()")]
         public static Branch Checkout(this IRepository repository, Commit commit)
         {
             CheckoutOptions options = new CheckoutOptions();
@@ -452,6 +455,7 @@ namespace LibGit2Sharp
         /// <param name="branch">The <see cref="Branch"/> to check out.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Checkout()")]
         public static Branch Checkout(this IRepository repository, Branch branch, CheckoutOptions options)
         {
             return repository.Checkout(branch, options);
@@ -467,6 +471,7 @@ namespace LibGit2Sharp
         /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to check out.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Checkout()")]
         public static Branch Checkout(this IRepository repository, Commit commit, CheckoutOptions options)
         {
             return repository.Checkout(commit, options);
@@ -483,6 +488,7 @@ namespace LibGit2Sharp
         /// <param name="committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Checkout()")]
         public static Branch Checkout(this IRepository repository, string committishOrBranchSpec, CheckoutOptions options)
         {
             return repository.Checkout(committishOrBranchSpec, options);

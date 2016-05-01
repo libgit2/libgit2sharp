@@ -388,6 +388,61 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static unsafe string git_commit_create_buffer(
+            RepositoryHandle repo,
+            Signature author,
+            Signature committer,
+            string message,
+            Tree tree,
+            Commit[] parents)
+        {
+            using (SignatureHandle authorHandle = author.BuildHandle())
+            using (SignatureHandle committerHandle = committer.BuildHandle())
+            using (var treeHandle = Proxy.git_object_lookup(tree.repo.Handle, tree.Id, GitObjectType.Tree))
+            using (var buf = new GitBuf())
+            {
+                ObjectHandle[] handles = new ObjectHandle[0];
+                try
+                {
+                    handles = parents.Select(c => Proxy.git_object_lookup(c.repo.Handle, c.Id, GitObjectType.Commit)).ToArray();
+                    var ptrs = handles.Select(p => p.AsIntPtr()).ToArray();
+                    int res;
+                    fixed(IntPtr* objs = ptrs)
+                    {
+                        res = NativeMethods.git_commit_create_buffer(buf,
+                            repo,
+                            authorHandle,
+                            committerHandle,
+                            null,
+                            message,
+                            treeHandle,
+                            new UIntPtr((ulong)parents.LongCount()),
+                            objs);
+                    }
+                    Ensure.ZeroResult(res);
+                }
+                finally
+                {
+                    foreach (var handle in handles)
+                    {
+                        handle.Dispose();
+                    }
+                }
+
+                return LaxUtf8Marshaler.FromNative(buf.ptr);
+            }
+        }
+
+        public static unsafe ObjectId git_commit_create_with_signature(RepositoryHandle repo, string commitContent,
+            string signature, string field)
+        {
+            GitOid id;
+            int res = NativeMethods.git_commit_create_with_signature(out id, repo, commitContent, signature, field);
+            Ensure.ZeroResult(res);
+
+            return id;
+        }
+
         public static unsafe string git_commit_message(ObjectHandle obj)
         {
             return NativeMethods.git_commit_message(obj);
@@ -424,6 +479,22 @@ namespace LibGit2Sharp.Core
         public static unsafe ObjectId git_commit_tree_id(ObjectHandle obj)
         {
             return ObjectId.BuildFromPtr(NativeMethods.git_commit_tree_id(obj));
+        }
+
+        public static unsafe SignatureInfo git_commit_extract_signature(RepositoryHandle repo, ObjectId id, string field)
+        {
+            using (var signature = new GitBuf())
+            using (var signedData = new GitBuf())
+            {
+                var oid = id.Oid;
+                Ensure.ZeroResult(NativeMethods.git_commit_extract_signature(signature, signedData, repo, ref oid, field));
+
+                return new SignatureInfo()
+                {
+                    Signature = LaxUtf8Marshaler.FromNative(signature.ptr, signature.size.ConvertToInt()),
+                    SignedData = LaxUtf8Marshaler.FromNative(signedData.ptr, signedData.size.ConvertToInt()),
+                };
+            }
         }
 
         #endregion
@@ -1256,7 +1327,7 @@ namespace LibGit2Sharp.Core
 
             using (var buf = new GitBuf())
             {
-                int res = NativeMethods.git_message_prettify(buf, message, false, (sbyte)comment);
+                int res = NativeMethods.git_message_prettify(buf, message, true, (sbyte)comment);
                 Ensure.Int32Result(res);
 
                 return LaxUtf8Marshaler.FromNative(buf.ptr) ?? string.Empty;
@@ -1510,9 +1581,27 @@ namespace LibGit2Sharp.Core
             return id;
         }
 
-        #endregion
+        public static unsafe ObjectId git_odb_write(ObjectDatabaseHandle odb, byte[] data, ObjectType type)
+        {
+            GitOid id;
+            int res;
+            fixed(byte* p = data)
+            {
+#if NET40
+                UIntPtr len = new UIntPtr((ulong)data.LongLength);
+#else
+                UIntPtr len = new UIntPtr((uint)data.Length);
+#endif
+                res = NativeMethods.git_odb_write(out id, odb, p, len, type.ToGitObjectType());
+            }
+            Ensure.ZeroResult(res);
 
-        #region git_patch_
+            return id;
+        }
+
+#endregion
+
+#region git_patch_
 
         public static unsafe PatchHandle git_patch_from_diff(DiffHandle diff, int idx)
         {
@@ -1536,9 +1625,9 @@ namespace LibGit2Sharp.Core
             return new Tuple<int, int>((int)add, (int)del);
         }
 
-        #endregion
+#endregion
 
-        #region git_packbuilder_
+#region git_packbuilder_
 
         public static unsafe PackBuilderHandle git_packbuilder_new(RepositoryHandle repo)
         {
@@ -1602,9 +1691,9 @@ namespace LibGit2Sharp.Core
         {
             return NativeMethods.git_packbuilder_written(packbuilder);
         }
-        #endregion
+#endregion
 
-        #region git_rebase
+#region git_rebase
 
         public static unsafe RebaseHandle git_rebase_init(
             RepositoryHandle repo,
@@ -1758,9 +1847,9 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        #endregion
+#endregion
 
-        #region git_reference_
+#region git_reference_
 
         public static unsafe ReferenceHandle git_reference_create(
             RepositoryHandle repo,
@@ -1908,9 +1997,9 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
-        #endregion
+#endregion
 
-        #region git_reflog_
+#region git_reflog_
 
         public static unsafe ReflogHandle git_reflog_read(RepositoryHandle repo, string canonicalName)
         {
@@ -1952,9 +2041,9 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_reflog_entry_message(entry);
         }
 
-        #endregion
+#endregion
 
-        #region git_refspec
+#region git_refspec
 
         public static unsafe string git_refspec_transform(IntPtr refSpecPtr, string name)
         {
@@ -2013,9 +2102,9 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_refspec_dst_matches(refspec, reference);
         }
 
-        #endregion
+#endregion
 
-        #region git_remote_
+#region git_remote_
 
         public static unsafe TagFetchMode git_remote_autotag(RemoteHandle remote)
         {
@@ -2326,9 +2415,9 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_remote_pushurl(remote);
         }
 
-        #endregion
+#endregion
 
-        #region git_repository_
+#region git_repository_
 
         public static FilePath git_repository_discover(FilePath start_path)
         {
@@ -2537,9 +2626,9 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
-        #endregion
+#endregion
 
-        #region git_reset_
+#region git_reset_
 
         public static unsafe void git_reset(
             RepositoryHandle repo,
@@ -2554,9 +2643,9 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        #endregion
+#endregion
 
-        #region git_revert_
+#region git_revert_
 
         public static unsafe void git_revert(
             RepositoryHandle repo,
@@ -2570,9 +2659,9 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        #endregion
+#endregion
 
-        #region git_revparse_
+#region git_revparse_
 
         public static unsafe Tuple<ObjectHandle, ReferenceHandle> git_revparse_ext(RepositoryHandle repo, string objectish)
         {
@@ -2611,9 +2700,9 @@ namespace LibGit2Sharp.Core
             return handles.Item1;
         }
 
-        #endregion
+#endregion
 
-        #region git_revwalk_
+#region git_revwalk_
 
         public static unsafe void git_revwalk_hide(RevWalkerHandle walker, ObjectId commit_id)
         {
@@ -2668,9 +2757,9 @@ namespace LibGit2Sharp.Core
             NativeMethods.git_revwalk_simplify_first_parent(walker);
         }
 
-        #endregion
+#endregion
 
-        #region git_signature_
+#region git_signature_
 
         public static unsafe SignatureHandle git_signature_new(string name, string email, DateTimeOffset when)
         {
@@ -2700,9 +2789,9 @@ namespace LibGit2Sharp.Core
             return handle;
         }
 
-        #endregion
+#endregion
 
-        #region git_stash_
+#region git_stash_
 
         public static unsafe ObjectId git_stash_save(
             RepositoryHandle repo,
@@ -2782,9 +2871,9 @@ namespace LibGit2Sharp.Core
             return get_stash_status(NativeMethods.git_stash_pop(repo, (UIntPtr)index, opts));
         }
 
-        #endregion
+#endregion
 
-        #region git_status_
+#region git_status_
 
         public static unsafe FileStatus git_status_file(RepositoryHandle repo, FilePath path)
         {
@@ -2830,9 +2919,9 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_status_byindex(list, (UIntPtr)idx);
         }
 
-        #endregion
+#endregion
 
-        #region git_submodule_
+#region git_submodule_
 
         /// <summary>
         /// Returns a handle to the corresponding submodule,
@@ -2901,9 +2990,7 @@ namespace LibGit2Sharp.Core
 
         public static unsafe ObjectId git_submodule_head_id(SubmoduleHandle submodule)
         {
-#if NET40
             Console.WriteLine("got git_oid for head {0}", NativeMethods.git_submodule_head_id(submodule) == null);
-#endif
             return ObjectId.BuildFromPtr(NativeMethods.git_submodule_head_id(submodule));
         }
 

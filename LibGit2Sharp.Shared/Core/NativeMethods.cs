@@ -190,7 +190,7 @@ namespace LibGit2Sharp.Core
             IntPtr iterator);
 
         [DllImport(libgit2)]
-        internal static extern  int git_branch_iterator_new(
+        internal static extern int git_branch_iterator_new(
             out IntPtr iter_out,
             IntPtr repo,
             GitBranchType branch_type);
@@ -326,6 +326,26 @@ namespace LibGit2Sharp.Core
             UIntPtr parentCount,
             [MarshalAs(UnmanagedType.LPArray)] [In] IntPtr[] parents);
 
+        [DllImport(libgit2)]
+        private static extern unsafe int git_commit_create_buffer(
+            GitBuf res,
+            git_repository* repo,
+            git_signature* author,
+            git_signature* committer,
+            [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* encoding,
+            [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* message,
+            git_object* tree,
+            UIntPtr parent_count,
+            IntPtr* parents /* git_commit** originally */);
+
+        [DllImport(libgit2)]
+        private static extern unsafe int git_commit_create_with_signature(
+            out GitOid id,
+            git_repository* repo,
+            [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* commit_content,
+            [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* signature,
+            [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* signature_field);
+
         [DllImport(libgit2, EntryPoint = "git_commit_message")]
         [return: CustomMarshaler(typeof(LaxUtf8NoCleanupMarshaler), typeof(string))]
         private static extern unsafe byte* git_commit_message_(git_object* commit);
@@ -346,6 +366,14 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern unsafe git_oid* git_commit_tree_id(git_object* commit);
+
+        [DllImport(libgit2)]
+        private static extern unsafe int git_commit_extract_signature(
+            GitBuf signature,
+            GitBuf signed_data,
+            git_repository* repo,
+            ref GitOid commit_id,
+            [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* field);
 
         [DllImport(libgit2)]
         private static extern unsafe int git_config_delete_entry(
@@ -374,7 +402,7 @@ namespace LibGit2Sharp.Core
         internal static extern int git_config_find_programdata(GitBuf programdata_config_path);
 
         [DllImport(libgit2)]
-        internal static extern unsafe void git_config_free(git_config *cfg);
+        internal static extern unsafe void git_config_free(git_config* cfg);
 
         [DllImport(libgit2)]
         internal static extern unsafe void git_config_entry_free(GitConfigEntry* entry);
@@ -490,7 +518,7 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern void git_cred_free(IntPtr cred);
-        
+
         [DllImport(libgit2)]
         internal static extern unsafe int git_describe_commit(
             out git_describe_result* describe,
@@ -613,7 +641,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern int git_libgit2_features();
 
-#region git_libgit2_opts
+        #region git_libgit2_opts
 
         // Bindings for git_libgit2_opts(int option, ...):
         // Currently only GIT_OPT_GET_SEARCH_PATH and GIT_OPT_SET_SEARCH_PATH are supported,
@@ -630,7 +658,7 @@ namespace LibGit2Sharp.Core
         private static unsafe extern int git_libgit2_opts(int option, uint level,
             [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* path);
 
-#endregion
+        #endregion
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_graph_ahead_behind(out UIntPtr ahead, out UIntPtr behind, git_repository* repo, ref GitOid one, ref GitOid two);
@@ -930,6 +958,9 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe void git_odb_stream_free(git_odb_stream* stream);
 
         [DllImport(libgit2)]
+        internal static extern unsafe int git_odb_write(out GitOid id, git_odb* odb, byte* data, UIntPtr len, GitObjectType type);
+
+        [DllImport(libgit2)]
         internal static extern unsafe git_oid* git_object_id(git_object* obj);
 
         [DllImport(libgit2)]
@@ -1144,7 +1175,7 @@ namespace LibGit2Sharp.Core
             GitBuf buf,
             IntPtr refspec,
             [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* name);
-            
+
 
         [DllImport(libgit2)]
         private static unsafe extern int git_refspec_rtransform(
@@ -1177,12 +1208,12 @@ namespace LibGit2Sharp.Core
         private static extern unsafe bool git_refspec_src_matches(
             IntPtr refspec,
             [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* reference);
-        
+
         [DllImport(libgit2)]
         private static extern unsafe bool git_refspec_dst_matches(
             IntPtr refspec,
             [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* reference);
-        
+
         [DllImport(libgit2)]
         internal static extern unsafe int git_remote_autotag(git_remote* remote);
 
@@ -1396,6 +1427,10 @@ namespace LibGit2Sharp.Core
             git_repository* repository);
 
         [DllImport(libgit2)]
+        internal static extern unsafe int git_repository_new(
+            out git_repository* repo);
+
+        [DllImport(libgit2)]
         internal static extern unsafe int git_repository_odb(out git_odb* odb, git_repository* repo);
 
         [DllImport(libgit2)]
@@ -1463,9 +1498,6 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2, EntryPoint = "git_repository_workdir")]
         [return: CustomMarshaler(typeof(LaxFilePathNoCleanupMarshaler), typeof(FilePath))]
         private static extern unsafe byte* git_repository_workdir_(IntPtr repository);
-
-        [DllImport(libgit2)]
-        internal static extern unsafe int git_repository_new(out git_repository* repo);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_reset(

@@ -21,7 +21,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 // Checkout the revert branch.
-                Branch branch = repo.Checkout(revertBranchName);
+                Branch branch = Commands.Checkout(repo, revertBranchName);
                 Assert.NotNull(branch);
 
                 // Revert tip commit.
@@ -68,7 +68,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 // Checkout the revert branch.
-                Branch branch = repo.Checkout(revertBranchName);
+                Branch branch = Commands.Checkout(repo, revertBranchName);
                 Assert.NotNull(branch);
 
                 // Revert tip commit.
@@ -110,7 +110,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 // Checkout the revert branch.
-                Branch branch = repo.Checkout(revertBranchName);
+                Branch branch = Commands.Checkout(repo, revertBranchName);
                 Assert.NotNull(branch);
 
                 // The commit to revert - we know that reverting this
@@ -148,7 +148,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 // Checkout the revert branch.
-                Branch branch = repo.Checkout(revertBranchName);
+                Branch branch = Commands.Checkout(repo, revertBranchName);
                 Assert.NotNull(branch);
 
                 // Specify FileConflictStrategy.
@@ -201,7 +201,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(repoPath))
             {
                 // Checkout the revert branch.
-                Branch branch = repo.Checkout(revertBranchName);
+                Branch branch = Commands.Checkout(repo, revertBranchName);
                 Assert.NotNull(branch);
 
                 bool wasCalled = false;
@@ -226,7 +226,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(repoPath))
             {
                 // Checkout the revert branch.
-                Branch branch = repo.Checkout(revertBranchName);
+                Branch branch = Commands.Checkout(repo, revertBranchName);
                 Assert.NotNull(branch);
 
                 bool wasCalled = false;
@@ -266,7 +266,7 @@ namespace LibGit2Sharp.Tests
             string repoPath = SandboxRevertTestRepo();
             using (var repo = new Repository(repoPath))
             {
-                Branch currentBranch = repo.Checkout(revertBranchName);
+                Branch currentBranch = Commands.Checkout(repo, revertBranchName);
                 Assert.NotNull(currentBranch);
 
                 Commit commitToRevert = repo.Lookup<Commit>(commitIdToRevert);
@@ -323,7 +323,7 @@ namespace LibGit2Sharp.Tests
             string repoPath = SandboxRevertTestRepo();
             using (var repo = new Repository(repoPath))
             {
-                Branch branch = repo.Checkout(revertBranchName);
+                Branch branch = Commands.Checkout(repo, revertBranchName);
                 Assert.NotNull(branch);
 
                 Commit commitToRevert = repo.Lookup<Commit>(commitIdToRevert);
@@ -382,7 +382,7 @@ namespace LibGit2Sharp.Tests
             string repoPath = SandboxRevertTestRepo();
             using (var repo = new Repository(repoPath))
             {
-                Branch branch = repo.Checkout(revertBranchName);
+                Branch branch = Commands.Checkout(repo, revertBranchName);
                 Assert.NotNull(branch);
 
                 var commitToRevert = repo.Lookup<Commit>(commitIdToRevert);
@@ -404,7 +404,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 // Checkout the revert branch.
-                Branch branch = repo.Checkout(revertBranchName);
+                Branch branch = Commands.Checkout(repo, revertBranchName);
                 Assert.NotNull(branch);
 
                 Commit commitToRevert = repo.Head.Tip;
@@ -445,7 +445,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 // Checkout the revert branch.
-                Branch branch = repo.Checkout(revertBranchName);
+                Branch branch = Commands.Checkout(repo, revertBranchName);
                 Assert.NotNull(branch);
 
                 Commit commitToRevert = repo.Head.Tip;

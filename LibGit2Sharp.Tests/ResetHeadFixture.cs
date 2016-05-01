@@ -102,7 +102,7 @@ namespace LibGit2Sharp.Tests
                 Branch branch = repo.Branches["mybranch"];
 
                 string branchIdentifier = branchIdentifierRetriever(branch);
-                repo.Checkout(branchIdentifier);
+                Commands.Checkout(repo, branchIdentifier);
                 var oldHeadId = repo.Head.Tip.Id;
                 Assert.Equal(shouldHeadBeDetached, repo.Info.IsHeadDetached);
 
@@ -174,7 +174,7 @@ namespace LibGit2Sharp.Tests
             repo.Commit("Update file", shiftedSignature, shiftedSignature);
             repo.CreateBranch("mybranch");
 
-            repo.Checkout("mybranch");
+            Commands.Checkout(repo, "mybranch");
 
             Assert.False(repo.RetrieveStatus().IsDirty);
         }

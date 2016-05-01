@@ -121,7 +121,7 @@ namespace LibGit2Sharp.Tests
             {
                 EnableRefLog(repo);
 
-                repo.Checkout(headCommitOrBranchSpec);
+                Commands.Checkout(repo, headCommitOrBranchSpec);
 
                 const string name = "unit_test";
 
@@ -154,7 +154,7 @@ namespace LibGit2Sharp.Tests
             {
                 EnableRefLog(repo);
 
-                repo.Checkout(headCommitOrBranchSpec);
+                Commands.Checkout(repo, headCommitOrBranchSpec);
 
                 const string name = "unit_test";
 
@@ -1092,7 +1092,7 @@ namespace LibGit2Sharp.Tests
                 repo.RemoveUntrackedFiles();
 
                 string headSha = repo.Head.Tip.Sha;
-                repo.Checkout(headSha);
+                Commands.Checkout(repo, headSha);
 
                 Assert.False(repo.Head.IsTracking);
                 Assert.Null(repo.Head.TrackedBranch);

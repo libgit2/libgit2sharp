@@ -178,6 +178,16 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Write an object to the object database
+        /// </summary>
+        /// <param name="data">The contents of the object</param>
+        /// <typeparam name="T">The type of object to write</typeparam>
+        public virtual ObjectId Write<T>(byte[] data) where T : GitObject
+        {
+            return Proxy.git_odb_write(handle, data, GitObject.TypeToKindMap[typeof(T)]);
+        }
+
+        /// <summary>
         /// Inserts a <see cref="Blob"/> into the object database, created from the content of a stream.
         /// <para>Optionally, git filters will be applied to the content before storing it.</para>
         /// </summary>
@@ -410,6 +420,32 @@ namespace LibGit2Sharp
             Commit commit = repo.Lookup<Commit>(commitId);
             Ensure.GitObjectIsNotNull(commit, commitId.Sha);
             return commit;
+        }
+
+        /// <summary>
+        /// Inserts a <see cref="Commit"/> into the object database after attaching the given signature.
+        /// </summary>
+        /// <param name="commitContent">The raw unsigned commit</param>
+        /// <param name="signature">The signature data </param>
+        /// <param name="field">The header field in the commit in which to store the signature</param>
+        /// <returns>The created <see cref="Commit"/>.</returns>
+        public virtual ObjectId CreateCommitWithSignature(string commitContent, string signature, string field)
+        {
+            return Proxy.git_commit_create_with_signature(repo.Handle, commitContent, signature, field);
+        }
+
+        /// <summary>
+        /// Inserts a <see cref="Commit"/> into the object database after attaching the given signature.
+        /// <para>
+        /// This overload uses the default header field of "gpgsig"
+        /// </para>
+        /// </summary>
+        /// <param name="commitContent">The raw unsigned commit</param>
+        /// <param name="signature">The signature data </param>
+        /// <returns>The created <see cref="Commit"/>.</returns>
+        public virtual ObjectId CreateCommitWithSignature(string commitContent, string signature)
+        {
+            return Proxy.git_commit_create_with_signature(repo.Handle, commitContent, signature, null);
         }
 
         /// <summary>

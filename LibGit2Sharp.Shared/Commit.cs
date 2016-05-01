@@ -113,6 +113,20 @@ namespace LibGit2Sharp
             return encoding ?? "UTF-8";
         }
 
+        /// <summary>
+        /// Prettify a commit message
+        /// <para>
+        /// Remove comment lines and trailing lines
+        /// </para>
+        /// </summary>
+        /// <returns>The prettified message</returns>
+        /// <param name="message">The message to prettify.</param>
+        /// <param name="commentChar">Comment character. Lines starting with it will be removed</param>
+        public static string PrettifyMessage(string message, char commentChar)
+        {
+            return Proxy.git_message_prettify(message, commentChar);
+        }
+
         private string DebuggerDisplay
         {
             get
@@ -122,6 +136,68 @@ namespace LibGit2Sharp
                                      Id.ToString(7),
                                      MessageShort);
             }
+        }
+
+        /// <summary>
+        /// Extract the signature data from this commit
+        /// </summary>
+        /// <returns>The signature and the signed data</returns>
+        /// <param name="repo">The repository in which the object lives</param>
+        /// <param name="id">The commit to extract the signature from</param>
+        /// <param name="field">The header field which contains the signature; use null for the default of "gpgsig"</param>
+        public static SignatureInfo ExtractSignature(Repository repo, ObjectId id, string field)
+        {
+            return Proxy.git_commit_extract_signature(repo.Handle, id, field);
+        }
+
+        /// <summary>
+        /// Extract the signature data from this commit
+        /// <para>
+        /// The overload uses the default header field "gpgsig"
+        /// </para>
+        /// </summary>
+        /// <returns>The signature and the signed data</returns>
+        /// <param name="repo">The repository in which the object lives</param>
+        /// <param name="id">The commit to extract the signature from</param>
+        public static SignatureInfo ExtractSignature(Repository repo, ObjectId id)
+        {
+            return Proxy.git_commit_extract_signature(repo.Handle, id, null);
+        }
+
+        /// <summary>
+        /// Create a commit in-memory
+        /// <para>
+        /// Prettifing the message includes:
+        /// * Removing empty lines from the beginning and end.
+        /// * Removing trailing spaces from every line.
+        /// * Turning multiple consecutive empty lines between paragraphs into just one empty line.
+        /// * Ensuring the commit message ends with a newline.
+        /// * Removing every line starting with the <paramref name="commentChar"/>.
+        /// </para>
+        /// </summary>
+        /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
+        /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
+        /// <param name="message">The description of why a change was made to the repository.</param>
+        /// <param name="tree">The <see cref="Tree"/> of the <see cref="Commit"/> to be created.</param>
+        /// <param name="parents">The parents of the <see cref="Commit"/> to be created.</param>
+        /// <param name="prettifyMessage">True to prettify the message, or false to leave it as is.</param>
+        /// <param name="commentChar">When non null, lines starting with this character will be stripped if prettifyMessage is true.</param>
+        /// <returns>The contents of the commit object.</returns>
+        public static string CreateBuffer(Signature author, Signature committer, string message, Tree tree, IEnumerable<Commit> parents, bool prettifyMessage, char? commentChar)
+        {
+            Ensure.ArgumentNotNull(message, "message");
+            Ensure.ArgumentDoesNotContainZeroByte(message, "message");
+            Ensure.ArgumentNotNull(author, "author");
+            Ensure.ArgumentNotNull(committer, "committer");
+            Ensure.ArgumentNotNull(tree, "tree");
+            Ensure.ArgumentNotNull(parents, "parents");
+
+            if (prettifyMessage)
+            {
+                message = Proxy.git_message_prettify(message, commentChar);
+            }
+
+            return Proxy.git_commit_create_buffer(tree.repo.Handle, author, committer, message, tree, parents.ToArray());
         }
 
         private class ParentsCollection : ICollection<Commit>

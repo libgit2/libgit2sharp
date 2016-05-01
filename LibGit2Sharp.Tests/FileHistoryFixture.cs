@@ -94,7 +94,7 @@ namespace LibGit2Sharp.Tests
                     dummy, master9);
 
                 repo.CreateBranch("master", master10);
-                repo.Checkout("master", new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force });
+                Commands.Checkout(repo, "master", new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force });
 
                 // Test --date-order.
                 var timeHistory = repo.Commits.QueryBy(path,

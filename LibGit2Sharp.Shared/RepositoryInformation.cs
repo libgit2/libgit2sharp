@@ -23,7 +23,7 @@ namespace LibGit2Sharp
             FilePath path = Proxy.git_repository_path(repo.Handle);
             FilePath workingDirectoryPath = Proxy.git_repository_workdir(repo.Handle);
 
-            Path = path.Native;
+            Path = path == null ? null : path.Native;
             WorkingDirectory = workingDirectoryPath == null ? null : workingDirectoryPath.Native;
             IsShallow = Proxy.git_repository_is_shallow(repo.Handle);
         }

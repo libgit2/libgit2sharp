@@ -30,6 +30,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)CherryPickOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CherryPickResult.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CloneOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\Checkout.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CommitFilter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CommitOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CommitSortStrategies.cs" />
@@ -120,6 +121,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)RevertResult.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RevertOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SecureUsernamePasswordCredentials.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SignatureInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StageOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StatusOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SimilarityOptions.cs" />

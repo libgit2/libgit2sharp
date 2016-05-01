@@ -28,7 +28,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// The <see cref="Repository"/> containing the object.
         /// </summary>
-        protected readonly Repository repo;
+        internal readonly Repository repo;
 
         /// <summary>
         /// Needed for mocking purposes.
