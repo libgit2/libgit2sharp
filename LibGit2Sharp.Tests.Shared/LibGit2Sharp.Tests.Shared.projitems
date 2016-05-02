@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>564101fc-941a-44b5-9993-ffe481a05d9f</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>LibGit2Sharp.Tests.Shared</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ArchiveFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ArchiveTarFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AttributesFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BlameFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BlobFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BranchFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CheckoutFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CherryPickFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CleanFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CloneFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CommitAncestorFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CommitFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ConfigurationFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ConflictFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CurrentOperationFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DescribeFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DiffBlobToBlobFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DiffTreeToTargetFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DiffTreeToTreeFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DiffWorkdirToIndexFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EpochFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EqualityFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FetchFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileHistoryFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FilterBranchFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FilterFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FilterSubstitutionCipherFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GlobalSettingsFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IgnoreFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IndexFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LogFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MergeFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MetaFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MockingFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NetworkFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NoteFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectDatabaseFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectIdFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)OdbBackendFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PackBuilderFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PatchStatsFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PushFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RebaseFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ReferenceFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ReflogFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RefSpecFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RemoteFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RemoveFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RepositoryFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RepositoryOptionsFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ResetHeadFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ResetIndexFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RevertFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SetErrorFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ShadowCopyFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SignatureFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SmartSubtransportFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StageFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StashFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StatusFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SubmoduleFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TagFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestHelpers\BaseFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestHelpers\Constants.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestHelpers\DateTimeOffsetExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestHelpers\DirectoryHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestHelpers\ExpectedFetchState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestHelpers\FileExportFilter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestHelpers\IPostTestDirectoryRemover.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestHelpers\OdbHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestHelpers\SelfCleaningDirectory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestHelpers\SignatureExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestHelpers\SkippableFactAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestHelpers\SubstitutionCipherFilter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestHelpers\TestRemoteInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestHelpers\TestRemoteRefs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TreeDefinitionFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TreeFixture.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UnstageFixture.cs" />
+  </ItemGroup>
+</Project>
