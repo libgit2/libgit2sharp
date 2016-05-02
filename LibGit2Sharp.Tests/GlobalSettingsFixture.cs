@@ -31,7 +31,7 @@ namespace LibGit2Sharp.Tests
             //      git2hash: '06d772d' LibGit2 library hash.
             //      arch: 'x86' or 'x64' LibGit2 target.
             //      git2Features: 'Threads, Ssh' LibGit2 features compiled with.
-            string regex = @"^(?<version>\d{1,}\.\d{1,2}\.\d{1,3}(-(pre|dev)\d{14})?)-(?<git2SharpHash>\w+)-(?<git2Hash>\w+) \((?<arch>\w+) - (?<git2Features>(?:\w*(?:, )*\w+)*)\)$";
+            string regex = @"^(?<version>\d{1,}\.\d{1,2}\.\d{1,3}(\+g[a-f0-9]{10})?)-(?<git2SharpHash>\w+)-(?<git2Hash>\w+) \((?<arch>\w+) - (?<git2Features>(?:\w*(?:, )*\w+)*)\)$";
 
             Assert.NotNull(versionInfo);
 
@@ -42,7 +42,7 @@ namespace LibGit2Sharp.Tests
 
             GroupCollection matchGroups = regexResult.Groups;
 
-            Assert.Equal(8, matchGroups.Count);
+            Assert.Equal(7, matchGroups.Count);
 
             // Check that all groups are valid
             for (int i = 0; i < matchGroups.Count; i++)
