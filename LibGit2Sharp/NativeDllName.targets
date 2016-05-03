@@ -15,6 +15,9 @@
           Inputs="@(EmbeddedResource)"
           Outputs="$(NativeDllNamePath)">
     <GenerateNativeDllNameTask InputHashFile="@(EmbeddedResource)" Condition=" '%(Filename)%(Extension)' == 'libgit2_filename.txt' " OutputFile="$(NativeDllNamePath)" />
+    <ItemGroup>
+      <Compile Include="$(NativeDllNamePath)" />
+    </ItemGroup>
   </Target>
 
  <Target Name="CleanNativeDllNameCs">

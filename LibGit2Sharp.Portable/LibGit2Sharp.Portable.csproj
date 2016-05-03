@@ -61,12 +61,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\LibGit2Sharp\Core\NativeDllName.cs">
-      <Link>Core\NativeDllName.cs</Link>
-    </Compile>
-    <Compile Include="..\LibGit2Sharp\Core\UniqueIdentifier.cs">
-      <Link>Core\UniqueIdentifier.cs</Link>
-    </Compile>
     <Compile Include="BufferedStream.cs" />
     <Compile Include="Core\Handles\Objects.cs">
       <DependentUpon>Objects.tt</DependentUpon>

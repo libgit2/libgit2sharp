@@ -24,6 +24,9 @@
            Inputs="$(MSBuildThisFileFullPath);$(MSBuildAllProjects);@(Compile)"
            Outputs="$(UniqueIdentifierPath)">
     <GenerateUniqueIdentifierTask OutputFile="$(UniqueIdentifierPath)" />
+    <ItemGroup>
+      <Compile Include="$(UniqueIdentifierPath)" />
+    </ItemGroup>
   </Target>
 
   <Target Name="CleanUniqueIdentifierCs">

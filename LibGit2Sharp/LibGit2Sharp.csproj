@@ -53,8 +53,6 @@
     <Compile Include="Core\Handles\Objects.cs">
       <DependentUpon>Objects.tt</DependentUpon>
     </Compile>
-    <Compile Include="Core\NativeDllName.cs" />
-    <Compile Include="Core\UniqueIdentifier.cs" />
     <Compile Include="PortableShims.cs" />
   </ItemGroup>
   <ItemGroup>

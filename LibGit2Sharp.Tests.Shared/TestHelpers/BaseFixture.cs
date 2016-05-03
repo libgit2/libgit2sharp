@@ -61,7 +61,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
             string initialAssemblyParentFolder = Directory.GetParent(new Uri(typeof(BaseFixture).Assembly.EscapedCodeBase).LocalPath).FullName;
 
-            const string sourceRelativePath = @"../../Resources";
+            const string sourceRelativePath = @"../../../LibGit2Sharp.Tests/Resources";
             ResourcesDirectory = new DirectoryInfo(Path.Combine(initialAssemblyParentFolder, sourceRelativePath));
 
             // Setup standard paths to our test repositories
