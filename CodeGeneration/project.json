@@ -4,7 +4,7 @@
       "version": "0.1.54",
       "suppressParent": "none"
     },
-    "Nerdbank.GitVersioning": "1.3.16"
+    "Nerdbank.GitVersioning": "1.4.19"
   },
   "frameworks": {
     ".NETFramework,Version=v4.6": { }
