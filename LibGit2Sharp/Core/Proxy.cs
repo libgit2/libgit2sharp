@@ -325,6 +325,22 @@ namespace LibGit2Sharp.Core
                 Ensure.ZeroResult(res);
             }
         }
+
+        internal static unsafe IndexHandle git_cherrypick_commit(RepositoryHandle repo, ObjectHandle cherrypickCommit, ObjectHandle ourCommit, uint mainline, GitMergeOpts opts, out bool earlyStop)
+        {
+            git_index* index;
+            int res = NativeMethods.git_cherrypick_commit(out index, repo, cherrypickCommit, ourCommit, mainline, ref opts);
+            if (res == (int)GitErrorCode.MergeConflict)
+            {
+                earlyStop = true;
+            }
+            else
+            {
+                earlyStop = false;
+                Ensure.ZeroResult(res);
+            }
+            return new IndexHandle(index, true);
+        }
         #endregion
 
         #region git_clone_
@@ -2654,6 +2670,21 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        internal static unsafe IndexHandle git_revert_commit(RepositoryHandle repo, ObjectHandle revertCommit, ObjectHandle ourCommit, uint mainline, GitMergeOpts opts, out bool earlyStop)
+        {
+            git_index* index;
+            int res = NativeMethods.git_revert_commit(out index, repo, revertCommit, ourCommit, mainline, ref opts);
+            if (res == (int)GitErrorCode.MergeConflict)
+            {
+                earlyStop = true;
+            }
+            else
+            {
+                earlyStop = false;
+                Ensure.ZeroResult(res);
+            }
+            return new IndexHandle(index, true);
+        }
         #endregion
 
         #region git_revparse_
