@@ -79,10 +79,14 @@ namespace LibGit2Sharp
                 Version = 1,
                 Show = (GitStatusShow)options.Show,
                 Flags =
-                    GitStatusOptionFlags.IncludeIgnored |
                     GitStatusOptionFlags.IncludeUntracked |
                     GitStatusOptionFlags.RecurseUntrackedDirs,
             };
+
+            if (options.IncludeIgnored)
+            {
+                coreOptions.Flags |= GitStatusOptionFlags.IncludeIgnored;
+            }
 
             if (options.DetectRenamesInIndex)
             {

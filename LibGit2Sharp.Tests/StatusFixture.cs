@@ -319,6 +319,29 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void RetrievingTheStatusWithoutIncludeIgnoredIgnoresButDoesntInclude()
+        {
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                const string relativePath = "look-ma.txt";
+                Touch(repo.Info.WorkingDirectory, relativePath, "I'm going to be ignored!");
+                var opt = new StatusOptions { IncludeIgnored = false };
+                Assert.False(opt.IncludeIgnored);
+                RepositoryStatus status = repo.RetrieveStatus(opt);
+                Assert.Equal(new[] { relativePath }, status.Untracked.Select(s => s.FilePath));
+
+                Touch(repo.Info.WorkingDirectory, ".gitignore", "*.txt" + Environment.NewLine);
+
+                RepositoryStatus newStatus = repo.RetrieveStatus(opt);
+                Assert.Equal(".gitignore", newStatus.Untracked.Select(s => s.FilePath).Single());
+
+                Assert.False(newStatus.Ignored.Any());
+            }
+        }
+
+        [Fact]
         public void RetrievingTheStatusOfTheRepositoryHonorsTheGitIgnoreDirectives()
         {
             string path = SandboxStandardTestRepo();
