@@ -1,9 +1,6 @@
 ﻿{
   "dependencies": {
-    "CodeGeneration.Roslyn": {
-      "version": "0.1.54",
-      "suppressParent": "none"
-    },
+    "CodeGeneration.Roslyn": "0.1.54",
     "Nerdbank.GitVersioning": "1.4.19"
   },
   "frameworks": {
