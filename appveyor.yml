@@ -3,7 +3,7 @@ version: '{build}'
 branches:
   only:
   - master
-  - vNext
+  - portable
 
 skip_tags: true
 
