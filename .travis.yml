@@ -28,8 +28,8 @@ script:
 # Only watch the development branch
 branches:
  only:
-   - vNext
    - master
+   - portable
 
 # Notify of build changes
 notifications:
