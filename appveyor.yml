@@ -76,8 +76,8 @@ install:
 
     If ($Env:SHOULD_RUN_COVERALLS -eq $True)
     {
-      nuget install OpenCover -Version 4.6.166 -ExcludeVersion -OutputDirectory .\packages
-      nuget install coveralls.net -Version 0.6.0 -ExcludeVersion -OutputDirectory .\packages
+      lib\nuget\nuget.exe install OpenCover -Version 4.6.166 -ExcludeVersion -OutputDirectory .\packages
+      lib\nuget\nuget.exe install coveralls.net -Version 0.6.0 -ExcludeVersion -OutputDirectory .\packages
     }
 
     If ($Env:SHOULD_RUN_COVERITY_ANALYSIS -eq $True)
@@ -97,8 +97,7 @@ cache:
 
 before_build:
 - ps: |
-    nuget help
-    nuget restore "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln"
+    lib\nuget\nuget.exe restore "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln"
 
 build_script:
 - ps: |
