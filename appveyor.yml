@@ -96,7 +96,9 @@ cache:
   - packages
 
 before_build:
-- ps: nuget restore "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln"
+- ps: |
+    nuget help
+    nuget restore "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln"
 
 build_script:
 - ps: |
