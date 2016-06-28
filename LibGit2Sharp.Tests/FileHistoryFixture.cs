@@ -98,7 +98,7 @@ namespace LibGit2Sharp.Tests
 
                 // Test --date-order.
                 var timeHistory = repo.Commits.QueryBy(path,
-                    new FollowFilter { SortBy = CommitSortStrategies.Time });
+                    new CommitFilter { SortBy = CommitSortStrategies.Time });
                 var timeCommits = new List<Commit>
                 {
                     master10, // master
@@ -117,7 +117,7 @@ namespace LibGit2Sharp.Tests
 
                 // Test --topo-order.
                 var topoHistory = repo.Commits.QueryBy(path,
-                    new FollowFilter { SortBy = CommitSortStrategies.Topological });
+                    new CommitFilter { SortBy = CommitSortStrategies.Topological });
                 var topoCommits = new List<Commit>
                 {
                     master10, // master
@@ -255,33 +255,33 @@ namespace LibGit2Sharp.Tests
                 MakeAndCommitChange(repo, repoPath, path, "Hello World");
 
                 Assert.Throws<ArgumentException>(() =>
-                    repo.Commits.QueryBy(path, new FollowFilter
+                    repo.Commits.QueryBy(path, new CommitFilter
                     {
                         SortBy = CommitSortStrategies.None
                     }));
 
                 Assert.Throws<ArgumentException>(() =>
-                    repo.Commits.QueryBy(path, new FollowFilter
+                    repo.Commits.QueryBy(path, new CommitFilter
                     {
                         SortBy = CommitSortStrategies.Reverse
                     }));
 
                 Assert.Throws<ArgumentException>(() =>
-                    repo.Commits.QueryBy(path, new FollowFilter
+                    repo.Commits.QueryBy(path, new CommitFilter
                     {
                         SortBy = CommitSortStrategies.Reverse |
                                  CommitSortStrategies.Topological
                     }));
 
                 Assert.Throws<ArgumentException>(() =>
-                    repo.Commits.QueryBy(path, new FollowFilter
+                    repo.Commits.QueryBy(path, new CommitFilter
                     {
                         SortBy = CommitSortStrategies.Reverse |
                                  CommitSortStrategies.Time
                     }));
 
                 Assert.Throws<ArgumentException>(() =>
-                    repo.Commits.QueryBy(path, new FollowFilter
+                    repo.Commits.QueryBy(path, new CommitFilter
                     {
                         SortBy = CommitSortStrategies.Reverse |
                                  CommitSortStrategies.Topological |
