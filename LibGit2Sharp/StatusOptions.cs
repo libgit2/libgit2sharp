@@ -35,7 +35,6 @@
         public StatusOptions()
         {
             DetectRenamesInIndex = true;
-            IncludeIgnored = true;
         }
 
         /// <summary>

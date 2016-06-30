@@ -310,7 +310,7 @@ namespace LibGit2Sharp.Tests
 
                 Touch(repo.Info.WorkingDirectory, ".gitignore", "*.txt" + Environment.NewLine);
 
-                RepositoryStatus newStatus = repo.RetrieveStatus();
+                RepositoryStatus newStatus = repo.RetrieveStatus(new StatusOptions { IncludeIgnored = true });
                 Assert.Equal(".gitignore", newStatus.Untracked.Select(s => s.FilePath).Single());
 
                 Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus(relativePath));
@@ -422,7 +422,7 @@ namespace LibGit2Sharp.Tests
                  * #       new_untracked_file.txt
                  */
 
-                RepositoryStatus newStatus = repo.RetrieveStatus();
+                RepositoryStatus newStatus = repo.RetrieveStatus(new StatusOptions { IncludeIgnored = true });
                 Assert.Equal(".gitignore", newStatus.Untracked.Select(s => s.FilePath).Single());
 
                 Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus(relativePath));
@@ -498,7 +498,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus("bin/look-ma.txt"));
                 Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus("bin/what-about-me.txt"));
 
-                RepositoryStatus newStatus = repo.RetrieveStatus();
+                RepositoryStatus newStatus = repo.RetrieveStatus(new StatusOptions { IncludeIgnored = true });
                 Assert.Equal(new[] { "bin" + dirSep }, newStatus.Ignored.Select(s => s.FilePath));
 
                 var sb = new StringBuilder();
@@ -509,7 +509,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus("bin/look-ma.txt"));
                 Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus("bin/what-about-me.txt"));
 
-                newStatus = repo.RetrieveStatus();
+                newStatus = repo.RetrieveStatus(new StatusOptions { IncludeIgnored = true });
 
                 Assert.Equal(new[] { "bin" + dirSep + "look-ma.txt" }, newStatus.Ignored.Select(s => s.FilePath));
                 Assert.True(newStatus.Untracked.Select(s => s.FilePath).Contains("bin" + dirSep + "what-about-me.txt"));
