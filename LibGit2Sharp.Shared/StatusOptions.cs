@@ -35,6 +35,7 @@
         public StatusOptions()
         {
             DetectRenamesInIndex = true;
+            IncludeIgnored = true;
         }
 
         /// <summary>
@@ -84,5 +85,14 @@
         /// Unaltered meaning the file is identical in the working directory, the index and HEAD.
         /// </remarks>
         public bool IncludeUnaltered { get; set; }
+
+        /// <summary>
+        /// Include ignored files when scanning for status
+        /// </summary>
+        /// <remarks>
+        /// ignored meaning present in .gitignore. Defaults to true for back compat but may improve perf to not include if you have thousands of ignored files.
+        /// </remarks>
+        public bool IncludeIgnored { get; set; }
+
     }
 }
