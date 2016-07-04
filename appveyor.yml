@@ -1,5 +1,7 @@
 version: '{build}'
 
+os: Visual Studio 2015
+
 branches:
   only:
   - master
@@ -87,7 +89,7 @@ install:
 
 assembly_info:
   patch: true
-  file: LibGit2Sharp\Properties\AssemblyInfo.cs
+  file: LibGit2Sharp.Shared\Properties\AssemblyInfo.cs
   assembly_version: '$(VERSION)'
   assembly_file_version: '$(VERSION)'
   assembly_informational_version: '$(ASSEMBLY_INFORMATIONAL_VERSION)'
@@ -97,7 +99,7 @@ cache:
 
 before_build:
 - ps: |
-    lib\nuget\nuget.exe restore "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln"
+   & "$Env:APPVEYOR_BUILD_FOLDER\lib\nuget\nuget.exe" restore "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln"
 
 build_script:
 - ps: |
