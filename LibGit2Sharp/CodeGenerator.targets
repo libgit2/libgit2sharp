@@ -6,12 +6,6 @@
     </GeneratorAssemblySearchPaths>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CodeGenerationAttributes.Net40\CodeGenerationAttributes.Net40.csproj">
-      <Project>{f8f482fc-1b76-46f5-b1d8-3ddbbd18d1e4}</Project>
-      <Name>CodeGenerationAttributes.Net40</Name>
-      <Private>False</Private>
-      <ExcludeFromNuPkg>true</ExcludeFromNuPkg>
-    </ProjectReference>
     <ProjectReference Include="..\CodeGeneration\CodeGeneration.csproj">
       <Project>{6598997b-9419-4cc1-84ff-9621b555e9c0}</Project>
       <Name>CodeGeneration</Name>
