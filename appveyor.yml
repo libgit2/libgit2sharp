@@ -4,6 +4,7 @@ branches:
   only:
   - master
   - portable
+  - portable-appveyor-shiftkey
 
 skip_tags: true
 
