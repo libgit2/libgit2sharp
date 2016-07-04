@@ -299,5 +299,20 @@ namespace LibGit2Sharp
             var pathString = (paths == null) ? null : string.Join(Path.PathSeparator.ToString(), paths);
             Proxy.git_libgit2_opts_set_search_path(level, pathString);
         }
+
+        /// <summary>
+        /// Set the user agent which libgit2 will use in http requests.
+        ///
+        /// <seealso cref="RepositoryOptions"/>.
+        /// </summary>
+        /// <param name="level">The level (global/system/XDG) of the config.</param>
+        /// <param name="paths">
+        ///     The user agent string which will be used in http requests..
+        ///     Pass null to reset to the default.
+        /// </param>
+        public static void SetUserAgent(ConfigurationLevel level, string userAgent)
+        {
+            Proxy.git_libgit2_opts_set_user_agent(level, userAgent);
+        }
     }
 }

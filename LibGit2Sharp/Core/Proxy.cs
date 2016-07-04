@@ -3330,6 +3330,7 @@ namespace LibGit2Sharp.Core
             GetTemplatePath,       // GIT_OPT_GET_TEMPLATE_PATH
             SetTemplatePath,       // GIT_OPT_SET_TEMPLATE_PATH
             SetSslCertLocations,   // GIT_OPT_SET_SSL_CERT_LOCATIONS
+            SetUserAgent,          // GIT_OPT_SET_USER_AGENT
         }
 
         /// <summary>
@@ -3365,6 +3366,20 @@ namespace LibGit2Sharp.Core
         public static void git_libgit2_opts_set_search_path(ConfigurationLevel level, string path)
         {
             var res = NativeMethods.git_libgit2_opts((int)LibGitOption.SetSearchPath, (uint)level, path);
+            Ensure.ZeroResult(res);
+        }
+
+        /// <summary>
+        /// Set the user agent which libgit2 will use in http requests.
+        /// </summary>
+        /// <param name="level">The level (global/system/XDG) of the config.</param>
+        /// <param name="userAgent">
+        ///     The user agent string which will be used in http requests..
+        ///     Pass null to reset the search path to the default.
+        /// </param>
+        public static void git_libgit2_opts_set_user_agent(ConfigurationLevel level, string userAgent)
+        {
+            var res = NativeMethods.git_libgit2_opts((int)LibGitOption.SetUserAgent, (uint)level, userAgent);
             Ensure.ZeroResult(res);
         }
 
