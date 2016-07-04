@@ -36,11 +36,7 @@ namespace LibGit2Sharp
             }
             finally
             {
-#if NET40
                 Marshal.ZeroFreeGlobalAllocUnicode(passwordPtr);
-#else
-                SecureStringMarshal.ZeroFreeCoTaskMemUnicode(passwordPtr);
-#endif
             }
 
         }

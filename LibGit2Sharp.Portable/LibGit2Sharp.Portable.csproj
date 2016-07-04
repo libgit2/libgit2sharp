@@ -75,6 +75,14 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CodeGenerationAttributes.Portable\CodeGenerationAttributes.Portable.csproj">
+      <Project>{e1a8b99f-b2f6-4a38-9df6-8792056d70ff}</Project>
+      <Name>CodeGenerationAttributes.Portable</Name>
+      <Private>False</Private>
+      <ExcludeFromNuPkg>true</ExcludeFromNuPkg>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="..\LibGit2Sharp.Shared\LibGit2Sharp.Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\LibGit2Sharp\UniqueIdentifier.targets" />

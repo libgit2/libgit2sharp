@@ -2,19 +2,32 @@
   "supports": {
   },
   "dependencies": {
-    "Microsoft.NETCore": "5.0.0",
-    "Microsoft.NETCore.Portable.Compatibility": "1.0.0",
-    "System.Console": "4.0.0-beta-23409",
-    "System.Diagnostics.TraceSource": "4.0.0-beta-23409",
-    "System.Diagnostics.StackTrace": "4.0.1-beta-23409",
-    "System.Runtime.InteropServices.RuntimeInformation": "4.0.0-beta-23409",
-    "System.Security.Cryptography.X509Certificates": "4.0.0-beta-23409",
-    "System.Security.SecureString": "4.0.0-beta-23409",
-    "LibGit2Sharp.NativeBinaries": "[1.0.137]",
-    "Nerdbank.GitVersioning": "1.4.41"
+    "LibGit2Sharp.NativeBinaries-dotnet": "[1.0.137]",
+    "Microsoft.NETCore.Portable.Compatibility": "1.0.1",
+    "Nerdbank.GitVersioning": "1.4.41",
+    "System.AppContext": "4.1.0",
+    "System.Collections": "4.0.11",
+    "System.Collections.Concurrent": "4.0.12",
+    "System.Console": "4.0.0",
+    "System.Diagnostics.Debug": "4.0.11",
+    "System.Diagnostics.StackTrace": "4.0.1",
+    "System.Diagnostics.TraceSource": "4.0.0",
+    "System.Globalization": "4.0.11",
+    "System.IO.FileSystem": "4.0.1",
+    "System.IO.UnmanagedMemoryStream": "4.0.1",
+    "System.Linq": "4.1.0",
+    "System.Net.Primitives": "4.0.11",
+    "System.Runtime.Extensions": "4.1.0",
+    "System.Runtime.InteropServices": "4.1.0",
+    "System.Runtime.InteropServices.RuntimeInformation": "4.0.0",
+    "System.Security.Cryptography.X509Certificates": "4.1.0",
+    "System.Security.SecureString": "4.0.0",
+    "System.Text.Encoding.Extensions": "4.0.11",
+    "System.Text.RegularExpressions": "4.1.0",
+    "System.Threading": "4.0.11"
   },
   "frameworks": {
-    "dotnet": {
+    "netstandard1.3": {
       "imports": "portable-net452+win81"
     }
   }
