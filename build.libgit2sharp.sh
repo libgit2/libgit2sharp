@@ -9,7 +9,7 @@ EXTRADEFINE="$1"
 # working directory in its library search path, so it works without this value.
 export LD_LIBRARY_PATH=.
 
-mono lib/nuget/nuget.exe restore
+mono Lib/NuGet/NuGet.exe restore
 xbuild CI/build.msbuild /target:Deploy /property:ExtraDefine="$EXTRADEFINE"
 
 exit $?
