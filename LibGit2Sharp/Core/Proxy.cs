@@ -554,7 +554,7 @@ namespace LibGit2Sharp.Core
         {
             return ConvertPath(NativeMethods.git_config_find_programdata);
         }
-        
+
         public static unsafe void git_config_free(git_config *config)
         {
             NativeMethods.git_config_free(config);
