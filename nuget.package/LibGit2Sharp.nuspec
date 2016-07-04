@@ -18,5 +18,6 @@
     <file src="..\LICENSE.md" target="App_Readme\LibGit2Sharp.LICENSE.md" />
     <file src="..\CHANGES.md" target="App_Readme\LibGit2Sharp.CHANGES.md" />
     <file src="bin\$configuration$\$id$.pdb" target="lib\net40" />
+    <file src="..\LibGit2Sharp.Portable\bin\$configuration$\$id$.dll" target="lib\netstandard1.3" /> 
   </files>
 </package>

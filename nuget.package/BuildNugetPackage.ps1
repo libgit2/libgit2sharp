@@ -1,7 +1,7 @@
 <#
 .SYNOPSIS
     Generates the NuGet packages (including the symbols).
-    A clean build is performed the packaging.
+    A clean build is performed before packaging.
 .PARAMETER commitSha
     The LibGit2Sharp commit sha that contains the version of the source code being packaged.
 #>
@@ -55,9 +55,7 @@ function Clean-OutputFolder($folder) {
 # From http://www.dougfinke.com/blog/index.php/2010/12/01/note-to-self-how-to-programmatically-get-the-msbuild-path-in-powershell/
 
 Function Get-MSBuild {
-    $lib = [System.Runtime.InteropServices.RuntimeEnvironment]
-    $rtd = $lib::GetRuntimeDirectory()
-    Join-Path $rtd msbuild.exe
+    return "${env:ProgramFiles(x86)}\MSBuild\14.0\Bin\msbuild.exe"
 }
 
 #################
@@ -79,7 +77,7 @@ Push-Location $projectPath
 try {
   Set-Content -Encoding ASCII $(Join-Path $projectPath "libgit2sharp_hash.txt") $commitSha
   Run-Command { & "$(Join-Path $projectPath "..\Lib\NuGet\Nuget.exe")" Restore "$slnPath" }
-  Run-Command { & (Get-MSBuild) "$slnPath" "/verbosity:minimal" "/p:Configuration=Release" }
+  Run-Command { & (Get-MSBuild) "$slnPath" "/verbosity:minimal" "/p:Configuration=Release" "/m" }
 
   If ($postBuild) {
     Write-Host -ForegroundColor "Green" "Run post build script..."
