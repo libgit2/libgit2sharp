@@ -305,14 +305,13 @@ namespace LibGit2Sharp
         ///
         /// <seealso cref="RepositoryOptions"/>.
         /// </summary>
-        /// <param name="level">The level (global/system/XDG) of the config.</param>
         /// <param name="paths">
         ///     The user agent string which will be used in http requests..
         ///     Pass null to reset to the default.
         /// </param>
-        public static void SetUserAgent(ConfigurationLevel level, string userAgent)
+        public static void SetUserAgent(string userAgent)
         {
-            Proxy.git_libgit2_opts_set_user_agent(level, userAgent);
+            Proxy.git_libgit2_opts_set_user_agent(userAgent);
         }
     }
 }

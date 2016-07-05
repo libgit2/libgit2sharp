@@ -3372,14 +3372,13 @@ namespace LibGit2Sharp.Core
         /// <summary>
         /// Set the user agent which libgit2 will use in http requests.
         /// </summary>
-        /// <param name="level">The level (global/system/XDG) of the config.</param>
         /// <param name="userAgent">
         ///     The user agent string which will be used in http requests..
         ///     Pass null to reset the search path to the default.
         /// </param>
-        public static void git_libgit2_opts_set_user_agent(ConfigurationLevel level, string userAgent)
+        public static void git_libgit2_opts_set_user_agent(string userAgent)
         {
-            var res = NativeMethods.git_libgit2_opts((int)LibGitOption.SetUserAgent, (uint)level, userAgent);
+            var res = NativeMethods.git_libgit2_opts((int)LibGitOption.SetUserAgent, userAgent);
             Ensure.ZeroResult(res);
         }
 
