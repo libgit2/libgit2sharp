@@ -542,6 +542,80 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Performs a cherry-pick of <paramref name="cherryPickCommit"/> onto <paramref name="cherryPickOnto"/> commit.
+        /// </summary>
+        /// <param name="cherryPickCommit">The commit to cherry-pick.</param>
+        /// <param name="cherryPickOnto">The commit to cherry-pick onto.</param>
+        /// <param name="mainline">Which commit to consider the parent for the diff when cherry-picking a merge commit.</param>
+        /// <param name="options">The options for the merging in the cherry-pick operation.</param>
+        /// <returns>A result containing a <see cref="Tree"/> if the cherry-pick was successful and a list of <see cref="Conflict"/>s if it is not.</returns>
+        public virtual MergeTreeResult CherryPickCommit(Commit cherryPickCommit, Commit cherryPickOnto, int mainline, MergeTreeOptions options)
+        {
+            Ensure.ArgumentNotNull(cherryPickCommit, "cherryPickCommit");
+            Ensure.ArgumentNotNull(cherryPickOnto, "ours");
+
+            options = options ?? new MergeTreeOptions();
+
+            // We throw away the index after looking at the conflicts, so we'll never need the REUC
+            // entries to be there
+            GitMergeFlag mergeFlags = GitMergeFlag.GIT_MERGE_NORMAL | GitMergeFlag.GIT_MERGE_SKIP_REUC;
+            if (options.FindRenames)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_FIND_RENAMES;
+            }
+            if (options.FailOnConflict)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_FAIL_ON_CONFLICT;
+            }
+
+
+            var opts = new GitMergeOpts
+            {
+                Version = 1,
+                MergeFileFavorFlags = options.MergeFileFavor,
+                MergeTreeFlags = mergeFlags,
+                RenameThreshold = (uint)options.RenameThreshold,
+                TargetLimit = (uint)options.TargetLimit
+            };
+
+            bool earlyStop;
+
+            using (var cherryPickOntoHandle = Proxy.git_object_lookup(repo.Handle, cherryPickOnto.Id, GitObjectType.Commit))
+            using (var cherryPickCommitHandle = Proxy.git_object_lookup(repo.Handle, cherryPickCommit.Id, GitObjectType.Commit))
+            using (var indexHandle = Proxy.git_cherrypick_commit(repo.Handle, cherryPickCommitHandle, cherryPickOntoHandle, (uint)mainline, opts, out earlyStop))
+            {
+                MergeTreeResult cherryPickResult;
+
+                // Stopped due to FailOnConflict so there's no index or conflict list
+                if (earlyStop)
+                {
+                    return new MergeTreeResult(new Conflict[] { });
+                }
+
+                if (Proxy.git_index_has_conflicts(indexHandle))
+                {
+                    List<Conflict> conflicts = new List<Conflict>();
+                    Conflict conflict;
+                    using (ConflictIteratorHandle iterator = Proxy.git_index_conflict_iterator_new(indexHandle))
+                    {
+                        while ((conflict = Proxy.git_index_conflict_next(iterator)) != null)
+                        {
+                            conflicts.Add(conflict);
+                        }
+                    }
+                    cherryPickResult = new MergeTreeResult(conflicts);
+                }
+                else
+                {
+                    var treeId = Proxy.git_index_write_tree_to(indexHandle, repo.Handle);
+                    cherryPickResult = new MergeTreeResult(this.repo.Lookup<Tree>(treeId));
+                }
+
+                return cherryPickResult;
+            }
+        }
+
+        /// <summary>
         /// Calculates the current shortest abbreviated <see cref="ObjectId"/>
         /// string representation for a <see cref="GitObject"/>.
         /// </summary>
@@ -805,6 +879,80 @@ namespace LibGit2Sharp
             }
 
             return results;
+        }
+
+        /// <summary>
+        /// Performs a revert of <paramref name="revertCommit"/> onto <paramref name="revertOnto"/> commit.
+        /// </summary>
+        /// <param name="revertCommit">The commit to revert.</param>
+        /// <param name="revertOnto">The commit to revert onto.</param>
+        /// <param name="mainline">Which commit to consider the parent for the diff when reverting a merge commit.</param>
+        /// <param name="options">The options for the merging in the revert operation.</param>
+        /// <returns>A result containing a <see cref="Tree"/> if the revert was successful and a list of <see cref="Conflict"/>s if it is not.</returns>
+        public virtual MergeTreeResult RevertCommit(Commit revertCommit, Commit revertOnto, int mainline, MergeTreeOptions options)
+        {
+            Ensure.ArgumentNotNull(revertCommit, "revertCommit");
+            Ensure.ArgumentNotNull(revertOnto, "revertOnto");
+
+            options = options ?? new MergeTreeOptions();
+
+            // We throw away the index after looking at the conflicts, so we'll never need the REUC
+            // entries to be there
+            GitMergeFlag mergeFlags = GitMergeFlag.GIT_MERGE_NORMAL | GitMergeFlag.GIT_MERGE_SKIP_REUC;
+            if (options.FindRenames)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_FIND_RENAMES;
+            }
+            if (options.FailOnConflict)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_FAIL_ON_CONFLICT;
+            }
+
+
+            var opts = new GitMergeOpts
+            {
+                Version = 1,
+                MergeFileFavorFlags = options.MergeFileFavor,
+                MergeTreeFlags = mergeFlags,
+                RenameThreshold = (uint)options.RenameThreshold,
+                TargetLimit = (uint)options.TargetLimit
+            };
+
+            bool earlyStop;
+
+            using (var revertOntoHandle = Proxy.git_object_lookup(repo.Handle, revertOnto.Id, GitObjectType.Commit))
+            using (var revertCommitHandle = Proxy.git_object_lookup(repo.Handle, revertCommit.Id, GitObjectType.Commit))
+            using (var indexHandle = Proxy.git_revert_commit(repo.Handle, revertCommitHandle, revertOntoHandle, (uint)mainline, opts, out earlyStop))
+            {
+                MergeTreeResult revertTreeResult;
+
+                // Stopped due to FailOnConflict so there's no index or conflict list
+                if (earlyStop)
+                {
+                    return new MergeTreeResult(new Conflict[] { });
+                }
+
+                if (Proxy.git_index_has_conflicts(indexHandle))
+                {
+                    List<Conflict> conflicts = new List<Conflict>();
+                    Conflict conflict;
+                    using (ConflictIteratorHandle iterator = Proxy.git_index_conflict_iterator_new(indexHandle))
+                    {
+                        while ((conflict = Proxy.git_index_conflict_next(iterator)) != null)
+                        {
+                            conflicts.Add(conflict);
+                        }
+                    }
+                    revertTreeResult = new MergeTreeResult(conflicts);
+                }
+                else
+                {
+                    var treeId = Proxy.git_index_write_tree_to(indexHandle, repo.Handle);
+                    revertTreeResult = new MergeTreeResult(this.repo.Lookup<Tree>(treeId));
+                }
+
+                return revertTreeResult;
+            }
         }
     }
 }

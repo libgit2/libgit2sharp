@@ -1504,6 +1504,15 @@ namespace LibGit2Sharp.Core
             GitRevertOpts opts);
 
         [DllImport(libgit2)]
+        internal static extern unsafe int git_revert_commit(
+            out git_index* index,
+            git_repository* repo,
+            git_object* revert_commit,
+            git_object* our_commit,
+            uint mainline,
+            ref GitMergeOpts opts);
+
+        [DllImport(libgit2)]
         internal static extern unsafe int git_revparse_ext(
             out git_object* obj,
             out git_reference* reference,
@@ -1861,6 +1870,14 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_cherrypick(git_repository* repo, git_object* commit, GitCherryPickOptions options);
+
+        [DllImport(libgit2)]
+        internal static extern unsafe int git_cherrypick_commit(out git_index* index,
+            git_repository* repo,
+            git_object* cherrypick_commit,
+            git_object* our_commit,
+            uint mainline,
+            ref GitMergeOpts options);
 
         [DllImport(libgit2)]
         internal static extern int git_transaction_commit(IntPtr txn);

@@ -458,5 +458,70 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<UnbornBranchException>(() => repo.Revert(commitToRevert, Constants.Signature));
             }
         }
+
+        [Fact]
+        public void RevertWithNothingToRevertInObjectDatabaseSucceeds()
+        {
+            // The branch name to perform the revert on
+            const string revertBranchName = "refs/heads/revert";
+
+            string path = SandboxRevertTestRepo();
+            using (var repo = new Repository(path))
+            {
+                // Checkout the revert branch.
+                Branch branch = Commands.Checkout(repo, revertBranchName);
+                Assert.NotNull(branch);
+
+                Commit commitToRevert = repo.Head.Tip;
+
+                // Revert tip commit.
+                RevertResult result = repo.Revert(commitToRevert, Constants.Signature);
+                Assert.NotNull(result);
+                Assert.Equal(RevertStatus.Reverted, result.Status);
+
+                var revertResult = repo.ObjectDatabase.RevertCommit(commitToRevert, repo.Branches[revertBranchName].Tip, 0, null);
+
+                Assert.NotNull(revertResult);
+                Assert.Equal(MergeTreeStatus.Succeeded, revertResult.Status);
+            }
+        }
+
+        [Fact]
+        public void RevertWithConflictReportsConflict()
+       {
+            // The branch name to perform the revert on,
+            // and the file whose contents we expect to be reverted.
+            const string revertBranchName = "refs/heads/revert";
+
+            string path = SandboxRevertTestRepo();
+            using (var repo = new Repository(path))
+            {
+                // The commit to revert - we know that reverting this
+                // specific commit will generate conflicts.
+                Commit commitToRevert = repo.Lookup<Commit>("cb4f7f0eca7a0114cdafd8537332aa17de36a4e9");
+                Assert.NotNull(commitToRevert);
+
+                // Perform the revert and verify there were conflicts.
+                var result = repo.ObjectDatabase.RevertCommit(commitToRevert, repo.Branches[revertBranchName].Tip, 0, null);
+                Assert.NotNull(result);
+                Assert.Equal(MergeTreeStatus.Conflicts, result.Status);
+                Assert.Null(result.Tree);
+            }
+        }
+
+        [Fact]
+        public void CanRevertInObjectDatabase()
+        {
+            // The branch name to perform the revert on
+            const string revertBranchName = "refs/heads/revert";
+
+            string path = SandboxRevertTestRepo();
+            using (var repo = new Repository(path))
+            {
+                // Revert tip commit.
+                var result = repo.ObjectDatabase.RevertCommit(repo.Branches[revertBranchName].Tip, repo.Branches[revertBranchName].Tip, 0, null);
+                Assert.Equal(MergeTreeStatus.Succeeded, result.Status);
+            }
+        }
     }
 }

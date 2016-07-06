@@ -126,6 +126,42 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanCherryPickCommit()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var ours = repo.Head.Tip;
+
+                Commit commitToMerge = repo.Branches["fast_forward"].Tip;
+
+                var result = repo.ObjectDatabase.CherryPickCommit(commitToMerge, ours, 0, null);
+
+                Assert.Equal(MergeTreeStatus.Succeeded, result.Status);
+                Assert.Equal(0, result.Conflicts.Count());
+            }
+        }
+
+        [Fact]
+        public void CherryPickWithConflictsReturnsConflicts()
+        {
+            const string conflictBranchName = "conflicts";
+
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Branch branch = repo.Branches[conflictBranchName];
+                Assert.NotNull(branch);
+
+                var result = repo.ObjectDatabase.CherryPickCommit(branch.Tip, repo.Head.Tip, 0, null);
+
+                Assert.Equal(MergeTreeStatus.Conflicts, result.Status);
+                Assert.NotEmpty(result.Conflicts);
+
+            }
+        }
+
         private Commit AddFileCommitToRepo(IRepository repository, string filename, string content = null)
         {
             Touch(repository.Info.WorkingDirectory, filename, content);
