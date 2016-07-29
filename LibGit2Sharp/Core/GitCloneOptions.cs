@@ -23,8 +23,6 @@ namespace LibGit2Sharp.Core
         public GitCloneLocal Local;
         public IntPtr CheckoutBranch;
 
-        public IntPtr signature; // Really a SignatureSafeHandle
-
         public IntPtr RepositoryCb;
         public IntPtr RepositoryCbPayload;
 
