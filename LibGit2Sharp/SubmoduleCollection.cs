@@ -100,11 +100,11 @@ namespace LibGit2Sharp
                     var remoteCallbacks = new RemoteCallbacks(options);
                     var gitRemoteCallbacks = remoteCallbacks.GenerateCallbacks();
 
-                    var gitSubmoduleUpdateOpts = new GitSubmoduleOptions
+                    var gitSubmoduleUpdateOpts = new GitSubmoduleUpdateOptions
                     {
                         Version = 1,
                         CheckoutOptions = gitCheckoutOptions,
-                        FetchOptions = new GitFetchOptions { RemoteCallbacks = gitRemoteCallbacks },
+                        FetchOptions = new GitFetchOptions { ProxyOptions = new GitProxyOptions { Version = 1 }, RemoteCallbacks = gitRemoteCallbacks },
                         CloneCheckoutStrategy = CheckoutStrategy.GIT_CHECKOUT_SAFE
                     };
 

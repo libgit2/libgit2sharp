@@ -3,7 +3,7 @@
 namespace LibGit2Sharp.Core
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal struct GitSubmoduleOptions
+    internal struct GitSubmoduleUpdateOptions
     {
         public uint Version;
 
@@ -12,5 +12,7 @@ namespace LibGit2Sharp.Core
         public GitFetchOptions FetchOptions;
 
         public CheckoutStrategy CloneCheckoutStrategy;
+
+        public int AllowFetch;
     }
 }
