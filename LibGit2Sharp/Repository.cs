@@ -636,6 +636,7 @@ namespace LibGit2Sharp
             using (RemoteHandle remoteHandle = Proxy.git_remote_create_anonymous(repositoryHandle, url))
             {
                 var gitCallbacks = new GitRemoteCallbacks { version = 1 };
+                var proxyOptions = new GitProxyOptions { Version = 1 };
 
                 if (credentialsProvider != null)
                 {
@@ -643,7 +644,7 @@ namespace LibGit2Sharp
                     gitCallbacks = callbacks.GenerateCallbacks();
                 }
 
-                Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch, ref gitCallbacks);
+                Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch, ref gitCallbacks, ref proxyOptions);
                 return Proxy.git_remote_ls(null, remoteHandle);
             }
         }
@@ -726,12 +727,14 @@ namespace LibGit2Sharp
                 var remoteCallbacks = new RemoteCallbacks(options);
                 var gitRemoteCallbacks = remoteCallbacks.GenerateCallbacks();
 
+                var gitProxyOptions = new GitProxyOptions { Version = 1 };
+
                 var cloneOpts = new GitCloneOptions
                 {
                     Version = 1,
                     Bare = options.IsBare ? 1 : 0,
                     CheckoutOpts = gitCheckoutOptions,
-                    FetchOpts = new GitFetchOptions { RemoteCallbacks = gitRemoteCallbacks },
+                    FetchOpts = new GitFetchOptions { ProxyOptions = gitProxyOptions, RemoteCallbacks = gitRemoteCallbacks },
                 };
 
                 string clonedRepoPath;

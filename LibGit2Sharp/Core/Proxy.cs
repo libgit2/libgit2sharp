@@ -1693,12 +1693,12 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
-        public static unsafe uint git_packbuilder_object_count(PackBuilderHandle packbuilder)
+        public static unsafe UIntPtr git_packbuilder_object_count(PackBuilderHandle packbuilder)
         {
             return NativeMethods.git_packbuilder_object_count(packbuilder);
         }
 
-        public static unsafe uint git_packbuilder_written(PackBuilderHandle packbuilder)
+        public static unsafe UIntPtr git_packbuilder_written(PackBuilderHandle packbuilder)
         {
             return NativeMethods.git_packbuilder_written(packbuilder);
         }
@@ -2149,13 +2149,13 @@ namespace LibGit2Sharp.Core
             return new RemoteHandle(handle, true);
         }
 
-        public static unsafe void git_remote_connect(RemoteHandle remote, GitDirection direction, ref GitRemoteCallbacks remoteCallbacks)
+        public static unsafe void git_remote_connect(RemoteHandle remote, GitDirection direction, ref GitRemoteCallbacks remoteCallbacks, ref GitProxyOptions proxyOptions)
         {
             GitStrArrayManaged customHeaders = new GitStrArrayManaged();
 
             try
             {
-                int res = NativeMethods.git_remote_connect(remote, direction, ref remoteCallbacks, ref customHeaders.Array);
+                int res = NativeMethods.git_remote_connect(remote, direction, ref remoteCallbacks, ref proxyOptions, ref customHeaders.Array);
                 Ensure.ZeroResult(res);
             }
             catch (Exception)
@@ -2993,7 +2993,7 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
-        public static unsafe void git_submodule_update(SubmoduleHandle submodule, bool init, ref GitSubmoduleOptions options)
+        public static unsafe void git_submodule_update(SubmoduleHandle submodule, bool init, ref GitSubmoduleUpdateOptions options)
         {
             var res = NativeMethods.git_submodule_update(submodule, init, ref options);
             Ensure.ZeroResult(res);
@@ -3348,19 +3348,23 @@ namespace LibGit2Sharp.Core
         // C# equivalent of libgit2's git_libgit2_opt_t
         private enum LibGitOption
         {
-            GetMWindowSize,        // GIT_OPT_GET_MWINDOW_SIZE
-            SetMWindowSize,        // GIT_OPT_SET_MWINDOW_SIZE
-            GetMWindowMappedLimit, // GIT_OPT_GET_MWINDOW_MAPPED_LIMIT
-            SetMWindowMappedLimit, // GIT_OPT_SET_MWINDOW_MAPPED_LIMIT
-            GetSearchPath,         // GIT_OPT_GET_SEARCH_PATH
-            SetSearchPath,         // GIT_OPT_SET_SEARCH_PATH
-            SetCacheObjectLimit,   // GIT_OPT_SET_CACHE_OBJECT_LIMIT
-            SetCacheMaxSize,       // GIT_OPT_SET_CACHE_MAX_SIZE
-            EnableCaching,         // GIT_OPT_ENABLE_CACHING
-            GetCachedMemory,       // GIT_OPT_GET_CACHED_MEMORY
-            GetTemplatePath,       // GIT_OPT_GET_TEMPLATE_PATH
-            SetTemplatePath,       // GIT_OPT_SET_TEMPLATE_PATH
-            SetSslCertLocations,   // GIT_OPT_SET_SSL_CERT_LOCATIONS
+            GetMWindowSize,             // GIT_OPT_GET_MWINDOW_SIZE
+            SetMWindowSize,             // GIT_OPT_SET_MWINDOW_SIZE
+            GetMWindowMappedLimit,      // GIT_OPT_GET_MWINDOW_MAPPED_LIMIT
+            SetMWindowMappedLimit,      // GIT_OPT_SET_MWINDOW_MAPPED_LIMIT
+            GetSearchPath,              // GIT_OPT_GET_SEARCH_PATH
+            SetSearchPath,              // GIT_OPT_SET_SEARCH_PATH
+            SetCacheObjectLimit,        // GIT_OPT_SET_CACHE_OBJECT_LIMIT
+            SetCacheMaxSize,            // GIT_OPT_SET_CACHE_MAX_SIZE
+            EnableCaching,              // GIT_OPT_ENABLE_CACHING
+            GetCachedMemory,            // GIT_OPT_GET_CACHED_MEMORY
+            GetTemplatePath,            // GIT_OPT_GET_TEMPLATE_PATH
+            SetTemplatePath,            // GIT_OPT_SET_TEMPLATE_PATH
+            SetSslCertLocations,        // GIT_OPT_SET_SSL_CERT_LOCATIONS
+            SetUserAgent,               // GIT_OPT_SET_USER_AGENT
+            EnableStrictObjectCreation, // GIT_OPT_ENABLE_STRICT_OBJECT_CREATION
+            SetSslCiphers,              // GIT_OPT_SET_SSL_CIPHERS
+            GetUserAgent,               // GIT_OPT_GET_USER_AGENT
         }
 
         /// <summary>

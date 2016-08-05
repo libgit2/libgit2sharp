@@ -121,11 +121,6 @@ namespace LibGit2Sharp.Core
             git_repository* repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath relative_path);
 
-        internal delegate int source_callback(
-            IntPtr content,
-            int max_length,
-            IntPtr data);
-
         [DllImport(libgit2)]
         internal static extern unsafe int git_blob_create_fromstream(
             out IntPtr stream,
@@ -136,14 +131,6 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe int git_blob_create_fromstream_commit(
             ref GitOid oid,
             IntPtr stream);
-
-        [DllImport(libgit2)]
-        internal static extern unsafe int git_blob_create_fromchunks(
-            ref GitOid oid,
-            git_repository* repositoryPtr,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath hintpath,
-            source_callback fileCallback,
-            IntPtr data);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_blob_filtered_content(
@@ -1020,7 +1007,7 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe int git_packbuilder_new(out git_packbuilder* packbuilder, git_repository* repo);
 
         [DllImport(libgit2)]
-        internal static extern unsafe UInt32 git_packbuilder_object_count(git_packbuilder* packbuilder);
+        internal static extern unsafe UIntPtr git_packbuilder_object_count(git_packbuilder* packbuilder);
 
         [DllImport(libgit2)]
         internal static extern unsafe UInt32 git_packbuilder_set_threads(git_packbuilder* packbuilder, UInt32 numThreads);
@@ -1034,7 +1021,7 @@ namespace LibGit2Sharp.Core
             IntPtr payload);
 
         [DllImport(libgit2)]
-        internal static extern unsafe UInt32 git_packbuilder_written(git_packbuilder* packbuilder);
+        internal static extern unsafe UIntPtr git_packbuilder_written(git_packbuilder* packbuilder);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_reference_create(
@@ -1213,6 +1200,7 @@ namespace LibGit2Sharp.Core
             git_remote* remote,
             GitDirection direction,
             ref GitRemoteCallbacks callbacks,
+            ref GitProxyOptions proxy_options,
             ref GitStrArray custom_headers);
 
         [DllImport(libgit2)]
@@ -1644,7 +1632,7 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe int git_submodule_update(
             git_submodule* sm,
             [MarshalAs(UnmanagedType.Bool)] bool init,
-            ref GitSubmoduleOptions submoduleUpdateOptions);
+            ref GitSubmoduleUpdateOptions submoduleUpdateOptions);
 
         internal delegate int submodule_callback(
             IntPtr sm,

@@ -249,6 +249,7 @@ namespace LibGit2Sharp.Core
         public Int64 Size;
         public GitDiffFlags Flags;
         public UInt16 Mode;
+        public UInt16 IdAbbrev;
     }
 
     [StructLayout(LayoutKind.Sequential)]

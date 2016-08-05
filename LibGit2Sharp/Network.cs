@@ -118,6 +118,7 @@ namespace LibGit2Sharp
             using (RemoteHandle remoteHandle = BuildRemoteHandle(repository.Handle, url))
             {
                 GitRemoteCallbacks gitCallbacks = new GitRemoteCallbacks { version = 1 };
+                GitProxyOptions proxyOptions = new GitProxyOptions { Version = 1 };
 
                 if (credentialsProvider != null)
                 {
@@ -125,7 +126,7 @@ namespace LibGit2Sharp
                     gitCallbacks = callbacks.GenerateCallbacks();
                 }
 
-                Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch, ref gitCallbacks);
+                Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch, ref gitCallbacks, ref proxyOptions);
                 return Proxy.git_remote_ls(repository, remoteHandle);
             }
         }
@@ -469,6 +470,7 @@ namespace LibGit2Sharp
                                       {
                                           PackbuilderDegreeOfParallelism = pushOptions.PackbuilderDegreeOfParallelism,
                                           RemoteCallbacks = gitCallbacks,
+                                          ProxyOptions = new GitProxyOptions { Version = 1 },
                                       });
             }
         }
