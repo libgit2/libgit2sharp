@@ -299,5 +299,14 @@ namespace LibGit2Sharp
             var pathString = (paths == null) ? null : string.Join(Path.PathSeparator.ToString(), paths);
             Proxy.git_libgit2_opts_set_search_path(level, pathString);
         }
+
+        /// <summary>
+        /// Enable or disable the libgit2 cache
+        /// </summary>
+        /// <param name="enabled">true to enable the cache, false otherwise</param>
+        public static void SetEnableCaching(bool enabled)
+        {
+            Proxy.git_libgit2_opts_set_enable_caching(enabled);
+        }
     }
 }
