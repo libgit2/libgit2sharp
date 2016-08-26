@@ -7,6 +7,16 @@ namespace LibGit2Sharp
     /// </summary>
     public abstract class Credentials
     {
+        public Credentials()
+        {
+            
+        }
+        
+        public Credentials(string username, string password)
+        {
+            Username = username;
+            Password = password;
+        }
         /// <summary>
         /// Callback to acquire a credential object.
         /// </summary>
