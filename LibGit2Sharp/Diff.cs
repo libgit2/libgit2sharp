@@ -415,7 +415,7 @@ namespace LibGit2Sharp
         /// <returns>A <typeparamref name="T"/> containing the changes between the working directory and the index.</returns>
         public virtual T Compare<T>(IEnumerable<string> paths, bool includeUntracked, ExplicitPathsOptions explicitPathsOptions) where T : class, IDiffResult
         {
-            return Compare<T>(includeUntracked ? DiffModifiers.IncludeUntracked : DiffModifiers.None, paths, explicitPathsOptions);
+            return Compare<T>(includeUntracked ? DiffModifiers.IncludeUntracked : DiffModifiers.None, paths, explicitPathsOptions, compareOptions);
         }
 
         /// <summary>
