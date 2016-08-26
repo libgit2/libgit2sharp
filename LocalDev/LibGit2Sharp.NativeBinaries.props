@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <ItemGroup>
+        <EmbeddedResource Include="$(MSBuildThisFileDirectory)\libgit2_hash.txt" />
+        <EmbeddedResource Include="$(MSBuildThisFileDirectory)\libgit2_filename.txt" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Condition="Exists('$(MSBuildThisFileDirectory)\..\..\libgit2\build64\Debug\git2.dll')" Include="$(MSBuildThisFileDirectory)\..\..\libgit2\build64\Debug\git2.dll">
+            <Link>NativeBinaries\amd64\git2-localdev.dll</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Condition="Exists('$(MSBuildThisFileDirectory)\..\..\libgit2\build64\Debug\git2.pdb')" Include="$(MSBuildThisFileDirectory)\..\..\libgit2\build64\Debug\git2.pdb">
+            <Link>NativeBinaries\amd64\git2-localdev.pdb</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Condition="Exists('$(MSBuildThisFileDirectory)\..\..\libgit2\build\Debug\git2.dll')" Include="$(MSBuildThisFileDirectory)\..\..\libgit2\build\Debug\git2.dll">
+            <Link>NativeBinaries\x86\git2-localdev.dll</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Condition="Exists('$(MSBuildThisFileDirectory)\..\..\libgit2\build\Debug\git2.pdb')" Include="$(MSBuildThisFileDirectory)\..\..\libgit2\build\Debug\git2.pdb">
+            <Link>NativeBinaries\x86\git2-localdev.pdb</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+	<!-- TODO Handle Linux and OSX objects. -->
+        <None Include="$(MSBuildThisFileDirectory)\LibGit2Sharp.dll.config">
+            <Link>LibGit2Sharp.dll.config</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+</Project>
