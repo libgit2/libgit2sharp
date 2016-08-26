@@ -1,7 +1,10 @@
 ﻿namespace LibGit2Sharp
 {
-    internal class DetachedHead : Branch
+    public class DetachedHead : Branch
     {
+        protected DetachedHead()
+        { }
+        
         internal DetachedHead(Repository repo, Reference reference)
             : base(repo, reference, "(no branch)")
         { }
