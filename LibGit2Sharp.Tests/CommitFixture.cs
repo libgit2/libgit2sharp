@@ -935,6 +935,28 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        private static void WriteAndCommit(Repository repo, string filename, string text)
+        {
+            File.WriteAllText(filename, text);
+            repo.Index.Stage("*");
+            repo.Commit(filename, Constants.Signature, Constants.Signature);
+        }
+
+        [Fact]
+        public void CanCommitTwoCommitsInARow()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Reset(ResetMode.Hard);
+                repo.RemoveUntrackedFiles();
+
+                var filename = Path.Combine(path, Path.GetRandomFileName());
+                Assert.DoesNotThrow(() => WriteAndCommit(repo, filename, "a"));
+                Assert.DoesNotThrow(() => WriteAndCommit(repo, filename, "b"));
+            }
+        }
+
         [Fact]
         public void CanCommitAnEmptyCommitWhenForced()
         {
