@@ -1492,7 +1492,11 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string email);
 
-        [DllImport(libgit2)]
+
+		[DllImport(libgit2)]
+		internal static extern int git_signature_default(out SignatureSafeHandle sig, RepositorySafeHandle repo);
+
+		[DllImport(libgit2)]
         internal static extern int git_signature_dup(out IntPtr dest, IntPtr sig);
 
         [DllImport(libgit2)]
