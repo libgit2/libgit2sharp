@@ -52,6 +52,14 @@ namespace LibGit2Sharp
         public virtual bool IsShallow { get; private set; }
 
         /// <summary>
+        /// Indicates whether the repository is empty.
+        /// </summary>
+        public virtual bool IsEmpty
+        {
+            get { return Proxy.git_repository_is_empty(repo.Handle); }
+        }
+
+        /// <summary>
         /// Indicates whether the Head points to an arbitrary commit instead of the tip of a local branch.
         /// </summary>
         public virtual bool IsHeadDetached
