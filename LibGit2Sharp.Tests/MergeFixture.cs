@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using LibGit2Sharp.Core;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
@@ -9,6 +11,18 @@ namespace LibGit2Sharp.Tests
 {
     public class MergeFixture : BaseFixture
     {
+        [Fact]
+        public void Test()
+        {
+            Assert.Null(Marshal.PtrToStructure(IntPtr.Zero, typeof(string)));
+        }
+
+        [Fact]
+        public void Test2()
+        {
+            Assert.Null(Marshal.PtrToStructure((IntPtr)null, typeof(string)));
+        }
+
         [Fact]
         public void ANewRepoIsFullyMerged()
         {
