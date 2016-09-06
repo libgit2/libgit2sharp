@@ -3016,7 +3016,6 @@ namespace LibGit2Sharp.Core
 
         public static unsafe ObjectId git_submodule_head_id(SubmoduleHandle submodule)
         {
-            Console.WriteLine("got git_oid for head {0}", NativeMethods.git_submodule_head_id(submodule) == null);
             return ObjectId.BuildFromPtr(NativeMethods.git_submodule_head_id(submodule));
         }
 
