@@ -40,18 +40,14 @@ namespace LibGit2Sharp
             Reference reference;
             GitObject obj;
 
-            Console.WriteLine("revparsing {0}", committishOrBranchSpec);
             repository.RevParse(committishOrBranchSpec, out reference, out obj);
-            Console.WriteLine("grabbed ref {0}, obj {1}", reference, obj);
             if (reference != null && reference.IsLocalBranch)
             {
                 Branch branch = repository.Branches[reference.CanonicalName];
-                Console.WriteLine("grabbed branch {0}", branch);
                 return Checkout(repository, branch, options);
             }
 
             Commit commit = obj.DereferenceToCommit(true);
-            Console.WriteLine("dereferenced to commit {0}", commit);
             Checkout(repository, commit.Tree,  options, committishOrBranchSpec);
 
             return repository.Head;
@@ -92,7 +88,6 @@ namespace LibGit2Sharp
                     branch.FriendlyName);
             }
 
-            Console.WriteLine("branch: {0}", branch);
             if (!branch.IsRemote && !(branch is DetachedHead) &&
                 string.Equals(repository.Refs[branch.CanonicalName].TargetIdentifier, branch.Tip.Id.Sha,
                     StringComparison.OrdinalIgnoreCase))
