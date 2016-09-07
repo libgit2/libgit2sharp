@@ -1392,7 +1392,7 @@ namespace LibGit2Sharp.Core
             return git_foreach(resultSelector, c => NativeMethods.git_note_foreach(repo,
                                                                                    notes_ref,
                                                                                    (ref GitOid x, ref GitOid y, IntPtr p) => c(x, y, p),
-                                                                                   IntPtr.Zero));
+                                                                                   IntPtr.Zero), GitErrorCode.NotFound);
         }
 
         public static unsafe string git_note_message(NoteHandle note)

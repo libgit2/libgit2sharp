@@ -308,6 +308,21 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+	    [Fact]
+	    public void CanRetrieveNotesWhenThereAreNotAny()
+	    {
+		    string path = InitNewRepository();	// doesn't reproduce an error when using a sandbox repository so we have to create an actual repo.
+		    using (var repo = new Repository(path))
+		    {
+			    foreach (var note in repo.Notes)
+			    {
+				    Assert.NotNull(note);
+			    }
+			    Assert.Equal(0, repo.Notes.Count());
+		    }
+	    }
+
+
         private static T[] SortedNotes<T>(IEnumerable<Note> notes, Func<Note, T> selector)
         {
             return notes.OrderBy(n => n.Message, StringComparer.Ordinal).Select(selector).ToArray();
