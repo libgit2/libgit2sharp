@@ -865,6 +865,43 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Theory]
+        [InlineData("conflicts_spaces")]
+        [InlineData("conflicts_tabs")]
+        public void CanConflictOnWhitespaceChangeMergeConflict(string branchName)
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var mergeResult = repo.Merge(branchName, Constants.Signature, new MergeOptions());
+                Assert.Equal(MergeStatus.Conflicts, mergeResult.Status);
+
+                var master = repo.Branches["master"];
+                var branch = repo.Branches[branchName];
+                var mergeTreeResult = repo.ObjectDatabase.MergeCommits(master.Tip, branch.Tip, new MergeTreeOptions());
+                Assert.Equal(MergeTreeStatus.Conflicts, mergeTreeResult.Status);
+            }
+        }
+
+        [Theory]
+        [InlineData("conflicts_spaces")]
+        [InlineData("conflicts_tabs")]
+        public void CanIgnoreWhitespaceChangeMergeConflict(string branchName)
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var mergeResult = repo.Merge(branchName, Constants.Signature, new MergeOptions() { IgnoreWhitespaceChange = true });
+                Assert.NotEqual(MergeStatus.Conflicts, mergeResult.Status);
+
+                var master = repo.Branches["master"];
+                var branch = repo.Branches[branchName];
+                var mergeTreeResult = repo.ObjectDatabase.MergeCommits(master.Tip, branch.Tip, new MergeTreeOptions() { IgnoreWhitespaceChange = true });
+                Assert.NotEqual(MergeTreeStatus.Conflicts, mergeTreeResult.Status);
+                Assert.Empty(mergeTreeResult.Conflicts);
+            }
+        }
+
         private Commit AddFileCommitToRepo(IRepository repository, string filename, string content = null)
         {
             Touch(repository.Info.WorkingDirectory, filename, content);

@@ -1533,6 +1533,10 @@ namespace LibGit2Sharp
                 treeFlags |= GitMergeFlag.GIT_MERGE_SKIP_REUC;
             }
 
+            var fileFlags = options.IgnoreWhitespaceChange
+                ? GitMergeFileFlag.GIT_MERGE_FILE_IGNORE_WHITESPACE_CHANGE
+                : GitMergeFileFlag.GIT_MERGE_FILE_DEFAULT;
+
             var mergeOptions = new GitMergeOpts
             {
                 Version = 1,
@@ -1540,6 +1544,7 @@ namespace LibGit2Sharp
                 MergeTreeFlags = treeFlags,
                 RenameThreshold = (uint)options.RenameThreshold,
                 TargetLimit = (uint)options.TargetLimit,
+                FileFlags = fileFlags
             };
 
             bool earlyStop;
