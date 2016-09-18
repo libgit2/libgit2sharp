@@ -71,6 +71,8 @@ namespace LibGit2Sharp
                     fetchOptions.Prune = FetchPruneStrategy.FromConfigurationOrDefault;
                 }
 
+                fetchOptions.ProxyOptions = new GitProxyOptions { Version = 1 };
+
                 Proxy.git_remote_fetch(remoteHandle, refspecs, fetchOptions, logMessage);
             }
 

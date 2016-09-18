@@ -107,7 +107,7 @@ namespace LibGit2Sharp
         /// </summary>
         internal long ObjectsCount
         {
-            get { return Proxy.git_packbuilder_object_count(packBuilderHandle); }
+            get { return (long)Proxy.git_packbuilder_object_count(packBuilderHandle); }
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace LibGit2Sharp
         /// </summary>
         internal long WrittenObjectsCount
         {
-            get { return Proxy.git_packbuilder_written(packBuilderHandle); }
+            get { return (long)Proxy.git_packbuilder_written(packBuilderHandle); }
         }
 
         internal PackBuilderHandle Handle

@@ -40,6 +40,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Core\GitPushUpdate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\GitSubmoduleIgnore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Platform.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\GitProxyOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\GitWriteStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\WriteStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\GitRebaseOperation.cs" />
