@@ -1,7 +1,7 @@
 ﻿{
   "dependencies": {
     "CodeGeneration.Roslyn": "0.1.54",
-    "Nerdbank.GitVersioning": "1.4.41"
+    "Nerdbank.GitVersioning": "1.5.51"
   },
   "frameworks": {
     ".NETFramework,Version=v4.6": { }

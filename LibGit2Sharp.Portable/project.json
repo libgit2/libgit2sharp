@@ -4,7 +4,7 @@
   "dependencies": {
     "LibGit2Sharp.NativeBinaries-dotnet": "[1.0.137]",
     "Microsoft.NETCore.Portable.Compatibility": "1.0.1",
-    "Nerdbank.GitVersioning": "1.4.41",
+    "Nerdbank.GitVersioning": "1.5.51",
     "System.AppContext": "4.1.0",
     "System.Collections": "4.0.11",
     "System.Collections.Concurrent": "4.0.12",
