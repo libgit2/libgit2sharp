@@ -19,7 +19,6 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(repository, "repository");
             Ensure.ArgumentNotNull(merger, "merger");
-            Ensure.ArgumentNotNull(options, "options");
 
 
             options = options ?? new PullOptions();
