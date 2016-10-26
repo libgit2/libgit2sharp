@@ -70,6 +70,12 @@ namespace LibGit2Sharp
             : this(path, null, RepositoryRequiredParameter.Path)
         { }
 
+        internal unsafe Repository(RepositoryHandle repoHandle)
+            : this(null, null, RepositoryRequiredParameter.None)
+        {
+            handle = repoHandle;
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Repository"/> class,
         /// providing optional behavioral overrides through the
