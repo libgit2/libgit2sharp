@@ -65,6 +65,7 @@
     <Compile Include="FilterFixture.cs" />
     <Compile Include="GlobalSettingsFixture.cs" />
     <Compile Include="PackBuilderFixture.cs" />
+    <Compile Include="PatchEntryChangesFixture.cs" />
     <Compile Include="PatchStatsFixture.cs" />
     <Compile Include="RebaseFixture.cs" />
     <Compile Include="RefSpecFixture.cs" />
