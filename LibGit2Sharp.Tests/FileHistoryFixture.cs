@@ -290,6 +290,35 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Theory]
+        [InlineData("https://github.com/ornatwork/nugetpackages")]
+        public void HandlesSubDirectorySeperators(string url)
+        {
+          var scd = BuildSelfCleaningDirectory();
+          var clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+          string subdir1 = "devbox";
+          string subdir2_double_backslash = subdir1 + Path.DirectorySeparatorChar + "content";
+          string subdir2_forwardslash = subdir1 + Path.AltDirectorySeparatorChar + "content";
+
+          // Check 
+          using (var repo = new Repository(clonedRepoPath))
+          {
+            // Total commits for repo
+            Assert.True( repo.Commits.Count() > 7 );
+            // Subdir1
+            IEnumerable<LogEntry> history1 = repo.Commits.QueryBy(subdir1);
+            Assert.True(history1.Count() > 1);
+
+            // subdir2 using double backslash
+            IEnumerable<LogEntry> history1_1 = repo.Commits.QueryBy(subdir2_double_backslash);
+            Assert.True(history1_1.Count() > 0);
+            
+            // subdir2 using forward slash
+            IEnumerable<LogEntry> history2_1 = repo.Commits.QueryBy(subdir2_forwardslash);
+            Assert.True(history2_1.Count() > 0);
+          }
+        }
+
     #region Helpers
 
     private Signature _signature = Constants.Signature;
