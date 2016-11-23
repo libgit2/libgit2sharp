@@ -289,10 +289,9 @@ namespace LibGit2Sharp.Tests
                     }));
             }
         }
-        
-    #region Helpers
+        #region Helpers
 
-    private Signature _signature = Constants.Signature;
+        private Signature _signature = Constants.Signature;
         private const string SubFolderPath1 = "SubFolder1";
 
         private Signature GetNextSignature()
