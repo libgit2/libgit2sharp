@@ -78,14 +78,16 @@ namespace LibGit2Sharp
             {
                 Version = 1,
                 Show = (GitStatusShow)options.Show,
-                Flags =
-                    GitStatusOptionFlags.IncludeUntracked |
-                    GitStatusOptionFlags.RecurseUntrackedDirs,
             };
 
             if (options.IncludeIgnored)
             {
                 coreOptions.Flags |= GitStatusOptionFlags.IncludeIgnored;
+            }
+
+            if (options.IncludeUntracked)
+            {
+                coreOptions.Flags |= GitStatusOptionFlags.IncludeUntracked;
             }
 
             if (options.DetectRenamesInIndex)
@@ -112,6 +114,12 @@ namespace LibGit2Sharp
             {
                 coreOptions.Flags |=
                     GitStatusOptionFlags.RecurseIgnoredDirs;
+            }
+
+            if (options.RecurseUntrackedDirs)
+            {
+                coreOptions.Flags |=
+                    GitStatusOptionFlags.RecurseUntrackedDirs;
             }
 
             if (options.PathSpec != null)
