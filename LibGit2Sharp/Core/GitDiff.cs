@@ -397,6 +397,7 @@ namespace LibGit2Sharp.Core
     [StructLayout(LayoutKind.Sequential)]
     internal class GitDiffBinary
     {
+        public uint ContainsData;
         public GitDiffBinaryFile OldFile;
         public GitDiffBinaryFile NewFile;
     }
