@@ -497,7 +497,7 @@ namespace LibGit2Sharp.Tests
             GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, "$PATH", appendMe);
 
             var currentPaths = GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Global);
-            Assert.Equal(currentPaths, prevPaths.Concat(new[] { appendMe }));
+            Assert.Equal(prevPaths.Concat(new[] { appendMe }), currentPaths);
 
             // set it back to the default
             GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, null);
