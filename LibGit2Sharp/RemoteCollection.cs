@@ -49,25 +49,6 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Update properties of a remote.
-        /// </summary>
-        /// <param name="remote">The remote to update.</param>
-        /// <param name="actions">Delegate to perform updates on the remote.</param>
-        /// <returns>The updated remote.</returns>
-        [Obsolete("This method is deprecated. Use the overload with a remote name")]
-        public virtual Remote Update(Remote remote, params Action<RemoteUpdater>[] actions)
-        {
-            var updater = new RemoteUpdater(repository, remote);
-
-            foreach (Action<RemoteUpdater> action in actions)
-            {
-                action(updater);
-            }
-
-            return this[remote.Name];
-        }
-
-        /// <summary>
-        /// Update properties of a remote.
         ///
         /// These updates will be performed as a bulk update at the end of the method.
         /// </summary>

@@ -143,101 +143,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Fetch from the <see cref="Remote"/>.
-        /// </summary>
-        /// <param name="remote">The remote to fetch</param>
-        [Obsolete("This method is deprecated. Please us LibGit2Sharp.Commands.Fetch()")]
-        public virtual void Fetch(Remote remote)
-        {
-            Commands.Fetch(repository, remote.Name, new string[0], null, null);
-        }
-
-        /// <summary>
-        /// Fetch from the <see cref="Remote"/>.
-        /// </summary>
-        /// <param name="remote">The remote to fetch</param>
-        /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
-        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Fetch()")]
-        public virtual void Fetch(Remote remote, FetchOptions options)
-        {
-            Commands.Fetch(repository, remote.Name, new string[0], options, null);
-        }
-
-        /// <summary>
-        /// Fetch from the <see cref="Remote"/>.
-        /// </summary>
-        /// <param name="remote">The remote to fetch</param>
-        /// <param name="logMessage">Message to use when updating the reflog.</param>
-        [Obsolete("This method is deprecated. Please use the LibGit2Sharp.Commands.Fetch()")]
-        public virtual void Fetch(Remote remote, string logMessage)
-        {
-            Commands.Fetch(repository, remote.Name, new string[0], null, logMessage);
-        }
-
-        /// <summary>
-        /// Fetch from the <see cref="Remote"/>.
-        /// </summary>
-        /// <param name="remote">The remote to fetch</param>
-        /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
-        /// <param name="logMessage">Message to use when updating the reflog.</param>
-        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Fetch()")]
-        public virtual void Fetch(Remote remote, FetchOptions options, string logMessage)
-        {
-            Commands.Fetch(repository, remote.Name, new string[0], options, logMessage);
-        }
-
-        /// <summary>
-        /// Fetch from the <see cref="Remote"/>, using custom refspecs.
-        /// </summary>
-        /// <param name="remote">The remote to fetch</param>
-        /// <param name="refspecs">Refspecs to use, replacing the remote's fetch refspecs</param>
-        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Fetch()")]
-        public virtual void Fetch(Remote remote, IEnumerable<string> refspecs)
-        {
-            Commands.Fetch(repository, remote.Name, refspecs, null, null);
-        }
-
-        /// <summary>
-        /// Fetch from the <see cref="Remote"/>, using custom refspecs.
-        /// </summary>
-        /// <param name="remote">The remote to fetch</param>
-        /// <param name="refspecs">Refspecs to use, replacing the remote's fetch refspecs</param>
-        /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
-        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Fetch")]
-        public virtual void Fetch(Remote remote, IEnumerable<string> refspecs, FetchOptions options)
-        {
-            Commands.Fetch(repository, remote.Name, refspecs, options, null);
-        }
-
-        /// <summary>
-        /// Fetch from the <see cref="Remote"/>, using custom refspecs.
-        /// </summary>
-        /// <param name="remote">The remote to fetch</param>
-        /// <param name="refspecs">Refspecs to use, replacing the remote's fetch refspecs</param>
-        /// <param name="logMessage">Message to use when updating the reflog.</param>
-        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Fetch")]
-        public virtual void Fetch(Remote remote, IEnumerable<string> refspecs, string logMessage)
-        {
-            Commands.Fetch(repository, remote.Name, refspecs, null, logMessage);
-        }
-
-        /// <summary>
-        /// Fetch from the <see cref="Remote"/>, using custom refspecs.
-        /// </summary>
-        /// <param name="remote">The remote to fetch</param>
-        /// <param name="refspecs">Refspecs to use, replacing the remote's fetch refspecs</param>
-        /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
-        /// <param name="logMessage">Message to use when updating the reflog.</param>
-        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Fetch()")]
-        public virtual void Fetch(Remote remote, IEnumerable<string> refspecs, FetchOptions options, string logMessage)
-        {
-            Ensure.ArgumentNotNull(remote, "remote");
-            Ensure.ArgumentNotNull(refspecs, "refspecs");
-
-            Commands.Fetch(repository, remote.Name, refspecs, options, logMessage);
-        }
-
-        /// <summary>
         /// Fetch from a url with a set of fetch refspecs
         /// </summary>
         /// <param name="url">The url to fetch from</param>
@@ -473,17 +378,6 @@ namespace LibGit2Sharp
                                           ProxyOptions = new GitProxyOptions { Version = 1 },
                                       });
             }
-        }
-
-        /// <summary>
-        /// Pull changes from the configured upstream remote and branch into the branch pointed at by HEAD.
-        /// </summary>
-        /// <param name="merger">If the merge is a non-fast forward merge that generates a merge commit, the <see cref="Signature"/> of who made the merge.</param>
-        /// <param name="options">Specifies optional parameters controlling merge behavior of pull; if null, the defaults are used.</param>
-        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Pull()")]
-        public virtual MergeResult Pull(Signature merger, PullOptions options)
-        {
-            return Commands.Pull(repository, merger, options);
         }
 
         /// <summary>
