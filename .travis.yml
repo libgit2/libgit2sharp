@@ -10,6 +10,9 @@ os:
  - osx
  - linux
 
+# The newer image cannot find mono 3.12 in the PATH
+osx_image: xcode6.4
+
 env:
  global:
   - MONO_OPTIONS=--debug

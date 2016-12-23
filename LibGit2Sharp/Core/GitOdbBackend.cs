@@ -34,6 +34,7 @@ namespace LibGit2Sharp.Core
         public IntPtr Refresh;
         public foreach_callback Foreach;
         public IntPtr Writepack;
+        public IntPtr Freshen;
         public free_callback Free;
 
         /* The libgit2 structure definition ends here. Subsequent fields are for libgit2sharp bookkeeping. */
