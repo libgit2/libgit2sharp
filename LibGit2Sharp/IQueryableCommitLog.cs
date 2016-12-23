@@ -28,15 +28,6 @@ namespace LibGit2Sharp
         /// <param name="path">The file's path.</param>
         /// <param name="filter">The options used to control which commits will be returned.</param>
         /// <returns>A list of file history entries, ready to be enumerated.</returns>
-        [Obsolete("This method is deprecated. Please use the overload which take LibGit2Sharp.CommitFilter")]
-        IEnumerable<LogEntry> QueryBy(string path, FollowFilter filter);
-
-        /// <summary>
-        /// Returns the list of commits of the repository representing the history of a file beyond renames.
-        /// </summary>
-        /// <param name="path">The file's path.</param>
-        /// <param name="filter">The options used to control which commits will be returned.</param>
-        /// <returns>A list of file history entries, ready to be enumerated.</returns>
         IEnumerable<LogEntry> QueryBy(string path, CommitFilter filter);
 
     }
