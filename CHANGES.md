@@ -10,13 +10,20 @@
   - Windows (x86/amd64): <https://ci.appveyor.com/project/libgit2/libgit2sharp>
   - Linux/Mac OS X: <https://travis-ci.org/libgit2/libgit2sharp>
 
-## v0.23 + 1
+## v0.23.1 + 1
 
 ### Additions
 
 ### Changes
 
 ### Fixes
+
+## v0.23.1 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.23..v0.23.1))
+
+### Fixes
+
+ - Update to libgit2 0.25.1 which includes security fixes for smart
+   protocol parsing and TLS certificate validity check callbacks.
 
 ## v0.23 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.22..v0.23))
 
