@@ -3,7 +3,7 @@ version: '{build}'
 branches:
   only:
   - master
-  - vNext
+  - /^maint.*/
 
 skip_tags: true
 
