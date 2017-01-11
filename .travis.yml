@@ -27,8 +27,8 @@ script:
 # Only watch the development branch
 branches:
  only:
-   - vNext
    - master
+   - /^maint.*/
 
 # Notify of build changes
 notifications:
