@@ -7,8 +7,6 @@
 #>
 
 Param(
-    [Parameter(Mandatory=$true)]
-    [string]$commitSha,
     [scriptblock]$postBuild
 )
 
@@ -60,34 +58,37 @@ Function Get-MSBuild {
 
 #################
 
+$configuration = 'release'
 $root = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
+$OutDir = Join-Path $root "bin\$configuration"
 $projectPath = Join-Path $root "..\LibGit2Sharp"
 $slnPath = Join-Path $projectPath "..\LibGit2Sharp.sln"
+$nuspecPath = Join-Path $root 'LibGit2Sharp.nuspec'
 
-Remove-Item (Join-Path $projectPath "*.nupkg")
+if (-not (Test-Path $OutDir)) {
+    $null = md $OutDir
+}
+Remove-Item (Join-Path $OutDir "*.nupkg")
 
-Clean-OutputFolder (Join-Path $projectPath "bin\")
-Clean-OutputFolder (Join-Path $projectPath "obj\")
-
-# The nuspec file needs to be next to the csproj, so copy it there during the pack operation
-Copy-Item (Join-Path $root "LibGit2Sharp.nuspec") $projectPath
-
-Push-Location $projectPath
+Push-Location $root
 
 try {
+  $DependencyBasePath = $null # workaround script issue in NB.GV
+  $versionInfo = & "$env:userprofile\.nuget\packages\Nerdbank.GitVersioning\1.5.51\tools\Get-Version.ps1"
+  $commitSha = $versionInfo.GitCommitId
+
   Set-Content -Encoding ASCII $(Join-Path $projectPath "libgit2sharp_hash.txt") $commitSha
   Run-Command { & "$(Join-Path $projectPath "..\Lib\NuGet\Nuget.exe")" Restore "$slnPath" }
-  Run-Command { & (Get-MSBuild) "$slnPath" "/verbosity:minimal" "/p:Configuration=Release" "/m" }
+  Run-Command { & (Get-MSBuild) "$slnPath" "/verbosity:minimal" "/p:Configuration=$configuration" "/m" }
 
   If ($postBuild) {
     Write-Host -ForegroundColor "Green" "Run post build script..."
     Run-Command { & ($postBuild) }
   }
 
-  Run-Command { & "$(Join-Path $projectPath "..\Lib\NuGet\Nuget.exe")" Pack -Prop Configuration=Release }
+  Run-Command { & "$(Join-Path $projectPath "..\Lib\NuGet\Nuget.exe")" Pack $nuspecPath -OutputDirectory $OutDir -Prop "Configuration=$configuration;GitCommitIdShort=$($versionInfo.GitCommitIdShort)" -Version "$($versionInfo.NuGetPackageVersion)" }
 }
 finally {
   Pop-Location
-  Remove-Item (Join-Path $projectPath "LibGit2Sharp.nuspec")
   Set-Content -Encoding ASCII $(Join-Path $projectPath "libgit2sharp_hash.txt") "unknown"
 }
