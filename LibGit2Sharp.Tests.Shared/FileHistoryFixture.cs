@@ -161,7 +161,8 @@ namespace LibGit2Sharp.Tests
                 var commit4 = MakeAndCommitChange(repo, repoPath, newPath1, "I have done it again!");
 
                 // Perform tests.
-                var fileHistoryEntries = repo.Commits.QueryBy(newPath1).ToList();
+                var commitFilter = new CommitFilter () { SortBy = CommitSortStrategies.Topological };
+                var fileHistoryEntries = repo.Commits.QueryBy(newPath1, commitFilter).ToList();
                 var changedBlobs = fileHistoryEntries.Blobs().Distinct().ToList();
 
                 Assert.Equal(4, fileHistoryEntries.Count());

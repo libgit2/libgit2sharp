@@ -24,10 +24,31 @@ namespace LibGit2Sharp
             if (Platform.OperatingSystem == OperatingSystemType.Windows)
             {
 #if NET40
-                string managedPath = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().EscapedCodeBase).LocalPath);
+                /* Assembly.CodeBase is not actually a correctly formatted
+                 * URI.  It's merely prefixed with `file:///` and has its
+                 * backslashes flipped.  This is superior to EscapedCodeBase,
+                 * which does not correctly escape things, and ambiguates a
+                 * space (%20) with a literal `%20` in the path.  Sigh.
+                 */
+                var managedPath = Assembly.GetExecutingAssembly().CodeBase;
+                if (managedPath == null)
+                {
+                    managedPath = Assembly.GetExecutingAssembly().Location;
+                }
+                else if (managedPath.StartsWith("file:///"))
+                {
+                    managedPath = managedPath.Substring(8).Replace('/', '\\');
+                }
+                else if (managedPath.StartsWith("file://"))
+                {
+                    managedPath = @"\\" + managedPath.Substring(7).Replace('/', '\\');
+                }
+
+                managedPath = Path.GetDirectoryName(managedPath);
 #else
                 string managedPath = AppContext.BaseDirectory;
 #endif
+
                 nativeLibraryPath = Path.Combine(managedPath, "lib", "win32");
             }
 

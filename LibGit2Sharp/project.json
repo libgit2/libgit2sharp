@@ -1,6 +1,6 @@
 ﻿{
   "dependencies": {
-    "LibGit2Sharp.NativeBinaries": "[1.0.160]",
+    "LibGit2Sharp.NativeBinaries": "[1.0.164]",
     "Nerdbank.GitVersioning": "1.5.51"
   },
   "frameworks": {
