@@ -46,3 +46,4 @@ packages/
 project.lock.json
 *.nuget.props
 *.nuget.targets
+*.nupkg
