@@ -13,7 +13,7 @@
     <iconUrl>https://github.com/libgit2/libgit2sharp/raw/$GitCommitIdShort$/square-logo.png</iconUrl>
     <tags>libgit2 git wrapper bindings API dvcs vcs</tags>
     <dependencies>
-      <dependency id="LibGit2Sharp.NativeBinaries" version="[1.0.164]" exclude="Build,Analyzers" />
+      <dependency id="LibGit2Sharp.NativeBinaries" version="[1.0.164]" />
     </dependencies>
   </metadata>
   <files>
