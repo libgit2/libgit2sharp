@@ -2,7 +2,7 @@
   "supports": {
   },
   "dependencies": {
-    "LibGit2Sharp.NativeBinaries": "[1.0.164]",
+    "LibGit2Sharp.NativeBinaries": "[1.0.165]",
     "Microsoft.NETCore.Portable.Compatibility": "1.0.1",
     "Nerdbank.GitVersioning": "1.5.51",
     "System.AppContext": "4.1.0",
