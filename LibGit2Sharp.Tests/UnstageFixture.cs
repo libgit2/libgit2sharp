@@ -84,6 +84,25 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+
+        [Theory]
+        [InlineData("modified_staged_file.txt", FileStatus.ModifiedInWorkdir)]
+        [InlineData("new_tracked_file.txt", FileStatus.NewInWorkdir)]
+        [InlineData("deleted_staged_file.txt", FileStatus.DeletedFromWorkdir)]
+        public void UnstagingWritesIndex(string relativePath, FileStatus expectedStatus)
+        {
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Commands.Unstage(repo, relativePath);
+            }
+
+            using (var repo = new Repository(path))
+            {
+                Assert.Equal(expectedStatus, repo.RetrieveStatus(relativePath));
+            }
+        }
+
         [Theory]
         [InlineData("new_untracked_file.txt", FileStatus.NewInWorkdir)]
         [InlineData("where-am-I.txt", FileStatus.Nonexistent)]
