@@ -199,6 +199,8 @@ namespace LibGit2Sharp
             {
                 repository.Index.Replace(repository.Head.Tip, paths, explicitPathsOptions);
             }
+
+            repository.Index.Write();
         }
 
         /// <summary>
