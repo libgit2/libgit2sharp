@@ -6,8 +6,8 @@
 
 ## Prerequisites
 
- - **Windows:** .NET 4.0+
- - **Linux/Mac OS X:** Mono 3.6+
+ - **Windows:** .NET 4.5+
+ - **Linux/Mac OS X:** Mono 4.2+
 
 ## Online resources
 
