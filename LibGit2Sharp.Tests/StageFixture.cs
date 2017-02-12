@@ -33,6 +33,24 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Theory]
+        [InlineData("deleted_unstaged_file.txt", FileStatus.DeletedFromIndex)]
+        [InlineData("modified_unstaged_file.txt", FileStatus.ModifiedInIndex)]
+        [InlineData("new_untracked_file.txt", FileStatus.NewInIndex)]
+        public void StagingWritesIndex(string relativePath, FileStatus expectedStatus)
+        {
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Commands.Stage(repo, relativePath);
+            }
+
+            using (var repo = new Repository(path))
+            {
+                Assert.Equal(expectedStatus, repo.RetrieveStatus(relativePath));
+            }
+        }
+
         [Fact]
         public void CanStageTheUpdationOfAStagedFile()
         {
