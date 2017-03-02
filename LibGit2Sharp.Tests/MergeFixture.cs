@@ -892,7 +892,6 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 var mergeResult = repo.Merge(branchName, Constants.Signature, new MergeOptions() { IgnoreWhitespaceChange = true });
-                var diffs = repo.Diff.Compare<TreeChanges>();
                 Assert.NotEqual(MergeStatus.Conflicts, mergeResult.Status);
 
                 var master = repo.Branches["master"];
