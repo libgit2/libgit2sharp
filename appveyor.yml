@@ -1,16 +1,19 @@
 version: '{build}'
 
-os: Visual Studio 2015
+os: Visual Studio 2017
 
 branches:
   only:
   - master
   - /^maint.*/
-  - portable
+  - /portable.*/
+
+configuration: release
 
 skip_tags: true
 
-clone_folder: C:\projects\libgit2sharp
+nuget:
+  disable_publish_on_pr: true
 
 environment:
   coveralls_token:
@@ -61,10 +64,6 @@ install:
     Write-Host "Should run Coverity analysis = " -NoNewLine
     Write-Host $Env:SHOULD_RUN_COVERITY_ANALYSIS -ForegroundColor "Green"
 
-    $Env:SHOULD_PACKAGE_NUGET_ARTIFACT = -not $Env:APPVEYOR_PULL_REQUEST_NUMBER -and -not $Env:APPVEYOR_SCHEDULED_BUILD
-    Write-Host "Should package Nuget artifact = " -NoNewLine
-    Write-Host $Env:SHOULD_PACKAGE_NUGET_ARTIFACT -ForegroundColor "Green"
-
     $Env:SHOULD_RUN_COVERALLS = $($Env:APPVEYOR_SCHEDULED_BUILD -eq $True)
     Write-Host "Should run Coveralls = " -NoNewLine
     Write-Host $Env:SHOULD_RUN_COVERALLS -ForegroundColor "Green"
@@ -72,15 +71,10 @@ install:
     Write-Host "Should publish on success = " -NoNewLine
     Write-Host $Env:publish_on_success -ForegroundColor "Green"
 
-    If ($Env:SHOULD_PACKAGE_NUGET_ARTIFACT -eq $True)
-    {
-      cinst sourcelink -y
-    }
-
     If ($Env:SHOULD_RUN_COVERALLS -eq $True)
     {
-      lib\nuget\nuget.exe install OpenCover -Version 4.6.166 -ExcludeVersion -OutputDirectory .\packages
-      lib\nuget\nuget.exe install coveralls.net -Version 0.6.0 -ExcludeVersion -OutputDirectory .\packages
+      nuget install OpenCover -Version 4.6.166 -ExcludeVersion -OutputDirectory .\packages
+      nuget install coveralls.net -Version 0.6.0 -ExcludeVersion -OutputDirectory .\packages
     }
 
     If ($Env:SHOULD_RUN_COVERITY_ANALYSIS -eq $True)
@@ -88,27 +82,16 @@ install:
       cinst curl -y
     }
 
-assembly_info:
-  patch: true
-  file: LibGit2Sharp.Shared\Properties\AssemblyInfo.cs
-  assembly_version: '$(VERSION)'
-  assembly_file_version: '$(VERSION)'
-  assembly_informational_version: '$(ASSEMBLY_INFORMATIONAL_VERSION)'
-
-cache:
-  - packages
-
 before_build:
 - ps: |
-   & "$Env:APPVEYOR_BUILD_FOLDER\lib\nuget\nuget.exe" restore "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln"
+    dotnet restore
 
 build_script:
 - ps: |
-    & msbuild "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln" `
+    dotnet msbuild "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln" `
       /verbosity:normal `
-      /p:Configuration=Release `
-      /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" `
-      /property:ExtraDefine="LEAKS_IDENTIFYING"
+      /property:ExtraDefine="LEAKS_IDENTIFYING" `
+      /t:build,pack
 
 test_script:
 - ps: |
@@ -116,39 +99,20 @@ test_script:
     {
       .\packages\OpenCover\tools\OpenCover.Console.exe `
         -register:user `
-        "-target:""$Env:APPVEYOR_BUILD_FOLDER\packages\xunit.runner.console.2.0.0\tools\$Env:xunit_runner""" `
-        "-targetargs:""$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll"" -noshadow" `
+        "-target:""$Env:userprofile\.nuget\packages\xunit.runner.console\2.0.0\tools\$Env:xunit_runner""" `
+        "-targetargs:""$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.Tests\bin\Release\net46\LibGit2Sharp.Tests.dll"" -noshadow" `
         "-filter:+[LibGit2Sharp]* -[LibGit2Sharp.Tests]*" `
         -hideskipped:All `
         -output:opencoverCoverage.xml
     }
     ElseIf ($Env:SHOULD_RUN_COVERITY_ANALYSIS -eq $False)
     {
-      & "$Env:APPVEYOR_BUILD_FOLDER\packages\xunit.runner.console.2.0.0\tools\$Env:xunit_runner" `
-          "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll" -noshadow
+      & "$Env:userprofile\.nuget\packages\xunit.runner.console\2.0.0\tools\$Env:xunit_runner" `
+          "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.Tests\bin\Release\net46\LibGit2Sharp.Tests.dll" -noshadow
     }
 
 after_test:
 - ps: |
-    If ($Env:SHOULD_PACKAGE_NUGET_ARTIFACT -eq $True -and $Env:publish_on_success -eq $True)
-    {
-      & "$Env:APPVEYOR_BUILD_FOLDER\nuget.package\BuildNugetPackage.ps1" `
-        -commitSha "$Env:APPVEYOR_REPO_COMMIT" `
-        -postBuild  { sourcelink index `
-                        -pr LibGit2Sharp.csproj `
-                        -pp Configuration Release `
-                        -nf Core\NativeDllName.cs `
-                        -nf Core\UniqueIdentifier.cs `
-                        -nf Properties\AssemblyInfo.cs `
-                        -r .. `
-                        -u 'https://raw.githubusercontent.com/libgit2/libgit2sharp/{0}/%var2%' }
-
-      Add-Type -Path "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp\bin\Release\LibGit2Sharp.dll"
-      Write-Host "LibGit2Sharp version = $([LibGit2Sharp.GlobalSettings]::Version)" -ForegroundColor "Magenta"
-
-      Get-ChildItem "$Env:APPVEYOR_BUILD_FOLDER\LibGit2sharp\*.nupkg" | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
-    }
-
     If ($Env:SHOULD_RUN_COVERALLS -eq $True -and $Env:publish_on_success -eq $True)
     {
       Write-Host "Uploading code coverage result..." -ForegroundColor "Green"
@@ -180,6 +144,10 @@ after_test:
 
         cat .\curl-out.txt
     }
+
+artifacts:
+- path: '**\bin\**\*.nupkg'
+  name: NuGet Package
 
 notifications:
 - provider: Email
