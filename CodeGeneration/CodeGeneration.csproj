@@ -8,5 +8,6 @@
   <ItemGroup>
     <PackageReference Include="CodeGeneration.Roslyn" Version="0.2.10" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="1.6.19-beta" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.1.548" />
   </ItemGroup>
 </Project>

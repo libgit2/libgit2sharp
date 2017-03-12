@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if DESKTOP
+
+using System;
 
 namespace LibGit2Sharp
 {
@@ -13,3 +15,5 @@ namespace LibGit2Sharp
         internal static Type GetTypeInfo(this Type type) => type;
     }
 }
+
+#endif

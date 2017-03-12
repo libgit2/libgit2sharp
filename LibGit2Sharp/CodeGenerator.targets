@@ -1,17 +1,53 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project InitialTargets="GenerateCodeFirst">
+  <PropertyGroup>
+    <CodeGeneratorConfiguration Condition=" '$(CodeGeneratorConfiguration)' == '' ">Debug</CodeGeneratorConfiguration>
+  </PropertyGroup>
+
   <ItemGroup>
-    <GeneratorAssemblySearchPaths Include="$(MSBuildProjectDirectory)\..\CodeGeneration\bin\$(Configuration)">
+    <GeneratorAssemblySearchPaths Include="$(MSBuildProjectDirectory)\..\CodeGeneration\bin\$(Configuration)\netstandard1.3">
       <Visible>false</Visible>
     </GeneratorAssemblySearchPaths>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CodeGeneration\CodeGeneration.csproj">
-      <Project>{6598997b-9419-4cc1-84ff-9621b555e9c0}</Project>
-      <Name>CodeGeneration</Name>
-      <ExcludeFromNuPkg>true</ExcludeFromNuPkg>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
+      <UndefineProperties>TargetFramework</UndefineProperties>
+      <Properties>Configuration=$(CodeGeneratorConfiguration);Platform=AnyCPU</Properties>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="$(UserProfile)\.nuget\packages\CodeGeneration.Roslyn\0.1.54\build\CodeGeneration.Roslyn.targets" Condition="Exists('$(UserProfile)\.nuget\packages\CodeGeneration.Roslyn\0.1.54\build\CodeGeneration.Roslyn.targets')" />
+
+  <Target Name="GenerateCodeFirst">
+    <PropertyGroup>
+      <CoreCompileDependsOn>$(CoreCompileDependsOn);GenerateNativeDllNameCs;GenerateUniqueIdentifierCs</CoreCompileDependsOn>
+      <NativeDllNamePath>$(IntermediateOutputPath)\NativeDllName.cs</NativeDllNamePath>
+      <UniqueIdentifierPath>$(IntermediateOutputPath)\UniqueIdentifier.cs</UniqueIdentifierPath>
+    </PropertyGroup>
+  </Target>
+
+  <UsingTask TaskName="GenerateNativeDllNameTask" AssemblyFile="..\CodeGeneration\bin\$(CodeGeneratorConfiguration)\netstandard1.3\CodeGeneration.dll" />
+  <UsingTask TaskName="GenerateUniqueIdentifierTask" AssemblyFile="..\CodeGeneration\bin\$(CodeGeneratorConfiguration)\netstandard1.3\CodeGeneration.dll" />
+
+  <Target Name="GenerateNativeDllNameCs">
+    <GenerateNativeDllNameTask InputHashFile="@(EmbeddedResource)"
+                               Condition=" '%(Filename)%(Extension)' == 'libgit2_filename.txt' "
+                               OutputFile="$(NativeDllNamePath)" />
+    <ItemGroup>
+      <Compile Include="$(NativeDllNamePath)" />
+      <FileWrites Include="$(NativeDllNamePath)" />
+    </ItemGroup>
+  </Target>
+
+  <!-- This target runs if any of the projects or .cs files for the project have changed since the last time
+      the UniqueIdentifier.cs file was generated. -->
+  <Target Name="GenerateUniqueIdentifierCs"
+           Inputs="$(MSBuildThisFileFullPath);$(MSBuildAllProjects);@(Compile)"
+           Outputs="$(UniqueIdentifierPath)">
+    <GenerateUniqueIdentifierTask OutputFile="$(UniqueIdentifierPath)" />
+    <ItemGroup>
+      <Compile Include="$(UniqueIdentifierPath)" />
+      <FileWrites Include="$(UniqueIdentifierPath)" />
+    </ItemGroup>
+  </Target>
 </Project>
