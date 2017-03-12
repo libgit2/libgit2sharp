@@ -21,8 +21,10 @@
   <Target Name="GenerateCodeFirst">
     <PropertyGroup>
       <CoreCompileDependsOn>$(CoreCompileDependsOn);GenerateNativeDllNameCs;GenerateUniqueIdentifierCs</CoreCompileDependsOn>
-      <NativeDllNamePath>$(IntermediateOutputPath)\NativeDllName.cs</NativeDllNamePath>
-      <UniqueIdentifierPath>$(IntermediateOutputPath)\UniqueIdentifier.cs</UniqueIdentifierPath>
+      <PrepareResourceNamesDependsOn>GenerateCommitIdVersion;$(PrepareResourceNamesDependsOn)</PrepareResourceNamesDependsOn>
+      <NativeDllNamePath>$(IntermediateOutputPath)NativeDllName.cs</NativeDllNamePath>
+      <UniqueIdentifierPath>$(IntermediateOutputPath)UniqueIdentifier.cs</UniqueIdentifierPath>
+      <CommitIdVersionPath>$(IntermediateOutputPath)libgit2sharp_hash.txt</CommitIdVersionPath>
     </PropertyGroup>
   </Target>
 
@@ -48,6 +50,19 @@
     <ItemGroup>
       <Compile Include="$(UniqueIdentifierPath)" />
       <FileWrites Include="$(UniqueIdentifierPath)" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="GenerateCommitIdVersion"
+          DependsOnTargets="GetBuildVersion">
+    <WriteLinesToFile File="$(CommitIdVersionPath)"
+                      Lines="$(GitCommitId)"
+                      Overwrite="true" />
+
+    <ItemGroup>
+      <EmbeddedResource Include="$(CommitIdVersionPath)">
+        <LogicalName>$(RootNamespace).libgit2sharp_hash.txt</LogicalName>
+      </EmbeddedResource>
     </ItemGroup>
   </Target>
 </Project>

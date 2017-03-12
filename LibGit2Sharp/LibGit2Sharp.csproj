@@ -4,6 +4,9 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Description>LibGit2Sharp brings all the might and speed of libgit2, a native Git implementation, to the managed world of .Net and Mono.</Description>
     <Company>LibGit2Sharp contributors</Company>
+    <PackageTags>libgit2 git wrapper bindings API dvcs vcs</PackageTags>
+    <PackageProjectUrl>https://github.com/libgit2/libgit2sharp/</PackageProjectUrl>
+    <Authors>LibGit2Sharp contributors</Authors>
 
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\libgit2sharp.snk</AssemblyOriginatorKeyFile>
@@ -16,12 +19,13 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Objects.cs</LastGenOutput>
     </None>
+    <None Include="..\README.md" Pack="true" PackagePath="App_Readme\" />
+    <None Include="..\LICENSE.md" Pack="true" PackagePath="App_Readme\" />
+    <None Include="..\CHANGES.md" Pack="true" PackagePath="App_Readme\" />
+
     <Compile Update="Core\Handles\Objects.cs">
       <DependentUpon>Objects.tt</DependentUpon>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="libgit2sharp_hash.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CodeGenerationAttributes\CodeGenerationAttributes.csproj" PrivateAssets="all" />
@@ -34,4 +38,11 @@
     <PackageReference Include="System.IO.UnmanagedMemoryStream" Version="4.0.1" Condition=" '$(TargetFramework)' == 'netstandard1.3' " />
   </ItemGroup>
   <Import Project="CodeGenerator.targets" />
+  <Target Name="SetNuSpecProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="GetBuildVersion">
+    <PropertyGroup>
+      <PackageIconUrl>https://github.com/libgit2/libgit2sharp/raw/$(GitCommitIdShort)/square-logo.png</PackageIconUrl>
+      <PackageReleaseNotes>https://github.com/libgit2/libgit2sharp/blob/$(GitCommitIdShort)/CHANGES.md#libgit2sharp-changes</PackageReleaseNotes>
+      <PackageLicenseUrl>https://github.com/libgit2/libgit2sharp/raw/$(GitCommitIdShort)/LICENSE.md</PackageLicenseUrl>
+    </PropertyGroup>
+  </Target>
 </Project>

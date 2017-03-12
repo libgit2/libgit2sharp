@@ -7,22 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp", "LibGit2Shar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp.Tests", "LibGit2Sharp.Tests\LibGit2Sharp.Tests.csproj", "{286E63EB-04DD-4ADE-88D6-041B57800761}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{19D079A4-A273-4630-B2D2-79EADE3E7CA1}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\packages.config = .nuget\packages.config
-	EndProjectSection
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "LibGit2Sharp.Shared", "LibGit2Sharp.Shared\LibGit2Sharp.Shared.shproj", "{DE74D271-F14A-4D22-A738-1CAB045ECC79}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp.Portable", "LibGit2Sharp.Portable\LibGit2Sharp.Portable.csproj", "{39FDD325-625A-4619-A8A9-4E061D0F993F}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "InteropGeneration", "InteropGeneration", "{5BDCC83F-0B36-47C2-B5E3-A5B09BD47DA0}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CodeGenerationAttributes.Shared", "CodeGenerationAttributes.Shared\CodeGenerationAttributes.Shared.shproj", "{B1273734-6E0A-4097-B1CB-6925013DC809}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeGenerationAttributes.Net40", "CodeGenerationAttributes.Net40\CodeGenerationAttributes.Net40.csproj", "{F8F482FC-1B76-46F5-B1D8-3DDBBD18D1E4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeGenerationAttributes.Portable", "CodeGenerationAttributes.Portable\CodeGenerationAttributes.Portable.csproj", "{E1A8B99F-B2F6-4A38-9DF6-8792056D70FF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeGenerationAttributes", "CodeGenerationAttributes\CodeGenerationAttributes.csproj", "{E1A8B99F-B2F6-4A38-9DF6-8792056D70FF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeGeneration", "CodeGeneration\CodeGeneration.csproj", "{6598997B-9419-4CC1-84FF-9621B555E9C0}"
 EndProject
@@ -35,10 +20,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeGeneration.Debugging", "CodeGeneration.Debugging\CodeGeneration.Debugging.csproj", "{C9212ECC-76F0-4658-9C89-DD506EE788B5}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp.Tests.Portable", "LibGit2Sharp.Tests.Portable\LibGit2Sharp.Tests.Portable.csproj", "{B9582325-8252-4281-A071-903A356D335F}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "LibGit2Sharp.Tests.Shared", "LibGit2Sharp.Tests.Shared\LibGit2Sharp.Tests.Shared.shproj", "{564101FC-941A-44B5-9993-FFE481A05D9F}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -116,7 +97,7 @@ Global
 		$2.inheritsScope = text/x-csharp
 		$2.scope = text/x-csharp
 		$0.StandardHeader = $3
-		$3.Text = 
+		$3.Text =
 		$3.inheritsSet = Apache2License
 		$4.FileWidth = 120
 		$4.RemoveTrailingWhitespace = True
