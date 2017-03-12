@@ -38,6 +38,7 @@
     <PackageReference Include="System.IO.UnmanagedMemoryStream" Version="4.0.1" Condition=" '$(TargetFramework)' == 'netstandard1.3' " />
   </ItemGroup>
   <Import Project="CodeGenerator.targets" />
+  <Import Project="ExtraDefine.targets" />
   <Target Name="SetNuSpecProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="GetBuildVersion">
     <PropertyGroup>
       <PackageIconUrl>https://github.com/libgit2/libgit2sharp/raw/$(GitCommitIdShort)/square-logo.png</PackageIconUrl>

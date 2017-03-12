@@ -25,4 +25,5 @@
     <PackageReference Include="xunit.runner.msbuild" Version="2.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
   </ItemGroup>
+  <Import Project="..\LibGit2Sharp\ExtraDefine.targets" />
 </Project>
