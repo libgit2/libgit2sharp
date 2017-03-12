@@ -8,7 +8,7 @@ namespace LibGit2Sharp
     /// Causes generation of an overload of a P/Invoke method that has a more friendly signature.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    [CodeGenerationAttribute("CodeGeneration.OfferFriendlyInteropOverloadsGenerator, CodeGeneration, Version=" + ThisAssembly.AssemblyVersion + ", Culture=neutral, PublicKeyToken=" + ThisAssembly.PublicKeyToken)]
+    [CodeGenerationAttribute("CodeGeneration.OfferFriendlyInteropOverloadsGenerator, CodeGeneration, Version=" + ThisAssembly.AssemblyVersion + ", Culture=neutral, PublicKeyToken=" + ThisAssembly.PublicKeyToken2)]
     [Conditional("CodeGeneration")]
     public class OfferFriendlyInteropOverloadsAttribute : Attribute
     {

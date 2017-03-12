@@ -165,7 +165,7 @@ namespace CodeGeneration
                         SyntaxFactory.MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
                             SyntaxFactory.IdentifierName(marshalerLocalName),
-                            SyntaxFactory.IdentifierName(nameof(ICustomMarshaler.MarshalManagedToNative))))
+                            SyntaxFactory.IdentifierName("MarshalManagedToNative")))
                         .AddArgumentListArguments(SyntaxFactory.Argument(SyntaxFactory.IdentifierName(parameter.OriginalParameter.Identifier)));
                 var localVarIdentifier = SyntaxFactory.IdentifierName(Invariant($"_{parameter.OriginalParameter.Identifier.ValueText}"));
                 inputMarshaling.Add(
@@ -192,7 +192,7 @@ namespace CodeGeneration
                                     SyntaxFactory.MemberAccessExpression(
                                         SyntaxKind.SimpleMemberAccessExpression,
                                         SyntaxFactory.IdentifierName(marshalerLocalName),
-                                        SyntaxFactory.IdentifierName(nameof(ICustomMarshaler.MarshalNativeToManaged))),
+                                        SyntaxFactory.IdentifierName("MarshalNativeToManaged")),
                                     SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(
                                         SyntaxFactory.ObjectCreationExpression(
                                             IntPtrTypeSyntax,
@@ -209,7 +209,7 @@ namespace CodeGeneration
                         SyntaxFactory.MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
                             SyntaxFactory.IdentifierName(marshalerLocalName),
-                            SyntaxFactory.IdentifierName(nameof(ICustomMarshaler.CleanUpNativeData))))
+                            SyntaxFactory.IdentifierName("CleanUpNativeData")))
                     .AddArgumentListArguments(SyntaxFactory.Argument(cleanUpExpression))));
             }
 
@@ -245,7 +245,7 @@ namespace CodeGeneration
                             SyntaxFactory.MemberAccessExpression(
                                 SyntaxKind.SimpleMemberAccessExpression,
                                 SyntaxFactory.IdentifierName(marshalerLocalName),
-                                SyntaxFactory.IdentifierName(nameof(ICustomMarshaler.MarshalNativeToManaged))),
+                                SyntaxFactory.IdentifierName("MarshalNativeToManaged")),
                             SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(resultLocal)))));
 
                     invocationStatement = SyntaxFactory.ExpressionStatement(intPtrResultExpression);
@@ -256,7 +256,7 @@ namespace CodeGeneration
                             SyntaxFactory.MemberAccessExpression(
                                 SyntaxKind.SimpleMemberAccessExpression,
                                 SyntaxFactory.IdentifierName(marshalerLocalName),
-                                SyntaxFactory.IdentifierName(nameof(ICustomMarshaler.CleanUpNativeData))))
+                                SyntaxFactory.IdentifierName("CleanUpNativeData")))
                         .AddArgumentListArguments(SyntaxFactory.Argument(resultLocal))));
                 }
                 else
