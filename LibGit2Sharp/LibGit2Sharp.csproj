@@ -32,8 +32,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="[1.0.165]" />
-    <PackageReference Include="Nerdbank.GitVersioning" Version="1.6.19-beta" PrivateAssets="all" />
-    <PackageReference Include="CodeGeneration.Roslyn.BuildTime" Version="0.2.10" PrivateAssets="all" />
+    <PackageReference Include="CodeGeneration.Roslyn.BuildTime" Version="$(CodeGenerationRoslynVersion)" PrivateAssets="all" />
     <PackageReference Include="System.Security.SecureString" Version="4.0.0" Condition=" '$(TargetFramework)' == 'netstandard1.3' " />
     <PackageReference Include="System.IO.UnmanagedMemoryStream" Version="4.0.1" Condition=" '$(TargetFramework)' == 'netstandard1.3' " />
     <PackageReference Include="System.Diagnostics.TraceSource" Version="4.0.0" Condition=" '$(TargetFramework)' == 'netstandard1.3' " />

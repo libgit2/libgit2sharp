@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <CodeGenerationRoslynVersion>0.3.4</CodeGenerationRoslynVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning" Version="1.6.25" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

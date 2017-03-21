@@ -30,7 +30,7 @@ namespace CodeGeneration
         {
         }
 
-        public async Task<SyntaxList<MemberDeclarationSyntax>> GenerateAsync(MemberDeclarationSyntax applyTo, Document document, IProgress<Diagnostic> progress, CancellationToken cancellationToken)
+        public Task<SyntaxList<MemberDeclarationSyntax>> GenerateAsync(MemberDeclarationSyntax applyTo, CSharpCompilation compilation, IProgress<Diagnostic> progress, CancellationToken cancellationToken)
         {
             Func<ParameterSyntax, AttributeListSyntax, MarshaledParameter> findMarshalAttribute = (p, al) =>
             {
@@ -47,7 +47,7 @@ namespace CodeGeneration
                 return new MarshaledParameter(p, customMarshaler, friendlyType);
             };
 
-            var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
+            var semanticModel = compilation.GetSemanticModel(applyTo.SyntaxTree);
             var type = (ClassDeclarationSyntax)applyTo;
             var generatedType = type
                 .WithMembers(SyntaxFactory.List<MemberDeclarationSyntax>())
@@ -87,7 +87,7 @@ namespace CodeGeneration
                 }
             }
 
-            return SyntaxFactory.List<MemberDeclarationSyntax>().Add(generatedType);
+            return Task.FromResult(SyntaxFactory.List<MemberDeclarationSyntax>().Add(generatedType));
         }
 
         private static SyntaxTokenList RemoveModifier(SyntaxTokenList list, params SyntaxKind[] modifiers)

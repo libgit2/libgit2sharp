@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <PublicSign Condition=" '$(AssemblyOriginatorKeyFile)' != '' and '$(MSBuildRuntimeType)' == 'Core' ">true</PublicSign>
+  </PropertyGroup>
+</Project>
+

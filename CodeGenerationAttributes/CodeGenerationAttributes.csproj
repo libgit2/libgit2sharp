@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CodeGeneration.Roslyn.Attributes" Version="0.2.10" />
-    <PackageReference Include="Nerdbank.GitVersioning" Version="1.6.19-beta" />
+    <PackageReference Include="CodeGeneration.Roslyn.Attributes" Version="$(CodeGenerationRoslynVersion)" />
   </ItemGroup>
 </Project>
