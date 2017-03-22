@@ -1,7 +1,7 @@
 ﻿// This activates a lightweight mode which will help put under the light
 // incorrectly released handles by outputing a warning message in the console.
 //
-// This should be activated when tests are being run of the CI server.
+// This should be activated when tests are being run on the CI server.
 //
 // Uncomment the line below or add a conditional symbol to activate this mode
 
