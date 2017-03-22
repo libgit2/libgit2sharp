@@ -2,7 +2,7 @@
 <Project InitialTargets="GenerateCodeFirst">
   <PropertyGroup>
     <CodeGeneratorConfiguration Condition=" '$(CodeGeneratorConfiguration)' == '' ">Debug</CodeGeneratorConfiguration>
-    <CodeGenerationOutputPath>$(MSBuildProjectDirectory)\..\CodeGeneration\bin\$(CodeGeneratorConfiguration)\netstandard1.3\</CodeGenerationOutputPath>
+    <CodeGenerationOutputPath>$(MSBuildProjectDirectory)\..\bin\CodeGeneration\$(CodeGeneratorConfiguration)\netstandard1.3\</CodeGenerationOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
