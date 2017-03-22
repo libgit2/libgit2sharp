@@ -89,7 +89,7 @@ before_build:
 build_script:
 - ps: |
     dotnet msbuild "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln" `
-      /verbosity:normal `
+      /verbosity:minimal /fl /flp:verbosity=normal `
       /property:ExtraDefine="LEAKS_IDENTIFYING" `
       /t:build,pack
 
@@ -148,6 +148,8 @@ after_test:
 artifacts:
 - path: '**\bin\**\*.nupkg'
   name: NuGet Package
+- path: msbuild.log
+  name: Build log
 
 notifications:
 - provider: Email
