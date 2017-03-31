@@ -2,20 +2,13 @@
 # see travis-ci.org for details
 
 language: csharp
-mono:
- - latest
+dist: trusty
+dotnet: latest
+mono: latest
 
 os:
  - osx
  - linux
-
-env:
- global:
-  - MONO_OPTIONS=--debug
-
-install:
-  - curl -L -o nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
-  - mono nuget.exe restore LibGit2Sharp.sln
 
 before_install:
  - date -u
@@ -35,6 +28,7 @@ branches:
    - master
    - /^maint.*/
    - portable
+   - dotnetcore
 
 # Notify of build changes
 notifications:
