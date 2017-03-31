@@ -14,7 +14,6 @@ before_install:
  - date -u
  - uname -a
  - env | sort
- - nuget help
 
 solution: LibGit2Sharp.sln
 
