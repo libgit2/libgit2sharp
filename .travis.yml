@@ -3,7 +3,7 @@
 
 language: csharp
 dist: trusty
-dotnet: latest
+dotnet: 1.0.1
 mono: latest
 
 os:
