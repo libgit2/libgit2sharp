@@ -112,7 +112,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Theory, PropertyData("ConflictData")]
+        [Theory, MemberData(nameof(ConflictData))]
         public void CanRetrieveSingleConflictByPath(string filepath, string ancestorId, string ourId, string theirId)
         {
             var path = SandboxMergedTestRepo();
