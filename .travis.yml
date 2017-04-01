@@ -17,6 +17,10 @@ env:
  global:
   - MONO_OPTIONS=--debug
 
+install:
+  - curl -L -o nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
+  - mono nuget.exe restore LibGit2Sharp.sln
+
 before_install:
  - date -u
  - uname -a
