@@ -158,28 +158,34 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("README", FileStatus.Unaltered, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" })]
-        [InlineData("new_tracked_file.txt", FileStatus.NewInIndex, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" })]
-        [InlineData("modified_staged_file.txt", FileStatus.ModifiedInIndex, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" })]
-        [InlineData("modified_unstaged_file.txt", FileStatus.ModifiedInWorkdir, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" })]
-        public void MovingOverAnExistingFileThrows(string sourcePath, FileStatus sourceStatus, IEnumerable<string> destPaths)
+        [InlineData("README", FileStatus.Unaltered)]
+        [InlineData("new_tracked_file.txt", FileStatus.NewInIndex)]
+        [InlineData("modified_staged_file.txt", FileStatus.ModifiedInIndex)]
+        [InlineData("modified_unstaged_file.txt", FileStatus.ModifiedInWorkdir)]
+        public void MovingOverAnExistingFileThrows(string sourcePath, FileStatus sourceStatus)
         {
+            var destPaths = new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" };
+
             InvalidMoveUseCases(sourcePath, sourceStatus, destPaths);
         }
 
         [Theory]
-        [InlineData("new_untracked_file.txt", FileStatus.NewInWorkdir, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" })]
-        public void MovingAFileWichIsNotUnderSourceControlThrows(string sourcePath, FileStatus sourceStatus, IEnumerable<string> destPaths)
+        [InlineData("new_untracked_file.txt", FileStatus.NewInWorkdir)]
+        public void MovingAFileWichIsNotUnderSourceControlThrows(string sourcePath, FileStatus sourceStatus)
         {
+            var destPaths = new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" };
+
             InvalidMoveUseCases(sourcePath, sourceStatus, destPaths);
         }
 
         [Theory]
-        [InlineData("deleted_unstaged_file.txt", FileStatus.DeletedFromWorkdir, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" })]
-        [InlineData("deleted_staged_file.txt", FileStatus.DeletedFromIndex, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" })]
-        [InlineData("i_dont_exist.txt", FileStatus.Nonexistent, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" })]
-        public void MovingAFileNotInTheWorkingDirectoryThrows(string sourcePath, FileStatus sourceStatus, IEnumerable<string> destPaths)
+        [InlineData("deleted_unstaged_file.txt", FileStatus.DeletedFromWorkdir)]
+        [InlineData("deleted_staged_file.txt", FileStatus.DeletedFromIndex)]
+        [InlineData("i_dont_exist.txt", FileStatus.Nonexistent)]
+        public void MovingAFileNotInTheWorkingDirectoryThrows(string sourcePath, FileStatus sourceStatus)
         {
+            var destPaths = new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" };
+
             InvalidMoveUseCases(sourcePath, sourceStatus, destPaths);
         }
 

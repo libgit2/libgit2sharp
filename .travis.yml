@@ -3,19 +3,19 @@
 
 language: csharp
 mono:
- - 3.12.0
- - 4.2.3
+ - latest
 
 os:
  - osx
  - linux
 
-# The newer image cannot find mono 3.12 in the PATH
-osx_image: xcode6.4
-
 env:
  global:
   - MONO_OPTIONS=--debug
+
+install:
+  - curl -L -o nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
+  - mono nuget.exe restore LibGit2Sharp.sln
 
 before_install:
  - date -u
