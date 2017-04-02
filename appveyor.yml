@@ -84,11 +84,13 @@ install:
 
 before_build:
 - ps: |
-    dotnet restore
+    msbuild "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln" `
+      /verbosity:quiet `
+      /t:restore
 
 build_script:
 - ps: |
-    dotnet msbuild "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln" `
+    msbuild "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln" `
       /verbosity:minimal /fl /flp:verbosity=normal `
       /property:ExtraDefine="LEAKS_IDENTIFYING" `
       /t:build,pack
