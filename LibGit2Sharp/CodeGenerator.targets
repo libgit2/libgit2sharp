@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project InitialTargets="GenerateCodeFirst">
   <PropertyGroup>
-    <CodeGeneratorConfiguration Condition=" '$(CodeGeneratorConfiguration)' == '' ">Debug</CodeGeneratorConfiguration>
     <CodeGenerationOutputPath>$(MSBuildProjectDirectory)\..\bin\CodeGeneration\$(CodeGeneratorConfiguration)\netstandard1.3\</CodeGenerationOutputPath>
   </PropertyGroup>
 

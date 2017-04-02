@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net46</TargetFrameworks>
+    <TargetFrameworks>net46;netcoreapp1.0</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants Condition=" '$(TargetFramework)' == 'net46' ">$(DefineConstants);DESKTOP</DefineConstants>
     <IsPackable>false</IsPackable>
@@ -12,9 +12,16 @@
     <Compile Include="..\LibGit2Sharp\Core\Platform.cs">
       <Link>TestHelpers\Platform.cs</Link>
     </Compile>
+    <Compile Remove="desktop\**" Condition=" '$(TargetFramework)' != 'net46' " />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LibGit2Sharp\LibGit2Sharp.csproj" />
+    <ProjectReference Include="..\CodeGeneration\CodeGeneration.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
+      <UndefineProperties>TargetFramework</UndefineProperties>
+      <Properties>Configuration=$(CodeGeneratorConfiguration);Platform=AnyCPU</Properties>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Moq" Version="4.7.8" />
@@ -22,7 +29,7 @@
     <PackageReference Include="xunit.skippablefact" Version="1.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
     <PackageReference Include="xunit.runner.console" Version="2.2.0" />
-    <PackageReference Include="xunit.runner.msbuild" Version="2.2.0" />
+    <PackageReference Include="xunit.runner.msbuild" Version="2.2.0" Condition=" '$(TargetFramework)' == 'net46' " />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
   </ItemGroup>
   <Import Project="..\LibGit2Sharp\ExtraDefine.targets" />

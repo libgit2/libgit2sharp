@@ -30,8 +30,8 @@ namespace LibGit2Sharp.Tests
 
                 repo.ObjectDatabase.Archive(commit, archivePath);
 
-                using (var expectedStream = new StreamReader(Path.Combine(ResourcesDirectory.FullName, "expected_archives/commit_with_directory.tar")))
-                using (var actualStream = new StreamReader(archivePath))
+                using (var expectedStream = new StreamReader(File.OpenRead(Path.Combine(ResourcesDirectory.FullName, "expected_archives/commit_with_directory.tar"))))
+                using (var actualStream = new StreamReader(File.OpenRead(archivePath)))
                 {
                     string expected = expectedStream.ReadToEnd();
                     string actual = actualStream.ReadToEnd();

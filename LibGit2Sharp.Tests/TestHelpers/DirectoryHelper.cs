@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 
 namespace LibGit2Sharp.Tests.TestHelpers
@@ -78,7 +79,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
                 {
                     var caughtExceptionType = ex.GetType();
 
-                    if (!whitelist.Any(knownExceptionType => knownExceptionType.IsAssignableFrom(caughtExceptionType)))
+                    if (!whitelist.Any(knownExceptionType => knownExceptionType.GetTypeInfo().IsAssignableFrom(caughtExceptionType)))
                     {
                         throw;
                     }

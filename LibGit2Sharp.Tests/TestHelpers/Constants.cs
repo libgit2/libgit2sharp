@@ -87,10 +87,10 @@ namespace LibGit2Sharp.Tests.TestHelpers
         {
             var type = Type.GetType("Mono.Unix.UnixPath, Mono.Posix, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756");
 
-            return (string)type.InvokeMember("GetCompleteRealPath",
+            return (string)type.GetMethod("GetCompleteRealPath",
                 BindingFlags.Static | BindingFlags.FlattenHierarchy |
-                BindingFlags.InvokeMethod | BindingFlags.Public,
-                null, type, new object[] { Path.GetTempPath() });
+                BindingFlags.InvokeMethod | BindingFlags.Public).Invoke(
+                null, new object[] { Path.GetTempPath() });
         }
 
         // To help with creating secure strings to test with.

@@ -13,7 +13,7 @@ using Moq;
 
 namespace LibGit2Sharp.Tests
 {
-    public class MetaFixture
+    public partial class MetaFixture
     {
         private static readonly HashSet<Type> explicitOnlyInterfaces = new HashSet<Type>
         {
@@ -28,8 +28,8 @@ namespace LibGit2Sharp.Tests
                 "LibGit2Sharp.Tests.FilterBranchFixture.Dispose",
             };
 
-            var fixtures = from t in Assembly.GetAssembly(typeof(MetaFixture)).GetExportedTypes()
-                           where t.IsPublic && !t.IsNested
+            var fixtures = from t in typeof(MetaFixture).GetTypeInfo().Assembly.GetExportedTypes()
+                           where t.GetTypeInfo().IsPublic && !t.IsNested
                            where t.Namespace != typeof(BaseFixture).Namespace // Exclude helpers
                            let methods = t.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public)
                            from m in methods
@@ -49,12 +49,12 @@ namespace LibGit2Sharp.Tests
         {
             var typesWithDebuggerDisplayAndInvalidImplPattern = new List<Type>();
 
-            IEnumerable<Type> libGit2SharpTypes = Assembly.GetAssembly(typeof(IRepository)).GetExportedTypes()
-                .Where(t => t.GetCustomAttributes(typeof(DebuggerDisplayAttribute), false).Any());
+            IEnumerable<Type> libGit2SharpTypes = typeof(IRepository).GetTypeInfo().Assembly.GetExportedTypes()
+                .Where(t => t.GetTypeInfo().GetCustomAttributes(typeof(DebuggerDisplayAttribute), false).Any());
 
             foreach (Type type in libGit2SharpTypes)
             {
-                var debuggerDisplayAttribute = (DebuggerDisplayAttribute)type.GetCustomAttributes(typeof(DebuggerDisplayAttribute), false).Single();
+                var debuggerDisplayAttribute = (DebuggerDisplayAttribute)type.GetTypeInfo().GetCustomAttributes(typeof(DebuggerDisplayAttribute), false).Single();
 
                 if (debuggerDisplayAttribute.Value != "{DebuggerDisplay,nq}")
                 {
@@ -89,12 +89,12 @@ namespace LibGit2Sharp.Tests
         {
             var nonTestableTypes = new Dictionary<Type, IEnumerable<string>>();
 
-            IEnumerable<Type> libGit2SharpTypes = Assembly.GetAssembly(typeof(IRepository)).GetExportedTypes()
+            IEnumerable<Type> libGit2SharpTypes = typeof(IRepository).GetTypeInfo().Assembly.GetExportedTypes()
                 .Where(t => MustBeMockable(t) && t.Namespace == typeof(IRepository).Namespace);
 
             foreach (Type type in libGit2SharpTypes)
             {
-                if (type.IsInterface || type.IsEnum || IsStatic(type))
+                if (type.GetTypeInfo().IsInterface || type.GetTypeInfo().IsEnum || IsStatic(type))
                     continue;
 
                 var nonVirtualMethodNamesForType = GetNonVirtualPublicMethodsNames(type).ToList();
@@ -109,14 +109,14 @@ namespace LibGit2Sharp.Tests
                     nonTestableTypes.Add(type, new List<string>());
                 }
 
-                if (type.IsAbstract)
+                if (type.GetTypeInfo().IsAbstract)
                 {
                     continue;
                 }
 
                 try
                 {
-                    if (type.ContainsGenericParameters)
+                    if (type.GetTypeInfo().ContainsGenericParameters)
                     {
                         var constructType = type.MakeGenericType(Enumerable.Repeat(typeof(object), type.GetGenericArguments().Length).ToArray());
                         Activator.CreateInstance(constructType, true);
@@ -140,62 +140,27 @@ namespace LibGit2Sharp.Tests
 
         private static bool MustBeMockable(Type type)
         {
-            if (type.IsSealed)
+            if (type.GetTypeInfo().IsSealed)
             {
                 return false;
             }
 
-            if (type.IsAbstract)
+            if (type.GetTypeInfo().IsAbstract)
             {
-                return !type.Assembly.GetExportedTypes()
-                            .Where(t => t.IsSubclassOf(type))
-                            .All(t => t.IsAbstract || t.IsSealed);
+                return !type.GetTypeInfo().Assembly.GetExportedTypes()
+                            .Where(t => t.GetTypeInfo().IsSubclassOf(type))
+                            .All(t => t.GetTypeInfo().IsAbstract || t.GetTypeInfo().IsSealed);
             }
 
             return true;
         }
 
-        [Fact]
-        public void LibGit2SharpPublicInterfacesCoverAllPublicMembers()
-        {
-            var methodsMissingFromInterfaces =
-                from t in Assembly.GetAssembly(typeof(IRepository)).GetExportedTypes()
-                where !t.IsInterface
-                where t.GetInterfaces().Any(i => i.IsPublic && i.Namespace == typeof(IRepository).Namespace && !explicitOnlyInterfaces.Contains(i))
-                let interfaceTargetMethods = from i in t.GetInterfaces()
-                                             from im in t.GetInterfaceMap(i).TargetMethods
-                                             select im
-                from tm in t.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
-                where !interfaceTargetMethods.Contains(tm)
-                select t.Name + " has extra method " + tm.Name;
-
-            Assert.Equal("", string.Join(Environment.NewLine,
-                                         methodsMissingFromInterfaces.ToArray()));
-        }
-
-        [Fact]
-        public void LibGit2SharpExplicitOnlyInterfacesAreIndeedExplicitOnly()
-        {
-            var methodsMissingFromInterfaces =
-                from t in Assembly.GetAssembly(typeof(IRepository)).GetExportedTypes()
-                where t.GetInterfaces().Any(explicitOnlyInterfaces.Contains)
-                let interfaceTargetMethods = from i in t.GetInterfaces()
-                                             where explicitOnlyInterfaces.Contains(i)
-                                             from im in t.GetInterfaceMap(i).TargetMethods
-                                             select im
-                from tm in t.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
-                where interfaceTargetMethods.Contains(tm)
-                select t.Name + " has public method " + tm.Name + " which should be explicitly implemented.";
-
-            Assert.Equal("", string.Join(Environment.NewLine,
-                                         methodsMissingFromInterfaces.ToArray()));
-        }
 
         [Fact]
         public void EnumsWithFlagsHaveMutuallyExclusiveValues()
         {
-            var flagsEnums = Assembly.GetAssembly(typeof(IRepository)).GetExportedTypes()
-                                     .Where(t => t.IsEnum && t.GetCustomAttributes(typeof(FlagsAttribute), false).Any());
+            var flagsEnums = typeof(IRepository).GetTypeInfo().Assembly.GetExportedTypes()
+                .Where(t => t.GetTypeInfo().IsEnum && t.GetTypeInfo().GetCustomAttributes(typeof(FlagsAttribute), false).Any());
 
             var overlaps = from t in flagsEnums
                            from int x in Enum.GetValues(t)
@@ -259,19 +224,19 @@ namespace LibGit2Sharp.Tests
 
         private static bool IsStatic(Type type)
         {
-            return type.IsAbstract && type.IsSealed;
+            return type.GetTypeInfo().IsAbstract && type.GetTypeInfo().IsSealed;
         }
 
         // Related to https://github.com/libgit2/libgit2sharp/issues/644 and https://github.com/libgit2/libgit2sharp/issues/645
         [Fact]
         public void GetEnumeratorMethodsInLibGit2SharpMustBeVirtualForTestability()
         {
-            var nonVirtualGetEnumeratorMethods = Assembly.GetAssembly(typeof(IRepository))
+            var nonVirtualGetEnumeratorMethods = typeof(IRepository).GetTypeInfo().Assembly
                 .GetExportedTypes()
                 .Where(t =>
                     t.Namespace == typeof(IRepository).Namespace &&
-                    !t.IsSealed &&
-                    !t.IsAbstract &&
+                    !t.GetTypeInfo().IsSealed &&
+                    !t.GetTypeInfo().IsAbstract &&
                     t.GetInterfaces().Any(i => i.IsAssignableFrom(typeof(IEnumerable<>))))
                 .Select(t => t.GetMethod("GetEnumerator"))
                 .Where(m =>
@@ -298,7 +263,7 @@ namespace LibGit2Sharp.Tests
         {
             const string coreNamespace = "LibGit2Sharp.Core";
 
-            var types = Assembly.GetAssembly(typeof(IRepository))
+            var types = typeof(IRepository).GetTypeInfo().Assembly
                 .GetExportedTypes()
                 .Where(t => t.FullName.StartsWith(coreNamespace + "."))
 
@@ -326,7 +291,7 @@ namespace LibGit2Sharp.Tests
         public void NoOptionalParametersinMethods()
         {
             IEnumerable<string> mis =
-                from t in Assembly.GetAssembly(typeof(IRepository))
+                from t in typeof(IRepository).GetTypeInfo().Assembly
                     .GetExportedTypes()
                 from m in t.GetMethods()
                 where !m.IsObsolete()
@@ -349,7 +314,7 @@ namespace LibGit2Sharp.Tests
         public void NoOptionalParametersinConstructors()
         {
             IEnumerable<string> mis =
-                from t in Assembly.GetAssembly(typeof(IRepository))
+                from t in typeof(IRepository).GetTypeInfo().Assembly
                     .GetExportedTypes()
                 from c in t.GetConstructors()
                 from p in c.GetParameters()
@@ -389,12 +354,12 @@ namespace LibGit2Sharp.Tests
 
         static IEnumerable<MethodInfo> GetInvalidPublicExtensionMethods()
         {
-            var query = from type in (Assembly.GetAssembly(typeof(IRepository))).GetTypes()
-                        where type.IsSealed && !type.IsGenericType && !type.IsNested && type.IsPublic
+            var query = from type in typeof(IRepository).GetTypeInfo().Assembly.GetTypes()
+                        where type.GetTypeInfo().IsSealed && !type.GetTypeInfo().IsGenericType && !type.IsNested && type.GetTypeInfo().IsPublic
                         from method in type.GetMethods(BindingFlags.Static | BindingFlags.Public)
                         where method.IsDefined(typeof(ExtensionAttribute), false)
                         let parameterType = method.GetParameters()[0].ParameterType
-                        where parameterType != null && !parameterType.IsInterface && !parameterType.IsEnum
+                        where parameterType != null && !parameterType.GetTypeInfo().IsInterface && !parameterType.GetTypeInfo().IsEnum
                         select method;
             return query;
         }
@@ -405,8 +370,8 @@ namespace LibGit2Sharp.Tests
             var diff = typeof(Diff).GetField("ChangesBuilders", BindingFlags.NonPublic | BindingFlags.Static);
             var changesBuilders = (System.Collections.IDictionary)diff.GetValue(null);
 
-            IEnumerable<Type> diffResults = typeof(Diff).Assembly.GetExportedTypes()
-                .Where(type => type.GetInterface("IDiffResult") != null);
+            IEnumerable<Type> diffResults = typeof(Diff).GetTypeInfo().Assembly.GetExportedTypes()
+                .Where(type => type.GetTypeInfo().GetInterface("IDiffResult") != null);
 
             var nonBuilderTypes = diffResults.Where(diffResult => !changesBuilders.Contains(diffResult));
             Assert.False(nonBuilderTypes.Any(), "Classes which implement IDiffResult but are not registered under ChangesBuilders in Diff:" + Environment.NewLine +
