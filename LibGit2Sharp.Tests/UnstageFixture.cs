@@ -125,7 +125,8 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
-                Assert.DoesNotThrow(() => Commands.Unstage(repo, relativePath, new ExplicitPathsOptions() { ShouldFailOnUnmatchedPath = false }));
+                Commands.Unstage(repo, relativePath, new ExplicitPathsOptions() { ShouldFailOnUnmatchedPath = false });
+
                 Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
             }
         }
@@ -201,8 +202,9 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
-                Assert.DoesNotThrow(() => Commands.Unstage(repo, relativePath));
-                Assert.DoesNotThrow(() => Commands.Unstage(repo, relativePath, new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false }));
+                Commands.Unstage(repo, relativePath);
+                Commands.Unstage(repo, relativePath, new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false });
+
                 Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
             }
         }

@@ -99,7 +99,7 @@ test_script:
     {
       .\packages\OpenCover\tools\OpenCover.Console.exe `
         -register:user `
-        "-target:""$Env:userprofile\.nuget\packages\xunit.runner.console\2.0.0\tools\$Env:xunit_runner""" `
+        "-target:""$Env:userprofile\.nuget\packages\xunit.runner.console\2.2.0\tools\$Env:xunit_runner""" `
         "-targetargs:""$Env:APPVEYOR_BUILD_FOLDER\bin\LibGit2Sharp.Tests\Release\net46\LibGit2Sharp.Tests.dll"" -noshadow" `
         "-filter:+[LibGit2Sharp]* -[LibGit2Sharp.Tests]*" `
         -hideskipped:All `
@@ -107,7 +107,7 @@ test_script:
     }
     ElseIf ($Env:SHOULD_RUN_COVERITY_ANALYSIS -eq $False)
     {
-      & "$Env:userprofile\.nuget\packages\xunit.runner.console\2.0.0\tools\$Env:xunit_runner" `
+      & "$Env:userprofile\.nuget\packages\xunit.runner.console\2.2.0\tools\$Env:xunit_runner" `
           "$Env:APPVEYOR_BUILD_FOLDER\bin\LibGit2Sharp.Tests\Release\net46\LibGit2Sharp.Tests.dll" -noshadow
     }
 
