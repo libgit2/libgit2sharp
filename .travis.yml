@@ -15,6 +15,9 @@ before_install:
  - uname -a
  - env | sort
 
+install:
+ - git fetch --unshallow
+
 # Build libgit2, LibGit2Sharp and run the tests
 script:
  - ./build.libgit2sharp.sh 'LEAKS_IDENTIFYING'
