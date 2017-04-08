@@ -10,6 +10,7 @@ EXTRADEFINE="$1"
 export LD_LIBRARY_PATH=.
 
 dotnet restore
-dotnet build -f netstandard1.3 
+dotnet build LibGit2Sharp.Tests/LibGit2Sharp.Tests.csproj -f netcoreapp1.0
+dotnet test LibGit2Sharp.Tests/LibGit2Sharp.Tests.csproj -f netcoreapp1.0 --no-build
 
 exit $?
