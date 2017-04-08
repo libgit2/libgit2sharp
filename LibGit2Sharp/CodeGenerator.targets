@@ -28,13 +28,26 @@
     </PropertyGroup>
   </Target>
 
-  <UsingTask TaskName="GenerateNativeDllNameTask" AssemblyFile="$(CodeGenerationOutputPath)CodeGeneration.dll" />
   <UsingTask TaskName="GenerateUniqueIdentifierTask" AssemblyFile="$(CodeGenerationOutputPath)CodeGeneration.dll" />
 
   <Target Name="GenerateNativeDllNameCs">
-    <GenerateNativeDllNameTask InputHashFile="@(EmbeddedResource)"
-                               Condition=" '%(Filename)%(Extension)' == 'libgit2_filename.txt' "
-                               OutputFile="$(NativeDllNamePath)" />
+    <ReadLinesFromFile File="@(EmbeddedResource)"
+                               Condition=" '%(Filename)%(Extension)' == 'libgit2_filename.txt' ">
+      <Output TaskParameter="Lines" PropertyName="libgit2FileName" />
+    </ReadLinesFromFile>
+    <Message Importance='high' Text='$(libgit2FileName)' />
+    <ItemGroup>
+      <NativeDllNameSourceLines Include='namespace LibGit2Sharp.Core' />
+      <NativeDllNameSourceLines Include='{' />
+      <NativeDllNameSourceLines Include='  internal static class NativeDllName' />
+      <NativeDllNameSourceLines Include='  {' />
+      <NativeDllNameSourceLines Include='    public const string Name = "$(libgit2FileName)"%3b' />
+      <NativeDllNameSourceLines Include='  }' />
+      <NativeDllNameSourceLines Include='}' />
+    </ItemGroup>
+    <WriteLinesToFile File="$(NativeDllNamePath)"
+                      Lines="@(NativeDllNameSourceLines)"
+                      Overwrite="true" />
     <ItemGroup>
       <Compile Include="$(NativeDllNamePath)" />
       <FileWrites Include="$(NativeDllNamePath)" />
