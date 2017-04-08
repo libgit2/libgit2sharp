@@ -33,18 +33,19 @@
                                Condition=" '%(Filename)%(Extension)' == 'libgit2_filename.txt' ">
       <Output TaskParameter="Lines" PropertyName="libgit2FileName" />
     </ReadLinesFromFile>
-    <Message Importance='high' Text='$(libgit2FileName)' />
-    <ItemGroup>
-      <NativeDllNameSourceLines Include='namespace LibGit2Sharp.Core' />
-      <NativeDllNameSourceLines Include='{' />
-      <NativeDllNameSourceLines Include='  internal static class NativeDllName' />
-      <NativeDllNameSourceLines Include='  {' />
-      <NativeDllNameSourceLines Include='    public const string Name = "$(libgit2FileName)"%3b' />
-      <NativeDllNameSourceLines Include='  }' />
-      <NativeDllNameSourceLines Include='}' />
-    </ItemGroup>
+    <PropertyGroup>
+      <NativeDllNameSourceLines>
+namespace LibGit2Sharp.Core
+{
+  internal static class NativeDllName
+  {
+    public const string Name = "$(libgit2FileName)"%3b
+  }
+}
+      </NativeDllNameSourceLines>
+    </PropertyGroup>
     <WriteLinesToFile File="$(NativeDllNamePath)"
-                      Lines="@(NativeDllNameSourceLines)"
+                      Lines="$(NativeDllNameSourceLines)"
                       Overwrite="true" />
     <ItemGroup>
       <Compile Include="$(NativeDllNamePath)" />
@@ -57,18 +58,20 @@
   <Target Name="GenerateUniqueIdentifierCs"
            Inputs="$(MSBuildThisFileFullPath);$(MSBuildAllProjects);@(Compile)"
            Outputs="$(UniqueIdentifierPath)">
-    <ItemGroup>
-      <UniqueIdSourceLines Include='namespace LibGit2Sharp.Core' />
-      <UniqueIdSourceLines Include='{' />
-      <UniqueIdSourceLines Include='  internal static class UniqueId' />
-      <UniqueIdSourceLines Include='  {' />
-      <UniqueIdSourceLines Include='    public const string UniqueIdentifier = "$([System.Guid]::NewGuid())"%3b' />
-      <UniqueIdSourceLines Include='  }' />
-      <UniqueIdSourceLines Include='}' />
-    </ItemGroup>
+    <PropertyGroup>
+      <UniqueIdSourceLines>
+namespace LibGit2Sharp.Core
+{
+  internal static class UniqueId
+  {
+    public const string UniqueIdentifier = "$([System.Guid]::NewGuid())"%3b
+  }
+}
+      </UniqueIdSourceLines>
+    </PropertyGroup>
 
     <WriteLinesToFile File="$(UniqueIdentifierPath)"
-                      Lines="@(UniqueIdSourceLines)"
+                      Lines="$(UniqueIdSourceLines)"
                       Overwrite="true" />
 
     <ItemGroup>
