@@ -10,6 +10,6 @@ EXTRADEFINE="$1"
 export LD_LIBRARY_PATH=.
 
 dotnet restore
-dotnet build
+dotnet build -f netstandard1.3 
 
 exit $?
