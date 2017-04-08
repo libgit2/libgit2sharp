@@ -28,8 +28,6 @@
     </PropertyGroup>
   </Target>
 
-  <UsingTask TaskName="GenerateUniqueIdentifierTask" AssemblyFile="$(CodeGenerationOutputPath)CodeGeneration.dll" />
-
   <Target Name="GenerateNativeDllNameCs">
     <ReadLinesFromFile File="@(EmbeddedResource)"
                                Condition=" '%(Filename)%(Extension)' == 'libgit2_filename.txt' ">
@@ -59,7 +57,20 @@
   <Target Name="GenerateUniqueIdentifierCs"
            Inputs="$(MSBuildThisFileFullPath);$(MSBuildAllProjects);@(Compile)"
            Outputs="$(UniqueIdentifierPath)">
-    <GenerateUniqueIdentifierTask OutputFile="$(UniqueIdentifierPath)" />
+    <ItemGroup>
+      <UniqueIdSourceLines Include='namespace LibGit2Sharp.Core' />
+      <UniqueIdSourceLines Include='{' />
+      <UniqueIdSourceLines Include='  internal static class UniqueId' />
+      <UniqueIdSourceLines Include='  {' />
+      <UniqueIdSourceLines Include='    public const string UniqueIdentifier = "$([System.Guid]::NewGuid())"%3b' />
+      <UniqueIdSourceLines Include='  }' />
+      <UniqueIdSourceLines Include='}' />
+    </ItemGroup>
+
+    <WriteLinesToFile File="$(UniqueIdentifierPath)"
+                      Lines="@(UniqueIdSourceLines)"
+                      Overwrite="true" />
+
     <ItemGroup>
       <Compile Include="$(UniqueIdentifierPath)" />
       <FileWrites Include="$(UniqueIdentifierPath)" />
