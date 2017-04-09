@@ -9,7 +9,8 @@ EXTRADEFINE="$1"
 # working directory in its library search path, so it works without this value.
 export LD_LIBRARY_PATH=.
 
-nuget restore
-xbuild CI/build.msbuild /target:Deploy /property:ExtraDefine="$EXTRADEFINE"
+dotnet restore
+dotnet build LibGit2Sharp.Tests/LibGit2Sharp.Tests.csproj -c Release -f netcoreapp1.0 /property:ExtraDefine="$EXTRADEFINE"
+dotnet test LibGit2Sharp.Tests/LibGit2Sharp.Tests.csproj -c Release -f netcoreapp1.0 --no-build
 
 exit $?

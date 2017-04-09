@@ -1113,7 +1113,7 @@ namespace LibGit2Sharp.Tests
 
             using (var emptyRepo = new Repository(repoPath))
             {
-                uri = new Uri(emptyRepo.Info.Path);
+                uri = new Uri($"file://{emptyRepo.Info.Path}");
             }
 
             SelfCleaningDirectory scd2 = BuildSelfCleaningDirectory();
