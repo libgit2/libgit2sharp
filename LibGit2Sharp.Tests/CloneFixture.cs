@@ -81,7 +81,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCloneALocalRepositoryFromALocalUri()
         {
-            var uri = new Uri(Path.GetFullPath(BareTestRepoPath));
+            var uri = new Uri($"file://{Path.GetFullPath(BareTestRepoPath)}");
             AssertLocalClone(uri.AbsoluteUri, BareTestRepoPath);
         }
 
@@ -361,7 +361,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRecursivelyCloneSubmodules()
         {
-            var uri = new Uri(Path.GetFullPath(SandboxSubmoduleSmallTestRepo()));
+            var uri = new Uri($"file://{Path.GetFullPath(SandboxSubmoduleSmallTestRepo())}");
             var scd = BuildSelfCleaningDirectory();
             string relativeSubmodulePath = "submodule_target_wd";
 
@@ -512,7 +512,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCancelRecursiveClone()
         {
-            var uri = new Uri(Path.GetFullPath(SandboxSubmoduleSmallTestRepo()));
+            var uri = new Uri($"file://{Path.GetFullPath(SandboxSubmoduleSmallTestRepo())}");
             var scd = BuildSelfCleaningDirectory();
             string relativeSubmodulePath = "submodule_target_wd";
 

@@ -207,7 +207,7 @@ namespace LibGit2Sharp.Tests
         public void FetchHonorsTheFetchPruneConfigurationEntry()
         {
             var source = SandboxBareTestRepo();
-            var url = new Uri(Path.GetFullPath(source)).AbsoluteUri;
+            var url = new Uri($"file://{Path.GetFullPath(source)}").AbsoluteUri;
 
             var scd = BuildSelfCleaningDirectory();
 
