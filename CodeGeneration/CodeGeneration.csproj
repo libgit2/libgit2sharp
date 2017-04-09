@@ -1,12 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard1.3</TargetFramework>
+    <TargetFramework>netstandard1.5</TargetFramework>
     <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win8+wp8+wpa81;</PackageTargetFallback>
     <IsPackable>false</IsPackable>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CodeGeneration.Roslyn" Version="$(CodeGenerationRoslynVersion)" />
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.1.548" />
   </ItemGroup>
+
+  <!--<Target Name="GetNativeManifest" />
+  <Target Name="GetCopyToOutputDirectoryItems" />-->
 </Project>
