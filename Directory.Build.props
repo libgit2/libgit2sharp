@@ -3,7 +3,7 @@
     <OutputPath>$(MSBuildThisFileDirectory)bin\$(MSBuildProjectName)\$(Configuration)\</OutputPath>
     <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
 
-    <CodeGenerationRoslynVersion>0.3.11-g806e2e697e</CodeGenerationRoslynVersion>
+    <CodeGenerationRoslynVersion>0.3.12-gc4f1afd3b7</CodeGenerationRoslynVersion>
     <CodeGeneratorConfiguration Condition=" '$(CodeGeneratorConfiguration)' == '' ">Debug</CodeGeneratorConfiguration>
   </PropertyGroup>
 
