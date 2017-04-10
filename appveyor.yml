@@ -22,7 +22,6 @@ environment:
     secure: nuzUT+HecXGIi3KaPd/1hgFEZJan/j6+oNbPV75JKjk=
   coverity_email:
     secure: eGVilNg1Yuq+Xj+SW8r3WCtjnzhoDV0sNJkma4NRq7A=
-  version : 0.24.0
   matrix:
   - xunit_runner: xunit.console.x86.exe
     Arch: 32
@@ -38,8 +37,6 @@ install:
 - ps: |
     Write-Host "Commit being built = " -NoNewLine
     Write-Host $Env:APPVEYOR_REPO_COMMIT -ForegroundColor "Green"
-    Write-Host "Current build version = " -NoNewLine
-    Write-Host $Env:VERSION -ForegroundColor "Green"
     Write-Host "Target branch = " -NoNewLine
     Write-Host $Env:APPVEYOR_REPO_BRANCH -ForegroundColor "Green"
     Write-Host "Is a Pull Request = " -NoNewLine
@@ -49,16 +46,6 @@ install:
     $BuildDate = $CommitDate.ToUniversalTime().ToString("yyyyMMddHHmmss")
     Write-Host "Merge commit UTC timestamp = " -NoNewLine
     Write-Host $BuildDate -ForegroundColor "Green"
-
-    $VersionSuffix = ""
-    If ($Env:APPVEYOR_REPO_BRANCH -ne "master")
-    {
-      $VersionSuffix = "-pre$BuildDate"
-    }
-    $Version = "$($Env:VERSION)$($VersionSuffix)"
-    $Env:ASSEMBLY_INFORMATIONAL_VERSION = $Version
-    Write-Host "Assembly informational version = " -NoNewLine
-    Write-Host $Env:ASSEMBLY_INFORMATIONAL_VERSION -ForegroundColor "Green"
 
     $Env:SHOULD_RUN_COVERITY_ANALYSIS = $($Env:APPVEYOR_SCHEDULED_BUILD -eq $True)
     Write-Host "Should run Coverity analysis = " -NoNewLine
