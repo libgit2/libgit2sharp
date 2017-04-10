@@ -9,7 +9,4 @@
   <ItemGroup>
     <PackageReference Include="CodeGeneration.Roslyn" Version="$(CodeGenerationRoslynVersion)" />
   </ItemGroup>
-
-  <!--<Target Name="GetNativeManifest" />
-  <Target Name="GetCopyToOutputDirectoryItems" />-->
 </Project>
