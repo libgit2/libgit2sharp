@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project InitialTargets="GenerateCodeFirst">
   <PropertyGroup>
-    <CodeGenerationOutputPath>$(MSBuildProjectDirectory)\..\bin\CodeGeneration\$(CodeGeneratorConfiguration)\netstandard1.5\</CodeGenerationOutputPath>
+    <CodeGenerationOutputPath>$(MSBuildProjectDirectory)\..\lkg\</CodeGenerationOutputPath>
   </PropertyGroup>
 
   <ItemGroup>

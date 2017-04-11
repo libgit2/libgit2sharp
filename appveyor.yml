@@ -78,8 +78,6 @@ before_build:
 
 build_script:
 - ps: |
-    msbuild "$Env:APPVEYOR_BUILD_FOLDER\CodeGeneration\CodeGeneration.csproj" `
-      /nologo /verbosity:minimal /fl /flp:verbosity=normal
     msbuild "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln" `
       /nologo /verbosity:minimal /fl /flp:verbosity=normal `
       /property:ExtraDefine="LEAKS_IDENTIFYING" `

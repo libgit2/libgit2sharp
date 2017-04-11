@@ -11,12 +11,6 @@ export LD_LIBRARY_PATH=.
 
 # Build release for the code generator and the product itself.
 export Configuration=release
-export CodeGeneratorConfiguration=release
-
-# Build CodeGeneration first. See CodeGenerator.targets for why this has to be
-# a preliminary step.
-dotnet restore CodeGeneration
-dotnet build CodeGeneration
 
 # On linux we don't pack because we can't build for net40.
 # We just build for CoreCLR and run tests for it.

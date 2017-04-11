@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26407.1
@@ -12,8 +12,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp.Tests", "LibGi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeGenerationAttributes", "CodeGenerationAttributes\CodeGenerationAttributes.csproj", "{E1A8B99F-B2F6-4A38-9DF6-8792056D70FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeGeneration", "CodeGeneration\CodeGeneration.csproj", "{6598997B-9419-4CC1-84FF-9621B555E9C0}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0CA739FD-DA4D-4F64-9834-DA14A3ECD04B}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
@@ -21,8 +19,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		nuget.config = nuget.config
 		version.json = version.json
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeGeneration.Debugging", "CodeGeneration.Debugging\CodeGeneration.Debugging.csproj", "{C9212ECC-76F0-4658-9C89-DD506EE788B5}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -47,14 +43,6 @@ Global
 		{E1A8B99F-B2F6-4A38-9DF6-8792056D70FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E1A8B99F-B2F6-4A38-9DF6-8792056D70FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E1A8B99F-B2F6-4A38-9DF6-8792056D70FF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6598997B-9419-4CC1-84FF-9621B555E9C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6598997B-9419-4CC1-84FF-9621B555E9C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6598997B-9419-4CC1-84FF-9621B555E9C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6598997B-9419-4CC1-84FF-9621B555E9C0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C9212ECC-76F0-4658-9C89-DD506EE788B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C9212ECC-76F0-4658-9C89-DD506EE788B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C9212ECC-76F0-4658-9C89-DD506EE788B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C9212ECC-76F0-4658-9C89-DD506EE788B5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

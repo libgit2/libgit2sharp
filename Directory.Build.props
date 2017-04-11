@@ -4,7 +4,6 @@
     <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
 
     <CodeGenerationRoslynVersion>0.3.12-gc4f1afd3b7</CodeGenerationRoslynVersion>
-    <CodeGeneratorConfiguration Condition=" '$(CodeGeneratorConfiguration)' == '' ">Debug</CodeGeneratorConfiguration>
   </PropertyGroup>
 
   <ItemGroup>
