@@ -29,6 +29,7 @@ branches:
    - /^maint.*/
    - portable
    - dotnetcore
+   - portable2
 
 # Notify of build changes
 notifications:
