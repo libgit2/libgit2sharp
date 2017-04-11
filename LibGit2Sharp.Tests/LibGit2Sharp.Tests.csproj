@@ -16,12 +16,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LibGit2Sharp\LibGit2Sharp.csproj" />
-    <ProjectReference Include="..\CodeGeneration\CodeGeneration.csproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
-      <UndefineProperties>TargetFramework</UndefineProperties>
-      <Properties>Configuration=$(CodeGeneratorConfiguration);Platform=AnyCPU</Properties>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Moq" Version="4.7.8" />

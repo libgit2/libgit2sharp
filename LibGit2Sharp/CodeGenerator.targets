@@ -9,6 +9,11 @@
       <Visible>false</Visible>
     </GeneratorAssemblySearchPaths>
   </ItemGroup>
+  <!-- Related to https://github.com/dotnet/sdk/issues/939, this carefully written ProjectReference
+       allows MSBuild to get the build order right without given nuget grief at the command line.
+       Sadly, it still causes failures when run in VS or Travis CI: https://travis-ci.org/libgit2/libgit2sharp/jobs/220381005#L788
+       So instead, we control build ordering in VS via a project dependency expressed in the SLN file,
+       and a preliminary build of the project referenced below in Travis and AppVeyor.
   <ItemGroup>
     <ProjectReference Include="..\CodeGeneration\CodeGeneration.csproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
@@ -17,6 +22,7 @@
       <Properties>Configuration=$(CodeGeneratorConfiguration);Platform=AnyCPU</Properties>
     </ProjectReference>
   </ItemGroup>
+  -->
 
   <Target Name="GenerateCodeFirst">
     <PropertyGroup>

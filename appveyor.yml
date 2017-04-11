@@ -16,6 +16,7 @@ nuget:
   disable_publish_on_pr: true
 
 environment:
+  CodeGeneratorConfiguration: release
   coveralls_token:
     secure: ixIsBslo9NheDb5lJknF58EYdgvZ0r3/L0ecRiXjfXmjHBLvoSU6/ZRwaMM+BAlG
   coverity_token:
@@ -72,13 +73,15 @@ install:
 before_build:
 - ps: |
     msbuild "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln" `
-      /verbosity:quiet `
+      /nologo /verbosity:quiet `
       /t:restore
 
 build_script:
 - ps: |
+    msbuild "$Env:APPVEYOR_BUILD_FOLDER\CodeGeneration\CodeGeneration.csproj" `
+      /nologo /verbosity:minimal /fl /flp:verbosity=normal
     msbuild "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln" `
-      /verbosity:minimal /fl /flp:verbosity=normal `
+      /nologo /verbosity:minimal /fl /flp:verbosity=normal `
       /property:ExtraDefine="LEAKS_IDENTIFYING" `
       /t:build,pack
 

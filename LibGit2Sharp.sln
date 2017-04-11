@@ -1,9 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+VisualStudioVersion = 15.0.26407.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp", "LibGit2Sharp\LibGit2Sharp.csproj", "{EE6ED99F-CB12-4683-B055-D28FC7357A34}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6598997B-9419-4CC1-84FF-9621B555E9C0} = {6598997B-9419-4CC1-84FF-9621B555E9C0}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp.Tests", "LibGit2Sharp.Tests\LibGit2Sharp.Tests.csproj", "{286E63EB-04DD-4ADE-88D6-041B57800761}"
 EndProject

@@ -9,8 +9,19 @@ EXTRADEFINE="$1"
 # working directory in its library search path, so it works without this value.
 export LD_LIBRARY_PATH=.
 
-dotnet restore
-dotnet build LibGit2Sharp.Tests/LibGit2Sharp.Tests.csproj -c Release -f netcoreapp1.0 /property:ExtraDefine="$EXTRADEFINE"
-dotnet test LibGit2Sharp.Tests/LibGit2Sharp.Tests.csproj -c Release -f netcoreapp1.0 --no-build
+# Build release for the code generator and the product itself.
+export Configuration=release
+export CodeGeneratorConfiguration=release
+
+# Build CodeGeneration first. See CodeGenerator.targets for why this has to be
+# a preliminary step.
+dotnet restore CodeGeneration
+dotnet build CodeGeneration
+
+# On linux we don't pack because we can't build for net40.
+# We just build for CoreCLR and run tests for it.
+dotnet restore LibGit2Sharp.Tests
+dotnet build LibGit2Sharp.Tests -f netcoreapp1.0 /property:ExtraDefine="$EXTRADEFINE"
+dotnet test LibGit2Sharp.Tests/LibGit2Sharp.Tests.csproj -f netcoreapp1.0 --no-build
 
 exit $?
