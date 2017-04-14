@@ -29,7 +29,7 @@ namespace LibGit2Sharp.Core
     /// <summary>
     /// Holds leaked handle type names reported by <see cref="Core.Handles.Libgit2Object"/>
     /// </summary>
-    public static class LeaksContainer
+    static class LeaksContainer
     {
         private static readonly HashSet<string> _typeNames = new HashSet<string>();
         private static readonly object _lockpad = new object();
