@@ -167,6 +167,10 @@ namespace LibGit2Sharp.Tests
 
         private static void AssertIsHidden(string repoPath)
         {
+            //Work around .NET Core handling calls to File.GetAttributes with paths with a trailing slash differently
+            //without removing the trailing slash, the Hidden attribute is not included.
+            repoPath = repoPath.TrimEnd('/');
+
             FileAttributes attribs = File.GetAttributes(repoPath);
 
             Assert.Equal(FileAttributes.Hidden, (attribs & FileAttributes.Hidden));
