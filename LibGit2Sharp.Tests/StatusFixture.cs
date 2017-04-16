@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using LibGit2Sharp.Core;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
@@ -459,7 +461,16 @@ namespace LibGit2Sharp.Tests
                 const string upercasedFilename = "Plop";
 
                 string camelCasedPath = Path.Combine(repo.Info.WorkingDirectory, upercasedFilename);
-                File.Move(lowerCasedPath, camelCasedPath);
+
+                if (Platform.OperatingSystem == OperatingSystemType.MacOSX)
+                {
+                    var process = Process.Start("mv", $"{lowerCasedPath} {camelCasedPath}");
+                    process.WaitForExit();
+                }
+                else
+                {
+                    File.Move(lowerCasedPath, camelCasedPath);
+                }
 
                 Assert.Equal(expectedlowerCasedFileStatus, repo.RetrieveStatus(lowercasedFilename));
                 Assert.Equal(expectedCamelCasedFileStatus, repo.RetrieveStatus(upercasedFilename));
