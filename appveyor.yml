@@ -24,12 +24,9 @@ environment:
   coverity_email:
     secure: eGVilNg1Yuq+Xj+SW8r3WCtjnzhoDV0sNJkma4NRq7A=
   matrix:
-  - xunit_runner: xunit.console.x86.exe
-    Arch: 32
-    publish_on_success: False
-  - xunit_runner: xunit.console.exe
-    Arch: 64
-    publish_on_success: True
+  - publish_on_success: False
+    ExtraDefine: LEAKS_IDENTIFYING
+  - publish_on_success: True
 
 matrix:
   fast_finish: true
@@ -56,6 +53,9 @@ install:
     Write-Host "Should run Coveralls = " -NoNewLine
     Write-Host $Env:SHOULD_RUN_COVERALLS -ForegroundColor "Green"
 
+    Write-Host "Identifying leaks = " -NoNewLine
+    Write-Host ($Env:ExtraDefine -eq "LEAKS_IDENTIFYING") -ForegroundColor "Green"
+
     Write-Host "Should publish on success = " -NoNewLine
     Write-Host $Env:publish_on_success -ForegroundColor "Green"
 
@@ -80,25 +80,27 @@ build_script:
 - ps: |
     msbuild "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln" `
       /nologo /verbosity:minimal /fl /flp:verbosity=normal `
-      /property:ExtraDefine="LEAKS_IDENTIFYING" `
       /t:build,pack
 
 test_script:
 - ps: |
-    If ($Env:SHOULD_RUN_COVERALLS -eq $True -and $Env:publish_on_success -eq $True)
+    Foreach ($runner in 'xunit.console.exe','xunit.console.x86.exe')
     {
-      .\packages\OpenCover\tools\OpenCover.Console.exe `
-        -register:user `
-        "-target:""$Env:userprofile\.nuget\packages\xunit.runner.console\2.2.0\tools\$Env:xunit_runner""" `
-        "-targetargs:""$Env:APPVEYOR_BUILD_FOLDER\bin\LibGit2Sharp.Tests\Release\net46\LibGit2Sharp.Tests.dll"" -noshadow" `
-        "-filter:+[LibGit2Sharp]* -[LibGit2Sharp.Tests]*" `
-        -hideskipped:All `
-        -output:opencoverCoverage.xml
-    }
-    ElseIf ($Env:SHOULD_RUN_COVERITY_ANALYSIS -eq $False)
-    {
-      & "$Env:userprofile\.nuget\packages\xunit.runner.console\2.2.0\tools\$Env:xunit_runner" `
-          "$Env:APPVEYOR_BUILD_FOLDER\bin\LibGit2Sharp.Tests\Release\net46\LibGit2Sharp.Tests.dll" -noshadow
+      If ($Env:SHOULD_RUN_COVERALLS -eq $True -and $Env:publish_on_success -eq $True)
+      {
+        .\packages\OpenCover\tools\OpenCover.Console.exe `
+          -register:user `
+          "-target:""$Env:userprofile\.nuget\packages\xunit.runner.console\2.2.0\tools\$runner""" `
+          "-targetargs:""$Env:APPVEYOR_BUILD_FOLDER\bin\LibGit2Sharp.Tests\Release\net46\LibGit2Sharp.Tests.dll"" -noshadow" `
+          "-filter:+[LibGit2Sharp]* -[LibGit2Sharp.Tests]*" `
+          -hideskipped:All `
+          -output:opencoverCoverage.xml
+      }
+      ElseIf ($Env:SHOULD_RUN_COVERITY_ANALYSIS -eq $False)
+      {
+        & "$Env:userprofile\.nuget\packages\xunit.runner.console\2.2.0\tools\$runner" `
+            "$Env:APPVEYOR_BUILD_FOLDER\bin\LibGit2Sharp.Tests\Release\net46\LibGit2Sharp.Tests.dll" -noshadow
+      }
     }
 
 - dotnet test LibGit2Sharp.Tests/LibGit2Sharp.Tests.csproj -f netcoreapp1.0 --no-build
@@ -137,11 +139,15 @@ after_test:
         cat .\curl-out.txt
     }
 
-artifacts:
-- path: '**\bin\**\*.nupkg'
-  name: NuGet Package
-- path: msbuild.log
-  name: Build log
+on_finish:
+- ps: Push-AppveyorArtifact "msbuild.log"
+
+on_success:
+- ps: |
+    if ($Env:publish_on_success -eq $True)
+    {
+        Get-ChildItem "bin\LibGit2Sharp\$env:configuration\*.nupkg" |% { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+    }
 
 notifications:
 - provider: Email
