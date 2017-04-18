@@ -17,58 +17,28 @@ namespace LibGit2Sharp.Core
     {
         public const uint GIT_PATH_MAX = 4096;
         private const string libgit2 = NativeDllName.Name;
-        // This is here to keep the pointer alive
-#pragma warning disable 0414
-        private static readonly LibraryLifetimeObject lifetimeObject;
-#pragma warning restore 0414
-        private static int handlesCount;
 
-        /// <summary>
-        /// Internal hack to ensure that the call to git_threads_shutdown is called after all handle finalizers
-        /// have run to completion ensuring that no dangling git-related finalizer runs after git_threads_shutdown.
-        /// There should never be more than one instance of this object per AppDomain.
-        /// </summary>
-        private sealed class LibraryLifetimeObject
-#if DESKTOP
-            : CriticalFinalizerObject
-#endif
+        // An object tied to the lifecycle of the NativeMethods static class.
+        // This will handle initialization and shutdown of the underlying
+        // native library.
+        #pragma warning disable 0414
+        private static readonly LibraryLifetimeObject lifetimeObject;
+        #pragma warning restore 0414
+
+        private sealed class LibraryLifetimeObject : CriticalFinalizerObject
         {
-            // Ensure mono can JIT the .cctor and adjust the PATH before trying to load the native library.
-            // See https://github.com/libgit2/libgit2sharp/pull/190
             [MethodImpl(MethodImplOptions.NoInlining)]
             public LibraryLifetimeObject()
             {
-                int res = git_libgit2_init();
-                Ensure.Int32Result(res);
-                if (res == 1)
+                // Configure the OpenSSL locking on the true initialization
+                // of the library.
+                if (git_libgit2_init() == 1)
                 {
-                    // Ignore the error that this propagates. Call it in case openssl is being used.
                     git_openssl_set_locking();
                 }
-                AddHandle();
             }
 
             ~LibraryLifetimeObject()
-            {
-                RemoveHandle();
-            }
-        }
-
-#if DESKTOP
-        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
-#endif
-        internal static void AddHandle()
-        {
-            Interlocked.Increment(ref handlesCount);
-        }
-
-#if DESKTOP
-        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
-#endif
-        internal static void RemoveHandle()
-        {
-            int count = Interlocked.Decrement(ref handlesCount);
-            if (count == 0)
             {
                 git_libgit2_shutdown();
             }
