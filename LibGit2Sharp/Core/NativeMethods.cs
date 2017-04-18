@@ -22,27 +22,8 @@ namespace LibGit2Sharp.Core
         // This will handle initialization and shutdown of the underlying
         // native library.
         #pragma warning disable 0414
-        private static readonly LibraryLifetimeObject lifetimeObject;
+        private static readonly NativeShutdownObject shutdownObject;
         #pragma warning restore 0414
-
-        private sealed class LibraryLifetimeObject : CriticalFinalizerObject
-        {
-            [MethodImpl(MethodImplOptions.NoInlining)]
-            public LibraryLifetimeObject()
-            {
-                // Configure the OpenSSL locking on the true initialization
-                // of the library.
-                if (git_libgit2_init() == 1)
-                {
-                    git_openssl_set_locking();
-                }
-            }
-
-            ~LibraryLifetimeObject()
-            {
-                git_libgit2_shutdown();
-            }
-        }
 
         static NativeMethods()
         {
@@ -57,8 +38,30 @@ namespace LibGit2Sharp.Core
                     String.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", path, Path.PathSeparator, Environment.GetEnvironmentVariable(pathEnvVariable)));
             }
 
-            // See LibraryLifetimeObject description.
-            lifetimeObject = new LibraryLifetimeObject();
+            LoadNativeLibrary();
+            shutdownObject = new NativeShutdownObject();
+        }
+
+        // Avoid inlining this method because otherwise mono's JITter may try
+        // to load the library _before_ we've configured the path.
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void LoadNativeLibrary()
+        {
+            // Configure the OpenSSL locking on the true initialization
+            // of the library.
+            if (git_libgit2_init() == 1)
+            {
+                git_openssl_set_locking();
+            }
+        }
+
+        // Shutdown the native library in a finalizer.
+        private sealed class NativeShutdownObject : CriticalFinalizerObject
+        {
+            ~NativeShutdownObject()
+            {
+                git_libgit2_shutdown();
+            }
         }
 
         [DllImport(libgit2)]
