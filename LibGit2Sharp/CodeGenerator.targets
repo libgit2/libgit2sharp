@@ -34,7 +34,9 @@
     </PropertyGroup>
   </Target>
 
-  <Target Name="GenerateNativeDllNameCs">
+  <Target Name="GenerateNativeDllNameCs"
+          Inputs="@(EmbeddedResource)"
+          Outputs="$(NativeDllNamePath)">
     <ReadLinesFromFile File="@(EmbeddedResource)"
                                Condition=" '%(Filename)%(Extension)' == 'libgit2_filename.txt' ">
       <Output TaskParameter="Lines" PropertyName="libgit2FileName" />
@@ -60,10 +62,10 @@ namespace LibGit2Sharp.Core
   </Target>
 
   <!-- This target runs if any of the projects or .cs files for the project have changed since the last time
-      the UniqueIdentifier.cs file was generated. -->
+       the UniqueIdentifier.cs file was generated. -->
   <Target Name="GenerateUniqueIdentifierCs"
-           Inputs="$(MSBuildThisFileFullPath);$(MSBuildAllProjects);@(Compile)"
-           Outputs="$(UniqueIdentifierPath)">
+          Inputs="$(MSBuildThisFileFullPath);$(MSBuildAllProjects);@(Compile)"
+          Outputs="$(UniqueIdentifierPath)">
     <PropertyGroup>
       <UniqueIdSourceLines>
 namespace LibGit2Sharp.Core

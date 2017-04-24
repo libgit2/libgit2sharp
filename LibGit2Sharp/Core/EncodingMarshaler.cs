@@ -45,7 +45,7 @@ namespace LibGit2Sharp.Core
             {
                 throw new MarshalDirectiveException(string.Format(CultureInfo.InvariantCulture,
                                                                   "{0} must be used on a string.",
-                                                                  this.GetType().Name));
+                                                                  GetType().Name));
             }
 
             return FromManaged(encoding, str);

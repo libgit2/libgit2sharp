@@ -71,7 +71,7 @@ namespace LibGit2Sharp.Core
         {
             throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
                                                               "{0} cannot be used to retrieve data from libgit2.",
-                                                              this.GetType().Name));
+                                                              GetType().Name));
         }
 
         #endregion
@@ -107,7 +107,7 @@ namespace LibGit2Sharp.Core
         {
             throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
                                                               "{0} cannot be used to pass data to libgit2.",
-                                                              this.GetType().Name));
+                                                              GetType().Name));
         }
 
         #endregion
