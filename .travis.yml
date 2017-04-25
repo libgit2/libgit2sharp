@@ -20,7 +20,7 @@ install:
 
 # Build libgit2, LibGit2Sharp and run the tests
 script:
- - ./build.libgit2sharp.sh 'LEAKS_IDENTIFYING'
+ - ./buildandtest.sh 'LEAKS_IDENTIFYING'
 
 # Only watch the development branch
 branches:
