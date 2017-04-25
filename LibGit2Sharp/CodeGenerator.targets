@@ -26,7 +26,7 @@
 
   <Target Name="GenerateCodeFirst">
     <PropertyGroup>
-      <CoreCompileDependsOn>$(CoreCompileDependsOn);GenerateNativeDllNameCs;GenerateUniqueIdentifierCs</CoreCompileDependsOn>
+      <CoreCompileDependsOn>$(CoreCompileDependsOn);GenerateNativeDllNameCs</CoreCompileDependsOn>
       <PrepareResourceNamesDependsOn>GenerateCommitIdVersion;$(PrepareResourceNamesDependsOn)</PrepareResourceNamesDependsOn>
       <NativeDllNamePath>$(IntermediateOutputPath)NativeDllName.cs</NativeDllNamePath>
       <UniqueIdentifierPath>$(IntermediateOutputPath)UniqueIdentifier.cs</UniqueIdentifierPath>
@@ -58,33 +58,6 @@ namespace LibGit2Sharp.Core
     <ItemGroup>
       <Compile Include="$(NativeDllNamePath)" />
       <FileWrites Include="$(NativeDllNamePath)" />
-    </ItemGroup>
-  </Target>
-
-  <!-- This target runs if any of the projects or .cs files for the project have changed since the last time
-       the UniqueIdentifier.cs file was generated. -->
-  <Target Name="GenerateUniqueIdentifierCs"
-          Inputs="$(MSBuildThisFileFullPath);$(MSBuildAllProjects);@(Compile)"
-          Outputs="$(UniqueIdentifierPath)">
-    <PropertyGroup>
-      <UniqueIdSourceLines>
-namespace LibGit2Sharp.Core
-{
-  internal static class UniqueId
-  {
-    public const string UniqueIdentifier = "$([System.Guid]::NewGuid())"%3b
-  }
-}
-      </UniqueIdSourceLines>
-    </PropertyGroup>
-
-    <WriteLinesToFile File="$(UniqueIdentifierPath)"
-                      Lines="$(UniqueIdSourceLines)"
-                      Overwrite="true" />
-
-    <ItemGroup>
-      <Compile Include="$(UniqueIdentifierPath)" />
-      <FileWrites Include="$(UniqueIdentifierPath)" />
     </ItemGroup>
   </Target>
 

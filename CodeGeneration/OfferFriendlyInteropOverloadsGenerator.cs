@@ -148,7 +148,7 @@ namespace CodeGeneration
                                                 SyntaxKind.SimpleMemberAccessExpression,
                                                 type,
                                                 SyntaxFactory.IdentifierName("GetInstance")),
-                                            SyntaxFactory.ArgumentList().AddArguments(SyntaxFactory.Argument(SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(""))))))))));
+                                            SyntaxFactory.ArgumentList()))))));
                 }
 
                 return marshalerLocalName;
