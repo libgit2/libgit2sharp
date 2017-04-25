@@ -72,12 +72,14 @@ before_build:
 - ps: |
     msbuild "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln" `
       /nologo /verbosity:quiet `
+      /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" `
       /t:restore
 
 build_script:
 - ps: |
     msbuild "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln" `
       /nologo /verbosity:minimal /fl /flp:verbosity=normal `
+      /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" `
       /t:build,pack
 
 test_script:
