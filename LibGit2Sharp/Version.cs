@@ -80,10 +80,8 @@ namespace LibGit2Sharp
             string features = Features.ToString();
 
             return string.Format(CultureInfo.InvariantCulture,
-                                 "{0}-{1}-{2} ({3} - {4})",
+                                 "{0} ({1} - {2})",
                                  InformationalVersion,
-                                 LibGit2SharpCommitSha,
-                                 LibGit2CommitSha,
                                  Platform.ProcessorArchitecture,
                                  features);
         }

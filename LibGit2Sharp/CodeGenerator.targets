@@ -61,6 +61,19 @@ namespace LibGit2Sharp.Core
     </ItemGroup>
   </Target>
 
+  <Target Name="AddNativeDllCommitShaToBuildMetadata"
+          BeforeTargets="GetBuildVersion"
+          Condition=" '$(IsCrossTargetingBuild)' != 'true' ">
+    <ReadLinesFromFile File="@(EmbeddedResource)"
+                       Condition=" '%(Filename)%(Extension)' == 'libgit2_hash.txt' ">
+      <Output TaskParameter="Lines" PropertyName="libgit2hash" />
+    </ReadLinesFromFile>
+
+    <ItemGroup>
+      <BuildMetadata Include="LibGit2-$(libgit2hash.Substring(0,7))" />
+    </ItemGroup>
+  </Target>
+
   <Target Name="GenerateCommitIdVersion"
           DependsOnTargets="GetBuildVersion">
     <WriteLinesToFile File="$(CommitIdVersionPath)"
