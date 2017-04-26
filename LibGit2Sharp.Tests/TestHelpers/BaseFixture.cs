@@ -389,7 +389,8 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
             File.WriteAllText(filePath, content ?? string.Empty, encoding ?? Encoding.ASCII);
 
-            //Work around .NET Core 1.x behavior where all newly created files have execute permissions set.
+            //Workaround for .NET Core 1.x behavior where all newly created files have execute permissions set.
+            //https://github.com/dotnet/corefx/issues/13342
             if (Constants.IsRunningOnUnix && newFile)
             {
                 RemoveExecutePermissions(filePath, newFile);
@@ -417,6 +418,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             }
 
             //Work around .NET Core 1.x behavior where all newly created files have execute permissions set.
+            //https://github.com/dotnet/corefx/issues/13342
             if (Constants.IsRunningOnUnix && newFile)
             {
                 RemoveExecutePermissions(filePath, newFile);
