@@ -3,10 +3,10 @@
 REM Sample usages:
 REM
 REM  Building and running tests
-REM  - build.libgit2sharp.cmd
+REM  - buildandtest.cmd
 REM
 REM  Building and identifying potential leaks while running tests
-REM  - build.libgit2sharp.cmd "LEAKS_IDENTIFYING"
+REM  - buildandtest.cmd "LEAKS_IDENTIFYING"
 
 SETLOCAL
 
