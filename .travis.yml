@@ -3,7 +3,7 @@
 
 language: csharp
 mono:
- - latest
+ - 4.8.0
 
 os:
  - osx
