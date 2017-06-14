@@ -52,14 +52,6 @@ function Clean-OutputFolder($folder) {
     }
 }
 
-# From http://www.dougfinke.com/blog/index.php/2010/12/01/note-to-self-how-to-programmatically-get-the-msbuild-path-in-powershell/
-
-Function Get-MSBuild {
-    $lib = [System.Runtime.InteropServices.RuntimeEnvironment]
-    $rtd = $lib::GetRuntimeDirectory()
-    Join-Path $rtd msbuild.exe
-}
-
 #################
 
 $root = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
@@ -79,7 +71,7 @@ Push-Location $projectPath
 try {
   Set-Content -Encoding ASCII $(Join-Path $projectPath "libgit2sharp_hash.txt") $commitSha
   Run-Command { & "$(Join-Path $projectPath "..\Lib\NuGet\Nuget.exe")" Restore "$slnPath" }
-  Run-Command { & (Get-MSBuild) "$slnPath" "/verbosity:minimal" "/p:Configuration=Release" }
+  Run-Command { & "MSBuild.exe" "$slnPath" "/verbosity:minimal" "/p:Configuration=Release" }
 
   If ($postBuild) {
     Write-Host -ForegroundColor "Green" "Run post build script..."
