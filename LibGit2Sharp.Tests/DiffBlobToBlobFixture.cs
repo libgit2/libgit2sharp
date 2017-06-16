@@ -104,7 +104,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(0, changes.LinesDeleted);
                 Assert.NotEqual(string.Empty, changes.Patch);
 
-                changes = repo.Diff.Compare(blob, null);
+                changes = repo.Diff.Compare(blob, (Blob)null);
 
                 Assert.Equal(0, changes.LinesAdded);
                 Assert.NotEqual(0, changes.LinesDeleted);

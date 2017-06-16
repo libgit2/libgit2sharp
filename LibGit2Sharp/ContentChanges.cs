@@ -31,6 +31,17 @@ namespace LibGit2Sharp
                                  LineCallback);
         }
 
+        internal ContentChanges(Repository repo, Blob oldBlob, string newContent, GitDiffOptions options)
+        {
+            Proxy.git_diff_blob_to_buffer(repo.Handle,
+                oldBlob != null ? oldBlob.Id : null,
+                newContent,
+                options,
+                FileCallback,
+                HunkCallback,
+                LineCallback);
+        }
+
         internal ContentChanges(bool isBinaryComparison)
         {
             this.IsBinaryComparison = isBinaryComparison;

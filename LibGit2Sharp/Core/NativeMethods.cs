@@ -550,6 +550,22 @@ namespace LibGit2Sharp.Core
             IntPtr payload);
 
         [DllImport(libgit2)]
+        internal static extern int git_diff_buffers(
+            IntPtr old_buffer, // this comes from git_blob_rawcontent() so we can avoid copying the memory
+            IntPtr old_len,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath old_as_path,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string new_buffer,
+            IntPtr new_len,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath new_as_path,
+            GitDiffOptions options,
+            git_diff_file_cb fileCallback,
+            git_diff_binary_cb binaryCallback,
+            git_diff_hunk_cb hunkCallback,
+            git_diff_line_cb lineCallback,
+            IntPtr payload);
+        
+
+        [DllImport(libgit2)]
         internal static extern int git_diff_foreach(
             DiffSafeHandle diff,
             git_diff_file_cb fileCallback,

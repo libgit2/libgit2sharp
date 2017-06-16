@@ -147,6 +147,33 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Show changes between <see cref="Blob"/> and a string.
+        /// </summary>
+        /// <param name="oldBlob">The <see cref="Blob"/> you want to compare from.</param>
+        /// <param name="newContent">The <see cref="string"/> you want to compare to.</param>
+        /// <returns>A <see cref="ContentChanges"/> containing the changes between the <paramref name="oldBlob"/> and the <paramref name="newBlob"/>.</returns>
+        public virtual ContentChanges Compare(Blob oldBlob, string newContent)
+        {
+            return Compare(oldBlob, newContent, null);
+        }
+
+        /// <summary>
+        /// Show changes between <see cref="Blob"/> and a string.
+        /// </summary>
+        /// <param name="oldBlob">The <see cref="Blob"/> you want to compare from.</param>
+        /// <param name="newContent">The <see cref="string"/> you want to compare to.</param>
+        /// <param name="compareOptions">Additional options to define comparison behavior.</param>
+        /// <returns>A <see cref="ContentChanges"/> containing the changes between the <paramref name="oldBlob"/> and the <paramref name="newBlob"/>.</returns>
+        public virtual ContentChanges Compare(Blob oldBlob, string newContent, CompareOptions compareOptions)
+        {
+            using (GitDiffOptions options = BuildOptions(DiffModifiers.None, compareOptions: compareOptions))
+            {
+                return new ContentChanges(repo, oldBlob, newContent, options);
+            }
+        }
+
+
+        /// <summary>
         /// Show changes between two <see cref="Tree"/>s.
         /// </summary>
         /// <param name="oldTree">The <see cref="Tree"/> you want to compare from.</param>

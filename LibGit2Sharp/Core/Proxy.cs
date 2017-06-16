@@ -726,6 +726,37 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static void git_diff_blob_to_buffer(
+            RepositorySafeHandle repo,
+            ObjectId oldBlob,
+            string newContent,
+            GitDiffOptions options,
+            NativeMethods.git_diff_file_cb fileCallback,
+            NativeMethods.git_diff_hunk_cb hunkCallback,
+            NativeMethods.git_diff_line_cb lineCallback)
+        {
+            using (var osw = new ObjectSafeWrapper(oldBlob, repo, true))
+            {
+                var oldContent = NativeMethods.git_blob_rawcontent(osw.ObjectPtr);
+                var oldSize = NativeMethods.git_blob_rawsize(osw.ObjectPtr);
+                int res = NativeMethods.git_diff_buffers(oldContent,
+                    new IntPtr(oldSize),
+                    null,
+                    newContent,
+                    new IntPtr(newContent.Length),
+                    null,
+                    options,
+                    fileCallback,
+                    null,
+                    hunkCallback,
+                    lineCallback,
+                    IntPtr.Zero);
+
+                Ensure.ZeroResult(res);
+            }
+        }
+
+
         public static void git_diff_foreach(
             DiffSafeHandle diff,
             NativeMethods.git_diff_file_cb fileCallback,
