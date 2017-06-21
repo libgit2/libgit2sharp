@@ -290,7 +290,7 @@ namespace LibGit2Sharp.Tests
                     }));
             }
         }
-
+        
         #region Helpers
 
         private Signature _signature = Constants.Signature;
