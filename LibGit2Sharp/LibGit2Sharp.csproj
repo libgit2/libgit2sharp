@@ -4,7 +4,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Description>LibGit2Sharp brings all the might and speed of libgit2, a native Git implementation, to the managed world of .Net and Mono.</Description>
     <Company>LibGit2Sharp contributors</Company>
-    <PackageTags>libgit2 git wrapper bindings API dvcs vcs</PackageTags>
+    <PackageTags>libgit2 git</PackageTags>
     <PackageProjectUrl>https://github.com/libgit2/libgit2sharp/</PackageProjectUrl>
     <Authors>LibGit2Sharp contributors</Authors>
 
@@ -31,7 +31,7 @@
     <ProjectReference Include="..\CodeGenerationAttributes\CodeGenerationAttributes.csproj" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="[1.0.165]" PrivateAssets="contentFiles" />
+    <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="[1.0.185]" PrivateAssets="contentFiles" />
     <PackageReference Include="SourceLink.Create.GitHub" Version="2.0.2" PrivateAssets="all" />
     <DotNetCliToolReference Include="dotnet-sourcelink-git" Version="2.0.2" />
 

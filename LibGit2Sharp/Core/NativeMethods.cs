@@ -645,6 +645,9 @@ namespace LibGit2Sharp.Core
         private static unsafe extern int git_libgit2_opts(int option, uint level,
             [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* path);
 
+        // git_libgit2_opts(GIT_OPT_ENABLE_*, int enabled)
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int git_libgit2_opts(int option, int enabled);
         #endregion
 
         [DllImport(libgit2)]

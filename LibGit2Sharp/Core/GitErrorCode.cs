@@ -125,5 +125,15 @@
         /// There are no more entries left to iterate.
         /// </summary>
         IterOver = -31,
+
+        /// <summary>
+        /// Internal-only.
+        /// </summary>
+        Retry = -32,
+
+        /// <summary>
+        /// A retrieved object did not match its expected ID.
+        /// </summary>
+        Mismatch = -33,
     }
 }

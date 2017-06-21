@@ -90,37 +90,46 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRetrieveObjectsThroughOddSizedShortShas()
         {
-            string repoPath = InitNewRepository();
-
-            using (var repo = new Repository(repoPath))
+            try
             {
-                var backend = new MockOdbBackend();
-                repo.ObjectDatabase.AddBackend(backend, priority: 5);
+                GlobalSettings.SetStrictHashVerification(false);
 
-                AddCommitToRepo(repo);
+                string repoPath = InitNewRepository();
 
-                var blob1 = repo.Lookup<Blob>("9daeaf");
-                Assert.NotNull(blob1);
-
-                const string dummy = "dummy\n";
-
-                // Inserts a fake blob with a similarly prefixed sha
-                var fakeId = new ObjectId("9daeaf0000000000000000000000000000000000");
-                using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(dummy)))
+                using (var repo = new Repository(repoPath))
                 {
-                    Assert.Equal(0, backend.Write(fakeId, ms, dummy.Length, ObjectType.Blob));
+                    var backend = new MockOdbBackend();
+                    repo.ObjectDatabase.AddBackend(backend, priority: 5);
+
+                    AddCommitToRepo(repo);
+
+                    var blob1 = repo.Lookup<Blob>("9daeaf");
+                    Assert.NotNull(blob1);
+
+                    const string dummy = "dummy\n";
+
+                    // Inserts a fake blob with a similarly prefixed sha
+                    var fakeId = new ObjectId("9daeaf0000000000000000000000000000000000");
+                    using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(dummy)))
+                    {
+                        Assert.Equal(0, backend.Write(fakeId, ms, dummy.Length, ObjectType.Blob));
+                    }
+
+                    var blob2 = repo.Lookup<Blob>(fakeId);
+                    Assert.NotNull(blob2);
+
+                    Assert.Throws<AmbiguousSpecificationException>(() => repo.Lookup<Blob>("9daeaf"));
+
+                    var newBlob1 = repo.Lookup("9daeafb");
+                    var newBlob2 = repo.Lookup("9daeaf0");
+
+                    Assert.Equal(blob1, newBlob1);
+                    Assert.Equal(blob2, newBlob2);
                 }
-
-                var blob2 = repo.Lookup<Blob>(fakeId);
-                Assert.NotNull(blob2);
-
-                Assert.Throws<AmbiguousSpecificationException>(() => repo.Lookup<Blob>("9daeaf"));
-
-                var newBlob1 = repo.Lookup("9daeafb");
-                var newBlob2 = repo.Lookup("9daeaf0");
-
-                Assert.Equal(blob1, newBlob1);
-                Assert.Equal(blob2, newBlob2);
+            }
+            finally
+            {
+                GlobalSettings.SetStrictHashVerification(true);
             }
         }
 

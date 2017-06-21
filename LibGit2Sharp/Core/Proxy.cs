@@ -3350,25 +3350,31 @@ namespace LibGit2Sharp.Core
         }
 
         // C# equivalent of libgit2's git_libgit2_opt_t
-        private enum LibGitOption
+        private enum LibGit2Option
         {
-            GetMWindowSize,             // GIT_OPT_GET_MWINDOW_SIZE
-            SetMWindowSize,             // GIT_OPT_SET_MWINDOW_SIZE
-            GetMWindowMappedLimit,      // GIT_OPT_GET_MWINDOW_MAPPED_LIMIT
-            SetMWindowMappedLimit,      // GIT_OPT_SET_MWINDOW_MAPPED_LIMIT
-            GetSearchPath,              // GIT_OPT_GET_SEARCH_PATH
-            SetSearchPath,              // GIT_OPT_SET_SEARCH_PATH
-            SetCacheObjectLimit,        // GIT_OPT_SET_CACHE_OBJECT_LIMIT
-            SetCacheMaxSize,            // GIT_OPT_SET_CACHE_MAX_SIZE
-            EnableCaching,              // GIT_OPT_ENABLE_CACHING
-            GetCachedMemory,            // GIT_OPT_GET_CACHED_MEMORY
-            GetTemplatePath,            // GIT_OPT_GET_TEMPLATE_PATH
-            SetTemplatePath,            // GIT_OPT_SET_TEMPLATE_PATH
-            SetSslCertLocations,        // GIT_OPT_SET_SSL_CERT_LOCATIONS
-            SetUserAgent,               // GIT_OPT_SET_USER_AGENT
-            EnableStrictObjectCreation, // GIT_OPT_ENABLE_STRICT_OBJECT_CREATION
-            SetSslCiphers,              // GIT_OPT_SET_SSL_CIPHERS
-            GetUserAgent,               // GIT_OPT_GET_USER_AGENT
+            GetMWindowSize,                  // GIT_OPT_GET_MWINDOW_SIZE
+            SetMWindowSize,                  // GIT_OPT_SET_MWINDOW_SIZE
+            GetMWindowMappedLimit,           // GIT_OPT_GET_MWINDOW_MAPPED_LIMIT
+            SetMWindowMappedLimit,           // GIT_OPT_SET_MWINDOW_MAPPED_LIMIT
+            GetSearchPath,                   // GIT_OPT_GET_SEARCH_PATH
+            SetSearchPath,                   // GIT_OPT_SET_SEARCH_PATH
+            SetCacheObjectLimit,             // GIT_OPT_SET_CACHE_OBJECT_LIMIT
+            SetCacheMaxSize,                 // GIT_OPT_SET_CACHE_MAX_SIZE
+            EnableCaching,                   // GIT_OPT_ENABLE_CACHING
+            GetCachedMemory,                 // GIT_OPT_GET_CACHED_MEMORY
+            GetTemplatePath,                 // GIT_OPT_GET_TEMPLATE_PATH
+            SetTemplatePath,                 // GIT_OPT_SET_TEMPLATE_PATH
+            SetSslCertLocations,             // GIT_OPT_SET_SSL_CERT_LOCATIONS
+            SetUserAgent,                    // GIT_OPT_SET_USER_AGENT
+            EnableStrictObjectCreation,      // GIT_OPT_ENABLE_STRICT_OBJECT_CREATION
+            EnableStrictSymbolicRefCreation, // GIT_OPT_ENABLE_STRICT_SYMBOLIC_REF_CREATION
+            SetSslCiphers,                   // GIT_OPT_SET_SSL_CIPHERS
+            GetUserAgent,                    // GIT_OPT_GET_USER_AGENT
+            EnableOfsDelta,                  // GIT_OPT_ENABLE_OFS_DELTA
+            EnableFsyncGitdir,               // GIT_OPT_ENABLE_FSYNC_GITDIR
+            GetWindowsSharemode,             // GIT_OPT_GET_WINDOWS_SHAREMODE
+            SetWindowsSharemode,             // GIT_OPT_SET_WINDOWS_SHAREMODE
+            EnableStrictHashVerification,    // GIT_OPT_ENABLE_STRICT_HASH_VERIFICATION
         }
 
         /// <summary>
@@ -3384,13 +3390,18 @@ namespace LibGit2Sharp.Core
 
             using (var buf = new GitBuf())
             {
-                var res = NativeMethods.git_libgit2_opts((int)LibGitOption.GetSearchPath, (uint)level, buf);
+                var res = NativeMethods.git_libgit2_opts((int)LibGit2Option.GetSearchPath, (uint)level, buf);
                 Ensure.ZeroResult(res);
 
                 path = LaxUtf8Marshaler.FromNative(buf.ptr) ?? string.Empty;
             }
 
             return path;
+        }
+
+        public static void git_libgit2_opts_enable_strict_hash_verification(bool enabled)
+        {
+            NativeMethods.git_libgit2_opts((int)LibGit2Option.EnableStrictHashVerification, enabled ? 1 : 0);
         }
 
         /// <summary>
@@ -3403,7 +3414,7 @@ namespace LibGit2Sharp.Core
         /// </param>
         public static void git_libgit2_opts_set_search_path(ConfigurationLevel level, string path)
         {
-            var res = NativeMethods.git_libgit2_opts((int)LibGitOption.SetSearchPath, (uint)level, path);
+            var res = NativeMethods.git_libgit2_opts((int)LibGit2Option.SetSearchPath, (uint)level, path);
             Ensure.ZeroResult(res);
         }
 

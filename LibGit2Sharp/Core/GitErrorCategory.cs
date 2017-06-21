@@ -34,6 +34,8 @@ namespace LibGit2Sharp.Core
         Describe,
         Rebase,
         Filesystem,
-        Patch
+        Patch,
+        Worktree,
+        Sha1
     }
 }

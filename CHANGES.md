@@ -10,13 +10,21 @@
   - Windows (x86/amd64): <https://ci.appveyor.com/project/libgit2/libgit2sharp>
   - Linux/Mac OS X: <https://travis-ci.org/libgit2/libgit2sharp>
 
-## v0.23 + 1
+## v0.24 + 1
 
 ### Additions
 
 ### Changes
 
 ### Fixes
+
+## v0.24 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.23..v0.24))
+
+This is the last release before a moving to .NET Core compatible library.
+
+It will be the last supported release with the prior architecture; as a
+result, this release is primarily bugfixes and does not include major new
+APIs.
 
 ## v0.23 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.22..v0.23))
 

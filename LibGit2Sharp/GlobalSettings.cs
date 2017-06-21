@@ -324,5 +324,10 @@ namespace LibGit2Sharp
             var pathString = (paths == null) ? null : string.Join(Path.PathSeparator.ToString(), paths);
             Proxy.git_libgit2_opts_set_search_path(level, pathString);
         }
+
+        public static void SetStrictHashVerification(bool enabled)
+        {
+            Proxy.git_libgit2_opts_enable_strict_hash_verification(enabled);
+        }
     }
 }
