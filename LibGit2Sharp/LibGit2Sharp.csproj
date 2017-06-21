@@ -95,7 +95,6 @@
     <Compile Include="FetchOptionsBase.cs" />
     <Compile Include="Core\FetchPruneStrategy.cs" />
     <Compile Include="LogEntry.cs" />
-    <Compile Include="FollowFilter.cs" />
     <Compile Include="IBelongToARepository.cs" />
     <Compile Include="Identity.cs" />
     <Compile Include="Core\GitFilter.cs" />
