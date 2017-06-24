@@ -736,7 +736,7 @@ namespace LibGit2Sharp
             {
                 var peeledTargetCommit = reference
                                             .ResolveToDirectReference()
-                                            .Target.DereferenceToCommit(false);
+                                            .Target.Peel<Commit>(false);
 
                 if (peeledTargetCommit == null)
                 {

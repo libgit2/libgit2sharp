@@ -587,7 +587,7 @@ namespace LibGit2Sharp
 
             if (lookUpOptions.HasFlag(LookUpOptions.DereferenceResultToCommit))
             {
-                return obj.DereferenceToCommit(lookUpOptions.HasFlag(LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit));
+                return obj.Peel<Commit>(lookUpOptions.HasFlag(LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit));
             }
 
             return obj;

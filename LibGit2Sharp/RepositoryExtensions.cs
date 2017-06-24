@@ -182,7 +182,7 @@ namespace LibGit2Sharp
         {
             GitObject obj = repository.Lookup(committish);
             Ensure.GitObjectIsNotNull(obj, committish);
-            return obj.DereferenceToCommit(true);
+            return obj.Peel<Commit>(true);
         }
 
         /// <summary>

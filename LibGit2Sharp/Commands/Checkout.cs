@@ -47,7 +47,7 @@ namespace LibGit2Sharp
                 return Checkout(repository, branch, options);
             }
 
-            Commit commit = obj.DereferenceToCommit(true);
+            Commit commit = obj.Peel<Commit>(true);
             Checkout(repository, commit.Tree,  options, committishOrBranchSpec);
 
             return repository.Head;
