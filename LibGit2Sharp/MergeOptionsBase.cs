@@ -50,6 +50,11 @@
         /// How to handle conflicts encountered during a merge.
         /// </summary>
         public MergeFileFavor MergeFileFavor { get; set; }
+
+        /// <summary>
+        /// Ignore changes in amount of whitespace
+        /// </summary>
+        public bool IgnoreWhitespaceChange { get; set; }
     }
 
     /// <summary>
