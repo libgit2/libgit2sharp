@@ -59,7 +59,8 @@ namespace LibGit2Sharp
         {
             string sha = ReadContentFromResource(assembly, name) ?? "unknown";
 
-            return sha.Substring(0, 7);
+            var index = sha.Length > 7 ? 7 : sha.Length;
+            return sha.Substring(0, index);
         }
 
         /// <summary>
