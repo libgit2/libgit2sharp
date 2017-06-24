@@ -18,6 +18,9 @@
 
 ### Fixes
 
+ - The exception thrown when the native library cannot be loaded is now
+   able to be caught and will no longer crash the process.
+
 ## v0.24 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.23..v0.24))
 
 This is the last release before a moving to .NET Core compatible library.
