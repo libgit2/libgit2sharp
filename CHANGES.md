@@ -16,6 +16,10 @@
 
 ### Changes
 
+ - Status now does not show untracked files by default.  To retrieve
+   untracked files, included the `StatusOptions.IncludeUntracked` and/or
+   the `StatusOptions.RecurseUntrackedDirs` options.
+
 ### Fixes
 
  - The exception thrown when the native library cannot be loaded is now
