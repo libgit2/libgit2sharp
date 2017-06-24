@@ -117,7 +117,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <typeparam name="T">The kind of <see cref="GitObject"/> to peel to.</typeparam>
         /// <returns>The peeled object</returns>
-        public T Peel<T>() where T : GitObject
+        public virtual T Peel<T>() where T : GitObject
         {
             return Peel<T>(true);
         }
