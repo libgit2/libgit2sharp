@@ -101,6 +101,11 @@ namespace LibGit2Sharp
 
             using (var handle = Proxy.git_object_peel(repo.Handle, Id, kind, throwOnError))
             {
+                if (handle == null)
+                {
+                    return null;
+                }
+
                 return (T)BuildFrom(this.repo, Proxy.git_object_id(handle), kind, null);
             }
         }
