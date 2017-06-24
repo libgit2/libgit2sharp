@@ -19,6 +19,8 @@
  - Status now does not show untracked files by default.  To retrieve
    untracked files, included the `StatusOptions.IncludeUntracked` and/or
    the `StatusOptions.RecurseUntrackedDirs` options.
+ - Status now does not show the ignored files by default.  To retrieve
+   ignored files, include the `StatusOptions.IncludeIgnored` option.
 
 ### Fixes
 

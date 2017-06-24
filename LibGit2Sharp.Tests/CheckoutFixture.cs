@@ -625,7 +625,7 @@ namespace LibGit2Sharp.Tests
                     "bin/some_ignored_file.txt",
                     "hello from this ignored file.");
 
-                Assert.Equal(1, repo.RetrieveStatus().Ignored.Count());
+                Assert.Equal(1, repo.RetrieveStatus(new StatusOptions { IncludeIgnored = true }).Ignored.Count());
 
                 Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus(ignoredFilePath));
 
@@ -652,7 +652,7 @@ namespace LibGit2Sharp.Tests
                     "bin/some_ignored_file.txt",
                     "hello from this ignored file.");
 
-                Assert.Equal(1, repo.RetrieveStatus().Ignored.Count());
+                Assert.Equal(1, repo.RetrieveStatus(new StatusOptions { IncludeIgnored = true }).Ignored.Count());
 
                 Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus(ignoredFilePath));
 

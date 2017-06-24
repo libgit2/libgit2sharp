@@ -107,7 +107,7 @@ namespace LibGit2Sharp.Tests
                 var file = string.Format("deeply{0}nested{0}file.txt", pd);
                 Touch(repo.Info.WorkingDirectory, file, "Yeah!");
 
-                var repositoryStatus = repo.RetrieveStatus();
+                var repositoryStatus = repo.RetrieveStatus(new StatusOptions { IncludeIgnored = true });
                 Assert.True(repositoryStatus.IsDirty);
 
                 Assert.Equal(FileStatus.Ignored, repositoryStatus[ignoredFile].State);
