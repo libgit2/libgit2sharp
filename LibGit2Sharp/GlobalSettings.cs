@@ -329,5 +329,14 @@ namespace LibGit2Sharp
         {
             Proxy.git_libgit2_opts_enable_strict_hash_verification(enabled);
         }
+
+        /// <summary>
+        /// Enable or disable the libgit2 cache
+        /// </summary>
+        /// <param name="enabled">true to enable the cache, false otherwise</param>
+        public static void SetEnableCaching(bool enabled)
+        {
+            Proxy.git_libgit2_opts_set_enable_caching(enabled);
+        }
     }
 }
