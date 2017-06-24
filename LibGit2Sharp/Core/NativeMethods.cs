@@ -56,7 +56,7 @@ namespace LibGit2Sharp.Core
         }
 
         // Shutdown the native library in a finalizer.
-        private sealed class NativeShutdownObject : CriticalFinalizerObject
+        private sealed class NativeShutdownObject
         {
             ~NativeShutdownObject()
             {
