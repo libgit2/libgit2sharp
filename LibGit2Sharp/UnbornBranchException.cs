@@ -1,6 +1,8 @@
 using System;
 using System.Globalization;
+#if DESKTOP
 using System.Runtime.Serialization;
+#endif
 
 namespace LibGit2Sharp
 {
@@ -8,7 +10,9 @@ namespace LibGit2Sharp
     /// The exception that is thrown when a operation requiring an existing
     /// branch is performed against an unborn branch.
     /// </summary>
+#if DESKTOP
     [Serializable]
+#endif
     public class UnbornBranchException : LibGit2SharpException
     {
         /// <summary>
@@ -43,6 +47,7 @@ namespace LibGit2Sharp
             : base(message, innerException)
         { }
 
+#if DESKTOP
         /// <summary>
         /// Initializes a new instance of the <see cref="UnbornBranchException"/> class with a serialized data.
         /// </summary>
@@ -51,5 +56,6 @@ namespace LibGit2Sharp
         protected UnbornBranchException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
+#endif
     }
 }

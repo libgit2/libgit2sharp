@@ -330,7 +330,7 @@ namespace LibGit2Sharp
                                             "objectId");
             }
 
-            return objectId.All(c => hexDigits.Contains(c.ToString(CultureInfo.InvariantCulture)));
+            return objectId.All(c => hexDigits.IndexOf(c) >= 0);
         }
 
         /// <summary>

@@ -435,12 +435,12 @@ namespace LibGit2Sharp.Tests
         [InlineData(false, FileStatus.DeletedFromWorkdir, FileStatus.NewInWorkdir)]
         public void RetrievingTheStatusOfAFilePathHonorsTheIgnoreCaseConfigurationSetting(
             bool shouldIgnoreCase,
-            FileStatus expectedlowerCasedFileStatus,
-            FileStatus expectedCamelCasedFileStatus
+            FileStatus expectedLowercaseFileStatus,
+            FileStatus expectedUppercaseFileStatus
             )
         {
-            string lowerCasedPath;
-            const string lowercasedFilename = "plop";
+            string lowercasePath;
+            const string lowercaseFileName = "plop";
 
             string repoPath = InitNewRepository();
 
@@ -448,24 +448,28 @@ namespace LibGit2Sharp.Tests
             {
                 repo.Config.Set("core.ignorecase", shouldIgnoreCase);
 
-                lowerCasedPath = Touch(repo.Info.WorkingDirectory, lowercasedFilename);
+                lowercasePath = Touch(repo.Info.WorkingDirectory, lowercaseFileName);
 
-                Commands.Stage(repo, lowercasedFilename);
+                Commands.Stage(repo, lowercaseFileName);
                 repo.Commit("initial", Constants.Signature, Constants.Signature);
             }
 
             using (var repo = new Repository(repoPath))
             {
-                const string upercasedFilename = "Plop";
+                const string uppercaseFileName = "PLOP";
 
-                string camelCasedPath = Path.Combine(repo.Info.WorkingDirectory, upercasedFilename);
-                File.Move(lowerCasedPath, camelCasedPath);
+                string uppercasePath = Path.Combine(repo.Info.WorkingDirectory, uppercaseFileName);
 
-                Assert.Equal(expectedlowerCasedFileStatus, repo.RetrieveStatus(lowercasedFilename));
-                Assert.Equal(expectedCamelCasedFileStatus, repo.RetrieveStatus(upercasedFilename));
+                //Workaround for problem with .NET Core 1.x on macOS where going directly from lowercasePath to uppercasePath fails
+                //https://github.com/dotnet/corefx/issues/18521
+                File.Move(lowercasePath, "__tmp__");
+                File.Move("__tmp__", uppercasePath);
 
-                AssertStatus(shouldIgnoreCase, expectedlowerCasedFileStatus, repo, camelCasedPath.ToLowerInvariant());
-                AssertStatus(shouldIgnoreCase, expectedCamelCasedFileStatus, repo, camelCasedPath.ToUpperInvariant());
+                Assert.Equal(expectedLowercaseFileStatus, repo.RetrieveStatus(lowercaseFileName));
+                Assert.Equal(expectedUppercaseFileStatus, repo.RetrieveStatus(uppercaseFileName));
+
+                AssertStatus(shouldIgnoreCase, expectedLowercaseFileStatus, repo, uppercasePath.ToLowerInvariant());
+                AssertStatus(shouldIgnoreCase, expectedUppercaseFileStatus, repo, uppercasePath.ToUpperInvariant());
             }
         }
 

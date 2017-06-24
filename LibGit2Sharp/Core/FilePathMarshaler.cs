@@ -10,15 +10,13 @@ namespace LibGit2Sharp.Core
     /// free the native pointer after conversion, because the memory is owned by libgit2.
     ///
     /// Use this marshaler for return values, for example:
-    /// [return: MarshalAs(UnmanagedType.CustomMarshaler,
-    ///                    MarshalCookie = UniqueId.UniqueIdentifier,
-    ///                    MarshalTypeRef = typeof(LaxFilePathNoCleanupMarshaler))]
+    /// [return: CustomMarshaler(typeof(LaxFilePathNoCleanupMarshaler), typeof(FilePath))]
     /// </summary>
     internal class LaxFilePathNoCleanupMarshaler : LaxFilePathMarshaler
     {
         private static readonly LaxFilePathNoCleanupMarshaler staticInstance = new LaxFilePathNoCleanupMarshaler();
 
-        public new static ICustomMarshaler GetInstance(String cookie)
+        public new static ICustomMarshaler GetInstance()
         {
             return staticInstance;
         }
@@ -41,16 +39,15 @@ namespace LibGit2Sharp.Core
     ///
     /// Use this marshaler for function parameters, for example:
     /// [DllImport(libgit2)]
-    /// internal static extern int git_index_open(out IndexSafeHandle index,
-    ///     [MarshalAs(UnmanagedType.CustomMarshaler,
-    ///                MarshalCookie = UniqueId.UniqueIdentifier,
-    ///                MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath indexpath);
+    /// private static extern unsafe int git_index_remove_bypath(
+    ///     git_index* index,
+    ///     [CustomMarshaler(typeof(StrictFilePathMarshaler), typeof(FilePath))] byte* path);
     /// </summary>
     internal class StrictFilePathMarshaler : StrictUtf8Marshaler
     {
         private static readonly StrictFilePathMarshaler staticInstance = new StrictFilePathMarshaler();
 
-        public new static ICustomMarshaler GetInstance(String cookie)
+        public new static ICustomMarshaler GetInstance()
         {
             return staticInstance;
         }
@@ -70,7 +67,7 @@ namespace LibGit2Sharp.Core
             {
                 throw new MarshalDirectiveException(string.Format(CultureInfo.InvariantCulture,
                                                     "{0} must be used on a FilePath.",
-                                                    GetType().Name));
+                                                    this.GetType().Name));
             }
 
             return FromManaged(filePath);
@@ -98,7 +95,7 @@ namespace LibGit2Sharp.Core
     {
         private static readonly LaxFilePathMarshaler staticInstance = new LaxFilePathMarshaler();
 
-        public new static ICustomMarshaler GetInstance(String cookie)
+        public new static ICustomMarshaler GetInstance()
         {
             return staticInstance;
         }

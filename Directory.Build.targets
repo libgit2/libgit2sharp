@@ -1,0 +1,5 @@
+<Project>
+  <PropertyGroup>
+    <PublicSign Condition=" '$(AssemblyOriginatorKeyFile)' != '' and '$(OS)' != 'Windows_NT' ">true</PublicSign>
+  </PropertyGroup>
+</Project>

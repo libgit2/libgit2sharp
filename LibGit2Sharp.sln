@@ -1,16 +1,24 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26407.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp", "LibGit2Sharp\LibGit2Sharp.csproj", "{EE6ED99F-CB12-4683-B055-D28FC7357A34}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp.Tests", "LibGit2Sharp.Tests\LibGit2Sharp.Tests.csproj", "{286E63EB-04DD-4ADE-88D6-041B57800761}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{19D079A4-A273-4630-B2D2-79EADE3E7CA1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeGenerationAttributes", "CodeGenerationAttributes\CodeGenerationAttributes.csproj", "{E1A8B99F-B2F6-4A38-9DF6-8792056D70FF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0CA739FD-DA4D-4F64-9834-DA14A3ECD04B}"
 	ProjectSection(SolutionItems) = preProject
-		.nuget\packages.config = .nuget\packages.config
+		.gitignore = .gitignore
+		nuget.config = nuget.config
+		version.json = version.json
 	EndProjectSection
 EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -24,33 +32,12 @@ Global
 		{286E63EB-04DD-4ADE-88D6-041B57800761}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{286E63EB-04DD-4ADE-88D6-041B57800761}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{286E63EB-04DD-4ADE-88D6-041B57800761}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1A8B99F-B2F6-4A38-9DF6-8792056D70FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1A8B99F-B2F6-4A38-9DF6-8792056D70FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1A8B99F-B2F6-4A38-9DF6-8792056D70FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1A8B99F-B2F6-4A38-9DF6-8792056D70FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(MonoDevelopProperties) = preSolution
-		Policies = $0
-		$0.TextStylePolicy = $1
-		$1.inheritsSet = null
-		$1.scope = text/x-csharp
-		$0.CSharpFormattingPolicy = $2
-		$2.IndentSwitchBody = True
-		$2.BeforeMethodCallParentheses = False
-		$2.BeforeMethodDeclarationParentheses = False
-		$2.BeforeConstructorDeclarationParentheses = False
-		$2.BeforeDelegateDeclarationParentheses = False
-		$2.NewParentheses = False
-		$2.inheritsSet = Mono
-		$2.inheritsScope = text/x-csharp
-		$2.scope = text/x-csharp
-		$0.StandardHeader = $3
-		$3.Text = 
-		$3.inheritsSet = Apache2License
-		$0.TextStylePolicy = $4
-		$4.FileWidth = 120
-		$4.RemoveTrailingWhitespace = True
-		$4.inheritsSet = VisualStudio
-		$4.inheritsScope = text/plain
-		$4.scope = text/plain
 	EndGlobalSection
 EndGlobal

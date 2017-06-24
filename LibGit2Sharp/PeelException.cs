@@ -1,5 +1,7 @@
 using System;
+#if DESKTOP
 using System.Runtime.Serialization;
+#endif
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -8,7 +10,9 @@ namespace LibGit2Sharp
     /// The exception that is thrown when a tag cannot be peeled to the
     /// target type due to the object model.
     /// </summary>
+#if DESKTOP
     [Serializable]
+#endif
     public class PeelException : LibGit2SharpException
     {
         /// <summary>
@@ -43,6 +47,7 @@ namespace LibGit2Sharp
             : base(message, innerException)
         { }
 
+#if DESKTOP
         /// <summary>
         /// Initializes a new instance of the <see cref="PeelException"/> class with a serialized data.
         /// </summary>
@@ -51,6 +56,7 @@ namespace LibGit2Sharp
         protected PeelException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
+#endif
 
         internal PeelException(string message, GitErrorCode code, GitErrorCategory category)
             : base(message, code, category)

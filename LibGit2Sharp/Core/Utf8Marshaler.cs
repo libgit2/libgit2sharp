@@ -11,15 +11,13 @@ namespace LibGit2Sharp.Core
     /// free the native pointer after conversion, because the memory is owned by libgit2.
     ///
     /// Use this marshaler for return values, for example:
-    /// [return: MarshalAs(UnmanagedType.CustomMarshaler,
-    ///                    MarshalCookie = UniqueId.UniqueIdentifier,
-    ///                    MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]
+    /// [return: CustomMarshaler(typeof(LaxUtf8NoCleanupMarshaler), typeof(string))]
     /// </summary>
     internal class LaxUtf8NoCleanupMarshaler : LaxUtf8Marshaler
     {
         private static readonly LaxUtf8NoCleanupMarshaler staticInstance = new LaxUtf8NoCleanupMarshaler();
 
-        public new static ICustomMarshaler GetInstance(String cookie)
+        public new static ICustomMarshaler GetInstance()
         {
             return staticInstance;
         }
@@ -41,10 +39,9 @@ namespace LibGit2Sharp.Core
     ///
     /// Use this marshaler for function parameters, for example:
     /// [DllImport(libgit2)]
-    /// internal static extern int git_tag_delete(RepositorySafeHandle repo,
-    ///     [MarshalAs(UnmanagedType.CustomMarshaler,
-    ///                MarshalCookie = UniqueId.UniqueIdentifier,
-    ///                MarshalTypeRef = typeof(StrictUtf8Marshaler))] String tagName);
+    /// private static extern unsafe int git_tag_delete(
+    ///     git_repository* repo,
+    ///     [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* tagName);
     /// </summary>
     internal class StrictUtf8Marshaler : EncodingMarshaler
     {
@@ -60,7 +57,7 @@ namespace LibGit2Sharp.Core
         public StrictUtf8Marshaler() : base(encoding)
         { }
 
-        public static ICustomMarshaler GetInstance(String cookie)
+        public static ICustomMarshaler GetInstance()
         {
             return staticInstance;
         }
@@ -96,7 +93,7 @@ namespace LibGit2Sharp.Core
         public LaxUtf8Marshaler() : base(Encoding)
         { }
 
-        public static ICustomMarshaler GetInstance(String cookie)
+        public static ICustomMarshaler GetInstance()
         {
             return staticInstance;
         }

@@ -2,31 +2,25 @@
 # see travis-ci.org for details
 
 language: csharp
-mono:
- - 4.8.0
+dist: trusty
+dotnet: 1.0.1
+mono: none
 
 os:
  - osx
  - linux
-
-env:
- global:
-  - MONO_OPTIONS=--debug
-
-install:
-  - curl -L -o nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
-  - mono nuget.exe restore LibGit2Sharp.sln
 
 before_install:
  - date -u
  - uname -a
  - env | sort
 
-solution: LibGit2Sharp.sln
+install:
+ - git fetch --unshallow
 
 # Build libgit2, LibGit2Sharp and run the tests
 script:
- - ./build.libgit2sharp.sh 'LEAKS_IDENTIFYING'
+ - ./buildandtest.sh 'LEAKS_IDENTIFYING'
 
 # Only watch the development branch
 branches:

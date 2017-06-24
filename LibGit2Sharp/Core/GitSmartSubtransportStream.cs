@@ -8,7 +8,7 @@ namespace LibGit2Sharp.Core
     {
         static GitSmartSubtransportStream()
         {
-            GCHandleOffset = Marshal.OffsetOf(typeof(GitSmartSubtransportStream), "GCHandle").ToInt32();
+            GCHandleOffset = Marshal.OffsetOf(typeof(GitSmartSubtransportStream), nameof(GCHandle)).ToInt32();
         }
 
         public IntPtr SmartTransport;

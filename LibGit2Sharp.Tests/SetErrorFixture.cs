@@ -49,7 +49,11 @@ namespace LibGit2Sharp.Tests
             Exception exceptionToThrow = new AggregateException(aggregateExceptionMessage, new Exception(innerExceptionMessage), new Exception(innerExceptionMessage2));
 
             StringBuilder sb = new StringBuilder();
+#if DESKTOP
             sb.AppendLine(aggregateExceptionMessage);
+#else
+            sb.AppendLine($"{aggregateExceptionMessage} ({innerExceptionMessage}) ({innerExceptionMessage2})");
+#endif
             sb.AppendLine();
 
             AppendIndentedLine(sb, expectedAggregateExceptionsHeaderText, 0);
@@ -104,7 +108,7 @@ namespace LibGit2Sharp.Tests
             return new string(' ', level * 4);
         }
 
-        #region ThrowingOdbBackend
+#region ThrowingOdbBackend
 
         private class ThrowingOdbBackend : OdbBackend
         {
@@ -176,7 +180,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        #endregion
+#endregion
 
     }
 }

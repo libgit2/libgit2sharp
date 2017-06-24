@@ -1,5 +1,7 @@
 using System;
+#if DESKTOP
 using System.Runtime.Serialization;
+#endif
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -10,7 +12,9 @@ namespace LibGit2Sharp
     /// if the spec refers to an object of an incorrect type (e.g. asking to
     /// create a branch from a blob, or peeling a blob to a commit).
     /// </summary>
+#if DESKTOP
     [Serializable]
+#endif
     public class InvalidSpecificationException : LibGit2SharpException
     {
         /// <summary>
@@ -45,6 +49,7 @@ namespace LibGit2Sharp
             : base(message, innerException)
         { }
 
+#if DESKTOP
         /// <summary>
         /// Initializes a new instance of the <see cref="InvalidSpecificationException"/> class with a serialized data.
         /// </summary>
@@ -53,6 +58,7 @@ namespace LibGit2Sharp
         protected InvalidSpecificationException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
+#endif
 
         internal InvalidSpecificationException(string message, GitErrorCode code, GitErrorCategory category)
             : base(message, code, category)

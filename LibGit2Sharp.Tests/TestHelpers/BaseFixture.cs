@@ -59,9 +59,9 @@ namespace LibGit2Sharp.Tests.TestHelpers
         {
             IsFileSystemCaseSensitive = IsFileSystemCaseSensitiveInternal();
 
-            string initialAssemblyParentFolder = Directory.GetParent(new Uri(typeof(BaseFixture).Assembly.EscapedCodeBase).LocalPath).FullName;
+            string initialAssemblyParentFolder = Directory.GetParent(new Uri(typeof(BaseFixture).GetTypeInfo().Assembly.CodeBase).LocalPath).FullName;
 
-            const string sourceRelativePath = @"../../Resources";
+            const string sourceRelativePath = @"../../../../LibGit2Sharp.Tests/Resources";
             ResourcesDirectory = new DirectoryInfo(Path.Combine(initialAssemblyParentFolder, sourceRelativePath));
 
             // Setup standard paths to our test repositories
@@ -383,9 +383,18 @@ namespace LibGit2Sharp.Tests.TestHelpers
             string dir = Path.GetDirectoryName(filePath);
             Debug.Assert(dir != null);
 
+            var newFile = !File.Exists(filePath);
+
             Directory.CreateDirectory(dir);
 
             File.WriteAllText(filePath, content ?? string.Empty, encoding ?? Encoding.ASCII);
+
+            //Workaround for .NET Core 1.x behavior where all newly created files have execute permissions set.
+            //https://github.com/dotnet/corefx/issues/13342
+            if (Constants.IsRunningOnUnix && newFile)
+            {
+                RemoveExecutePermissions(filePath, newFile);
+            }
 
             return filePath;
         }
@@ -398,6 +407,8 @@ namespace LibGit2Sharp.Tests.TestHelpers
             string dir = Path.GetDirectoryName(filePath);
             Debug.Assert(dir != null);
 
+            var newFile = !File.Exists(filePath);
+
             Directory.CreateDirectory(dir);
 
             using (var fs = File.Open(filePath, FileMode.Create))
@@ -406,7 +417,20 @@ namespace LibGit2Sharp.Tests.TestHelpers
                 fs.Flush();
             }
 
+            //Work around .NET Core 1.x behavior where all newly created files have execute permissions set.
+            //https://github.com/dotnet/corefx/issues/13342
+            if (Constants.IsRunningOnUnix && newFile)
+            {
+                RemoveExecutePermissions(filePath, newFile);
+            }
+
             return filePath;
+        }
+
+        private static void RemoveExecutePermissions(string filePath, bool newFile)
+        {
+            var process = Process.Start("chmod", $"644 {filePath}");
+            process.WaitForExit();
         }
 
         protected string Expected(string filename)

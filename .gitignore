@@ -36,10 +36,5 @@ _ReSharper*/
 *.userprefs
 *.swp
 *.DotSettings
-#Ignore custom generated files
-LibGit2Sharp/Core/UniqueIdentifier.cs
-LibGit2Sharp/Core/NativeDllName.cs
 
-!nuget.package/build/
 _NCrunch_LibGit2Sharp/
-packages/

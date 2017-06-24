@@ -1,4 +1,7 @@
 ﻿using System;
+#if DESKTOP
+using System.Runtime.Serialization;
+#endif
 
 namespace LibGit2Sharp
 {
@@ -7,7 +10,9 @@ namespace LibGit2Sharp
     /// through submodules. The inner exception contains the exception that was
     /// initially thrown while operating on the submodule.
     /// </summary>
+#if DESKTOP
     [Serializable]
+#endif
     public class RecurseSubmodulesException : LibGit2SharpException
     {
         /// <summary>
@@ -32,5 +37,16 @@ namespace LibGit2Sharp
         {
             InitialRepositoryPath = initialRepositoryPath;
         }
+
+#if DESKTOP
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LibGit2Sharp.RecurseSubmodulesException"/> class with a serialized data.
+        /// </summary>
+        /// <param name="info">The <see cref="SerializationInfo"/> that holds the serialized object data about the exception being thrown.</param>
+        /// <param name="context">The <see cref="StreamingContext"/> that contains contextual information about the source or destination.</param>
+        protected RecurseSubmodulesException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        { }
+#endif
     }
 }

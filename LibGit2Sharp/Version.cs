@@ -11,7 +11,7 @@ namespace LibGit2Sharp
     /// </summary>
     public class Version
     {
-        private readonly Assembly assembly = typeof(Repository).Assembly;
+        private readonly Assembly assembly = typeof(Repository).GetTypeInfo().Assembly;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -27,17 +27,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Returns version of the LibGit2Sharp library.
         /// </summary>
-        public virtual string InformationalVersion
-        {
-            get
-            {
-                var attribute = (AssemblyInformationalVersionAttribute)assembly
-                   .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
-                   .Single();
-
-                return attribute.InformationalVersion;
-            }
-        }
+        public virtual string InformationalVersion => ThisAssembly.AssemblyInformationalVersion;
 
         /// <summary>
         /// Returns all the optional features that were compiled into
@@ -90,10 +80,8 @@ namespace LibGit2Sharp
             string features = Features.ToString();
 
             return string.Format(CultureInfo.InvariantCulture,
-                                 "{0}-{1}-{2} ({3} - {4})",
+                                 "{0} ({1} - {2})",
                                  InformationalVersion,
-                                 LibGit2SharpCommitSha,
-                                 LibGit2CommitSha,
                                  Platform.ProcessorArchitecture,
                                  features);
         }

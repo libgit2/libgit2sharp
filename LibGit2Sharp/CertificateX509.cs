@@ -39,7 +39,7 @@ namespace LibGit2Sharp
             {
                 cert_type = GitCertificateType.X509,
                 data = (byte*) dataPtr.ToPointer(),
-                len = (UIntPtr)certData.LongLength,
+                len = (UIntPtr)certData.Length,
             };
 
             var ptr = Marshal.AllocHGlobal(Marshal.SizeOf(gitCert));

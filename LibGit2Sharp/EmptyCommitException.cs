@@ -1,5 +1,7 @@
 ﻿using System;
+#if DESKTOP
 using System.Runtime.Serialization;
+#endif
 
 namespace LibGit2Sharp
 {
@@ -7,7 +9,9 @@ namespace LibGit2Sharp
     /// The exception that is thrown when a commit would create an "empty"
     /// commit that is treesame to its parent without an explicit override.
     /// </summary>
+#if DESKTOP
     [Serializable]
+#endif
     public class EmptyCommitException : LibGit2SharpException
     {
         /// <summary>
@@ -42,6 +46,7 @@ namespace LibGit2Sharp
             : base(message, innerException)
         { }
 
+#if DESKTOP
         /// <summary>
         /// Initializes a new instance of the <see cref="EmptyCommitException"/> class with a serialized data.
         /// </summary>
@@ -50,5 +55,6 @@ namespace LibGit2Sharp
         protected EmptyCommitException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
+#endif
     }
 }

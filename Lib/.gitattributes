@@ -1,3 +1,0 @@
-* binary
-.gitattributes text -binary
-*.txt text -binary
