@@ -151,7 +151,7 @@ namespace LibGit2Sharp.Tests
                 var commit2 = MakeAndCommitChange(repo, repoPath, path1, "Hello World again");
 
                 // Move the first file to a new directory.
-                var newPath1 = Path.Combine(SubFolderPath1, path1);
+                var newPath1 = Path.Combine(SubFolderPath1, path1).Replace(@"\", "/");
                 Commands.Move(repo, path1, newPath1);
                 var commit3 = repo.Commit("Moved " + path1 + " to " + newPath1,
                     Constants.Signature, Constants.Signature);

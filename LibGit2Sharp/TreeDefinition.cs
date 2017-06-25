@@ -126,11 +126,6 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(targetTreeEntryPath, "targetTreeEntryPath");
             Ensure.ArgumentNotNull(treeEntryDefinition, "treeEntryDefinition");
 
-            if (Path.IsPathRooted(targetTreeEntryPath))
-            {
-                throw new ArgumentException("The provided path is an absolute path.");
-            }
-
             if (treeEntryDefinition is TransientTreeTreeEntryDefinition)
             {
                 throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
@@ -383,9 +378,9 @@ namespace LibGit2Sharp
             }
         }
 
-        private static Tuple<string, string> ExtractPosixLeadingSegment(FilePath targetPath)
+        private static Tuple<string, string> ExtractPosixLeadingSegment(string targetPath)
         {
-            string[] segments = targetPath.Posix.Split(new[] { '/' }, 2);
+            string[] segments = targetPath.Split(new[] { '/' }, 2);
 
             if (segments[0] == string.Empty || (segments.Length == 2 && (segments[1] == string.Empty || segments[1].StartsWith("/", StringComparison.Ordinal))))
             {
