@@ -86,7 +86,7 @@ namespace LibGit2Sharp.Core
         private static extern unsafe int git_blame_file(
             out git_blame* blame,
             git_repository* repo,
-            [CustomMarshaler(typeof(StrictFilePathMarshaler), typeof(FilePath))] byte* path,
+            [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* path,
             git_blame_options options);
 
         [DllImport(libgit2)]
@@ -108,7 +108,7 @@ namespace LibGit2Sharp.Core
         private static extern unsafe int git_blob_create_fromstream(
             out IntPtr stream,
             git_repository* repositoryPtr,
-            [CustomMarshaler(typeof(StrictFilePathMarshaler), typeof(FilePath))] byte* hintpath);
+            [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* hintpath);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_blob_create_fromstream_commit(
@@ -119,7 +119,7 @@ namespace LibGit2Sharp.Core
         private static extern unsafe int git_blob_filtered_content(
             GitBuf buf,
             git_object* blob,
-            [CustomMarshaler(typeof(StrictFilePathMarshaler), typeof(FilePath))] byte* as_path,
+            [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* as_path,
             [MarshalAs(UnmanagedType.Bool)] bool check_for_binary_data);
 
         [DllImport(libgit2)]
@@ -556,9 +556,9 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         private static extern unsafe int git_diff_blobs(
             git_object* oldBlob,
-            [CustomMarshaler(typeof(StrictFilePathMarshaler), typeof(FilePath))] byte* old_as_path,
+            [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* old_as_path,
             git_object* newBlob,
-            [CustomMarshaler(typeof(StrictFilePathMarshaler), typeof(FilePath))] byte* new_as_path,
+            [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* new_as_path,
             GitDiffOptions options,
             git_diff_file_cb fileCallback,
             git_diff_binary_cb binaryCallback,
@@ -644,7 +644,7 @@ namespace LibGit2Sharp.Core
         private static extern unsafe int git_ignore_path_is_ignored(
             out int ignored,
             git_repository* repo,
-            [CustomMarshaler(typeof(StrictFilePathMarshaler), typeof(FilePath))] byte* path);
+            [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* path);
 
         [DllImport(libgit2)]
         private static extern unsafe int git_index_add_bypath(
@@ -662,7 +662,7 @@ namespace LibGit2Sharp.Core
             out git_index_entry* ours,
             out git_index_entry* theirs,
             git_index* index,
-            [CustomMarshaler(typeof(StrictFilePathMarshaler), typeof(FilePath))] byte* path);
+            [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* path);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_index_conflict_iterator_new(
@@ -695,7 +695,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         private static extern unsafe git_index_entry* git_index_get_bypath(
             git_index* index,
-            [CustomMarshaler(typeof(StrictFilePathMarshaler), typeof(FilePath))] byte* path,
+            [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* path,
             int stage);
 
         [DllImport(libgit2)]
@@ -720,7 +720,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         private static extern unsafe int git_index_remove_bypath(
             git_index* index,
-            [CustomMarshaler(typeof(StrictFilePathMarshaler), typeof(FilePath))] byte* path);
+            [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* path);
 
 
         [DllImport(libgit2)]
@@ -732,7 +732,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         private static extern unsafe git_index_reuc_entry* git_index_reuc_get_bypath(
             git_index* handle,
-            [CustomMarshaler(typeof(StrictFilePathMarshaler), typeof(FilePath))] byte* path);
+            [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* path);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_index_write(git_index* index);
@@ -1605,7 +1605,7 @@ namespace LibGit2Sharp.Core
         private static extern unsafe int git_submodule_lookup(
             out git_submodule* reference,
             git_repository* repo,
-            [CustomMarshaler(typeof(StrictFilePathMarshaler), typeof(FilePath))] byte* name);
+            [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* name);
 
         [DllImport(libgit2)]
         private static extern unsafe int git_submodule_resolve_url(
@@ -1803,7 +1803,7 @@ namespace LibGit2Sharp.Core
         private static extern unsafe int git_tree_entry_bypath(
             out git_tree_entry* tree,
             git_object* root,
-            [CustomMarshaler(typeof(StrictFilePathMarshaler), typeof(FilePath))] byte* treeentry_path);
+            [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* treeentry_path);
 
         [DllImport(libgit2)]
         internal static extern unsafe void git_tree_entry_free(git_tree_entry* treeEntry);

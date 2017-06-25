@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Globalization;
-using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -28,7 +27,7 @@ namespace LibGit2Sharp
         protected TreeEntry()
         { }
 
-        internal unsafe TreeEntry(TreeEntryHandle entry, ObjectId parentTreeId, Repository repo, FilePath parentPath)
+        internal unsafe TreeEntry(TreeEntryHandle entry, ObjectId parentTreeId, Repository repo, string parentPath)
         {
             this.parentTreeId = parentTreeId;
             this.repo = repo;
@@ -41,7 +40,7 @@ namespace LibGit2Sharp
 
             Mode = Proxy.git_tree_entry_attributes(entry);
             Name = Proxy.git_tree_entry_name(entry);
-            path = new Lazy<string>(() => System.IO.Path.Combine(parentPath.Native, Name));
+            path = new Lazy<string>(() => Tree.CombinePath(parentPath, Name));
         }
 
         /// <summary>
