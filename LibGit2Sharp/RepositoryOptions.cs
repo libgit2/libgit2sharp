@@ -29,39 +29,6 @@ namespace LibGit2Sharp
         public string IndexPath { get; set; }
 
         /// <summary>
-        /// Overrides the probed location of the Global configuration file of a repository.
-        /// <para>
-        ///   The path has either to lead to an existing valid configuration file,
-        ///   or to a non existent configuration file which will be eventually created.
-        /// </para>
-        /// <seealso cref="GlobalSettings.SetConfigSearchPaths"/>.
-        /// </summary>
-        [Obsolete("This option is deprecated. Use GlobalConfiguration.SetConfigSearchPaths()")]
-        public string GlobalConfigurationLocation { get; set; }
-
-        /// <summary>
-        /// Overrides the probed location of the XDG configuration file of a repository.
-        /// <para>
-        ///   The path has either to lead to an existing valid configuration file,
-        ///   or to a non existent configuration file which will be eventually created.
-        /// </para>
-        /// <seealso cref="GlobalSettings.SetConfigSearchPaths"/>.
-        /// </summary>
-        [Obsolete("This option is deprecated. Use GlobalConfiguration.SetConfigSearchPaths()")]
-        public string XdgConfigurationLocation { get; set; }
-
-        /// <summary>
-        /// Overrides the probed location of the System configuration file of a repository.
-        /// <para>
-        ///   The path has to lead to an existing valid configuration file,
-        ///   or to a non existent configuration file which will be eventually created.
-        /// </para>
-        /// <seealso cref="GlobalSettings.SetConfigSearchPaths"/>.
-        /// </summary>
-        [Obsolete("This option is deprecated. Use GlobalConfiguration.SetConfigSearchPaths()")]
-        public string SystemConfigurationLocation { get; set; }
-
-        /// <summary>
         /// Overrides the default identity to be used when creating reflog entries.
         /// <para>
         ///   When unset the identity will be retreived from the repository's configuration.
