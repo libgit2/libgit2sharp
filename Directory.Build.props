@@ -3,7 +3,7 @@
     <OutputPath>$(MSBuildThisFileDirectory)bin\$(MSBuildProjectName)\$(Configuration)\</OutputPath>
     <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
 
-    <CodeGenerationRoslynVersion>0.4.6</CodeGenerationRoslynVersion>
+    <CodeGenerationRoslynVersion>0.4.9</CodeGenerationRoslynVersion>
   </PropertyGroup>
 
   <ItemGroup>
