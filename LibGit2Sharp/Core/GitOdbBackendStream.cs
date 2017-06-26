@@ -15,7 +15,7 @@ namespace LibGit2Sharp.Core
     {
         static GitOdbBackendStream()
         {
-            GCHandleOffset = Marshal.OffsetOf(typeof(GitOdbBackendStream), nameof(GCHandle)).ToInt32();
+            GCHandleOffset = MarshalPortable.OffsetOf<GitOdbBackendStream>(nameof(GCHandle)).ToInt32();
         }
 
         public IntPtr Backend;
