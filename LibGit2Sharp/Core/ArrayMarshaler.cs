@@ -13,7 +13,7 @@ namespace LibGit2Sharp.Core
 
             for (var i = 0; i < objs.Length; i++)
             {
-                IntPtr ptr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(T)));
+                IntPtr ptr = Marshal.AllocHGlobal(MarshalPortable.SizeOf<T>());
                 ptrs[i] = ptr;
                 Marshal.StructureToPtr(objs[i], ptr, false);
             }
