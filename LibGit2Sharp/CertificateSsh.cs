@@ -35,10 +35,6 @@ namespace LibGit2Sharp
         /// </summary>
         public readonly bool HasSHA1;
 
-        /// <summary>
-        /// True if we have the SHA1 hostkey hash from the server
-        /// </summary>public readonly bool HasSHA1;
-
         internal unsafe CertificateSsh(git_certificate_ssh* cert)
         {
 
@@ -46,21 +42,15 @@ namespace LibGit2Sharp
             HasSHA1 = cert->type.HasFlag(GitCertificateSshType.SHA1);
 
             HashMD5 = new byte[16];
-            fixed (byte* p = &HashMD5[0])
+            for (var i = 0; i < HashMD5.Length; i++)
             {
-                for (var i = 0; i < HashMD5.Length; i++)
-                {
-                    HashMD5[i] = p[i];
-                }
+                HashMD5[i] = cert->HashMD5[i];
             }
 
             HashSHA1 = new byte[20];
-            fixed (byte* p = &HashSHA1[0])
+            for (var i = 0; i < HashSHA1.Length; i++)
             {
-                for (var i = 0; i < HashSHA1.Length; i++)
-                {
-                    HashSHA1[i] = p[i];
-                }
+                HashSHA1[i] = cert->HashSHA1[i];
             }
         }
 

@@ -14,7 +14,7 @@ namespace LibGit2Sharp.Core
         public unsafe fixed byte HashMD5[16];
 
         /// <summary>
-        /// The MD5 hash (if appropriate)
+        /// The SHA1 hash (if appropriate)
         /// </summary>
         public unsafe fixed byte HashSHA1[20];
     }
