@@ -30,8 +30,10 @@ namespace CodeGeneration
         {
         }
 
-        public Task<SyntaxList<MemberDeclarationSyntax>> GenerateAsync(MemberDeclarationSyntax applyTo, CSharpCompilation compilation, IProgress<Diagnostic> progress, CancellationToken cancellationToken)
+        public Task<SyntaxList<MemberDeclarationSyntax>> GenerateAsync(TransformationContext context, IProgress<Diagnostic> progress, CancellationToken cancellationToken)
         {
+            MemberDeclarationSyntax applyTo = context.ProcessingMember;
+            Compilation compilation = context.Compilation;
             Func<ParameterSyntax, AttributeListSyntax, MarshaledParameter> findMarshalAttribute = (p, al) =>
             {
                 var marshalAttribute = al.Attributes.FirstOrDefault(a => (a.Name as SimpleNameSyntax)?.Identifier.ValueText == "CustomMarshaler");
