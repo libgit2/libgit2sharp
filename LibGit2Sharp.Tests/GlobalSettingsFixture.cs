@@ -30,7 +30,7 @@ namespace LibGit2Sharp.Tests
             //      git2hash: '06d772d' LibGit2 library hash.
             //      arch: 'x86' or 'x64' LibGit2 target.
             //      git2Features: 'Threads, Ssh' LibGit2 features compiled with.
-            string regex = @"^(?<version>\d+\.\d+\.\d+(-\w+)?\+(g(?<git2SharpHash>[a-f0-9]{10})\.)?LibGit2-[a-f0-9]{7}) \((?<arch>\w+) - (?<git2Features>(?:\w*(?:, )*\w+)*)\)$";
+            string regex = @"^(?<version>\d+\.\d+\.\d+(-[\w\-\.]+)?\+(g(?<git2SharpHash>[a-f0-9]{10})\.)?LibGit2-[a-f0-9]{7}) \((?<arch>\w+) - (?<git2Features>(?:\w*(?:, )*\w+)*)\)$";
 
             Assert.NotNull(versionInfo);
 
