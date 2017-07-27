@@ -78,7 +78,7 @@ namespace LibGit2Sharp.Tests
                     },
                 };
 
-                RebaseResult rebaseResult = repo.Rebase.Start(branch, upstream, onto, Constants.Identity, options);
+                RebaseResult rebaseResult = Commands.Rebase.Start(repo, branch, upstream, onto, Constants.Identity, options);
 
                 // Validation:
                 Assert.True(afterRebaseStepCountCorrect, "Unexpected CompletedStepIndex value in RebaseStepCompleted");
@@ -130,7 +130,7 @@ namespace LibGit2Sharp.Tests
                 Commands.Checkout(repo, topicBranch2Name);
                 Branch b = repo.Branches[topicBranch2Name];
 
-                RebaseResult result = repo.Rebase.Start(b, b, null, Constants.Identity, new RebaseOptions());
+                RebaseResult result = Commands.Rebase.Start(repo, b, b, null, Constants.Identity, new RebaseOptions());
                 Assert.Equal(0, result.TotalStepCount);
                 Assert.Equal(RebaseStatus.Complete, result.Status);
                 Assert.Equal(0, result.CompletedStepCount);
@@ -251,7 +251,7 @@ namespace LibGit2Sharp.Tests
 
                 };
 
-                repo.Rebase.Start(null, upstreamBranch, null, Constants.Identity2, options);
+                Commands.Rebase.Start(repo, null, upstreamBranch, null, Constants.Identity2, options);
 
                 Assert.Equal(true, wasCheckoutNotifyCalledForResetingHead);
                 Assert.Equal(true, wasCheckoutProgressCalledForResetingHead);
@@ -317,7 +317,7 @@ namespace LibGit2Sharp.Tests
                     CheckoutNotifyFlags = CheckoutNotifyFlags.Updated,
                 };
 
-                RebaseResult rebaseResult = repo.Rebase.Start(branch, upstream, onto, Constants.Identity, options);
+                RebaseResult rebaseResult = Commands.Rebase.Start(repo, branch, upstream, onto, Constants.Identity, options);
 
                 // Verify that we have a conflict.
                 Assert.Equal(CurrentOperation.RebaseMerge, repo.Info.CurrentOperation);
@@ -345,7 +345,7 @@ namespace LibGit2Sharp.Tests
 
                 // Clear the flags:
                 wasCheckoutProgressCalled = false; wasCheckoutNotifyCalled = false;
-                RebaseResult continuedRebaseResult = repo.Rebase.Continue(Constants.Identity, options);
+                RebaseResult continuedRebaseResult = Commands.Rebase.Continue(repo, Constants.Identity, options);
 
                 Assert.NotNull(continuedRebaseResult);
                 Assert.Equal(RebaseStatus.Complete, continuedRebaseResult.Status);
@@ -377,7 +377,7 @@ namespace LibGit2Sharp.Tests
                 Branch upstream = repo.Branches[conflictBranch1Name];
                 Branch onto = repo.Branches[conflictBranch1Name];
 
-                RebaseResult rebaseResult = repo.Rebase.Start(branch, upstream, onto, Constants.Identity, null);
+                RebaseResult rebaseResult = Commands.Rebase.Start(repo, branch, upstream, onto, Constants.Identity, null);
 
                 // Verify that we have a conflict.
                 Assert.Equal(CurrentOperation.RebaseMerge, repo.Info.CurrentOperation);
@@ -388,7 +388,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(3, rebaseResult.TotalStepCount);
 
                 Assert.Throws<UnmergedIndexEntriesException>(() =>
-                    repo.Rebase.Continue(Constants.Identity, null));
+                    Commands.Rebase.Continue(repo, Constants.Identity, null));
 
                 // Resolve the conflict
                 foreach (Conflict conflict in repo.Index.Conflicts)
@@ -404,7 +404,7 @@ namespace LibGit2Sharp.Tests
                     "Unstaged content");
 
                 Assert.Throws<UnmergedIndexEntriesException>(() =>
-                    repo.Rebase.Continue(Constants.Identity, null));
+                    Commands.Rebase.Continue(repo, Constants.Identity, null));
 
                 Assert.True(repo.Index.IsFullyMerged);
             }
@@ -431,7 +431,7 @@ namespace LibGit2Sharp.Tests
                     FileConflictStrategy = CheckoutFileConflictStrategy.Ours,
                 };
 
-                RebaseResult rebaseResult = repo.Rebase.Start(branch, upstream, onto, Constants.Identity, options);
+                RebaseResult rebaseResult = Commands.Rebase.Start(repo, branch, upstream, onto, Constants.Identity, options);
 
                 // Verify that we have a conflict.
                 Assert.Equal(CurrentOperation.RebaseMerge, repo.Info.CurrentOperation);
@@ -473,7 +473,7 @@ namespace LibGit2Sharp.Tests
                 Branch upstream = repo.Branches[conflictBranch1Name];
                 Branch onto = repo.Branches[conflictBranch1Name];
 
-                RebaseResult rebaseResult = repo.Rebase.Start(branch, upstream, onto, Constants.Identity, null);
+                RebaseResult rebaseResult = Commands.Rebase.Start(repo, branch, upstream, onto, Constants.Identity, null);
 
                 // Verify that we have a conflict.
                 Assert.Equal(RebaseStatus.Conflicts, rebaseResult.Status);
@@ -482,10 +482,10 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(0, rebaseResult.CompletedStepCount);
                 Assert.Equal(3, rebaseResult.TotalStepCount);
 
-                RebaseStepInfo info = repo.Rebase.GetCurrentStepInfo();
+                RebaseStepInfo info = Commands.Rebase.GetCurrentStepInfo(repo);
 
-                Assert.Equal(0, repo.Rebase.GetCurrentStepIndex());
-                Assert.Equal(3, repo.Rebase.GetTotalStepCount());
+                Assert.Equal(0, Commands.Rebase.GetCurrentStepIndex(repo));
+                Assert.Equal(3, Commands.Rebase.GetTotalStepCount(repo));
                 Assert.Equal(RebaseStepOperation.Pick, info.Type);
             }
         }
@@ -506,7 +506,7 @@ namespace LibGit2Sharp.Tests
                 Branch upstream = repo.Branches[conflictBranch1Name];
                 Branch onto = repo.Branches[conflictBranch1Name];
 
-                RebaseResult rebaseResult = repo.Rebase.Start(branch, upstream, onto, Constants.Identity, null);
+                RebaseResult rebaseResult = Commands.Rebase.Start(repo, branch, upstream, onto, Constants.Identity, null);
 
                 // Verify that we have a conflict.
                 Assert.Equal(RebaseStatus.Conflicts, rebaseResult.Status);
@@ -526,7 +526,7 @@ namespace LibGit2Sharp.Tests
                     CheckoutNotifyFlags = CheckoutNotifyFlags.Updated,
                 };
 
-                repo.Rebase.Abort(options);
+                Commands.Rebase.Abort(repo, options);
                 Assert.False(repo.RetrieveStatus().IsDirty, "Repository workdir is dirty after Rebase.Abort.");
                 Assert.True(repo.Index.IsFullyMerged, "Repository index is not fully merged after Rebase.Abort.");
                 Assert.Equal(CurrentOperation.None, repo.Info.CurrentOperation);
@@ -552,7 +552,7 @@ namespace LibGit2Sharp.Tests
                 Branch upstream = repo.Branches[conflictBranch1Name];
                 Branch onto = repo.Branches[conflictBranch1Name];
 
-                RebaseResult rebaseResult = repo.Rebase.Start(branch, upstream, onto, Constants.Identity, null);
+                RebaseResult rebaseResult = Commands.Rebase.Start(repo, branch, upstream, onto, Constants.Identity, null);
 
                 // Verify that we have a conflict.
                 Assert.Equal(RebaseStatus.Conflicts, rebaseResult.Status);
@@ -560,7 +560,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(CurrentOperation.RebaseMerge, repo.Info.CurrentOperation);
 
                 Assert.Throws<LibGit2SharpException>(() =>
-                    repo.Rebase.Start(branch, upstream, onto, Constants.Identity, null));
+                    Commands.Rebase.Start(repo, branch, upstream, onto, Constants.Identity, null));
             }
         }
 
@@ -576,10 +576,10 @@ namespace LibGit2Sharp.Tests
                 Commands.Checkout(repo, topicBranch1Name);
 
                 Assert.Throws<NotFoundException>(() =>
-                    repo.Rebase.Continue(Constants.Identity, new RebaseOptions()));
+                    Commands.Rebase.Continue(repo, Constants.Identity, new RebaseOptions()));
 
                 Assert.Throws<NotFoundException>(() =>
-                    repo.Rebase.Abort());
+                    Commands.Rebase.Abort(repo));
             }
         }
 
@@ -593,7 +593,7 @@ namespace LibGit2Sharp.Tests
                 ConstructRebaseTestRepository(repo);
                 Commands.Checkout(repo, topicBranch1Name);
 
-                Assert.Null(repo.Rebase.GetCurrentStepInfo());
+                Assert.Null(Commands.Rebase.GetCurrentStepInfo(repo));
             }
         }
 
@@ -642,7 +642,7 @@ namespace LibGit2Sharp.Tests
                     }
                 };
 
-                repo.Rebase.Start(null, upstreamBranch, null, Constants.Identity2, options);
+                Commands.Rebase.Start(repo, null, upstreamBranch, null, Constants.Identity2, options);
                 ObjectId secondCommitExpectedTreeId = new ObjectId(expectedShaText);
                 Signature secondCommitAuthorSignature = Constants.Signature;
                 Identity secondCommitCommiterIdentity = Constants.Identity2;
@@ -670,9 +670,9 @@ namespace LibGit2Sharp.Tests
                 Branch rebaseUpstreamBranch = repo.Branches["refs/heads/test"];
 
                 Assert.NotNull(rebaseUpstreamBranch);
-                Assert.Throws<BareRepositoryException>(() => repo.Rebase.Start(null, rebaseUpstreamBranch, null, Constants.Identity, new RebaseOptions()));
-                Assert.Throws<BareRepositoryException>(() => repo.Rebase.Continue(Constants.Identity, new RebaseOptions()));
-                Assert.Throws<BareRepositoryException>(() => repo.Rebase.Abort());
+                Assert.Throws<BareRepositoryException>(() => Commands.Rebase.Start(repo, null, rebaseUpstreamBranch, null, Constants.Identity, new RebaseOptions()));
+                Assert.Throws<BareRepositoryException>(() => Commands.Rebase.Continue(repo, Constants.Identity, new RebaseOptions()));
+                Assert.Throws<BareRepositoryException>(() => Commands.Rebase.Abort(repo));
             }
         }
 
