@@ -19,12 +19,6 @@ namespace LibGit2Sharp
         /// The rebase operation hit a conflict and stopped.
         /// </summary>
         Conflicts,
-
-        /// <summary>
-        /// The rebase operation has hit a user requested stop point
-        /// (edit, reword, ect.)
-        /// </summary>
-        Stop,
     };
 
     /// <summary>

@@ -161,7 +161,7 @@ namespace LibGit2Sharp
             // commit and continue.
             if (repository.Index.IsFullyMerged)
             {
-                Proxy.GitRebaseCommitResult rebase_commit_result = Proxy.git_rebase_commit(rebaseOperationHandle, null, committer);
+                Proxy.GitRebaseCommitResult rebase_commit_result = Proxy.git_rebase_commit(rebaseOperationHandle, null, committer, null);
 
                 if (rebase_commit_result.WasPatchAlreadyApplied)
                 {

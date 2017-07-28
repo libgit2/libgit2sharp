@@ -12,45 +12,6 @@ namespace LibGit2Sharp
         /// </summary>
         public static class Rebase
         {
-            /// <summary>
-            /// The type of operation to be performed in a rebase step.
-            /// </summary>
-            public enum RebaseStepOperation
-            {
-                /// <summary>
-                /// Commit is to be cherry-picked.
-                /// </summary>
-                Pick = 0,
-
-                /// <summary>
-                /// Cherry-pick the commit and edit the commit message.
-                /// </summary>
-                Reword,
-
-                /// <summary>
-                /// Cherry-pick the commit but allow user to edit changes.
-                /// </summary>
-                Edit,
-
-                /// <summary>
-                /// Commit is to be squashed into previous commit. The commit
-                /// message will be merged with the previous message.
-                /// </summary>
-                Squash,
-
-                /// <summary>
-                /// Commit is to be squashed into previous commit. The commit
-                /// message will be discarded.
-                /// </summary>
-                Fixup,
-
-                // <summary>
-                // No commit to cherry-pick. Run the given command and continue
-                // if successful.
-                // </summary>
-                // Exec
-            }
-
             private unsafe static AnnotatedCommitHandle AnnotatedCommitHandleFromRefHandle(Repository repository, ReferenceHandle refHandle)
             {
                 return (refHandle == null) ?
@@ -70,6 +31,7 @@ namespace LibGit2Sharp
             /// <returns>true if completed successfully, false if conflicts encountered.</returns>
             public static RebaseResult Start(Repository repository, Branch branch, Branch upstream, Branch onto, Identity committer, RebaseOptions options)
             {
+                Ensure.ArgumentNotNull(repository, "repository");
                 Ensure.ArgumentNotNull(upstream, "upstream");
 
                 options = options ?? new RebaseOptions();
@@ -145,7 +107,7 @@ namespace LibGit2Sharp
                         // TODO: Should we check the pre-conditions for committing here
                         // for instance - what if we had failed on the git_rebase_finish call,
                         // do we want continue to be able to restart afterwords...
-                        var rebaseCommitResult = Proxy.git_rebase_commit(rebase, null, committer);
+                        var rebaseCommitResult = Proxy.git_rebase_commit(rebase, null, committer, null);
 
                         // Report that we just completed the step
                         if (options.RebaseStepCompleted != null)
