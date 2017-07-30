@@ -213,8 +213,8 @@ namespace LibGit2Sharp.Core
             git_rebase* rebase,
             git_signature* author,
             git_signature* committer,
-            IntPtr message_encoding,
-            IntPtr message);
+            [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* message_encoding,
+            [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* message);
 
         [DllImport(libgit2)]
         internal static extern unsafe int git_rebase_abort(
