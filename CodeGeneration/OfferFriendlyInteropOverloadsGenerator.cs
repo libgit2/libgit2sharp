@@ -21,6 +21,20 @@ namespace CodeGeneration
             SyntaxKind.SimpleMemberAccessExpression,
             IntPtrTypeSyntax,
             SyntaxFactory.IdentifierName(nameof(IntPtr.Zero)));
+        private static readonly SyntaxKind[] VisibilityModifiers = new[]
+        {
+            SyntaxKind.PublicKeyword,
+            SyntaxKind.InternalKeyword,
+            SyntaxKind.ProtectedKeyword,
+            SyntaxKind.PrivateKeyword,
+        };
+        private static readonly DiagnosticDescriptor InappropriateVisibilityDescriptor = new DiagnosticDescriptor(
+            "CODEGEN001",
+            "Inappropriate visibility",
+            "The method {0} uses custom marshalers, so it should be private. The build-generated wrapper method will be internal.",
+            "Design",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OfferFriendlyInteropOverloadsGenerator"/> class.
@@ -68,8 +82,22 @@ namespace CodeGeneration
                                       select a;
                 if (marshaledParameters.Any() || marshaledResult.Any())
                 {
+                    var wrapperMethodModifiers = RemoveModifier(method.Modifiers, SyntaxKind.ExternKeyword, SyntaxKind.PrivateKeyword);
+                    if (VisibilityModifiers.Any(m => wrapperMethodModifiers.Any(n => n.IsKind(m))))
+                    {
+                        var diagnostic = Diagnostic.Create(InappropriateVisibilityDescriptor, method.GetLocation(), $"{type.Identifier}.{method.Identifier}");
+                        progress?.Report(diagnostic);
+                        if (progress == null)
+                        {
+                            Console.Error.WriteLine($"{diagnostic.Location.SourceTree.FilePath}({diagnostic.Location.GetLineSpan().StartLinePosition.Line + 1},{diagnostic.Location.GetLineSpan().StartLinePosition.Character + 1}): error {diagnostic.Id}: {diagnostic.GetMessage()}");
+                        }
+
+                        wrapperMethodModifiers = RemoveModifier(wrapperMethodModifiers, VisibilityModifiers);
+                    }
+
+                    wrapperMethodModifiers = wrapperMethodModifiers.Insert(0, SyntaxFactory.Token(SyntaxKind.InternalKeyword));
                     var wrapperMethod = method
-                        .WithModifiers(RemoveModifier(method.Modifiers, SyntaxKind.ExternKeyword, SyntaxKind.PrivateKeyword).Insert(0, SyntaxFactory.Token(SyntaxKind.InternalKeyword)))
+                        .WithModifiers(wrapperMethodModifiers)
                         .WithAttributeLists(SyntaxFactory.List<AttributeListSyntax>())
                         .WithLeadingTrivia(method.GetLeadingTrivia().Where(t => !t.IsDirective))
                         .WithTrailingTrivia(method.GetTrailingTrivia().Where(t => !t.IsDirective))
