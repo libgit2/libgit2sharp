@@ -13,3 +13,6 @@ insert_final_newline = true
 [*.{sln,csroj}]
 trim_trailing_whitespace = false
 insert_final_newline = false
+
+[*.{props,targets}]
+indent_size = 2
