@@ -1,7 +1,5 @@
 ﻿using System;
-#if DESKTOP
 using System.Runtime.Serialization;
-#endif
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -11,9 +9,7 @@ namespace LibGit2Sharp
     /// because of a conflicting change staged in the index, or unstaged
     /// in the working directory.
     /// </summary>
-#if DESKTOP
     [Serializable]
-#endif
     public class CheckoutConflictException : LibGit2SharpException
     {
         /// <summary>
@@ -48,7 +44,6 @@ namespace LibGit2Sharp
             : base(message, innerException)
         { }
 
-#if DESKTOP
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2Sharp.CheckoutConflictException"/> class with a serialized data.
         /// </summary>
@@ -61,6 +56,5 @@ namespace LibGit2Sharp
         internal CheckoutConflictException(string message, GitErrorCode code, GitErrorCategory category)
             : base(message, code, category)
         { }
-#endif
     }
 }

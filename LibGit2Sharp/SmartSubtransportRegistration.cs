@@ -40,7 +40,7 @@ namespace LibGit2Sharp
             var registration = new GitSmartSubtransportRegistration();
 
             registration.SubtransportCallback = Marshal.GetFunctionPointerForDelegate(EntryPoints.SubtransportCallback);
-            registration.Rpc = typeof(RpcSmartSubtransport).GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo()) ? (uint)1 : (uint)0;
+            registration.Rpc = typeof(RpcSmartSubtransport).IsAssignableFrom(typeof(T)) ? (uint)1 : (uint)0;
 
             var registrationPointer = Marshal.AllocHGlobal(Marshal.SizeOf(registration));
             Marshal.StructureToPtr(registration, registrationPointer, false);
