@@ -251,6 +251,21 @@ namespace LibGit2Sharp.Tests
             Assert.Equal(1, nbOfDisposeCalls);
         }
 
+        [Fact]
+        public void CanCreateInMemoryRepositoryWithBackend()
+        {
+            using (var repo = new Repository())
+            {
+                repo.ObjectDatabase.AddBackend(new MockOdbBackend(), int.MaxValue);
+
+                Assert.True(repo.Info.IsBare);
+                Assert.Null(repo.Info.Path);
+                Assert.Null(repo.Info.WorkingDirectory);
+
+                Assert.Throws<BareRepositoryException>(() => { var idx = repo.Index; });
+            }
+        }
+
         #region MockOdbBackend
 
         private class MockOdbBackend : OdbBackend, IDisposable

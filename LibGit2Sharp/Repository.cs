@@ -114,7 +114,8 @@ namespace LibGit2Sharp
                 /* TODO: bug in libgit2, update when fixed by
                  * https://github.com/libgit2/libgit2/pull/2970
                  */
-                if (path == null)
+                var isInMemory = path == null;
+                if (isInMemory)
                 {
                     isBare = true;
                 }
@@ -172,7 +173,8 @@ namespace LibGit2Sharp
                                                                                             configurationGlobalFilePath,
                                                                                             configurationXDGFilePath,
                                                                                             configurationSystemFilePath)));
-                odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
+                odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this, isInMemory));
+
                 diff = new Diff(this);
                 notes = new NoteCollection(this);
                 ignore = new Ignore(this);

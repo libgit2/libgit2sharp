@@ -25,10 +25,20 @@ namespace LibGit2Sharp
         protected ObjectDatabase()
         { }
 
-        internal ObjectDatabase(Repository repo)
+        internal ObjectDatabase(Repository repo, bool isInMemory)
         {
             this.repo = repo;
-            handle = Proxy.git_repository_odb(repo.Handle);
+
+            if (isInMemory)
+            {
+                handle = Proxy.git_odb_new();
+
+                Proxy.git_repository_set_odb(repo.Handle, handle.AsIntPtr());
+            }
+            else
+            {
+                handle = Proxy.git_repository_odb(repo.Handle);
+            }
 
             repo.RegisterForCleanup(handle);
         }
