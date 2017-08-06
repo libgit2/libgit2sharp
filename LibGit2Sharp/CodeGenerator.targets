@@ -77,7 +77,7 @@
 
   </Target>
 
-  <Target Name="GenerateAssemblyCommitIdsCs" Inputs="@(EmbeddedResource);$(VersionSourceFile)" Outputs="$(AssemblyCommitIdsPath)" BeforeTargets="CoreCompile" DependsOnTargets="DefineProperties;GenerateAssemblyVersionInfo">
+  <Target Name="GenerateAssemblyCommitIdsCs" Inputs="@(EmbeddedResource);$(VersionSourceFile)" Outputs="$(AssemblyCommitIdsPath)" BeforeTargets="CoreCompile" DependsOnTargets="DefineProperties;GenerateAssemblyVersionInfo" Condition="'$(GitCommitId)' != ''">
 
     <ReadLinesFromFile File="@(EmbeddedResource)" Condition=" '%(Filename)%(Extension)' == 'libgit2_hash.txt' ">
       <Output TaskParameter="Lines" PropertyName="libgit2hash" />
