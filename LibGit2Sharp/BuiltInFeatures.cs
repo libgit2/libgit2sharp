@@ -29,5 +29,11 @@ namespace LibGit2Sharp
         /// libgit2.
         /// </summary>
         Ssh = (1 << 2),
+
+        /// <summary>
+        /// Support for sub-second resolution in file modification times
+        /// is compiled into libgit2.
+        /// </summary>
+        NSec = (1 << 3),
     }
 }
