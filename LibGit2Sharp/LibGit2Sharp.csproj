@@ -15,6 +15,11 @@
     <DefineConstants Condition=" '$(TargetFramework)' == 'net40' ">$(DefineConstants);DESKTOP</DefineConstants>
   </PropertyGroup>
 
+  <!-- Disable SourceLink when running on Travis CI -->
+  <PropertyGroup>
+    <SourceLinkCreate Condition="'$(TRAVIS)' == 'true'">false</SourceLinkCreate>
+  </PropertyGroup>
+
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
     <None Include="Core\Handles\Objects.tt">
