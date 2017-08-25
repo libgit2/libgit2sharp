@@ -65,7 +65,7 @@
   </Target>
 
 
-  <Target Name="AddNativeDllCommitShaToBuildMetadata" BeforeTargets="GetBuildVersion">
+  <Target Name="AddNativeDllCommitShaToBuildMetadata" BeforeTargets="GetBuildVersion" Condition="'$(IsCrossTargetingBuild)' != 'true'">
 
     <ReadLinesFromFile File="@(EmbeddedResource)" Condition=" '%(Filename)%(Extension)' == 'libgit2_hash.txt' ">
       <Output TaskParameter="Lines" PropertyName="libgit2hash" />
