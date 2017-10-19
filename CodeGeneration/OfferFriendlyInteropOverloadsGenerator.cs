@@ -21,6 +21,20 @@ namespace CodeGeneration
             SyntaxKind.SimpleMemberAccessExpression,
             IntPtrTypeSyntax,
             SyntaxFactory.IdentifierName(nameof(IntPtr.Zero)));
+        private static readonly SyntaxKind[] VisibilityModifiers = new[]
+        {
+            SyntaxKind.PublicKeyword,
+            SyntaxKind.InternalKeyword,
+            SyntaxKind.ProtectedKeyword,
+            SyntaxKind.PrivateKeyword,
+        };
+        private static readonly DiagnosticDescriptor InappropriateVisibilityDescriptor = new DiagnosticDescriptor(
+            "CODEGEN001",
+            "Inappropriate visibility",
+            "The method {0} uses custom marshalers, so it should be private. The build-generated wrapper method will be internal.",
+            "Design",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OfferFriendlyInteropOverloadsGenerator"/> class.
@@ -68,8 +82,22 @@ namespace CodeGeneration
                                       select a;
                 if (marshaledParameters.Any() || marshaledResult.Any())
                 {
+                    var wrapperMethodModifiers = RemoveModifier(method.Modifiers, SyntaxKind.ExternKeyword, SyntaxKind.PrivateKeyword);
+                    if (VisibilityModifiers.Any(m => wrapperMethodModifiers.Any(n => n.IsKind(m))))
+                    {
+                        var diagnostic = Diagnostic.Create(InappropriateVisibilityDescriptor, method.GetLocation(), $"{type.Identifier}.{method.Identifier}");
+                        progress?.Report(diagnostic);
+                        if (progress == null)
+                        {
+                            Console.Error.WriteLine($"{diagnostic.Location.SourceTree.FilePath}({diagnostic.Location.GetLineSpan().StartLinePosition.Line + 1},{diagnostic.Location.GetLineSpan().StartLinePosition.Character + 1}): error {diagnostic.Id}: {diagnostic.GetMessage()}");
+                        }
+
+                        wrapperMethodModifiers = RemoveModifier(wrapperMethodModifiers, VisibilityModifiers);
+                    }
+
+                    wrapperMethodModifiers = wrapperMethodModifiers.Insert(0, SyntaxFactory.Token(SyntaxKind.InternalKeyword));
                     var wrapperMethod = method
-                        .WithModifiers(RemoveModifier(method.Modifiers, SyntaxKind.ExternKeyword, SyntaxKind.PrivateKeyword).Insert(0, SyntaxFactory.Token(SyntaxKind.InternalKeyword)))
+                        .WithModifiers(wrapperMethodModifiers)
                         .WithAttributeLists(SyntaxFactory.List<AttributeListSyntax>())
                         .WithLeadingTrivia(method.GetLeadingTrivia().Where(t => !t.IsDirective))
                         .WithTrailingTrivia(method.GetTrailingTrivia().Where(t => !t.IsDirective))
@@ -135,7 +163,7 @@ namespace CodeGeneration
             var outputMarshaling = new List<StatementSyntax>();
 
             var marshalersCreated = new HashSet<string>();
-            Func<TypeSyntax, string> acquireMarshaler = type =>
+            string acquireMarshaler(TypeSyntax type)
             {
                 var marshalerLocalName = Invariant($"_{type}");
                 if (marshalersCreated.Add(marshalerLocalName))
@@ -154,27 +182,34 @@ namespace CodeGeneration
                 }
 
                 return marshalerLocalName;
-            };
+            }
 
             foreach (var parameter in marshaledParameters)
             {
                 string marshalerLocalName = acquireMarshaler(parameter.MarshalerType);
                 var isOutParameter = parameter.OriginalParameter.Modifiers.Any(m => m.IsKind(SyntaxKind.OutKeyword));
                 TypeSyntax localVarType = isOutParameter ? parameter.OriginalParameter.Type : IntPtrTypeSyntax;
-                ExpressionSyntax initialValue = isOutParameter
-                    ? (ExpressionSyntax)SyntaxFactory.DefaultExpression(parameter.OriginalParameter.Type)
-                    : SyntaxFactory.InvocationExpression(
-                        SyntaxFactory.MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            SyntaxFactory.IdentifierName(marshalerLocalName),
-                            SyntaxFactory.IdentifierName("MarshalManagedToNative")))
-                        .AddArgumentListArguments(SyntaxFactory.Argument(SyntaxFactory.IdentifierName(parameter.OriginalParameter.Identifier)));
                 var localVarIdentifier = SyntaxFactory.IdentifierName(Invariant($"_{parameter.OriginalParameter.Identifier.ValueText}"));
-                inputMarshaling.Add(
+
+                marshalerInitializers.Add(
                     SyntaxFactory.LocalDeclarationStatement(
                         SyntaxFactory.VariableDeclaration(localVarType)
                             .AddVariables(SyntaxFactory.VariableDeclarator(localVarIdentifier.Identifier)
-                                .WithInitializer(SyntaxFactory.EqualsValueClause(initialValue)))));
+                            .WithInitializer(SyntaxFactory.EqualsValueClause(SyntaxFactory.DefaultExpression(localVarType))))));
+
+                if (!isOutParameter)
+                {
+                    inputMarshaling.Add(SyntaxFactory.ExpressionStatement(
+                        SyntaxFactory.AssignmentExpression(
+                            SyntaxKind.SimpleAssignmentExpression,
+                            localVarIdentifier,
+                            SyntaxFactory.InvocationExpression(
+                                SyntaxFactory.MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    SyntaxFactory.IdentifierName(marshalerLocalName),
+                                    SyntaxFactory.IdentifierName("MarshalManagedToNative")))
+                                .AddArgumentListArguments(SyntaxFactory.Argument(SyntaxFactory.IdentifierName(parameter.OriginalParameter.Identifier))))));
+                }
 
                 argsByParameter[parameter.OriginalParameter] = argsByParameter[parameter.OriginalParameter]
                     .WithExpression(
@@ -207,12 +242,17 @@ namespace CodeGeneration
                         SyntaxFactory.Argument(localVarIdentifier))
                     : localVarIdentifier;
                 finallyBlock = finallyBlock.AddStatements(
-                    SyntaxFactory.ExpressionStatement(SyntaxFactory.InvocationExpression(
-                        SyntaxFactory.MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            SyntaxFactory.IdentifierName(marshalerLocalName),
-                            SyntaxFactory.IdentifierName("CleanUpNativeData")))
-                    .AddArgumentListArguments(SyntaxFactory.Argument(cleanUpExpression))));
+                    SyntaxFactory.IfStatement(
+                        SyntaxFactory.BinaryExpression(
+                            SyntaxKind.NotEqualsExpression,
+                            cleanUpExpression,
+                            IntPtrZeroExpressionSyntax),
+                        SyntaxFactory.ExpressionStatement(SyntaxFactory.InvocationExpression(
+                            SyntaxFactory.MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                SyntaxFactory.IdentifierName(marshalerLocalName),
+                                SyntaxFactory.IdentifierName("CleanUpNativeData")))
+                        .AddArgumentListArguments(SyntaxFactory.Argument(cleanUpExpression)))));
             }
 
             var args = SyntaxFactory.ArgumentList().AddArguments(
@@ -228,7 +268,7 @@ namespace CodeGeneration
                 if (marshaledResult.MarshalerType != null)
                 {
                     string marshalerLocalName = acquireMarshaler(marshaledResult.MarshalerType);
-                    inputMarshaling.Add(
+                    marshalerInitializers.Add(
                         SyntaxFactory.LocalDeclarationStatement(
                             SyntaxFactory.VariableDeclaration(IntPtrTypeSyntax)
                             .AddVariables(SyntaxFactory.VariableDeclarator(resultLocal.Identifier)
@@ -254,12 +294,17 @@ namespace CodeGeneration
                     returnStatement = SyntaxFactory.ReturnStatement(castToManagedExpression);
 
                     finallyBlock = finallyBlock.AddStatements(
-                        SyntaxFactory.ExpressionStatement(SyntaxFactory.InvocationExpression(
-                            SyntaxFactory.MemberAccessExpression(
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                SyntaxFactory.IdentifierName(marshalerLocalName),
-                                SyntaxFactory.IdentifierName("CleanUpNativeData")))
-                        .AddArgumentListArguments(SyntaxFactory.Argument(resultLocal))));
+                        SyntaxFactory.IfStatement(
+                            SyntaxFactory.BinaryExpression(
+                                SyntaxKind.NotEqualsExpression,
+                                resultLocal,
+                                IntPtrZeroExpressionSyntax),
+                            SyntaxFactory.ExpressionStatement(SyntaxFactory.InvocationExpression(
+                                SyntaxFactory.MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    SyntaxFactory.IdentifierName(marshalerLocalName),
+                                    SyntaxFactory.IdentifierName("CleanUpNativeData")))
+                            .AddArgumentListArguments(SyntaxFactory.Argument(resultLocal)))));
                 }
                 else
                 {
@@ -276,6 +321,7 @@ namespace CodeGeneration
             }
 
             var tryBlock = SyntaxFactory.Block()
+                .AddStatements(inputMarshaling.ToArray())
                 .AddStatements(invocationStatement)
                 .AddStatements(outputMarshaling.ToArray());
 
@@ -287,7 +333,6 @@ namespace CodeGeneration
 
             body = body
                 .AddStatements(marshalerInitializers.ToArray())
-                .AddStatements(inputMarshaling.ToArray())
                 .AddStatements(SyntaxFactory.TryStatement(tryBlock, SyntaxFactory.List<CatchClauseSyntax>(), SyntaxFactory.FinallyClause(finallyBlock)));
 
             return body;
