@@ -48,6 +48,21 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Add a new submodule from the given url to the given path.  The
+        /// repository should have already been cloned into the destination
+        /// path.  After this call the submodule and updated .gitmodules
+        /// file will be added to the index.
+        /// </summary>
+        /// <param name="url">Url to use for the submodule</param>
+        /// <param name="path">Path of the submodule</param>
+        /// <param name="useGitLink">Non-zero to use git link</param>
+        public virtual void Add(string url, string path, int useGitLink)
+        {
+            SubmoduleHandle handle = Proxy.git_submodule_add_setup(repo.Handle, url, path, useGitLink);
+            Proxy.git_submodule_add_finalize(handle);
+        }
+
+        /// <summary>
         /// Initialize specified submodule.
         /// <para>
         /// Existing entries in the config file for this submodule are not be
