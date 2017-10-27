@@ -35,7 +35,19 @@ namespace LibGit2Sharp
                 }
 #else
                 var assembly = typeof(GlobalSettings).GetTypeInfo().Assembly;
-                managedPath = (string)assembly.GetType().GetProperty("Location").GetValue(assembly);              
+                var codeBaseProp = assembly.GetType().GetProperty("CodeBase");
+                if(codeBaseProp != null)
+                {
+                    managedPath = (string)codeBaseProp.GetValue(assembly);   
+                }
+                if (managedPath == null)
+                {
+                    var locationProp = assembly.GetType().GetProperty("Location");
+                    if(locationProp != null)
+                    {
+                        managedPath = (string)locationProp.GetValue(assembly);   
+                    }                  
+                }                           
 #endif
 
 
