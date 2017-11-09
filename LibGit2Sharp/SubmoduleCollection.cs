@@ -60,6 +60,7 @@ namespace LibGit2Sharp
         {
             SubmoduleHandle handle = Proxy.git_submodule_add_setup(repo.Handle, url, path, useGitLink);
             Proxy.git_submodule_add_finalize(handle);
+            handle.Free();
         }
 
         /// <summary>
