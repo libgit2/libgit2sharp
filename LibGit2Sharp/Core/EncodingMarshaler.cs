@@ -117,11 +117,7 @@ namespace LibGit2Sharp.Core
                 return String.Empty;
             }
 
-#if DESKTOP
             return new String((sbyte*)pNativeData, 0, (int)(walk - start), encoding);
-#else
-            return encoding.GetString(pNativeData, (int)(walk - start));
-#endif
         }
 
         public static unsafe string FromNative(Encoding encoding, IntPtr pNativeData, int length)
@@ -136,11 +132,7 @@ namespace LibGit2Sharp.Core
                 return String.Empty;
             }
 
-#if DESKTOP
             return new String((sbyte*)pNativeData.ToPointer(), 0, length, encoding);
-#else
-            return encoding.GetString((byte*)pNativeData.ToPointer(), length);
-#endif
         }
 
         public static string FromBuffer(Encoding encoding, byte[] buffer)

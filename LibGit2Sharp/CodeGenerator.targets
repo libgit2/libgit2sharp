@@ -1,89 +1,108 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project InitialTargets="GenerateCodeFirst">
+﻿<Project>
+
   <PropertyGroup>
-    <CodeGenerationOutputPath>$(MSBuildProjectDirectory)\..\lkg\</CodeGenerationOutputPath>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
   </PropertyGroup>
 
-  <ItemGroup>
-    <GeneratorAssemblySearchPaths Include="$(CodeGenerationOutputPath)">
-      <Visible>false</Visible>
-    </GeneratorAssemblySearchPaths>
-  </ItemGroup>
-  <!-- Related to https://github.com/dotnet/sdk/issues/939, this carefully written ProjectReference
-       allows MSBuild to get the build order right without given nuget grief at the command line.
-       Sadly, it still causes failures when run in VS or Travis CI: https://travis-ci.org/libgit2/libgit2sharp/jobs/220381005#L788
-       So instead, we control build ordering in VS via a project dependency expressed in the SLN file,
-       and a preliminary build of the project referenced below in Travis and AppVeyor.
-  <ItemGroup>
-    <ProjectReference Include="..\CodeGeneration\CodeGeneration.csproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
-      <UndefineProperties>TargetFramework</UndefineProperties>
-      <Properties>Configuration=$(CodeGeneratorConfiguration);Platform=AnyCPU</Properties>
-    </ProjectReference>
-  </ItemGroup>
-  -->
-
-  <Target Name="GenerateCodeFirst">
+  <Target Name="DefineProperties">
     <PropertyGroup>
-      <CoreCompileDependsOn>$(CoreCompileDependsOn);GenerateNativeDllNameCs</CoreCompileDependsOn>
-      <PrepareResourceNamesDependsOn>GenerateCommitIdVersion;$(PrepareResourceNamesDependsOn)</PrepareResourceNamesDependsOn>
-      <NativeDllNamePath>$(IntermediateOutputPath)NativeDllName.cs</NativeDllNamePath>
-      <UniqueIdentifierPath>$(IntermediateOutputPath)UniqueIdentifier.cs</UniqueIdentifierPath>
-      <CommitIdVersionPath>$(IntermediateOutputPath)libgit2sharp_hash.txt</CommitIdVersionPath>
+      <NativeDllNamePath>$(IntermediateOutputPath)NativeDllName.g.cs</NativeDllNamePath>
+      <UniqueIdentifierPath>$(IntermediateOutputPath)UniqueIdentifier.g.cs</UniqueIdentifierPath>
+      <AssemblyCommitIdsPath>$(IntermediateOutputPath)AssemblyCommitIds.g.cs</AssemblyCommitIdsPath>
     </PropertyGroup>
   </Target>
 
-  <Target Name="GenerateNativeDllNameCs"
-          Inputs="@(EmbeddedResource)"
-          Outputs="$(NativeDllNamePath)">
-    <ReadLinesFromFile File="@(EmbeddedResource)"
-                               Condition=" '%(Filename)%(Extension)' == 'libgit2_filename.txt' ">
+
+  <Target Name="GenerateNativeDllNameCs" Inputs="@(EmbeddedResource)" Outputs="$(NativeDllNamePath)" BeforeTargets="CoreCompile" DependsOnTargets="DefineProperties">
+
+    <ReadLinesFromFile File="@(EmbeddedResource)" Condition=" '%(Filename)%(Extension)' == 'libgit2_filename.txt' ">
       <Output TaskParameter="Lines" PropertyName="libgit2FileName" />
     </ReadLinesFromFile>
+
     <PropertyGroup>
       <NativeDllNameSourceLines>
-namespace LibGit2Sharp.Core
-{
-  internal static class NativeDllName
-  {
-    public const string Name = "$(libgit2FileName)"%3b
-  }
-}
+        namespace LibGit2Sharp.Core
+        {
+        internal static class NativeDllName
+        {
+        public const string Name = "$(libgit2FileName)"%3b
+        }
+        }
       </NativeDllNameSourceLines>
     </PropertyGroup>
-    <WriteLinesToFile File="$(NativeDllNamePath)"
-                      Lines="$(NativeDllNameSourceLines)"
-                      Overwrite="true" />
+
+    <WriteLinesToFile File="$(NativeDllNamePath)" Lines="$(NativeDllNameSourceLines)" Overwrite="true" />
+
     <ItemGroup>
       <Compile Include="$(NativeDllNamePath)" />
       <FileWrites Include="$(NativeDllNamePath)" />
     </ItemGroup>
+
   </Target>
 
-  <Target Name="AddNativeDllCommitShaToBuildMetadata"
-          BeforeTargets="GetBuildVersion"
-          Condition=" '$(IsCrossTargetingBuild)' != 'true' ">
-    <ReadLinesFromFile File="@(EmbeddedResource)"
-                       Condition=" '%(Filename)%(Extension)' == 'libgit2_hash.txt' ">
+
+  <Target Name="GenerateUniqueIdentifierCs" Inputs="$(MSBuildThisFileFullPath);$(MSBuildAllProjects);@(Compile)" Outputs="$(UniqueIdentifierPath)" BeforeTargets="CoreCompile" DependsOnTargets="DefineProperties">
+
+    <PropertyGroup>
+      <UniqueIdSourceLines>
+        namespace LibGit2Sharp.Core
+        {
+        internal static class UniqueId
+        {
+        public const string UniqueIdentifier = "$([System.Guid]::NewGuid())"%3b
+        }
+        }
+      </UniqueIdSourceLines>
+    </PropertyGroup>
+
+    <WriteLinesToFile File="$(UniqueIdentifierPath)" Lines="$(UniqueIdSourceLines)" Overwrite="true" />
+
+    <ItemGroup>
+      <Compile Include="$(UniqueIdentifierPath)" />
+      <FileWrites Include="$(UniqueIdentifierPath)" />
+    </ItemGroup>
+
+  </Target>
+
+
+  <Target Name="AddNativeDllCommitShaToBuildMetadata" BeforeTargets="GetBuildVersion" Condition="'$(IsCrossTargetingBuild)' != 'true'">
+
+    <ReadLinesFromFile File="@(EmbeddedResource)" Condition=" '%(Filename)%(Extension)' == 'libgit2_hash.txt' ">
       <Output TaskParameter="Lines" PropertyName="libgit2hash" />
     </ReadLinesFromFile>
 
     <ItemGroup>
-      <BuildMetadata Include="LibGit2-$(libgit2hash.Substring(0,7))" />
+      <BuildMetadata Include="libgit2-$(libgit2hash.Substring(0,7))" />
     </ItemGroup>
+
   </Target>
 
-  <Target Name="GenerateCommitIdVersion"
-          DependsOnTargets="GetBuildVersion">
-    <WriteLinesToFile File="$(CommitIdVersionPath)"
-                      Lines="$(GitCommitId)"
-                      Overwrite="true" />
+  <Target Name="GenerateAssemblyCommitIdsCs" Inputs="@(EmbeddedResource);$(VersionSourceFile)" Outputs="$(AssemblyCommitIdsPath)" BeforeTargets="CoreCompile" DependsOnTargets="DefineProperties;GenerateAssemblyVersionInfo" Condition="'$(GitCommitId)' != ''">
+
+    <ReadLinesFromFile File="@(EmbeddedResource)" Condition=" '%(Filename)%(Extension)' == 'libgit2_hash.txt' ">
+      <Output TaskParameter="Lines" PropertyName="libgit2hash" />
+    </ReadLinesFromFile>
+
+    <PropertyGroup>
+      <AssemblyCommitIdsSourceLines>
+        namespace LibGit2Sharp
+        {
+        internal static class AssemblyCommitIds
+        {
+        public const string LibGit2CommitSha = "$(libgit2hash)"%3b
+        public const string LibGit2SharpCommitSha = "$(GitCommitId)"%3b
+        }
+        }
+      </AssemblyCommitIdsSourceLines>
+    </PropertyGroup>
+
+    <WriteLinesToFile File="$(AssemblyCommitIdsPath)" Lines="$(AssemblyCommitIdsSourceLines)" Overwrite="true" />
 
     <ItemGroup>
-      <EmbeddedResource Include="$(CommitIdVersionPath)">
-        <LogicalName>$(RootNamespace).libgit2sharp_hash.txt</LogicalName>
-      </EmbeddedResource>
+      <Compile Include="$(AssemblyCommitIdsPath)" />
+      <FileWrites Include="$(AssemblyCommitIdsPath)" />
     </ItemGroup>
+
   </Target>
+
 </Project>

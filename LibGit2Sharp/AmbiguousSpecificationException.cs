@@ -1,17 +1,12 @@
 using System;
-using System.Globalization;
-#if DESKTOP
 using System.Runtime.Serialization;
-#endif
 
 namespace LibGit2Sharp
 {
     /// <summary>
     /// The exception that is thrown when the provided specification cannot uniquely identify a reference, an object or a path.
     /// </summary>
-#if DESKTOP
     [Serializable]
-#endif
     public class AmbiguousSpecificationException : LibGit2SharpException
     {
         /// <summary>
@@ -47,7 +42,6 @@ namespace LibGit2Sharp
             : base(message, innerException)
         { }
 
-#if DESKTOP
         /// <summary>
         /// Initializes a new instance of the <see cref="AmbiguousSpecificationException"/> class with a serialized data.
         /// </summary>
@@ -56,6 +50,5 @@ namespace LibGit2Sharp
         protected AmbiguousSpecificationException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
-#endif
     }
 }

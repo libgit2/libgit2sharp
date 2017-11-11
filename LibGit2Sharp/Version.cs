@@ -1,7 +1,4 @@
 ﻿using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -11,8 +8,6 @@ namespace LibGit2Sharp
     /// </summary>
     public class Version
     {
-        private readonly Assembly assembly = typeof(Repository).GetTypeInfo().Assembly;
-
         /// <summary>
         /// Needed for mocking purposes.
         /// </summary>
@@ -42,23 +37,15 @@ namespace LibGit2Sharp
         /// <summary>
         /// Returns the SHA hash for the libgit2 library.
         /// </summary>
-        public virtual string LibGit2CommitSha
-        {
-            get { return RetrieveAbbrevShaFrom("libgit2_hash.txt"); }
-        }
+        public virtual string LibGit2CommitSha => RetrieveAbbrevShaFrom(AssemblyCommitIds.LibGit2CommitSha);
 
         /// <summary>
         /// Returns the SHA hash for the LibGit2Sharp library.
         /// </summary>
-        public virtual string LibGit2SharpCommitSha
-        {
-            get { return RetrieveAbbrevShaFrom("libgit2sharp_hash.txt"); }
-        }
+        public virtual string LibGit2SharpCommitSha => RetrieveAbbrevShaFrom(AssemblyCommitIds.LibGit2SharpCommitSha);
 
-        private string RetrieveAbbrevShaFrom(string name)
+        private string RetrieveAbbrevShaFrom(string sha)
         {
-            string sha = ReadContentFromResource(assembly, name) ?? "unknown";
-
             var index = sha.Length > 7 ? 7 : sha.Length;
             return sha.Substring(0, index);
         }
@@ -68,7 +55,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <para>
         ///   The format of the version number is as follows:
-        ///   <para>Major.Minor.Patch-LibGit2Sharp_abbrev_hash-libgit2_abbrev_hash (x86|x64 - features)</para>
+        ///   <para>Major.Minor.Patch[-previewTag]+g{LibGit2Sharp_abbrev_hash}.libgit2-{libgit2_abbrev_hash} (x86|x64 - features)</para>
         /// </para>
         /// <returns></returns>
         public override string ToString()
@@ -85,15 +72,6 @@ namespace LibGit2Sharp
                                  InformationalVersion,
                                  Platform.ProcessorArchitecture,
                                  features);
-        }
-
-        private string ReadContentFromResource(Assembly assembly, string partialResourceName)
-        {
-            string name = string.Format(CultureInfo.InvariantCulture, "LibGit2Sharp.{0}", partialResourceName);
-            using (var sr = new StreamReader(assembly.GetManifestResourceStream(name)))
-            {
-                return sr.ReadLine();
-            }
         }
     }
 }

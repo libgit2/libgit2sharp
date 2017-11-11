@@ -1,32 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFrameworks>net46;netcoreapp1.0</TargetFrameworks>
+    <TargetFrameworks>net46;netcoreapp2.0</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants Condition=" '$(TargetFramework)' == 'net46' ">$(DefineConstants);DESKTOP</DefineConstants>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+
   <ItemGroup>
-    <Compile Include="..\LibGit2Sharp\Core\Epoch.cs">
-      <Link>TestHelpers\Epoch.cs</Link>
-    </Compile>
-    <Compile Include="..\LibGit2Sharp\Core\Platform.cs">
-      <Link>TestHelpers\Platform.cs</Link>
-    </Compile>
+    <Compile Include="..\LibGit2Sharp\Core\Epoch.cs" Link="TestHelpers\Epoch.cs" />
+    <Compile Include="..\LibGit2Sharp\Core\Platform.cs" Link="TestHelpers\Platform.cs" />
     <Compile Remove="desktop\**" Condition=" '$(TargetFramework)' != 'net46' " />
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\LibGit2Sharp\LibGit2Sharp.csproj" />
   </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Moq" Version="4.7.99" />
     <PackageReference Include="xunit" Version="2.2.0" />
     <PackageReference Include="xunit.skippablefact" Version="1.3.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
     <PackageReference Include="xunit.runner.console" Version="2.2.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
-  </ItemGroup>
-  <Import Project="..\LibGit2Sharp\ExtraDefine.targets" />
+
 </Project>

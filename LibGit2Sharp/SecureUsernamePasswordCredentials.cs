@@ -26,11 +26,7 @@ namespace LibGit2Sharp
 
             try
             {
-#if DESKTOP
                 passwordPtr = Marshal.SecureStringToGlobalAllocUnicode(Password);
-#else
-                passwordPtr = SecureStringMarshal.SecureStringToCoTaskMemUnicode(Password);
-#endif
 
                 return NativeMethods.git_cred_userpass_plaintext_new(out cred, Username, Marshal.PtrToStringUni(passwordPtr));
             }

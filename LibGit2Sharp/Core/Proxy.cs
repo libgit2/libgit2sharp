@@ -1603,12 +1603,7 @@ namespace LibGit2Sharp.Core
             int res;
             fixed(byte* p = data)
             {
-#if DESKTOP
-                UIntPtr len = new UIntPtr((ulong)data.LongLength);
-#else
-                UIntPtr len = new UIntPtr((uint)data.Length);
-#endif
-                res = NativeMethods.git_odb_write(out id, odb, p, len, type.ToGitObjectType());
+                res = NativeMethods.git_odb_write(out id, odb, p, new UIntPtr((ulong)data.LongLength), type.ToGitObjectType());
             }
             Ensure.ZeroResult(res);
 

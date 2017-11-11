@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Globalization;
-#if DESKTOP
 using System.Runtime.Serialization;
-#endif
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -10,9 +8,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// The exception that is thrown when an error occurs during application execution.
     /// </summary>
-#if DESKTOP
     [Serializable]
-#endif
     public class LibGit2SharpException : Exception
     {
         /// <summary>
@@ -48,7 +44,6 @@ namespace LibGit2Sharp
         {
         }
 
-#if DESKTOP
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2SharpException"/> class with a serialized data.
         /// </summary>
@@ -57,7 +52,6 @@ namespace LibGit2Sharp
         protected LibGit2SharpException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
-#endif
 
         internal LibGit2SharpException(string message, GitErrorCode code, GitErrorCategory category) : this(message)
         {

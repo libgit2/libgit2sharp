@@ -1,7 +1,5 @@
 using System;
-#if DESKTOP
 using System.Runtime.Serialization;
-#endif
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -10,9 +8,7 @@ namespace LibGit2Sharp
     /// The exception that is thrown when an operation which requires a
     /// working directory is performed against a bare repository.
     /// </summary>
-#if DESKTOP
     [Serializable]
-#endif
     public class BareRepositoryException : LibGit2SharpException
     {
         /// <summary>
@@ -47,7 +43,6 @@ namespace LibGit2Sharp
             : base(message, innerException)
         { }
 
-#if DESKTOP
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2Sharp.BareRepositoryException"/> class with a serialized data.
         /// </summary>
@@ -56,7 +51,6 @@ namespace LibGit2Sharp
         protected BareRepositoryException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
-#endif
 
         internal BareRepositoryException(string message, GitErrorCode code, GitErrorCategory category)
             : base(message, code, category)

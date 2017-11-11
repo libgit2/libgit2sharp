@@ -1,12 +1,13 @@
 <Project>
+
   <PropertyGroup>
     <OutputPath>$(MSBuildThisFileDirectory)bin\$(MSBuildProjectName)\$(Configuration)\</OutputPath>
     <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
-
-    <CodeGenerationRoslynVersion>0.4.11</CodeGenerationRoslynVersion>
+    <DefineConstants Condition=" '$(ExtraDefine)' != '' ">$(DefineConstants);$(ExtraDefine)</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Nerdbank.GitVersioning" Version="2.0.37-beta" PrivateAssets="all" />
   </ItemGroup>
+
 </Project>

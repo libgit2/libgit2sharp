@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Globalization;
-#if DESKTOP
 using System.Runtime.Serialization;
-#endif
 
 namespace LibGit2Sharp
 {
     /// <summary>
     /// The exception that is thrown when a file cannot be removed from the index.
     /// </summary>
-#if DESKTOP
     [Serializable]
-#endif
     public class RemoveFromIndexException : LibGit2SharpException
     {
         /// <summary>
@@ -47,7 +43,6 @@ namespace LibGit2Sharp
             : base(message, innerException)
         { }
 
-#if DESKTOP
         /// <summary>
         /// Initializes a new instance of the <see cref="UnmatchedPathException"/> class with a serialized data.
         /// </summary>
@@ -56,6 +51,5 @@ namespace LibGit2Sharp
         protected RemoveFromIndexException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
-#endif
     }
 }

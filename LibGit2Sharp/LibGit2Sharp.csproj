@@ -1,18 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFrameworks>net40;netstandard1.3</TargetFrameworks>
+    <TargetFrameworks>net40;netstandard2.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Description>LibGit2Sharp brings all the might and speed of libgit2, a native Git implementation, to the managed world of .Net and Mono.</Description>
     <Company>LibGit2Sharp contributors</Company>
+    <Copyright>Copyright © LibGit2Sharp contributors</Copyright>
     <PackageTags>libgit2 git</PackageTags>
     <PackageProjectUrl>https://github.com/libgit2/libgit2sharp/</PackageProjectUrl>
     <Authors>LibGit2Sharp contributors</Authors>
-
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\libgit2sharp.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants Condition=" '$(TargetFramework)' == 'net40' ">$(DefineConstants);DESKTOP</DefineConstants>
   </PropertyGroup>
+
+  <!-- Disable SourceLink when running on Travis CI -->
+  <PropertyGroup>
+    <SourceLinkCreate Condition="'$(TRAVIS)' == 'true'">false</SourceLinkCreate>
+  </PropertyGroup>
+
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
     <None Include="Core\Handles\Objects.tt">
@@ -22,29 +29,17 @@
     <None Include="..\README.md" Pack="true" PackagePath="App_Readme\" />
     <None Include="..\LICENSE.md" Pack="true" PackagePath="App_Readme\" />
     <None Include="..\CHANGES.md" Pack="true" PackagePath="App_Readme\" />
+    <Compile Update="Core\Handles\Objects.cs" DependentUpon="Objects.tt" />
+  </ItemGroup>
 
-    <Compile Update="Core\Handles\Objects.cs">
-      <DependentUpon>Objects.tt</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CodeGenerationAttributes\CodeGenerationAttributes.csproj" PrivateAssets="all" />
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="[1.0.185]" PrivateAssets="contentFiles" />
-    <PackageReference Include="SourceLink.Create.GitHub" Version="2.1.2" PrivateAssets="all" />
-    <DotNetCliToolReference Include="dotnet-sourcelink-git" Version="2.1.2" />
+    <PackageReference Include="SourceLink.Create.GitHub" Version="2.2.0" PrivateAssets="all" />
+    <DotNetCliToolReference Include="dotnet-sourcelink-git" Version="2.2.0" />
+  </ItemGroup>
 
-    <PackageReference Include="CodeGeneration.Roslyn.BuildTime" Version="$(CodeGenerationRoslynVersion)" PrivateAssets="all" />
-    <DotNetCliToolReference Include="dotnet-codegen" Version="$(CodeGenerationRoslynVersion)" />
-  </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <PackageReference Include="System.Security.SecureString" Version="4.0.0" />
-    <PackageReference Include="System.IO.UnmanagedMemoryStream" Version="4.0.1" />
-    <PackageReference Include="System.Diagnostics.TraceSource" Version="4.0.0" />
-  </ItemGroup>
   <Import Project="CodeGenerator.targets" />
-  <Import Project="ExtraDefine.targets" />
+
   <Target Name="SetNuSpecProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="GetBuildVersion">
     <PropertyGroup>
       <PackageIconUrl>https://github.com/libgit2/libgit2sharp/raw/$(GitCommitIdShort)/square-logo.png</PackageIconUrl>
@@ -52,4 +47,5 @@
       <PackageLicenseUrl>https://github.com/libgit2/libgit2sharp/raw/$(GitCommitIdShort)/LICENSE.md</PackageLicenseUrl>
     </PropertyGroup>
   </Target>
+
 </Project>
