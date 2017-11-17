@@ -819,7 +819,7 @@ namespace LibGit2Sharp
                 return mergeResult;
             }
         }
-
+ 
         /// <summary>
         /// Packs all the objects in the <see cref="ObjectDatabase"/> and write a pack (.pack) and index (.idx) files for them.
         /// </summary>

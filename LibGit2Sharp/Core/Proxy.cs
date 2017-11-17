@@ -1792,7 +1792,8 @@ namespace LibGit2Sharp.Core
         public static unsafe GitRebaseCommitResult git_rebase_commit(
             RebaseHandle rebase,
             Identity author,
-            Identity committer)
+            Identity committer,
+            string message)
         {
             Ensure.ArgumentNotNull(rebase, "rebase");
             Ensure.ArgumentNotNull(committer, "committer");
@@ -1802,7 +1803,7 @@ namespace LibGit2Sharp.Core
             {
                 GitRebaseCommitResult commitResult = new GitRebaseCommitResult();
 
-                int result = NativeMethods.git_rebase_commit(ref commitResult.CommitId, rebase, authorHandle, committerHandle, IntPtr.Zero, IntPtr.Zero);
+                int result = NativeMethods.git_rebase_commit(ref commitResult.CommitId, rebase, authorHandle, committerHandle, null, message);
 
                 if (result == (int)GitErrorCode.Applied)
                 {

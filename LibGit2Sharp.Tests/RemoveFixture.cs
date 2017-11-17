@@ -28,14 +28,14 @@ namespace LibGit2Sharp.Tests
          *   'git rm <file>' fails ("error: '<file>' has local modifications").
          */
         [InlineData(false, "modified_unstaged_file.txt", false, FileStatus.ModifiedInWorkdir, true, true, FileStatus.NewInWorkdir | FileStatus.DeletedFromIndex)]
-        [InlineData(true, "modified_unstaged_file.txt", true,  FileStatus.ModifiedInWorkdir, true, true, 0)]
+        [InlineData(true, "modified_unstaged_file.txt", true,  FileStatus.ModifiedInWorkdir, true, true, FileStatus.Unaltered)]
         /***
          * Test case: modified file in wd, the modifications have already been promoted to the index.
          *   'git rm --cached <file>' works (removes the file from the index)
          *   'git rm <file>' fails ("error: '<file>' has changes staged in the index")
          */
         [InlineData(false, "modified_staged_file.txt", false, FileStatus.ModifiedInIndex, true, true, FileStatus.NewInWorkdir | FileStatus.DeletedFromIndex)]
-        [InlineData(true, "modified_staged_file.txt", true, FileStatus.ModifiedInIndex, true, true, 0)]
+        [InlineData(true, "modified_staged_file.txt", true, FileStatus.ModifiedInIndex, true, true, FileStatus.Unaltered)]
         /***
          * Test case: modified file in wd, the modifications have already been promoted to the index, and
          * the file does not exist in the HEAD.
@@ -43,7 +43,7 @@ namespace LibGit2Sharp.Tests
          *   'git rm <file>' throws ("error: '<file>' has changes staged in the index")
          */
         [InlineData(false, "new_tracked_file.txt", false, FileStatus.NewInIndex, true, true, FileStatus.NewInWorkdir)]
-        [InlineData(true, "new_tracked_file.txt", true, FileStatus.NewInIndex, true, true, 0)]
+        [InlineData(true, "new_tracked_file.txt", true, FileStatus.NewInIndex, true, true, FileStatus.Unaltered)]
         public void CanRemoveAnUnalteredFileFromTheIndexWithoutRemovingItFromTheWorkingDirectory(
             bool removeFromWorkdir, string filename, bool throws, FileStatus initialStatus, bool existsBeforeRemove, bool existsAfterRemove, FileStatus lastStatus)
         {
