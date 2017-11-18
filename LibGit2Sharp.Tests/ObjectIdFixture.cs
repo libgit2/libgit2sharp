@@ -133,7 +133,7 @@ namespace LibGit2Sharp.Tests
 
             Assert.NotNull(parsedObjectId);
             Assert.Equal(maybeSha, parsedObjectId.Sha);
-            Assert.True(maybeSha.StartsWith(parsedObjectId.ToString(3)));
+            Assert.StartsWith(parsedObjectId.ToString(3), maybeSha);
             Assert.Equal(maybeSha, parsedObjectId.ToString(42));
         }
 

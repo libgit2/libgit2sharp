@@ -55,7 +55,7 @@ namespace LibGit2Sharp.Tests
 
             // ...that the assembly in the other domain is stored in the shadow copy cache...
             string cachedAssembliesPath = Path.Combine(setup.CachePath, setup.ApplicationName);
-            Assert.True(cachedAssemblyLocation.StartsWith(cachedAssembliesPath));
+            Assert.StartsWith(cachedAssembliesPath, cachedAssemblyLocation);
 
             if (!Constants.IsRunningOnUnix)
             {

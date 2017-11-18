@@ -122,8 +122,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("rot13", "*.txt filter=rot13", 1)]
         [InlineData("rot13", "*.txt filter=fake", 0)]
         [InlineData("rot13", "*.bat filter=rot13", 0)]
-        [InlineData("rot13", "*.txt filter=fake", 0)]
         [InlineData("fake", "*.txt filter=fake", 1)]
+        [InlineData("fake", "*.txt filter=rot13", 0)]
         [InlineData("fake", "*.bat filter=fake", 0)]
         [InlineData("rot13", "*.txt filter=rot13 -crlf", 1)]
         public void CleanIsCalledIfAttributeEntryMatches(string filterAttribute, string attributeEntry, int cleanCount)

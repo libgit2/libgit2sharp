@@ -110,7 +110,7 @@ namespace LibGit2Sharp.Tests
                 expectedFetchState.CheckUpdatedReferences(repo);
 
                 // Verify the reflog entries
-                Assert.Equal(1, repo.Refs.Log(string.Format("refs/remotes/{0}/master", remoteName)).Count()); // Branches are also retrieved
+                Assert.Single(repo.Refs.Log(string.Format("refs/remotes/{0}/master", remoteName))); // Branches are also retrieved
             }
         }
 
@@ -157,7 +157,7 @@ namespace LibGit2Sharp.Tests
 
                 // Verify the reflog entries
                 var reflogEntry = repo.Refs.Log(string.Format("refs/remotes/{0}/{1}", remoteName, localBranchName)).Single();
-                Assert.True(reflogEntry.Message.StartsWith("fetch "));
+                Assert.StartsWith("fetch ", reflogEntry.Message);
             }
         }
 

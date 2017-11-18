@@ -421,7 +421,7 @@ namespace LibGit2Sharp.Tests
                     new RevertOptions() { CommitOnSuccess = commitOnSuccess });
 
                 Assert.NotNull(result);
-                Assert.Equal(null, result.Commit);
+                Assert.Null(result.Commit);
                 Assert.Equal(RevertStatus.NothingToRevert, result.Status);
 
                 if (commitOnSuccess)

@@ -74,7 +74,7 @@ namespace LibGit2Sharp.Tests
                 Commit c = repo.Commit("New initial root commit", Constants.Signature, Constants.Signature);
 
                 // Ensure this commit has no parent
-                Assert.Equal(0, c.Parents.Count());
+                Assert.Empty(c.Parents);
 
                 // The branch now exists...
                 Branch orphan = repo.Branches["orphan"];
@@ -262,7 +262,7 @@ namespace LibGit2Sharp.Tests
 
                 Reference reference = repo.Refs[newBranch.CanonicalName];
                 Assert.NotNull(reference);
-                Assert.IsType(typeof(DirectReference), reference);
+                Assert.IsType<DirectReference>(reference);
             }
         }
 
@@ -563,7 +563,7 @@ namespace LibGit2Sharp.Tests
                 var head = repo.Head;
 
                 Assert.Equal("refs/heads/master", head.CanonicalName);
-                Assert.Equal(0, head.Commits.Count());
+                Assert.Empty(head.Commits);
                 Assert.True(head.IsCurrentRepositoryHead);
                 Assert.False(head.IsRemote);
                 Assert.Equal("master", head.FriendlyName);
@@ -1123,7 +1123,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(clonedRepoPath))
             {
                 Assert.Empty(Directory.GetFiles(scd2.RootedDirectoryPath));
-                Assert.Equal(repo.Head.FriendlyName, "master");
+                Assert.Equal("master", repo.Head.FriendlyName);
 
                 Assert.Null(repo.Head.Tip);
                 Assert.NotNull(repo.Head.TrackedBranch);

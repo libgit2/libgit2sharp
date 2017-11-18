@@ -30,7 +30,7 @@ namespace LibGit2Sharp.Tests
                 // $ git log --follow --format=oneline untouched.txt
                 // c10c1d5f74b76f20386d18674bf63fbee6995061 Initial commit
                 fileHistoryEntries = repo.Commits.QueryBy("untouched.txt").ToList();
-                Assert.Equal(1, fileHistoryEntries.Count());
+                Assert.Single(fileHistoryEntries);
                 Assert.Equal("c10c1d5f74b76f20386d18674bf63fbee6995061", fileHistoryEntries[0].Commit.Sha);
 
                 // $ git log --follow --format=oneline under-test.txt
@@ -223,8 +223,8 @@ namespace LibGit2Sharp.Tests
                 IEnumerable<LogEntry> history = repo.Commits.QueryBy(path).ToList();
                 var changedBlobs = history.Blobs().Distinct();
 
-                Assert.Equal(1, history.Count());
-                Assert.Equal(1, changedBlobs.Count());
+                Assert.Single(history);
+                Assert.Single(changedBlobs);
 
                 Assert.Equal(path, history.First().Path);
                 Assert.Equal(commit, history.First().Commit);
@@ -239,8 +239,8 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(repoPath))
             {
                 IEnumerable<LogEntry> history = repo.Commits.QueryBy("Test.txt").ToList();
-                Assert.Equal(0, history.Count());
-                Assert.Equal(0, history.Blobs().Count());
+                Assert.Empty(history);
+                Assert.Empty(history.Blobs());
             }
         }
 

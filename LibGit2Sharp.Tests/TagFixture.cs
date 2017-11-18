@@ -606,12 +606,12 @@ namespace LibGit2Sharp.Tests
                 const string tagName = "e90810b";
 
                 List<string> tags = repo.Tags.Select(r => r.FriendlyName).ToList();
-                Assert.True(tags.Contains(tagName));
+                Assert.Contains(tagName, tags);
 
                 repo.Tags.Remove(tagName);
 
                 List<string> tags2 = repo.Tags.Select(r => r.FriendlyName).ToList();
-                Assert.False(tags2.Contains(tagName));
+                Assert.DoesNotContain(tagName, tags2);
 
                 Assert.Equal(tags.Count - 1, tags2.Count);
             }
@@ -661,7 +661,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(repoPath))
             {
                 Assert.True(repo.Info.IsHeadUnborn);
-                Assert.Equal(0, repo.Tags.Count());
+                Assert.Empty(repo.Tags);
             }
         }
 

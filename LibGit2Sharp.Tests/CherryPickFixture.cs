@@ -66,7 +66,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(CherryPickStatus.Conflicts, cherryPickResult.Status);
 
                 Assert.Null(cherryPickResult.Commit);
-                Assert.Equal(1, repo.Index.Conflicts.Count());
+                Assert.Single(repo.Index.Conflicts);
 
                 var conflict = repo.Index.Conflicts.First();
                 var changes = repo.Diff.Compare(repo.Lookup<Blob>(conflict.Theirs.Id), repo.Lookup<Blob>(conflict.Ours.Id));
@@ -139,7 +139,7 @@ namespace LibGit2Sharp.Tests
                 var result = repo.ObjectDatabase.CherryPickCommit(commitToMerge, ours, 0, null);
 
                 Assert.Equal(MergeTreeStatus.Succeeded, result.Status);
-                Assert.Equal(0, result.Conflicts.Count());
+                Assert.Empty(result.Conflicts);
             }
         }
 

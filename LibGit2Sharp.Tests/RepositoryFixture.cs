@@ -123,7 +123,7 @@ namespace LibGit2Sharp.Tests
                 Assert.True(Repository.IsValid(repo.Info.WorkingDirectory));
                 Assert.True(Repository.IsValid(repo.Info.Path));
 
-                Assert.Equal(false, repo.Info.IsBare);
+                Assert.False(repo.Info.IsBare);
 
                 char sep = Path.DirectorySeparatorChar;
                 Assert.Equal(scd1.RootedDirectoryPath + sep, repo.Info.WorkingDirectory);
@@ -148,7 +148,7 @@ namespace LibGit2Sharp.Tests
                 Assert.True(Repository.IsValid(repo.Info.WorkingDirectory));
                 Assert.True(Repository.IsValid(repo.Info.Path));
 
-                Assert.Equal(false, repo.Info.IsBare);
+                Assert.False(repo.Info.IsBare);
 
                 char sep = Path.DirectorySeparatorChar;
                 Assert.Equal(scd1.RootedDirectoryPath + sep, repo.Info.WorkingDirectory);
@@ -267,18 +267,18 @@ namespace LibGit2Sharp.Tests
             Assert.Equal(headRef.TargetIdentifier, repo.Head.CanonicalName);
             Assert.Null(repo.Head.Tip);
 
-            Assert.Equal(0, repo.Commits.Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter()).Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { IncludeReachableFrom = repo.Refs.Head }).Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { IncludeReachableFrom = repo.Head }).Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { IncludeReachableFrom = "HEAD" }).Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { IncludeReachableFrom = expectedHeadTargetIdentifier }).Count());
+            Assert.Empty(repo.Commits);
+            Assert.Empty(repo.Commits.QueryBy(new CommitFilter()));
+            Assert.Empty(repo.Commits.QueryBy(new CommitFilter { IncludeReachableFrom = repo.Refs.Head }));
+            Assert.Empty(repo.Commits.QueryBy(new CommitFilter { IncludeReachableFrom = repo.Head }));
+            Assert.Empty(repo.Commits.QueryBy(new CommitFilter { IncludeReachableFrom = "HEAD" }));
+            Assert.Empty(repo.Commits.QueryBy(new CommitFilter { IncludeReachableFrom = expectedHeadTargetIdentifier }));
 
             Assert.Null(repo.Head["subdir/I-do-not-exist"]);
 
-            Assert.Equal(0, repo.Branches.Count());
-            Assert.Equal(0, repo.Refs.Count());
-            Assert.Equal(0, repo.Tags.Count());
+            Assert.Empty(repo.Branches);
+            Assert.Empty(repo.Refs);
+            Assert.Empty(repo.Tags);
         }
 
         [Fact]

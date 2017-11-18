@@ -69,7 +69,7 @@ namespace LibGit2Sharp.Tests
 
                 //Remove one stash
                 repo.Stashes.Remove(0);
-                Assert.Equal(1, repo.Stashes.Count());
+                Assert.Single(repo.Stashes);
                 Stash newTopStash = repo.Stashes.First();
                 Assert.Equal("stash@{0}", newTopStash.CanonicalName);
                 Assert.Equal(stash.WorkTree.Sha, newTopStash.WorkTree.Sha);
@@ -220,7 +220,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(StashApplyStatus.Applied, repo.Stashes.Apply(0));
 
                 Assert.Equal(FileStatus.NewInIndex, repo.RetrieveStatus(filename));
-                Assert.Equal(1, repo.Stashes.Count());
+                Assert.Single(repo.Stashes);
 
                 Commands.Stage(repo, filename);
 
@@ -245,7 +245,7 @@ namespace LibGit2Sharp.Tests
             {
                 var stasher = Constants.Signature;
 
-                Assert.Equal(0, repo.Stashes.Count());
+                Assert.Empty(repo.Stashes);
 
                 const string filename = "staged_file_path.txt";
                 const string contents = "I'm staged";
@@ -253,10 +253,10 @@ namespace LibGit2Sharp.Tests
                 Commands.Stage(repo, filename);
 
                 repo.Stashes.Add(stasher, "This stash with default options");
-                Assert.Equal(1, repo.Stashes.Count());
+                Assert.Single(repo.Stashes);
 
                 Assert.Equal(StashApplyStatus.Applied, repo.Stashes.Pop(0));
-                Assert.Equal(0, repo.Stashes.Count());
+                Assert.Empty(repo.Stashes);
 
                 Assert.Equal(FileStatus.NewInIndex, repo.RetrieveStatus(filename));
                 Assert.Equal(contents, File.ReadAllText(Path.Combine(repo.Info.WorkingDirectory, filename)));
@@ -290,7 +290,7 @@ namespace LibGit2Sharp.Tests
                     {
                         ApplyModifiers = StashApplyModifiers.ReinstateIndex,
                     }));
-                Assert.Equal(1, repo.Stashes.Count());
+                Assert.Single(repo.Stashes);
                 Assert.Equal(newContents, File.ReadAllText(Path.Combine(repo.Info.WorkingDirectory, filename)));
                 Assert.Equal(newContents, File.ReadAllText(Path.Combine(repo.Info.WorkingDirectory, filename2)));
             }
@@ -321,7 +321,7 @@ namespace LibGit2Sharp.Tests
                         ProgressHandler = (progress) => { called = true; return true; }
                     });
 
-                Assert.Equal(true, called);
+                Assert.True(called);
 
                 repo.Reset(ResetMode.Hard);
 
@@ -331,7 +331,7 @@ namespace LibGit2Sharp.Tests
                         ProgressHandler = (progress) => { called = true; return true; }
                     });
 
-                Assert.Equal(true, called);
+                Assert.True(called);
             }
         }
 

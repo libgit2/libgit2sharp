@@ -75,7 +75,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(existsBeforeRemove, File.Exists(fullpath));
                 Assert.NotNull(repo.Index.Conflicts[filename]);
-                Assert.Equal(0, repo.Index.Conflicts.ResolvedConflicts.Count());
+                Assert.Empty(repo.Index.Conflicts.ResolvedConflicts);
 
                 Commands.Remove(repo, filename, removeFromWorkdir);
 
@@ -84,7 +84,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(existsAfterRemove, File.Exists(fullpath));
                 Assert.Equal(lastStatus, repo.RetrieveStatus(filename));
 
-                Assert.Equal(1, repo.Index.Conflicts.ResolvedConflicts.Count());
+                Assert.Single(repo.Index.Conflicts.ResolvedConflicts);
                 Assert.NotNull(repo.Index.Conflicts.ResolvedConflicts[filename]);
             }
         }

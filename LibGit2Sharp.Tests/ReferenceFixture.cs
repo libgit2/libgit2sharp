@@ -295,12 +295,12 @@ namespace LibGit2Sharp.Tests
                 const string refName = "refs/heads/test";
 
                 List<string> refs = repo.Refs.Select(r => r.CanonicalName).ToList();
-                Assert.True(refs.Contains(refName));
+                Assert.Contains(refName, refs);
 
                 repo.Refs.Remove(refName);
 
                 List<string> refs2 = repo.Refs.Select(r => r.CanonicalName).ToList();
-                Assert.False(refs2.Contains(refName));
+                Assert.DoesNotContain(refName, refs2);
 
                 Assert.Equal(refs.Count - 1, refs2.Count);
             }
@@ -736,13 +736,13 @@ namespace LibGit2Sharp.Tests
                 const string newName = "refs/atic/tagtest";
 
                 List<string> refs = repo.Refs.Select(r => r.CanonicalName).ToList();
-                Assert.True(refs.Contains(oldName));
+                Assert.Contains(oldName, refs);
 
                 repo.Refs.Rename(oldName, newName);
 
                 List<string> refs2 = repo.Refs.Select(r => r.CanonicalName).ToList();
-                Assert.False(refs2.Contains(oldName));
-                Assert.True(refs2.Contains(newName));
+                Assert.DoesNotContain(oldName, refs2);
+                Assert.Contains(newName, refs2);
 
                 Assert.Equal(refs2.Count, refs.Count);
             }
@@ -774,7 +774,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(5, repo.Refs.FromGlob("refs/heads/*").Count());
                 Assert.Equal(5, repo.Refs.FromGlob("refs/tags/*").Count());
                 Assert.Equal(3, repo.Refs.FromGlob("*t?[pqrs]t*").Count());
-                Assert.Equal(0, repo.Refs.FromGlob("test").Count());
+                Assert.Empty(repo.Refs.FromGlob("test"));
             }
         }
 

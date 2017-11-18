@@ -25,13 +25,13 @@ namespace LibGit2Sharp.Tests
             GlobalSettings.LogConfiguration = new LogConfiguration(LogLevel.Warning, (l, m) => { level = l; message = m; });
 
             Assert.Equal(LogLevel.None, level);
-            Assert.Equal(null, message);
+            Assert.Null(message);
 
             // Similarly, turning logging off should produce no messages.
             GlobalSettings.LogConfiguration = LogConfiguration.None;
 
             Assert.Equal(LogLevel.None, level);
-            Assert.Equal(null, message);
+            Assert.Null(message);
         }
     }
 }

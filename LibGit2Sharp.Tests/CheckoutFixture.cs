@@ -526,13 +526,13 @@ namespace LibGit2Sharp.Tests
                 string fullPathFileB = Touch(repo.Info.WorkingDirectory, "b.txt", alternateFileContent);
 
                 // Verify that there is an untracked entry.
-                Assert.Equal(1, repo.RetrieveStatus().Untracked.Count());
+                Assert.Single(repo.RetrieveStatus().Untracked);
                 Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus(fullPathFileB));
 
                 Commands.Checkout(repo, otherBranchName);
 
                 // Verify untracked entry still exists.
-                Assert.Equal(1, repo.RetrieveStatus().Untracked.Count());
+                Assert.Single(repo.RetrieveStatus().Untracked);
                 Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus(fullPathFileB));
             }
         }
@@ -550,13 +550,13 @@ namespace LibGit2Sharp.Tests
                 string fullPathFileB = Touch(repo.Info.WorkingDirectory, "b.txt", alternateFileContent);
 
                 // Verify that there is an untracked entry.
-                Assert.Equal(1, repo.RetrieveStatus().Untracked.Count());
+                Assert.Single(repo.RetrieveStatus().Untracked);
                 Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus(fullPathFileB));
 
                 Commands.Checkout(repo, otherBranchName, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
 
                 // Verify untracked entry still exists.
-                Assert.Equal(1, repo.RetrieveStatus().Untracked.Count());
+                Assert.Single(repo.RetrieveStatus().Untracked);
                 Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus(fullPathFileB));
             }
         }
@@ -574,13 +574,13 @@ namespace LibGit2Sharp.Tests
                 string fullPathFileA = Touch(repo.Info.WorkingDirectory, originalFilePath, alternateFileContent);
 
                 // Verify that there is a modified entry.
-                Assert.Equal(1, repo.RetrieveStatus().Modified.Count());
+                Assert.Single(repo.RetrieveStatus().Modified);
                 Assert.Equal(FileStatus.ModifiedInWorkdir, repo.RetrieveStatus(fullPathFileA));
 
                 Commands.Checkout(repo, otherBranchName);
 
                 // Verify modified entry still exists.
-                Assert.Equal(1, repo.RetrieveStatus().Modified.Count());
+                Assert.Single(repo.RetrieveStatus().Modified);
                 Assert.Equal(FileStatus.ModifiedInWorkdir, repo.RetrieveStatus(fullPathFileA));
             }
         }
@@ -599,13 +599,13 @@ namespace LibGit2Sharp.Tests
                 Commands.Stage(repo, fullPathFileA);
 
                 // Verify that there is a staged entry.
-                Assert.Equal(1, repo.RetrieveStatus().Staged.Count());
+                Assert.Single(repo.RetrieveStatus().Staged);
                 Assert.Equal(FileStatus.ModifiedInIndex, repo.RetrieveStatus(fullPathFileA));
 
                 Commands.Checkout(repo, otherBranchName);
 
                 // Verify staged entry still exists.
-                Assert.Equal(1, repo.RetrieveStatus().Staged.Count());
+                Assert.Single(repo.RetrieveStatus().Staged);
                 Assert.Equal(FileStatus.ModifiedInIndex, repo.RetrieveStatus(fullPathFileA));
             }
         }
@@ -625,7 +625,7 @@ namespace LibGit2Sharp.Tests
                     "bin/some_ignored_file.txt",
                     "hello from this ignored file.");
 
-                Assert.Equal(1, repo.RetrieveStatus(new StatusOptions { IncludeIgnored = true }).Ignored.Count());
+                Assert.Single(repo.RetrieveStatus(new StatusOptions { IncludeIgnored = true }).Ignored);
 
                 Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus(ignoredFilePath));
 
@@ -652,7 +652,7 @@ namespace LibGit2Sharp.Tests
                     "bin/some_ignored_file.txt",
                     "hello from this ignored file.");
 
-                Assert.Equal(1, repo.RetrieveStatus(new StatusOptions { IncludeIgnored = true }).Ignored.Count());
+                Assert.Single(repo.RetrieveStatus(new StatusOptions { IncludeIgnored = true }).Ignored);
 
                 Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus(ignoredFilePath));
 
@@ -958,7 +958,7 @@ namespace LibGit2Sharp.Tests
                 repo.CheckoutPaths(checkoutFrom, new[] { path });
 
                 Assert.Equal(expectedStatus, repo.RetrieveStatus(path));
-                Assert.Equal(1, repo.RetrieveStatus().Count());
+                Assert.Single(repo.RetrieveStatus());
             }
         }
 
@@ -995,8 +995,7 @@ namespace LibGit2Sharp.Tests
                 Assert.False(repo.RetrieveStatus().IsDirty);
 
                 // Passing null 'paths' parameter should throw
-                Assert.Throws(typeof(ArgumentNullException),
-                    () => repo.CheckoutPaths("i-do-numbers", null));
+                Assert.Throws<ArgumentNullException>(() => repo.CheckoutPaths("i-do-numbers", null));
 
                 // Passing empty list should do nothing
                 repo.CheckoutPaths("i-do-numbers", Enumerable.Empty<string>());

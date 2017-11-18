@@ -15,7 +15,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 var remote = repo.Network.Remotes["origin"];
-                Assert.Equal(1, remote.RefSpecs.Count());
+                Assert.Single(remote.RefSpecs);
             }
         }
 
@@ -63,7 +63,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal("refs/heads/*", refSpec.Source);
                 Assert.Equal("refs/remotes/origin/*", refSpec.Destination);
-                Assert.Equal(true, refSpec.ForceUpdate);
+                Assert.True(refSpec.ForceUpdate);
             }
         }
 
@@ -225,7 +225,6 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData("refs/heads/master", "refs/remotes/foo/master")]
         [InlineData("refs/heads/bar/master", "refs/remotes/foo/bar/master")]
-        [InlineData("refs/heads/master", "refs/remotes/foo/master")]
         public void CanTransformRefspecs(string lhs, string rhs)
         {
             using (var repo = new Repository(InitNewRepository()))

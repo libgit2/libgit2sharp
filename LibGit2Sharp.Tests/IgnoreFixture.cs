@@ -16,15 +16,15 @@ namespace LibGit2Sharp.Tests
             {
                 Touch(repo.Info.WorkingDirectory, "Foo.cs", "Bar");
 
-                Assert.True(repo.RetrieveStatus().Untracked.Select(s => s.FilePath).Contains("Foo.cs"));
+                Assert.Contains("Foo.cs", repo.RetrieveStatus().Untracked.Select(s => s.FilePath));
 
                 repo.Ignore.AddTemporaryRules(new[] { "*.cs" });
 
-                Assert.False(repo.RetrieveStatus().Untracked.Select(s => s.FilePath).Contains("Foo.cs"));
+                Assert.DoesNotContain("Foo.cs", repo.RetrieveStatus().Untracked.Select(s => s.FilePath));
 
                 repo.Ignore.ResetAllTemporaryRules();
 
-                Assert.True(repo.RetrieveStatus().Untracked.Select(s => s.FilePath).Contains("Foo.cs"));
+                Assert.Contains("Foo.cs", repo.RetrieveStatus().Untracked.Select(s => s.FilePath));
             }
         }
 

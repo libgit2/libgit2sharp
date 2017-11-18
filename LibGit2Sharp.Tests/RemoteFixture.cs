@@ -203,7 +203,7 @@ namespace LibGit2Sharp.Tests
             {
                 var noUrlRemote = repo.Network.Remotes["no_url"];
                 Assert.NotNull(noUrlRemote);
-                Assert.Equal(null, noUrlRemote.Url);
+                Assert.Null(noUrlRemote.Url);
 
                 var remotes = repo.Network.Remotes.ToList();
                 Assert.Equal(1, remotes.Count(r => r.Name == "no_url"));

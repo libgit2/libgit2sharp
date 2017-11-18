@@ -88,7 +88,7 @@ namespace LibGit2Sharp.Tests
             {
                 string fullpath = Path.Combine(repo.Info.WorkingDirectory, filename);
 
-                Assert.Equal(true, File.Exists(fullpath));
+                Assert.True(File.Exists(fullpath));
 
                 File.AppendAllText(fullpath, "additional content");
                 Assert.Equal(FileStatus.ModifiedInIndex | FileStatus.ModifiedInWorkdir, repo.RetrieveStatus(filename));

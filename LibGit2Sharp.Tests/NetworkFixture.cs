@@ -168,13 +168,13 @@ namespace LibGit2Sharp.Tests
 
                 if(fastForwardStrategy == FastForwardStrategy.Default || fastForwardStrategy == FastForwardStrategy.FastForwardOnly)
                 {
-                    Assert.Equal(mergeResult.Status, MergeStatus.FastForward);
+                    Assert.Equal(MergeStatus.FastForward, mergeResult.Status);
                     Assert.Equal(mergeResult.Commit, repo.Branches["refs/remotes/origin/master"].Tip);
                     Assert.Equal(repo.Head.Tip, repo.Branches["refs/remotes/origin/master"].Tip);
                 }
                 else
                 {
-                    Assert.Equal(mergeResult.Status, MergeStatus.NonFastForward);
+                    Assert.Equal(MergeStatus.NonFastForward, mergeResult.Status);
                 }
             }
         }
@@ -199,7 +199,7 @@ namespace LibGit2Sharp.Tests
                 // Pull!
                 MergeResult mergeResult = Commands.Pull(repo, Constants.Signature, new PullOptions());
 
-                Assert.Equal(mergeResult.Status, MergeStatus.FastForward);
+                Assert.Equal(MergeStatus.FastForward, mergeResult.Status);
                 Assert.Equal(mergeResult.Commit, repo.Branches["refs/remotes/origin/master"].Tip);
                 Assert.Equal(repo.Head.Tip, repo.Branches["refs/remotes/origin/master"].Tip);
             }
@@ -260,7 +260,7 @@ namespace LibGit2Sharp.Tests
                 };
 
                 MergeResult mergeResult = repo.MergeFetchedRefs(Constants.Signature, mergeOptions);
-                Assert.Equal(mergeResult.Status, MergeStatus.NonFastForward);
+                Assert.Equal(MergeStatus.NonFastForward, mergeResult.Status);
             }
         }
 
