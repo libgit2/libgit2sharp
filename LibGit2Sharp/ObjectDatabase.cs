@@ -239,7 +239,7 @@ namespace LibGit2Sharp
             }
 
             IntPtr writestream_ptr = Proxy.git_blob_create_fromstream(repo.Handle, hintpath);
-            GitWriteStream writestream = MarshalPortable.PtrToStructure<GitWriteStream>(writestream_ptr);
+            GitWriteStream writestream = Marshal.PtrToStructure<GitWriteStream>(writestream_ptr);
 
             try
             {

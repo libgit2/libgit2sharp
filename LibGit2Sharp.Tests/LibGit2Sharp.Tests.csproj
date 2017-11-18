@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net46;netcoreapp2.0</TargetFrameworks>
-    <DefineConstants Condition=" '$(TargetFramework)' == 'net46' ">$(DefineConstants);DESKTOP</DefineConstants>
+    <TargetFrameworks>net461;netcoreapp2.0</TargetFrameworks>
+    <DefineConstants Condition=" '$(TargetFramework)' == 'net461' ">$(DefineConstants);DESKTOP</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,7 +21,7 @@
   <ItemGroup>
     <Compile Include="..\LibGit2Sharp\Core\Epoch.cs" Link="TestHelpers\Epoch.cs" />
     <Compile Include="..\LibGit2Sharp\Core\Platform.cs" Link="TestHelpers\Platform.cs" />
-    <Compile Remove="desktop\**" Condition=" '$(TargetFramework)' != 'net46' " />
+    <Compile Remove="desktop\**" Condition=" '$(TargetFramework)' != 'net461' " />
   </ItemGroup>
 
 </Project>
