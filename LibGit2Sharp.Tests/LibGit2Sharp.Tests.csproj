@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>net46;netcoreapp2.0</TargetFrameworks>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants Condition=" '$(TargetFramework)' == 'net46' ">$(DefineConstants);DESKTOP</DefineConstants>
   </PropertyGroup>
 

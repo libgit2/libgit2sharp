@@ -12,7 +12,6 @@
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\libgit2sharp.snk</AssemblyOriginatorKeyFile>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants Condition=" '$(TargetFramework)' == 'net40' ">$(DefineConstants);DESKTOP</DefineConstants>
   </PropertyGroup>
 
