@@ -615,10 +615,8 @@ namespace LibGit2Sharp.Tests
             string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                Console.WriteLine("head, {0}", repo.Head);
                 Commands.Checkout(repo, repo.Head.Tip.Sha, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
                 Branch trackLocal = repo.Head;
-                Console.WriteLine("head, {0}", repo.Head);
                 Assert.Null(trackLocal.RemoteName);
             }
         }
