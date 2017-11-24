@@ -121,6 +121,18 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanWriteABlobFromAByteArray()
+        {
+            var ba = Encoding.ASCII.GetBytes("libgit2\r\n");
+
+            using (var repo = new Repository(InitNewRepository()))
+            {
+                var id = repo.ObjectDatabase.Write<Blob>(ba);
+                Assert.Equal(new ObjectId("99115ea359379a218c47cffc83cd0af8c91c4061"), id);
+            }
+        }
+
         Stream PrepareMemoryStream(int contentSize)
         {
             var sb = new StringBuilder();
