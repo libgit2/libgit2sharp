@@ -255,15 +255,15 @@ namespace LibGit2Sharp.Tests
             {
                 RepositoryStatus status = repo.RetrieveStatus(new StatusOptions() { IncludeUnaltered = includeUnaltered });
                 Assert.NotNull(status);
-                Assert.Equal(0, status.Count());
+                Assert.Empty(status);
                 Assert.False(status.IsDirty);
 
-                Assert.Equal(0, status.Untracked.Count());
-                Assert.Equal(0, status.Modified.Count());
-                Assert.Equal(0, status.Missing.Count());
-                Assert.Equal(0, status.Added.Count());
-                Assert.Equal(0, status.Staged.Count());
-                Assert.Equal(0, status.Removed.Count());
+                Assert.Empty(status.Untracked);
+                Assert.Empty(status.Modified);
+                Assert.Empty(status.Missing);
+                Assert.Empty(status.Added);
+                Assert.Empty(status.Staged);
+                Assert.Empty(status.Removed);
             }
         }
 
@@ -286,7 +286,7 @@ namespace LibGit2Sharp.Tests
                 // Get the repository status
                 RepositoryStatus repoStatus = repo.RetrieveStatus();
 
-                Assert.Equal(1, repoStatus.Count());
+                Assert.Single(repoStatus);
                 StatusEntry statusEntry = repoStatus.Single();
 
                 Assert.Equal(relFilePath.Replace('\\', '/'), statusEntry.FilePath);
@@ -515,7 +515,7 @@ namespace LibGit2Sharp.Tests
                 newStatus = repo.RetrieveStatus(new StatusOptions { IncludeIgnored = true });
 
                 Assert.Equal(new[] { "bin/look-ma.txt" }, newStatus.Ignored.Select(s => s.FilePath));
-                Assert.True(newStatus.Untracked.Select(s => s.FilePath).Contains("bin/what-about-me.txt"));
+                Assert.Contains("bin/what-about-me.txt", newStatus.Untracked.Select(s => s.FilePath));
             }
         }
 
@@ -571,8 +571,8 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(2, status.Untracked.Count());
 
                 status = repo.RetrieveStatus(new StatusOptions() { PathSpec = new[] { "just_a_dir/another_dir" } });
-                Assert.Equal(1, status.Count());
-                Assert.Equal(1, status.Untracked.Count());
+                Assert.Single(status);
+                Assert.Single(status.Untracked);
             }
         }
 
@@ -656,7 +656,7 @@ namespace LibGit2Sharp.Tests
 
                 RepositoryStatus status = repo.RetrieveStatus(new StatusOptions() { IncludeUnaltered = true });
 
-                Assert.Equal(false, status.IsDirty);
+                Assert.False(status.IsDirty);
                 Assert.Equal(9, status.Count());
             }
         }

@@ -216,7 +216,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
-                Assert.Equal(false, blob.IsBinary);
+                Assert.False(blob.IsBinary);
             }
         }
 

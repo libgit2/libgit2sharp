@@ -261,8 +261,8 @@ namespace LibGit2Sharp
                 Marshal.StructureToPtr(state.thisStream, state.thisPtr, false);
 
                 state.nextPtr = git_writestream_next;
-                state.nextStream = MarshalPortable.PtrToStructure<GitWriteStream>(state.nextPtr);
-                
+                state.nextStream = Marshal.PtrToStructure<GitWriteStream>(state.nextPtr);
+
                 state.filterSource = FilterSource.FromNativePtr(filterSourcePtr);
                 state.output = new WriteStream(state.nextStream, state.nextPtr);
 
@@ -270,7 +270,7 @@ namespace LibGit2Sharp
 
                 if (!activeStreams.TryAdd(state.thisPtr, state))
                 {
-                    // AFAICT this is a theoretical error that could only happen if we manage 
+                    // AFAICT this is a theoretical error that could only happen if we manage
                     // to free the stream pointer but fail to remove the dictionary entry.
                     throw new InvalidOperationException("Overlapping stream pointers");
                 }

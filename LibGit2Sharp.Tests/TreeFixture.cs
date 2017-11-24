@@ -82,7 +82,7 @@ namespace LibGit2Sharp.Tests
                     .Select(e => e.Target)
                     .Cast<Tree>();
 
-                Assert.Equal(1, subTrees.Count());
+                Assert.Single(subTrees);
             }
         }
 

@@ -314,23 +314,23 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void DoubleRegistrationFailsButDoubleDeregistrationDoesNot()
         {
-            Assert.Equal(0, GlobalSettings.GetRegisteredFilters().Count());
+            Assert.Empty(GlobalSettings.GetRegisteredFilters());
 
             var filter = new EmptyFilter(FilterName, attributes);
             var registration = GlobalSettings.RegisterFilter(filter);
 
             Assert.Throws<EntryExistsException>(() => { GlobalSettings.RegisterFilter(filter); });
-            Assert.Equal(1, GlobalSettings.GetRegisteredFilters().Count());
+            Assert.Single(GlobalSettings.GetRegisteredFilters());
 
             Assert.True(registration.IsValid, "FilterRegistration.IsValid should be true.");
 
             GlobalSettings.DeregisterFilter(registration);
-            Assert.Equal(0, GlobalSettings.GetRegisteredFilters().Count());
+            Assert.Empty(GlobalSettings.GetRegisteredFilters());
 
             Assert.False(registration.IsValid, "FilterRegistration.IsValid should be false.");
 
             GlobalSettings.DeregisterFilter(registration);
-            Assert.Equal(0, GlobalSettings.GetRegisteredFilters().Count());
+            Assert.Empty(GlobalSettings.GetRegisteredFilters());
 
             Assert.False(registration.IsValid, "FilterRegistration.IsValid should be false.");
         }

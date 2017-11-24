@@ -8,7 +8,7 @@ namespace LibGit2Sharp.Core
     {
         static GitOdbBackend()
         {
-            GCHandleOffset = MarshalPortable.OffsetOf<GitOdbBackend>(nameof(GCHandle)).ToInt32();
+            GCHandleOffset = Marshal.OffsetOf<GitOdbBackend>(nameof(GCHandle)).ToInt32();
         }
 
         public uint Version;

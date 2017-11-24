@@ -20,7 +20,7 @@ namespace LibGit2Sharp.Tests
             {
                 var notes = repo.Notes[ObjectId.Zero];
 
-                Assert.Equal(0, notes.Count());
+                Assert.Empty(notes);
             }
         }
 
@@ -32,7 +32,7 @@ namespace LibGit2Sharp.Tests
             {
                 var notes = repo.Notes[new ObjectId("4c062a6361ae6959e06292c1fa5e2822d9c96345")];
 
-                Assert.Equal(0, notes.Count());
+                Assert.Empty(notes);
             }
         }
 
@@ -308,19 +308,19 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-	    [Fact]
-	    public void CanRetrieveNotesWhenThereAreNotAny()
-	    {
-		    string path = InitNewRepository();	// doesn't reproduce an error when using a sandbox repository so we have to create an actual repo.
-		    using (var repo = new Repository(path))
-		    {
-			    foreach (var note in repo.Notes)
-			    {
-				    Assert.NotNull(note);
-			    }
-			    Assert.Equal(0, repo.Notes.Count());
-		    }
-	    }
+        [Fact]
+        public void CanRetrieveNotesWhenThereAreNotAny()
+        {
+            string path = InitNewRepository();	// doesn't reproduce an error when using a sandbox repository so we have to create an actual repo.
+            using (var repo = new Repository(path))
+            {
+                foreach (var note in repo.Notes)
+                {
+                    Assert.NotNull(note);
+                }
+                Assert.Empty(repo.Notes);
+            }
+        }
 
 
         private static T[] SortedNotes<T>(IEnumerable<Note> notes, Func<Note, T> selector)

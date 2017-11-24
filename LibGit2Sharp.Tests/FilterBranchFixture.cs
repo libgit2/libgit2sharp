@@ -366,7 +366,7 @@ namespace LibGit2Sharp.Tests
             var commit = repo.Branches["packed"].Tip;
             var parent = commit.Parents.Single();
 
-            Assert.True(parent.Sha.StartsWith("5001298"));
+            Assert.StartsWith("5001298", parent.Sha);
             Assert.NotEqual(Constants.Signature, commit.Author);
             Assert.NotEqual(Constants.Signature, parent.Author);
 
@@ -557,7 +557,7 @@ namespace LibGit2Sharp.Tests
             AssertErrorFired(ex);
             AssertSucceedingNotFired();
 
-            Assert.Equal(0, repo.Refs.FromGlob("refs/original/*").Count());
+            Assert.Empty(repo.Refs.FromGlob("refs/original/*"));
         }
 
         // Graft the orphan "test" branch to the tip of "packed"
@@ -633,7 +633,7 @@ namespace LibGit2Sharp.Tests
             var commitToRewrite = repo.Lookup<Commit>("6dcf9bf");
             var newParent = repo.Branches["packed"].Tip;
 
-            Assert.True(newParent.Sha.StartsWith("41bc8c6"));
+            Assert.StartsWith("41bc8c6", newParent.Sha);
 
             repo.Refs.RewriteHistory(new RewriteHistoryOptions
             {
@@ -649,22 +649,22 @@ namespace LibGit2Sharp.Tests
             AssertSucceedingButNotError();
 
             // Assert "packed" hasn't been rewritten
-            Assert.True(repo.Branches["packed"].Tip.Sha.StartsWith("41bc8c6"));
+            Assert.StartsWith("41bc8c6", repo.Branches["packed"].Tip.Sha);
 
             // Assert (test, tag: lw, tag: e90810b, tag: test) have been rewritten
             var rewrittenTestCommit = repo.Branches["test"].Tip;
-            Assert.True(rewrittenTestCommit.Sha.StartsWith("f558880"));
+            Assert.StartsWith("f558880", rewrittenTestCommit.Sha);
             Assert.Equal(rewrittenTestCommit, repo.Lookup<Commit>("refs/tags/lw^{commit}"));
             Assert.Equal(rewrittenTestCommit, repo.Lookup<Commit>("refs/tags/e90810b^{commit}"));
             Assert.Equal(rewrittenTestCommit, repo.Lookup<Commit>("refs/tags/test^{commit}"));
 
             // Assert parent of rewritten commit
             var rewrittenTestCommitParent = rewrittenTestCommit.Parents.Single();
-            Assert.True(rewrittenTestCommitParent.Sha.StartsWith("0c25efa"));
+            Assert.StartsWith("0c25efa", rewrittenTestCommitParent.Sha);
 
             // Assert grand parent of rewritten commit
             var rewrittenTestCommitGrandParent = rewrittenTestCommitParent.Parents.Single();
-            Assert.True(rewrittenTestCommitGrandParent.Sha.StartsWith("41bc8c6"));
+            Assert.StartsWith("41bc8c6", rewrittenTestCommitGrandParent.Sha);
         }
 
         [Fact]

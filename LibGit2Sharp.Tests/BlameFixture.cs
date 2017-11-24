@@ -9,7 +9,7 @@ namespace LibGit2Sharp.Tests
     {
         private static void AssertCorrectHeadBlame(BlameHunkCollection blame)
         {
-            Assert.Equal(1, blame.Count());
+            Assert.Single(blame);
             Assert.Equal(0, blame[0].FinalStartLineNumber);
             Assert.Equal("schacon@gmail.com", blame[0].FinalSignature.Email);
             Assert.Equal("4a202b3", blame[0].FinalCommit.Id.ToString(7));
@@ -39,7 +39,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<NotFoundException>(() => repo.Blame("ancestor-only.txt"));
 
                 var blame = repo.Blame("ancestor-only.txt", new BlameOptions { StartingAt = "9107b30" });
-                Assert.Equal(1, blame.Count());
+                Assert.Single(blame);
             }
         }
 
@@ -79,7 +79,7 @@ namespace LibGit2Sharp.Tests
                 // 9fd738e8 (Scott Chacon 2010-05-24 10:19:19 -0700 1) my new file
                 // (be3563a comes after 9fd738e8)
                 var blame = repo.Blame("new.txt", new BlameOptions {StoppingAt = "be3563a"});
-                Assert.True(blame[0].FinalCommit.Sha.StartsWith("be3563a"));
+                Assert.StartsWith("be3563a", blame[0].FinalCommit.Sha);
             }
         }
     }

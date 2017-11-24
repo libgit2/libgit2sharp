@@ -70,7 +70,7 @@ namespace LibGit2Sharp.Tests
                 ObjectId parentOfHead = repo.Head.Tip.Parents.First().Id;
 
                 repo.Refs.Add("HEAD", parentOfHead.Sha, true);
-                Assert.Equal(true, repo.Info.IsHeadDetached);
+                Assert.True(repo.Info.IsHeadDetached);
 
                 Assert.Equal(6, repo.Commits.Count());
             }
@@ -156,7 +156,7 @@ namespace LibGit2Sharp.Tests
                                                                     }))
                 {
                     Assert.NotNull(commit);
-                    Assert.True(commit.Sha.StartsWith(reversedShas[count]));
+                    Assert.StartsWith(reversedShas[count], commit.Sha);
                     count++;
                 }
             }
@@ -204,7 +204,7 @@ namespace LibGit2Sharp.Tests
             string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Equal(1, repo.Commits.First().Parents.Count());
+                Assert.Single(repo.Commits.First().Parents);
             }
         }
 
@@ -222,7 +222,7 @@ namespace LibGit2Sharp.Tests
                                                                     }))
                 {
                     Assert.NotNull(commit);
-                    Assert.True(commit.Sha.StartsWith(expectedShas[count]));
+                    Assert.StartsWith(expectedShas[count], commit.Sha);
                     count++;
                 }
             }
@@ -484,7 +484,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal("181037049a54a1eb5fab404658a3a250b44335d7", commit.Tree.Sha);
 
-                Assert.Equal(0, commit.Parents.Count());
+                Assert.Empty(commit.Parents);
             }
         }
 
@@ -590,8 +590,8 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(CurrentOperation.None, repo.Info.CurrentOperation);
 
                 Assert.Equal(2, newMergedCommit.Parents.Count());
-                Assert.Equal(newMergedCommit.Parents.First().Sha, "c47800c7266a2be04c571c04d5a6614691ea99bd");
-                Assert.Equal(newMergedCommit.Parents.Skip(1).First().Sha, "9fd738e8f7967c078dceed8190330fc8648ee56a");
+                Assert.Equal("c47800c7266a2be04c571c04d5a6614691ea99bd", newMergedCommit.Parents.First().Sha);
+                Assert.Equal("9fd738e8f7967c078dceed8190330fc8648ee56a", newMergedCommit.Parents.Skip(1).First().Sha);
 
                 // Assert reflog entry is created
                 var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
@@ -670,11 +670,11 @@ namespace LibGit2Sharp.Tests
                 AssertBlobContent(repo.Head[relativeFilepath], "nulltoken\n");
                 AssertBlobContent(commit[relativeFilepath], "nulltoken\n");
 
-                Assert.Equal(0, commit.Parents.Count());
+                Assert.Empty(commit.Parents);
                 Assert.False(repo.Info.IsHeadUnborn);
 
                 // Assert a reflog entry is created on HEAD
-                Assert.Equal(1, repo.Refs.Log("HEAD").Count());
+                Assert.Single(repo.Refs.Log("HEAD"));
                 var reflogEntry = repo.Refs.Log("HEAD").First();
 
                 Assert.Equal(identity.Name, reflogEntry.Committer.Name);
@@ -689,7 +689,7 @@ namespace LibGit2Sharp.Tests
 
                 // Assert a reflog entry is created on HEAD target
                 var targetCanonicalName = repo.Refs.Head.TargetIdentifier;
-                Assert.Equal(1, repo.Refs.Log(targetCanonicalName).Count());
+                Assert.Single(repo.Refs.Log(targetCanonicalName));
                 Assert.Equal(commit.Id, repo.Refs.Log(targetCanonicalName).First().To);
 
                 File.WriteAllText(filePath, "nulltoken commits!\n");
@@ -701,7 +701,7 @@ namespace LibGit2Sharp.Tests
                 AssertBlobContent(repo.Head[relativeFilepath], "nulltoken commits!\n");
                 AssertBlobContent(commit2[relativeFilepath], "nulltoken commits!\n");
 
-                Assert.Equal(1, commit2.Parents.Count());
+                Assert.Single(commit2.Parents);
                 Assert.Equal(commit.Id, commit2.Parents.First().Id);
 
                 // Assert the reflog is shifted
@@ -721,7 +721,7 @@ namespace LibGit2Sharp.Tests
                 AssertBlobContent(repo.Head[relativeFilepath], "davidfowl commits!\n");
                 AssertBlobContent(commit3[relativeFilepath], "davidfowl commits!\n");
 
-                Assert.Equal(1, commit3.Parents.Count());
+                Assert.Single(commit3.Parents);
                 Assert.Equal(commit.Id, commit3.Parents.First().Id);
 
                 AssertBlobContent(firstCommitBranch[relativeFilepath], "nulltoken\n");
@@ -776,17 +776,17 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                Assert.Equal(1, repo.Head.Commits.Count());
+                Assert.Single(repo.Head.Commits);
 
                 Commit originalCommit = repo.Head.Tip;
-                Assert.Equal(0, originalCommit.Parents.Count());
+                Assert.Empty(originalCommit.Parents);
 
                 CreateAndStageANewFile(repo);
 
                 Commit amendedCommit = repo.Commit("I'm rewriting the history!", Constants.Signature, Constants.Signature,
                     new CommitOptions { AmendPreviousCommit = true });
 
-                Assert.Equal(1, repo.Head.Commits.Count());
+                Assert.Single(repo.Head.Commits);
 
                 AssertCommitHasBeenAmended(repo, amendedCommit, originalCommit);
             }
@@ -918,7 +918,7 @@ namespace LibGit2Sharp.Tests
                 Commands.Stage(repo, relativeFilepath);
 
                 repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
-                Assert.Equal(1, repo.Head.Commits.Count());
+                Assert.Single(repo.Head.Commits);
             }
         }
 
@@ -1000,8 +1000,8 @@ namespace LibGit2Sharp.Tests
                 Commit newMergedCommit = repo.Commit("Merge commit", Constants.Signature, Constants.Signature);
 
                 Assert.Equal(2, newMergedCommit.Parents.Count());
-                Assert.Equal(newMergedCommit.Parents.First().Sha, "32eab9cb1f450b5fe7ab663462b77d7f4b703344");
-                Assert.Equal(newMergedCommit.Parents.Skip(1).First().Sha, "f705abffe7015f2beacf2abe7a36583ebee3487e");
+                Assert.Equal("32eab9cb1f450b5fe7ab663462b77d7f4b703344", newMergedCommit.Parents.First().Sha);
+                Assert.Equal("f705abffe7015f2beacf2abe7a36583ebee3487e", newMergedCommit.Parents.Skip(1).First().Sha);
             }
         }
 

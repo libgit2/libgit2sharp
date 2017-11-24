@@ -174,8 +174,8 @@ namespace LibGit2Sharp.Tests
                 Commands.Stage(repo, relativeFilepath);
 
                 Assert.NotNull(repo.Commit("Initial commit", Constants.Signature, Constants.Signature));
-                Assert.Equal(1, repo.Head.Commits.Count());
-                Assert.Equal(1, repo.Commits.Count());
+                Assert.Single(repo.Head.Commits);
+                Assert.Single(repo.Commits);
             }
         }
     }

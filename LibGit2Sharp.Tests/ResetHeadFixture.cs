@@ -256,7 +256,7 @@ namespace LibGit2Sharp.Tests
                 names = new DirectoryInfo(repo.Info.WorkingDirectory).GetFileSystemInfos().Select(fsi => fsi.Name).ToList();
                 names.Sort(StringComparer.Ordinal);
 
-                Assert.Equal(true, progressCalled);
+                Assert.True(progressCalled);
                 Assert.Equal(new[] { ".git", "README", "WillNotBeRemoved.txt", "branch_file.txt", "new.txt", "new_untracked_file.txt" }, names);
             }
         }

@@ -61,7 +61,7 @@ namespace LibGit2Sharp.Tests
 
                 GitObjectMetadata blobMetadata = repo.ObjectDatabase.RetrieveObjectMetadata(blob.Id);
                 Assert.Equal(blobMetadata.Size, blob.Size);
-                Assert.Equal(blobMetadata.Type, ObjectType.Blob);
+                Assert.Equal(ObjectType.Blob, blobMetadata.Type);
 
                 Blob fetchedBlob = repo.Lookup<Blob>(blob.Id);
                 Assert.Equal(blobMetadata.Size, fetchedBlob.Size);
@@ -449,7 +449,7 @@ namespace LibGit2Sharp.Tests
                 {
                     Blob blob = repo.ObjectDatabase.CreateBlob(stream);
                     Assert.Equal(6, blob.Size);
-                    Assert.Equal(true, blob.IsBinary);
+                    Assert.True(blob.IsBinary);
                 }
             }
         }

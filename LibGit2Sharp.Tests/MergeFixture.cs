@@ -16,7 +16,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                Assert.Equal(true, repo.Index.IsFullyMerged);
+                Assert.True(repo.Index.IsFullyMerged);
             }
         }
 
@@ -26,7 +26,7 @@ namespace LibGit2Sharp.Tests
             string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Equal(true, repo.Index.IsFullyMerged);
+                Assert.True(repo.Index.IsFullyMerged);
 
                 foreach (var entry in repo.Index)
                 {
@@ -41,7 +41,7 @@ namespace LibGit2Sharp.Tests
             var path = SandboxMergedTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Equal(false, repo.Index.IsFullyMerged);
+                Assert.False(repo.Index.IsFullyMerged);
 
                 var headCommit = repo.Head.Tip;
                 var firstCommitParent = headCommit.Parents.First();
@@ -56,7 +56,7 @@ namespace LibGit2Sharp.Tests
             var path = SandboxMergedTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Equal(false, repo.Index.IsFullyMerged);
+                Assert.False(repo.Index.IsFullyMerged);
 
                 var author = Constants.Signature;
                 Assert.Throws<UnmergedIndexEntriesException>(
@@ -204,7 +204,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(repo.Branches["FirstBranch"].Tip, repo.Head.Tip);
                 Assert.Equal(repo.Head.Tip, mergeResult.Commit);
 
-                Assert.Equal(0, repo.RetrieveStatus().Count());
+                Assert.Empty(repo.RetrieveStatus());
                 Assert.Equal(shouldMergeOccurInDetachedHeadState, repo.Info.IsHeadDetached);
 
                 if (!shouldMergeOccurInDetachedHeadState)
@@ -246,7 +246,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(MergeStatus.Conflicts, mergeResult.Status);
 
                 Assert.Null(mergeResult.Commit);
-                Assert.Equal(1, repo.Index.Conflicts.Count());
+                Assert.Single(repo.Index.Conflicts);
 
                 var conflict = repo.Index.Conflicts.First();
                 var changes = repo.Diff.Compare(repo.Lookup<Blob>(conflict.Theirs.Id), repo.Lookup<Blob>(conflict.Ours.Id));
@@ -285,7 +285,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(MergeStatus.Conflicts, mergeResult.Status);
 
-                Assert.Equal(1, repo.Index.Conflicts.Count());
+                Assert.Single(repo.Index.Conflicts);
 
                 Conflict conflict = repo.Index.Conflicts.First();
 
@@ -515,12 +515,12 @@ namespace LibGit2Sharp.Tests
                 MergeResult result = repo.Merge(commitToMerge, Constants.Signature, new MergeOptions() { CommitOnSuccess = false});
 
                 Assert.Equal(MergeStatus.NonFastForward, result.Status);
-                Assert.Equal(null, result.Commit);
+                Assert.Null(result.Commit);
 
                 RepositoryStatus repoStatus = repo.RetrieveStatus();
 
                 // Verify that there is a staged entry.
-                Assert.Equal(1, repoStatus.Count());
+                Assert.Single(repoStatus);
                 Assert.Equal(FileStatus.ModifiedInIndex, repo.RetrieveStatus("b.txt"));
             }
         }
@@ -570,7 +570,7 @@ namespace LibGit2Sharp.Tests
                 MergeResult result = repo.Merge(commitToMerge, Constants.Signature, new MergeOptions() { FastForwardStrategy = FastForwardStrategy.NoFastForward });
 
                 Assert.Equal(MergeStatus.UpToDate, result.Status);
-                Assert.Equal(null, result.Commit);
+                Assert.Null(result.Commit);
                 Assert.False(repo.RetrieveStatus().Any());
             }
         }
@@ -776,7 +776,7 @@ namespace LibGit2Sharp.Tests
 
                 var result = repo.ObjectDatabase.MergeCommits(master, master, null);
                 Assert.Equal(MergeTreeStatus.Succeeded, result.Status);
-                Assert.Equal(0, result.Conflicts.Count());
+                Assert.Empty(result.Conflicts);
             }
         }
 
@@ -800,7 +800,7 @@ namespace LibGit2Sharp.Tests
                 var result = repo.ObjectDatabase.MergeCommits(master, branch, null);
                 Assert.Equal(MergeTreeStatus.Succeeded, result.Status);
                 Assert.NotNull(result.Tree);
-                Assert.Equal(0, result.Conflicts.Count());
+                Assert.Empty(result.Conflicts);
             }
         }
 
@@ -822,7 +822,7 @@ namespace LibGit2Sharp.Tests
                 var result = repo.ObjectDatabase.MergeCommits(master, branch, null);
                 Assert.Equal(MergeTreeStatus.Conflicts, result.Status);
                 Assert.Null(result.Tree);
-                Assert.NotEqual(0, result.Conflicts.Count());
+                Assert.NotEmpty(result.Conflicts);
             }
         }
 
@@ -838,7 +838,7 @@ namespace LibGit2Sharp.Tests
                 var result = repo.ObjectDatabase.MergeCommits(master, branch, null);
                 Assert.Equal(MergeTreeStatus.Succeeded, result.Status);
                 Assert.NotNull(result.Tree);
-                Assert.Equal(0, result.Conflicts.Count());
+                Assert.Empty(result.Conflicts);
             }
         }
 
@@ -856,7 +856,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(MergeTreeStatus.Conflicts, result.Status);
 
                 Assert.Null(result.Tree);
-                Assert.Equal(1, result.Conflicts.Count());
+                Assert.Single(result.Conflicts);
 
                 var conflict = result.Conflicts.First();
                 Assert.Equal(new ObjectId("8e9daea300fbfef6c0da9744c6214f546d55b279"), conflict.Ancestor.Id);

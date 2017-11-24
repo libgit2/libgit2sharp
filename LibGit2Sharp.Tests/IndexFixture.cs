@@ -462,18 +462,18 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 var before = repo.RetrieveStatus();
-                Assert.True(before.Any(se => se.State == FileStatus.NewInWorkdir));
-                Assert.True(before.Any(se => se.State == FileStatus.ModifiedInWorkdir));
-                Assert.True(before.Any(se => se.State == FileStatus.DeletedFromWorkdir));
+                Assert.Contains(before, se => se.State == FileStatus.NewInWorkdir);
+                Assert.Contains(before, se => se.State == FileStatus.ModifiedInWorkdir);
+                Assert.Contains(before, se => se.State == FileStatus.DeletedFromWorkdir);
 
                 AddSomeCornerCases(repo);
 
                 Commands.Stage(repo, "*");
 
                 var after = repo.RetrieveStatus();
-                Assert.False(after.Any(se => se.State == FileStatus.NewInWorkdir));
-                Assert.False(after.Any(se => se.State == FileStatus.ModifiedInWorkdir));
-                Assert.False(after.Any(se => se.State == FileStatus.DeletedFromWorkdir));
+                Assert.DoesNotContain(after, se => se.State == FileStatus.NewInWorkdir);
+                Assert.DoesNotContain(after, se => se.State == FileStatus.ModifiedInWorkdir);
+                Assert.DoesNotContain(after, se => se.State == FileStatus.DeletedFromWorkdir);
             }
         }
 

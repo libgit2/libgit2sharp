@@ -54,12 +54,12 @@ namespace LibGit2Sharp.Tests
 
                 using (var changes = repo.Diff.Compare<TreeChanges>(new[] { relativePath }, false, new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false }))
                 {
-                    Assert.Equal(0, changes.Count());
+                    Assert.Empty(changes);
                 }
 
                 using (var changes = repo.Diff.Compare<TreeChanges>(new[] { relativePath }))
                 {
-                    Assert.Equal(0, changes.Count());
+                    Assert.Empty(changes);
                 }
             }
         }
@@ -139,7 +139,7 @@ namespace LibGit2Sharp.Tests
                 SetFilemode(repo, true);
                 using(var changes = repo.Diff.Compare<TreeChanges>(new[] { file }))
                 {
-                    Assert.Equal(1, changes.Count());
+                    Assert.Single(changes);
 
                     var change = changes.Modified.Single();
                     Assert.Equal(Mode.ExecutableFile, change.OldMode);
@@ -152,7 +152,7 @@ namespace LibGit2Sharp.Tests
                 SetFilemode(repo, false);
                 using(var changes = repo.Diff.Compare<TreeChanges>(new[] { file }))
                 {
-                    Assert.Equal(0, changes.Count());
+                    Assert.Empty(changes);
                 }
             }
         }

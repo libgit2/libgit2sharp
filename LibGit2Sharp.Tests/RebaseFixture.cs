@@ -253,10 +253,10 @@ namespace LibGit2Sharp.Tests
 
                 repo.Rebase.Start(null, upstreamBranch, null, Constants.Identity2, options);
 
-                Assert.Equal(true, wasCheckoutNotifyCalledForResetingHead);
-                Assert.Equal(true, wasCheckoutProgressCalledForResetingHead);
-                Assert.Equal(true, wasCheckoutNotifyCalled);
-                Assert.Equal(true, wasCheckoutProgressCalled);
+                Assert.True(wasCheckoutNotifyCalledForResetingHead);
+                Assert.True(wasCheckoutProgressCalledForResetingHead);
+                Assert.True(wasCheckoutNotifyCalled);
+                Assert.True(wasCheckoutProgressCalled);
 
                 // Verify the chain of resultant rebased commits.
                 CommitFilter commitFilter = new CommitFilter()
