@@ -188,6 +188,45 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Writes an object to the object database.
+        /// </summary>
+        /// <param name="stream">The contents of the object</param>
+        /// <param name="numberOfBytesToConsume">The number of bytes to consume from the stream</param>
+        /// <typeparam name="T">The type of object to write</typeparam>
+        public virtual ObjectId Write<T>(Stream stream, long numberOfBytesToConsume) where T : GitObject
+        {
+            Ensure.ArgumentNotNull(stream, "stream");
+
+            if (!stream.CanRead)
+            {
+                throw new ArgumentException("The stream cannot be read from.", "stream");
+            }
+
+            using (var odbStream = Proxy.git_odb_open_wstream(handle, numberOfBytesToConsume, GitObjectType.Blob))
+            {
+                var buffer = new byte[4 * 1024];
+                long totalRead = 0;
+
+                while (totalRead < numberOfBytesToConsume)
+                {
+                    long left = numberOfBytesToConsume - totalRead;
+                    int toRead = left < buffer.Length ? (int)left : buffer.Length;
+                    var read = stream.Read(buffer, 0, toRead);
+
+                    if (read == 0)
+                    {
+                        throw new EndOfStreamException("The stream ended unexpectedly");
+                    }
+
+                    Proxy.git_odb_stream_write(odbStream, buffer, read);
+                    totalRead += read;
+                }
+
+                return Proxy.git_odb_stream_finalize_write(odbStream);
+            }
+        }
+
+        /// <summary>
         /// Inserts a <see cref="Blob"/> into the object database, created from the content of a stream.
         /// <para>Optionally, git filters will be applied to the content before storing it.</para>
         /// </summary>
@@ -294,37 +333,8 @@ namespace LibGit2Sharp
         /// <returns>The created <see cref="Blob"/>.</returns>
         public virtual Blob CreateBlob(Stream stream, long numberOfBytesToConsume)
         {
-            Ensure.ArgumentNotNull(stream, "stream");
-
-            if (!stream.CanRead)
-            {
-                throw new ArgumentException("The stream cannot be read from.", "stream");
-            }
-
-            using (var odbStream = Proxy.git_odb_open_wstream(handle, numberOfBytesToConsume, GitObjectType.Blob))
-            {
-                var buffer = new byte[4 * 1024];
-                long totalRead = 0;
-
-                while (totalRead < numberOfBytesToConsume)
-                {
-                    long left = numberOfBytesToConsume - totalRead;
-                    int toRead = left < buffer.Length ? (int)left : buffer.Length;
-                    var read = stream.Read(buffer, 0, toRead);
-
-                    if (read == 0)
-                    {
-                        throw new EndOfStreamException("The stream ended unexpectedly");
-                    }
-
-                    Proxy.git_odb_stream_write(odbStream, buffer, read);
-                    totalRead += read;
-                }
-
-                var id = Proxy.git_odb_stream_finalize_write(odbStream);
-
-                return repo.Lookup<Blob>(id);
-            }
+            var id = Write<Blob>(stream, numberOfBytesToConsume);
+            return repo.Lookup<Blob>(id);
         }
 
         /// <summary>
