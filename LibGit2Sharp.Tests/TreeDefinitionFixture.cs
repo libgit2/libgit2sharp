@@ -222,6 +222,49 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Theory]
+        [InlineData("a8233120f6ad708f843d861ce2b7228ec4e3dec6", "README_TOO")]
+        [InlineData("a8233120f6ad708f843d861ce2b7228ec4e3dec6", "1/README")]
+        [InlineData("45b983be36b73c0788dc9cbcb76cbb80fc7bb057", "1/another_one.txt")]
+        [InlineData("45b983be36b73c0788dc9cbcb76cbb80fc7bb057", "another_one.txt")]
+        public void CanAddBlobById(string blobSha, string targetPath)
+        {
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
+            {
+                TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
+                Assert.Null(td[targetPath]);
+
+                var objectId = new ObjectId(blobSha);
+
+                td.Add(targetPath, objectId, Mode.NonExecutableFile);
+
+                TreeEntryDefinition fetched = td[targetPath];
+                Assert.NotNull(fetched);
+
+                Assert.Equal(objectId, fetched.TargetId);
+                Assert.Equal(Mode.NonExecutableFile, fetched.Mode);
+            }
+        }
+
+        [Fact]
+        public void CannotAddTreeById()
+        {
+            const string treeSha = "7f76480d939dc401415927ea7ef25c676b8ddb8f";
+            const string targetPath = "1/2";
+
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
+            {
+                TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
+                Assert.Null(td[targetPath]);
+
+                var objectId = new ObjectId(treeSha);
+
+                Assert.Throws<ArgumentException>(() => td.Add(targetPath, objectId, Mode.Directory));
+            }
+        }
+
         [Fact]
         public void CanAddAnExistingSubmodule()
         {

@@ -207,6 +207,23 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Adds or replaces a <see cref="TreeEntryDefinition"/> from an existing blob specified by its Object ID at the specified <paramref name="targetTreeEntryPath"/> location.
+        /// </summary>
+        /// <param name="targetTreeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
+        /// <param name="id">The object ID for this entry.</param>
+        /// <param name="mode">The file related <see cref="Mode"/> attributes.</param>
+        /// <returns>The current <see cref="TreeDefinition"/>.</returns>
+        public virtual TreeDefinition Add(string targetTreeEntryPath, ObjectId id, Mode mode)
+        {
+            Ensure.ArgumentNotNull(id, "id");
+            Ensure.ArgumentConformsTo(mode, m => m.HasAny(TreeEntryDefinition.BlobModes), "mode");
+
+            TreeEntryDefinition ted = TreeEntryDefinition.From(id, mode);
+
+            return Add(targetTreeEntryPath, ted);
+        }
+
+        /// <summary>
         /// Adds or replaces a <see cref="TreeEntryDefinition"/>, dynamically built from the provided <see cref="Tree"/>, at the specified <paramref name="targetTreeEntryPath"/> location.
         /// </summary>
         /// <param name="targetTreeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
