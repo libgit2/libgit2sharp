@@ -178,7 +178,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Write an object to the object database
+        /// Writes an object to the object database.
         /// </summary>
         /// <param name="data">The contents of the object</param>
         /// <typeparam name="T">The type of object to write</typeparam>
