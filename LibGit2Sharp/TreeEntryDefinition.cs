@@ -54,12 +54,27 @@ namespace LibGit2Sharp
 
         internal static TreeEntryDefinition From(Blob blob, Mode mode)
         {
+            Ensure.ArgumentNotNull(blob, "blob");
+
             return new TreeEntryDefinition
             {
                 Mode = mode,
                 TargetType = TreeEntryTargetType.Blob,
                 TargetId = blob.Id,
                 target = new Lazy<GitObject>(() => blob)
+            };
+        }
+
+        internal static TreeEntryDefinition From(ObjectId id, Mode mode)
+        {
+            Ensure.ArgumentNotNull(id, "id");
+            Ensure.ArgumentNotNull(mode, "mode");
+
+            return new TreeEntryDefinition
+            {
+                Mode = mode,
+                TargetType = TreeEntryTargetType.Blob,
+                TargetId = id
             };
         }
 
