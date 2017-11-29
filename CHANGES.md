@@ -10,9 +10,13 @@
   - Windows (x86/amd64): <https://ci.appveyor.com/project/libgit2/libgit2sharp>
   - Linux/Mac OS X: <https://travis-ci.org/libgit2/libgit2sharp>
 
-## v0.24 + 1
+## v0.24.1
 
 ### Additions
+
+ - `TreeDefinition.Add` can now add a blob to a tree when given its object ID.
+ - `ObjectDatabase.Write` can now take a readable `Stream` to support writing
+   large files to the object database.
 
 ### Changes
 
