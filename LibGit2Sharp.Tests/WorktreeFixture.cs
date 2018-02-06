@@ -72,6 +72,52 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanUnlockWorktree()
+        {
+            var testpath = SandboxWorktreeTestRepo();
+            var repoPath = testpath;
+            using (var repo = new Repository(repoPath))
+            {
+                // locked
+                var worktreeLocked = repo.Worktrees["logo"];
+                Assert.Equal("logo", worktreeLocked.Name);
+                Assert.True(worktreeLocked.IsLocked);
+                Assert.Equal("Test lock reason\n", worktreeLocked.LockReason);
+
+                worktreeLocked.Unlock();
+
+                // not locked
+                var worktreeUnlocked = repo.Worktrees["logo"];
+                Assert.Equal("logo", worktreeLocked.Name);
+                Assert.False(worktreeUnlocked.IsLocked);
+                Assert.Null(worktreeUnlocked.LockReason);
+            }
+        }
+
+        [Fact]
+        public void CanLockWorktree()
+        {
+            var testpath = SandboxWorktreeTestRepo();
+            var repoPath = testpath;
+            using (var repo = new Repository(repoPath))
+            {
+                // locked
+                var worktreeUnlocked = repo.Worktrees["i-do-numbers"];
+                Assert.Equal("i-do-numbers", worktreeUnlocked.Name);
+                Assert.False(worktreeUnlocked.IsLocked);
+                Assert.Null(worktreeUnlocked.LockReason);
+
+                worktreeUnlocked.Lock("add a lock");
+
+                // not locked
+                var worktreeLocked = repo.Worktrees["i-do-numbers"];
+                Assert.Equal("i-do-numbers", worktreeLocked.Name);
+                Assert.True(worktreeLocked.IsLocked);
+                Assert.Equal("add a lock", worktreeLocked.LockReason);
+            }
+        }
+
+        [Fact]
         public void CanGetRepositoryForWorktree()
         {
             var testpath = SandboxWorktreeTestRepo();

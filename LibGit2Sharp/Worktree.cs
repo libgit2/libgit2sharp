@@ -1,4 +1,5 @@
 ﻿using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,10 +17,11 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<Worktree> equalityHelper =
             new LambdaEqualityHelper<Worktree>(x => x.Name);
 
+        private readonly WorktreeHandle handle;
         private readonly Repository parent;
         private readonly Repository worktree;
         private readonly string name;
-        private readonly WorktreeLock worktreeLock;
+        private WorktreeLock worktreeLock;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -27,8 +29,9 @@ namespace LibGit2Sharp
         protected Worktree()
         { }
 
-        internal Worktree(Repository repo, string name, Repository worktree, WorktreeLock worktreeLock)
+        internal Worktree(WorktreeHandle handle, Repository repo, string name, Repository worktree, WorktreeLock worktreeLock)
         {
+            this.handle = Proxy.git_worktree_lookup(repo.Handle, name);
             this.parent = repo;
             this.name = name;
             this.worktree = worktree;
@@ -73,6 +76,24 @@ namespace LibGit2Sharp
         public bool Equals(Worktree other)
         {
             return equalityHelper.Equals(this, other);
+        }
+
+        /// <summary>
+        ///  Unlock the worktree
+        /// </summary>
+        public void Unlock()
+        {
+            Proxy.git_worktree_unlock(handle);
+            this.worktreeLock = Proxy.git_worktree_is_locked(handle);
+        }
+        
+        /// <summary>
+        ///  Lock the worktree
+        /// </summary>
+        public void Lock(string reason)
+        {
+            Proxy.git_worktree_lock(handle, reason);
+            this.worktreeLock = Proxy.git_worktree_is_locked(handle);
         }
 
         /// <summary>

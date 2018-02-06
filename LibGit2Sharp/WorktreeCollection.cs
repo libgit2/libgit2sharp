@@ -40,7 +40,7 @@ namespace LibGit2Sharp
             {
                 Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-                return Lookup(name, handle => new Worktree(repo,
+                return Lookup(name, handle => new Worktree(handle, repo,
                     name,
                     new Repository(handle),
                     Proxy.git_worktree_is_locked(handle)));
@@ -72,12 +72,9 @@ namespace LibGit2Sharp
         public virtual IEnumerator<Worktree> GetEnumerator()
         {
             return Proxy.git_worktree_list(repo.Handle)
-                .Select(n => Lookup(n, handle => new Worktree(repo, n,
+                .Select(n => Lookup(n, handle => new Worktree(handle, repo, n,
                     new Repository(handle), Proxy.git_worktree_is_locked(handle))))
                 .GetEnumerator();
-            //return Proxy.git_submodule_foreach(repo.Handle, (h, n) => LaxUtf8Marshaler.FromNative(n))
-            //            .Select(n => this[n])
-            //            .GetEnumerator();
         }
 
         /// <summary>

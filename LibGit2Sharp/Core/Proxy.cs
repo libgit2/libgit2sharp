@@ -3531,6 +3531,21 @@ namespace LibGit2Sharp.Core
         public static unsafe bool git_worktree_validate(WorktreeHandle worktree)
         {
             int res = NativeMethods.git_worktree_validate(worktree);
+
+            return res == (int)GitErrorCode.Ok;
+        }
+
+        public static unsafe bool git_worktree_unlock(WorktreeHandle worktree)
+        {
+            int res = NativeMethods.git_worktree_unlock(worktree);
+
+            return res == (int)GitErrorCode.Ok;
+        }
+
+        public static unsafe bool git_worktree_lock(WorktreeHandle worktree, string reason)
+        {
+            int res = NativeMethods.git_worktree_lock(worktree, reason);
+
             return res == (int)GitErrorCode.Ok;
         }
 
