@@ -1926,6 +1926,18 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe int git_worktree_unlock(
             git_worktree* worktree);
 
+        [DllImport(libgit2)]
+        internal static extern unsafe int git_worktree_add (
+            out git_worktree* reference,
+            git_repository* repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string path,
+            git_worktree_add_options options);
+
+        [DllImport(libgit2)]
+        internal static extern unsafe int git_worktree_prune(
+            git_worktree* worktree,
+            git_worktree_prune_options options);
     }
 }
 // ReSharper restore InconsistentNaming

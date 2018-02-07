@@ -3549,6 +3549,26 @@ namespace LibGit2Sharp.Core
             return res == (int)GitErrorCode.Ok;
         }
 
+        public static unsafe WorktreeHandle git_worktree_add(
+            RepositoryHandle repo,
+            string name,
+            string path,
+            git_worktree_add_options options)
+        {
+            git_worktree* worktree;
+            int res = NativeMethods.git_worktree_add(out worktree, repo, name, path, options);
+            Ensure.ZeroResult(res);
+            return new WorktreeHandle(worktree, true);
+        }
+
+        public static unsafe bool git_worktree_prune(WorktreeHandle worktree,
+            git_worktree_prune_options options)
+        {
+            int res = NativeMethods.git_worktree_prune(worktree, options);
+            Ensure.ZeroResult(res);
+            return true;
+        }
+
         #endregion
 
         private static ICollection<TResult> git_foreach<T, TResult>(

@@ -19,8 +19,8 @@ namespace LibGit2Sharp
             IsLocked = isLocked;
             Reason = reason;
         }
-        public bool IsLocked { get; }
-        public string Reason { get; }
+        public virtual bool IsLocked { get; }
+        public virtual string Reason { get; }
 
         private string DebuggerDisplay
         {

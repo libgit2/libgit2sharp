@@ -1,6 +1,7 @@
 ﻿using LibGit2Sharp.Tests.TestHelpers;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -86,7 +87,7 @@ namespace LibGit2Sharp.Tests
 
                 worktreeLocked.Unlock();
 
-                // not locked
+                // unlocked
                 var worktreeUnlocked = repo.Worktrees["logo"];
                 Assert.Equal("logo", worktreeLocked.Name);
                 Assert.False(worktreeUnlocked.IsLocked);
@@ -101,7 +102,7 @@ namespace LibGit2Sharp.Tests
             var repoPath = testpath;
             using (var repo = new Repository(repoPath))
             {
-                // locked
+                // unlocked
                 var worktreeUnlocked = repo.Worktrees["i-do-numbers"];
                 Assert.Equal("i-do-numbers", worktreeUnlocked.Name);
                 Assert.False(worktreeUnlocked.IsLocked);
@@ -109,7 +110,7 @@ namespace LibGit2Sharp.Tests
 
                 worktreeUnlocked.Lock("add a lock");
 
-                // not locked
+                // locked
                 var worktreeLocked = repo.Worktrees["i-do-numbers"];
                 Assert.Equal("i-do-numbers", worktreeLocked.Name);
                 Assert.True(worktreeLocked.IsLocked);
@@ -129,6 +130,137 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("logo", worktree.Name);
                 var worktreeRepo = worktree.WorktreeRepository;
                 Assert.NotNull(worktreeRepo);
+            }
+        }
+
+        [Fact]
+        public void CanPruneUnlockedWorktree()
+        {
+            var repoPath = SandboxWorktreeTestRepo();
+            using (var repo = new Repository(repoPath))
+            {
+                Assert.Equal(2, repo.Worktrees.Count());
+
+                // unlocked
+                var worktreeUnlocked = repo.Worktrees["i-do-numbers"];
+                Assert.Equal("i-do-numbers", worktreeUnlocked.Name);
+                Assert.False(worktreeUnlocked.IsLocked);
+
+                Assert.True(repo.Worktrees.Prune(worktreeUnlocked));
+
+                Assert.Single(repo.Worktrees);
+            }
+        }
+
+        [Fact]
+        public void CanNotPruneLockedWorktree()
+        {
+            var repoPath = SandboxWorktreeTestRepo();
+            using (var repo = new Repository(repoPath))
+            {
+                Assert.Equal(2, repo.Worktrees.Count());
+
+                // locked
+                var worktreeUnlocked = repo.Worktrees["logo"];
+                Assert.Equal("logo", worktreeUnlocked.Name);
+                Assert.True(worktreeUnlocked.IsLocked);
+
+                Assert.Throws<LibGit2SharpException>(() => repo.Worktrees.Prune(worktreeUnlocked));
+            }
+        }
+
+        [Fact]
+        public void CanUnlockThenPruneLockedWorktree()
+        {
+            var repoPath = SandboxWorktreeTestRepo();
+            using (var repo = new Repository(repoPath))
+            {
+                Assert.Equal(2, repo.Worktrees.Count());
+
+                // locked
+                var worktreeLocked = repo.Worktrees["logo"];
+                Assert.Equal("logo", worktreeLocked.Name);
+                Assert.True(worktreeLocked.IsLocked);
+
+                worktreeLocked.Unlock();
+
+                repo.Worktrees.Prune(worktreeLocked);
+
+                Assert.Single(repo.Worktrees);
+            }
+        }
+
+        [Fact]
+        public void CanForcePruneLockedWorktree()
+        {
+            var repoPath = SandboxWorktreeTestRepo();
+            using (var repo = new Repository(repoPath))
+            {
+                Assert.Equal(2, repo.Worktrees.Count());
+
+                // locked
+                var worktreeLocked = repo.Worktrees["logo"];
+                Assert.Equal("logo", worktreeLocked.Name);
+                Assert.True(worktreeLocked.IsLocked);
+
+                repo.Worktrees.Prune(worktreeLocked, true);
+
+                Assert.Single(repo.Worktrees);
+            }
+        }
+
+        [Fact]
+        public void CanAddWorktree()
+        {
+            var repoPath = SandboxWorktreeTestRepo();
+            using (var repo = new Repository(repoPath))
+            {
+                Assert.Equal(2, repo.Worktrees.Count());
+
+                var name = "blah";
+                var path = Path.Combine(repo.Info.WorkingDirectory, @"..\worktrees", name);
+                var worktree = repo.Worktrees.Add(name, path, false);
+                Assert.Equal(name, worktree.Name);
+                Assert.False(worktree.IsLocked);
+
+                Assert.Equal(3, repo.Worktrees.Count());
+            }
+        }
+
+        [Fact]
+        public void CanAddLockedWorktree()
+        {
+            var repoPath = SandboxWorktreeTestRepo();
+            using (var repo = new Repository(repoPath))
+            {
+                Assert.Equal(2, repo.Worktrees.Count());
+
+                var name = "blah";
+                var path = Path.Combine(repo.Info.WorkingDirectory, @"..\worktrees", name);
+                var worktree = repo.Worktrees.Add(name, path, true);
+                Assert.Equal(name, worktree.Name);
+                Assert.True(worktree.IsLocked);
+
+                Assert.Equal(3, repo.Worktrees.Count());
+            }
+        }
+
+        [Fact]
+        public void CanAddWorktreeForCommittish()
+        {
+            var repoPath = SandboxWorktreeTestRepo();
+            using (var repo = new Repository(repoPath))
+            {
+                Assert.Equal(2, repo.Worktrees.Count());
+
+                var name = "blah";
+                var committish = "diff-test-cases";
+                var path = Path.Combine(repo.Info.WorkingDirectory, @"..\worktrees", name);
+                var worktree = repo.Worktrees.Add(committish, name, path, false);
+                Assert.Equal(name, worktree.Name);
+                Assert.False(worktree.IsLocked);
+                Assert.Equal(committish, worktree.WorktreeRepository.Head.FriendlyName);
+                Assert.Equal(3, repo.Worktrees.Count());
             }
         }
     }

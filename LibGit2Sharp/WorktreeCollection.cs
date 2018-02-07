@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -45,6 +46,103 @@ namespace LibGit2Sharp
                     new Repository(handle),
                     Proxy.git_worktree_is_locked(handle)));
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="committishOrBranchSpec"></param>
+        /// <param name="name"></param>
+        /// <param name="path"></param>
+        /// <param name="isLocked"></param>
+        /// <returns></returns>
+        public virtual Worktree Add(string committishOrBranchSpec, string name, string path, bool isLocked)
+        {
+            if(string.Equals(committishOrBranchSpec, name))
+            {
+                // Proxy.git_worktree_add() creates a new branch of name = name, so if we want to checkout a given branch then the 'name' cannot be the same as the target branch
+                return null;
+            }
+
+            git_worktree_add_options options = new git_worktree_add_options
+            {
+                version = 1,
+                locked = Convert.ToInt32(isLocked)
+            };
+
+            var handle = Proxy.git_worktree_add(repo.Handle, name, path, options);
+            var worktree = new Worktree(handle,
+                repo,
+                name,
+                new Repository(handle),
+                Proxy.git_worktree_is_locked(handle));
+
+            // switch the worktree to the target branch
+            Commands.Checkout(worktree.WorktreeRepository, committishOrBranchSpec);
+
+            return this[name]; 
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="path"></param>
+        /// <param name="isLocked"></param>
+        public virtual Worktree Add(string name, string path, bool isLocked)
+        {
+            git_worktree_add_options options = new git_worktree_add_options
+            {
+                version = 1,
+                locked = Convert.ToInt32(isLocked)
+            };
+
+            var handle = Proxy.git_worktree_add(repo.Handle, name, path, options);
+            return new Worktree(handle,
+                repo,
+                name,
+                new Repository(handle),
+                Proxy.git_worktree_is_locked(handle));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="worktree"></param>
+        /// <returns></returns>
+        public virtual bool Prune(Worktree worktree)
+        {
+            return Prune(worktree, false);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="worktree"></param>
+        /// <param name="ifLocked"></param>
+        /// <returns></returns>
+        public virtual bool Prune(Worktree worktree, bool ifLocked)
+        {
+            string wd = worktree.WorktreeRepository.Info.WorkingDirectory;
+
+            if (!Directory.Exists(wd))
+            {
+                return false;
+            }
+
+            git_worktree_prune_options options = new git_worktree_prune_options
+            {
+                version = 1,
+                // default
+                flags = GitWorktreePruneOptionFlags.GIT_WORKTREE_PRUNE_WORKING_TREE | GitWorktreePruneOptionFlags.GIT_WORKTREE_PRUNE_VALID
+            };
+
+            if (ifLocked)
+            {
+                options.flags |= GitWorktreePruneOptionFlags.GIT_WORKTREE_PRUNE_LOCKED;
+            }
+
+            return Proxy.git_worktree_prune(worktree.Handle, options);
         }
 
         internal T Lookup<T>(string name, Func<WorktreeHandle, T> selector, bool throwIfNotFound = false)

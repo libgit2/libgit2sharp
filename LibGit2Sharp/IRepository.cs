@@ -70,6 +70,11 @@ namespace LibGit2Sharp
         SubmoduleCollection Submodules { get; }
 
         /// <summary>
+        /// Worktrees in the repository.
+        /// </summary>
+        WorktreeCollection Worktrees { get; }
+
+        /// <summary>
         /// Checkout the specified tree.
         /// </summary>
         /// <param name="tree">The <see cref="Tree"/> to checkout.</param>

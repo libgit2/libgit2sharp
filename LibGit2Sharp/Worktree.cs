@@ -81,7 +81,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///  Unlock the worktree
         /// </summary>
-        public void Unlock()
+        public virtual void Unlock()
         {
             Proxy.git_worktree_unlock(handle);
             this.worktreeLock = Proxy.git_worktree_is_locked(handle);
@@ -90,7 +90,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///  Lock the worktree
         /// </summary>
-        public void Lock(string reason)
+        public virtual void Lock(string reason)
         {
             Proxy.git_worktree_lock(handle, reason);
             this.worktreeLock = Proxy.git_worktree_is_locked(handle);
@@ -123,5 +123,7 @@ namespace LibGit2Sharp
         }
 
         IRepository IBelongToARepository.Repository { get { return parent; } }
+
+        internal WorktreeHandle Handle { get { return this.handle; } }
     }
 }
