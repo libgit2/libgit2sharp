@@ -26,14 +26,18 @@ namespace LibGit2Sharp
         protected Index()
         { }
 
-        internal Index(Repository repo)
+        internal Index(IndexHandle handle, Repository repo)
         {
             this.repo = repo;
-
-            handle = Proxy.git_repository_index(repo.Handle);
+            this.handle = handle;
             conflicts = new ConflictCollection(this);
 
             repo.RegisterForCleanup(handle);
+        }
+
+        internal Index(Repository repo)
+            : this(Proxy.git_repository_index(repo.Handle), repo)
+        {
         }
 
         internal Index(Repository repo, string indexPath)
@@ -304,6 +308,17 @@ namespace LibGit2Sharp
         public virtual void Write()
         {
             Proxy.git_index_write(handle);
+        }
+
+        /// <summary>
+        /// Write the contents of this <see cref="Index"/> to a tree
+        /// </summary>
+        /// <returns></returns>
+        public virtual Tree WriteToTree()
+        {
+            var treeId = Proxy.git_index_write_tree_to(this.handle, this.repo.Handle);
+            var result = this.repo.Lookup<Tree>(treeId);
+            return result;
         }
     }
 }
