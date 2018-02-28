@@ -31,13 +31,12 @@ namespace LibGit2Sharp
             this.repo = repo;
             this.handle = handle;
             conflicts = new ConflictCollection(this);
-
-            repo.RegisterForCleanup(handle);
         }
 
         internal Index(Repository repo)
             : this(Proxy.git_repository_index(repo.Handle), repo)
         {
+            repo.RegisterForCleanup(handle);
         }
 
         internal Index(Repository repo, string indexPath)

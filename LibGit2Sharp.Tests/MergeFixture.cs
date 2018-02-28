@@ -910,9 +910,11 @@ namespace LibGit2Sharp.Tests
             {
                 var master = repo.Lookup<Commit>("master");
 
-                Index index = repo.ObjectDatabase.MergeCommitsIntoIndex(master, master, null);
-                var tree = index.WriteToTree();
-                Assert.Equal(master.Tree.Id, tree.Id);
+                using (TransientIndex index = repo.ObjectDatabase.MergeCommitsIntoIndex(master, master, null))
+                {
+                    var tree = index.WriteToTree();
+                    Assert.Equal(master.Tree.Id, tree.Id);
+                }
             }
         }
 
@@ -925,22 +927,24 @@ namespace LibGit2Sharp.Tests
                 var master = repo.Lookup<Commit>("master");
                 var branch = repo.Lookup<Commit>("conflicts");
 
-                Index index = repo.ObjectDatabase.MergeCommitsIntoIndex(branch, master, null);
-                Assert.False(index.IsFullyMerged);
+                using (TransientIndex index = repo.ObjectDatabase.MergeCommitsIntoIndex(branch, master, null))
+                {
+                    Assert.False(index.IsFullyMerged);
 
-                var conflict = index.Conflicts.First();
+                    var conflict = index.Conflicts.First();
 
-                //Resolve the conflict by taking the blob from branch
-                var blob = repo.Lookup<Blob>(conflict.Ours.Id);
-                //Add() does not remove conflict entries for the same path, so they must be explicitly removed first.
-                index.Remove(conflict.Ours.Path);
-                index.Add(blob, conflict.Ours.Path, Mode.NonExecutableFile);
+                    //Resolve the conflict by taking the blob from branch
+                    var blob = repo.Lookup<Blob>(conflict.Ours.Id);
+                    //Add() does not remove conflict entries for the same path, so they must be explicitly removed first.
+                    index.Remove(conflict.Ours.Path);
+                    index.Add(blob, conflict.Ours.Path, Mode.NonExecutableFile);
 
-                Assert.True(index.IsFullyMerged);
-                var tree = index.WriteToTree();
+                    Assert.True(index.IsFullyMerged);
+                    var tree = index.WriteToTree();
 
-                //Since we took the conflicted blob from the branch, the merged result should be the same as the branch.
-                Assert.Equal(branch.Tree.Id, tree.Id);
+                    //Since we took the conflicted blob from the branch, the merged result should be the same as the branch.
+                    Assert.Equal(branch.Tree.Id, tree.Id);
+                }
             }
         }
 

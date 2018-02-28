@@ -856,8 +856,9 @@ namespace LibGit2Sharp
         /// <param name="ours">The first tree</param>
         /// <param name="theirs">The second tree</param>
         /// <param name="options">The <see cref="MergeTreeOptions"/> controlling the merge</param>
-        /// <returns>The <see cref="Index"/> containing the merged trees and any conflicts, or null if the merge stopped early due to conflicts</returns>
-        public virtual Index MergeCommitsIntoIndex(Commit ours, Commit theirs, MergeTreeOptions options)
+        /// <returns>The <see cref="TransientIndex"/> containing the merged trees and any conflicts, or null if the merge stopped early due to conflicts.
+        /// The index must be disposed by the caller.</returns>
+        public virtual TransientIndex MergeCommitsIntoIndex(Commit ours, Commit theirs, MergeTreeOptions options)
         {
             Ensure.ArgumentNotNull(ours, "ours");
             Ensure.ArgumentNotNull(theirs, "theirs");
@@ -874,7 +875,7 @@ namespace LibGit2Sharp
                 }
                 return null;
             }
-            var result = new Index(indexHandle, repo);
+            var result = new TransientIndex(indexHandle, repo);
             return result;
         }
 
