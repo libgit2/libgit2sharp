@@ -3424,7 +3424,29 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
-#endregion
+        /// <summary>
+        /// Enable or disable the ofs_delta capabilty
+        /// </summary>
+        /// <param name="enabled">true to enable the ofs_delta capabilty, false otherwise</param>
+        public static void git_libgit2_opts_set_enable_ofsdelta(bool enabled)
+        {
+            // libgit2 expects non-zero value for true
+            var res = NativeMethods.git_libgit2_opts((int)LibGit2Option.EnableOfsDelta, enabled ? 1 : 0);
+            Ensure.ZeroResult(res);
+        }
+
+        /// <summary>
+        /// Enable or disable the strict_object_creation capabilty
+        /// </summary>
+        /// <param name="enabled">true to enable the strict_object_creation capabilty, false otherwise</param>
+        public static void git_libgit2_opts_set_enable_strictobjectcreation(bool enabled)
+        {
+            // libgit2 expects non-zero value for true
+            var res = NativeMethods.git_libgit2_opts((int)LibGit2Option.EnableStrictObjectCreation, enabled ? 1 : 0);
+            Ensure.ZeroResult(res);
+        }
+
+        #endregion
 
         private static ICollection<TResult> git_foreach<T, TResult>(
             Func<T, TResult> resultSelector,
