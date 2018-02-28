@@ -259,6 +259,8 @@ namespace LibGit2Sharp.Tests
 
                 private static HttpWebRequest CreateWebRequest(string endpointUrl, bool isPost, string contentType)
                 {
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
                     HttpWebRequest webRequest = (HttpWebRequest)HttpWebRequest.Create(endpointUrl);
                     webRequest.UserAgent = "git/1.0 (libgit2 custom transport)";
                     webRequest.ServicePoint.Expect100Continue = false;
