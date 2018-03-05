@@ -373,6 +373,7 @@ namespace LibGit2Sharp.Core
             git_config* cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path,
             uint level,
+            git_repository* repo,
             [MarshalAs(UnmanagedType.Bool)] bool force);
 
         [DllImport(libgit2)]
