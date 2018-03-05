@@ -52,41 +52,42 @@ namespace LibGit2Sharp
         private void Init(Repository repository)
         {
             configHandle = Proxy.git_config_new();
+            RepositoryHandle repoHandle = (repository != null) ? repository.Handle : null;
 
-            if (repository != null)
+            if (repoHandle != null)
             {
                 //TODO: push back this logic into libgit2.
                 // As stated by @carlosmn "having a helper function to load the defaults and then allowing you
                 // to modify it before giving it to git_repository_open_ext() would be a good addition, I think."
                 //  -- Agreed :)
                 string repoConfigLocation = Path.Combine(repository.Info.Path, "config");
-                Proxy.git_config_add_file_ondisk(configHandle, repoConfigLocation, ConfigurationLevel.Local);
+                Proxy.git_config_add_file_ondisk(configHandle, repoConfigLocation, ConfigurationLevel.Local, repoHandle);
 
-                Proxy.git_repository_set_config(repository.Handle, configHandle);
+                Proxy.git_repository_set_config(repoHandle, configHandle);
             }
             else if (repoConfigPath != null)
             {
-                Proxy.git_config_add_file_ondisk(configHandle, repoConfigPath, ConfigurationLevel.Local);
+                Proxy.git_config_add_file_ondisk(configHandle, repoConfigPath, ConfigurationLevel.Local, repoHandle);
             }
 
             if (globalConfigPath != null)
             {
-                Proxy.git_config_add_file_ondisk(configHandle, globalConfigPath, ConfigurationLevel.Global);
+                Proxy.git_config_add_file_ondisk(configHandle, globalConfigPath, ConfigurationLevel.Global, repoHandle);
             }
 
             if (xdgConfigPath != null)
             {
-                Proxy.git_config_add_file_ondisk(configHandle, xdgConfigPath, ConfigurationLevel.Xdg);
+                Proxy.git_config_add_file_ondisk(configHandle, xdgConfigPath, ConfigurationLevel.Xdg, repoHandle);
             }
 
             if (systemConfigPath != null)
             {
-                Proxy.git_config_add_file_ondisk(configHandle, systemConfigPath, ConfigurationLevel.System);
+                Proxy.git_config_add_file_ondisk(configHandle, systemConfigPath, ConfigurationLevel.System, repoHandle);
             }
 
             if (programDataConfigPath != null)
             {
-                Proxy.git_config_add_file_ondisk(configHandle, programDataConfigPath, ConfigurationLevel.ProgramData);
+                Proxy.git_config_add_file_ondisk(configHandle, programDataConfigPath, ConfigurationLevel.ProgramData, repoHandle);
             }
         }
 
