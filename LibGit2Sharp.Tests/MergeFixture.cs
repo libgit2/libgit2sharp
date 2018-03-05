@@ -902,6 +902,52 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanMergeIntoIndex()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var master = repo.Lookup<Commit>("master");
+
+                using (TransientIndex index = repo.ObjectDatabase.MergeCommitsIntoIndex(master, master, null))
+                {
+                    var tree = index.WriteToTree();
+                    Assert.Equal(master.Tree.Id, tree.Id);
+                }
+            }
+        }
+
+        [Fact]
+        public void CanMergeIntoIndexWithConflicts()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var master = repo.Lookup<Commit>("master");
+                var branch = repo.Lookup<Commit>("conflicts");
+
+                using (TransientIndex index = repo.ObjectDatabase.MergeCommitsIntoIndex(branch, master, null))
+                {
+                    Assert.False(index.IsFullyMerged);
+
+                    var conflict = index.Conflicts.First();
+
+                    //Resolve the conflict by taking the blob from branch
+                    var blob = repo.Lookup<Blob>(conflict.Ours.Id);
+                    //Add() does not remove conflict entries for the same path, so they must be explicitly removed first.
+                    index.Remove(conflict.Ours.Path);
+                    index.Add(blob, conflict.Ours.Path, Mode.NonExecutableFile);
+
+                    Assert.True(index.IsFullyMerged);
+                    var tree = index.WriteToTree();
+
+                    //Since we took the conflicted blob from the branch, the merged result should be the same as the branch.
+                    Assert.Equal(branch.Tree.Id, tree.Id);
+                }
+            }
+        }
+
         private Commit AddFileCommitToRepo(IRepository repository, string filename, string content = null)
         {
             Touch(repository.Info.WorkingDirectory, filename, content);

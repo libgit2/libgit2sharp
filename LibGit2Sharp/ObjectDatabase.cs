@@ -755,47 +755,36 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Perform a three-way merge of two commits, looking up their
-        /// commit ancestor. The returned index will contain the results
-        /// of the merge and can be examined for conflicts. The returned
-        /// index must be disposed.
+        /// commit ancestor. The returned <see cref="MergeTreeResult"/> will contain the results
+        /// of the merge and can be examined for conflicts.
         /// </summary>
-        /// <param name="ours">The first tree</param>
-        /// <param name="theirs">The second tree</param>
+        /// <param name="ours">The first commit</param>
+        /// <param name="theirs">The second commit</param>
         /// <param name="options">The <see cref="MergeTreeOptions"/> controlling the merge</param>
-        /// <returns>The <see cref="Index"/> containing the merged trees and any conflicts</returns>
+        /// <returns>The <see cref="MergeTreeResult"/> containing the merged trees and any conflicts</returns>
         public virtual MergeTreeResult MergeCommits(Commit ours, Commit theirs, MergeTreeOptions options)
         {
             Ensure.ArgumentNotNull(ours, "ours");
             Ensure.ArgumentNotNull(theirs, "theirs");
 
-            options = options ?? new MergeTreeOptions();
+            var modifiedOptions = new MergeTreeOptions();
 
             // We throw away the index after looking at the conflicts, so we'll never need the REUC
             // entries to be there
-            GitMergeFlag mergeFlags = GitMergeFlag.GIT_MERGE_NORMAL | GitMergeFlag.GIT_MERGE_SKIP_REUC;
-            if (options.FindRenames)
-            {
-                mergeFlags |= GitMergeFlag.GIT_MERGE_FIND_RENAMES;
-            }
-            if (options.FailOnConflict)
-            {
-                mergeFlags |= GitMergeFlag.GIT_MERGE_FAIL_ON_CONFLICT;
-            }
+            modifiedOptions.SkipReuc = true;
 
-
-            var mergeOptions = new GitMergeOpts
+            if (options != null)
             {
-                Version = 1,
-                MergeFileFavorFlags = options.MergeFileFavor,
-                MergeTreeFlags = mergeFlags,
-                RenameThreshold = (uint)options.RenameThreshold,
-                TargetLimit = (uint)options.TargetLimit,
-            };
+                modifiedOptions.FailOnConflict = options.FailOnConflict;
+                modifiedOptions.FindRenames = options.FindRenames;
+                modifiedOptions.IgnoreWhitespaceChange = options.IgnoreWhitespaceChange;
+                modifiedOptions.MergeFileFavor = options.MergeFileFavor;
+                modifiedOptions.RenameThreshold = options.RenameThreshold;
+                modifiedOptions.TargetLimit = options.TargetLimit;
+            }
 
             bool earlyStop;
-            using (var oneHandle = Proxy.git_object_lookup(repo.Handle, ours.Id, GitObjectType.Commit))
-            using (var twoHandle = Proxy.git_object_lookup(repo.Handle, theirs.Id, GitObjectType.Commit))
-            using (var indexHandle = Proxy.git_merge_commits(repo.Handle, oneHandle, twoHandle, mergeOptions, out earlyStop))
+            using (var indexHandle = MergeCommits(ours, theirs, modifiedOptions, out earlyStop))
             {
                 MergeTreeResult mergeResult;
 
@@ -858,6 +847,80 @@ namespace LibGit2Sharp
         {
             return InternalPack(options, packDelegate);
         }
+
+        /// <summary>
+        /// Perform a three-way merge of two commits, looking up their
+        /// commit ancestor. The returned index will contain the results
+        /// of the merge and can be examined for conflicts.
+        /// </summary>
+        /// <param name="ours">The first tree</param>
+        /// <param name="theirs">The second tree</param>
+        /// <param name="options">The <see cref="MergeTreeOptions"/> controlling the merge</param>
+        /// <returns>The <see cref="TransientIndex"/> containing the merged trees and any conflicts, or null if the merge stopped early due to conflicts.
+        /// The index must be disposed by the caller.</returns>
+        public virtual TransientIndex MergeCommitsIntoIndex(Commit ours, Commit theirs, MergeTreeOptions options)
+        {
+            Ensure.ArgumentNotNull(ours, "ours");
+            Ensure.ArgumentNotNull(theirs, "theirs");
+
+            options = options ?? new MergeTreeOptions();
+
+            bool earlyStop;
+            var indexHandle = MergeCommits(ours, theirs, options, out earlyStop);
+            if (earlyStop)
+            {
+                if (indexHandle != null)
+                {
+                    indexHandle.Dispose();
+                }
+                return null;
+            }
+            var result = new TransientIndex(indexHandle, repo);
+            return result;
+        }
+
+        /// <summary>
+        /// Perform a three-way merge of two commits, looking up their
+        /// commit ancestor. The returned index will contain the results
+        /// of the merge and can be examined for conflicts.
+        /// </summary>
+        /// <param name="ours">The first tree</param>
+        /// <param name="theirs">The second tree</param>
+        /// <param name="options">The <see cref="MergeTreeOptions"/> controlling the merge</param>
+        /// <param name="earlyStop">True if the merge stopped early due to conflicts</param>
+        /// <returns>The <see cref="IndexHandle"/> containing the merged trees and any conflicts</returns>
+        private IndexHandle MergeCommits(Commit ours, Commit theirs, MergeTreeOptions options, out bool earlyStop)
+        {
+            GitMergeFlag mergeFlags = GitMergeFlag.GIT_MERGE_NORMAL;
+            if (options.SkipReuc)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_SKIP_REUC;
+            }
+            if (options.FindRenames)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_FIND_RENAMES;
+            }
+            if (options.FailOnConflict)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_FAIL_ON_CONFLICT;
+            }
+
+            var mergeOptions = new GitMergeOpts
+            {
+                Version = 1,
+                MergeFileFavorFlags = options.MergeFileFavor,
+                MergeTreeFlags = mergeFlags,
+                RenameThreshold = (uint)options.RenameThreshold,
+                TargetLimit = (uint)options.TargetLimit,
+            };
+            using (var oneHandle = Proxy.git_object_lookup(repo.Handle, ours.Id, GitObjectType.Commit))
+            using (var twoHandle = Proxy.git_object_lookup(repo.Handle, theirs.Id, GitObjectType.Commit))
+            {
+                var indexHandle = Proxy.git_merge_commits(repo.Handle, oneHandle, twoHandle, mergeOptions, out earlyStop);
+                return indexHandle;
+            }
+        }
+
 
         /// <summary>
         /// Packs objects in the <see cref="ObjectDatabase"/> and write a pack (.pack) and index (.idx) files for them.
