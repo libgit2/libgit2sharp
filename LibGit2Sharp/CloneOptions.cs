@@ -43,6 +43,11 @@ namespace LibGit2Sharp
         /// </summary>
         public CheckoutProgressHandler OnCheckoutProgress { get; set; }
 
+        /// <summary>
+        /// Gets or sets the fetch options.
+        /// </summary>
+        public FetchOptions FetchOptions { get; set; }
+
         #region IConvertableToGitCheckoutOpts
 
         CheckoutCallbacks IConvertableToGitCheckoutOpts.GenerateCallbacks()

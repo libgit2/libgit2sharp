@@ -703,21 +703,26 @@ namespace LibGit2Sharp
                 throw new UserCancelledException("Clone cancelled by the user.");
             }
 
-            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
+            using (var checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
+            using (var fetchOptionsWrapper = new GitFetchOptionsWrapper())
             {
                 var gitCheckoutOptions = checkoutOptionsWrapper.Options;
 
-                var remoteCallbacks = new RemoteCallbacks(options);
-                var gitRemoteCallbacks = remoteCallbacks.GenerateCallbacks();
-
-                var gitProxyOptions = new GitProxyOptions { Version = 1 };
+                var gitFetchOptions = fetchOptionsWrapper.Options;
+                gitFetchOptions.ProxyOptions = new GitProxyOptions { Version = 1 };
+                gitFetchOptions.RemoteCallbacks = new RemoteCallbacks(options).GenerateCallbacks();
+                if (options.FetchOptions != null && options.FetchOptions.CustomHeaders != null)
+                {
+                    gitFetchOptions.CustomHeaders =
+                        GitStrArrayManaged.BuildFrom(options.FetchOptions.CustomHeaders);
+                }
 
                 var cloneOpts = new GitCloneOptions
                 {
                     Version = 1,
                     Bare = options.IsBare ? 1 : 0,
                     CheckoutOpts = gitCheckoutOptions,
-                    FetchOpts = new GitFetchOptions { ProxyOptions = gitProxyOptions, RemoteCallbacks = gitRemoteCallbacks },
+                    FetchOpts = gitFetchOptions,
                 };
 
                 string clonedRepoPath;

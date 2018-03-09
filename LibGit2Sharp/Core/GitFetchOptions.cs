@@ -11,6 +11,6 @@ namespace LibGit2Sharp.Core
         public bool UpdateFetchHead = true;
         public TagFetchMode download_tags;
         public GitProxyOptions ProxyOptions;
-        public GitStrArrayManaged custom_headers;
+        public GitStrArrayManaged CustomHeaders;
     }
 }
