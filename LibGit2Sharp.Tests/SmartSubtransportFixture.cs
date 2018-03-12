@@ -19,8 +19,8 @@ namespace LibGit2Sharp.Tests
             (sender, certificate, chain, errors) => { return true; };
 
         [Theory]
-        [InlineData("http", "http://github.com/libgit2/TestGitRepository")]
-        [InlineData("https", "https://github.com/libgit2/TestGitRepository")]
+        [InlineData("http", "http://bitbucket.org/edwardthomson/TestGitRepository/")]
+        [InlineData("https", "https://bitbucket.org/edwardthomson/TestGitRepository/")]
         public void CustomSmartSubtransportTest(string scheme, string url)
         {
             string remoteName = "testRemote";
