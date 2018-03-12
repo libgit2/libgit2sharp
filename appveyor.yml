@@ -47,7 +47,7 @@ install:
     Write-Host $BuildDate -ForegroundColor "Green"
 
     $VersionSuffix = ""
-    If ($Env:APPVEYOR_REPO_BRANCH -ne "master")
+    If ($Env:APPVEYOR_REPO_BRANCH -ne "master" -and ($Env:APPVEYOR_REPO_BRANCH -eq $null -or !$Env:APPVEYOR_REPO_BRANCH.StartsWith("maint/")))
     {
       $VersionSuffix = "-pre$BuildDate"
     }
