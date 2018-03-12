@@ -19,8 +19,8 @@ namespace LibGit2Sharp.Tests
             (sender, certificate, chain, errors) => { return true; };
 
         [Theory]
-        [InlineData("http", "http://github.com/libgit2/TestGitRepository")]
-        [InlineData("https", "https://github.com/libgit2/TestGitRepository")]
+        [InlineData("http", "http://bitbucket.org/edwardthomson/TestGitRepository/")]
+        [InlineData("https", "https://bitbucket.org/edwardthomson/TestGitRepository/")]
         public void CustomSmartSubtransportTest(string scheme, string url)
         {
             string remoteName = "testRemote";
@@ -259,6 +259,8 @@ namespace LibGit2Sharp.Tests
 
                 private static HttpWebRequest CreateWebRequest(string endpointUrl, bool isPost, string contentType)
                 {
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
                     HttpWebRequest webRequest = (HttpWebRequest)HttpWebRequest.Create(endpointUrl);
                     webRequest.UserAgent = "git/1.0 (libgit2 custom transport)";
                     webRequest.ServicePoint.Expect100Continue = false;
