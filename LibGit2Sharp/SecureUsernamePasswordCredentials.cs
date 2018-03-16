@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Security;
 using LibGit2Sharp.Core;
 
@@ -22,19 +21,7 @@ namespace LibGit2Sharp
                 throw new InvalidOperationException("UsernamePasswordCredentials contains a null Username or Password.");
             }
 
-            IntPtr passwordPtr = IntPtr.Zero;
-
-            try
-            {
-                passwordPtr = Marshal.SecureStringToGlobalAllocUnicode(Password);
-
-                return NativeMethods.git_cred_userpass_plaintext_new(out cred, Username, Marshal.PtrToStringUni(passwordPtr));
-            }
-            finally
-            {
-                Marshal.ZeroFreeGlobalAllocUnicode(passwordPtr);
-            }
-
+            return NativeMethods.git_cred_userpass_plaintext_new(out cred, Username, Password);
         }
 
         /// <summary>

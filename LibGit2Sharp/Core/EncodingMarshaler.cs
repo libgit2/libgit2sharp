@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Text;
 
 namespace LibGit2Sharp.Core
@@ -40,15 +41,16 @@ namespace LibGit2Sharp.Core
             }
 
             var str = managedObj as string;
+            if (str != null)
+                return FromManaged(encoding, str);
 
-            if (str == null)
-            {
-                throw new MarshalDirectiveException(string.Format(CultureInfo.InvariantCulture,
-                                                                  "{0} must be used on a string.",
-                                                                  GetType().Name));
-            }
+            var secureStr = managedObj as SecureString;
+            if (secureStr != null)
+                return FromManaged(encoding, secureStr);
 
-            return FromManaged(encoding, str);
+            throw new MarshalDirectiveException(string.Format(CultureInfo.InvariantCulture,
+                "{0} must be used on a string or SecureString.",
+                GetType().Name));
         }
 
         public virtual Object MarshalNativeToManaged(IntPtr pNativeData)
@@ -79,6 +81,37 @@ namespace LibGit2Sharp.Core
             buffer[length] = 0;
 
             return new IntPtr(buffer);
+        }
+
+        public static unsafe IntPtr FromManaged(Encoding encoding, SecureString value)
+        {
+            if (encoding == null || value == null)
+            {
+                return IntPtr.Zero;
+            }
+
+            var valuePtr = IntPtr.Zero;
+
+            try
+            {
+                valuePtr = Marshal.SecureStringToBSTR(value);
+                
+                int length = encoding.GetByteCount((char*)valuePtr, value.Length);
+                var buffer = (byte*)Marshal.AllocHGlobal(length + 1).ToPointer();
+
+                if (length > 0)
+                {
+                    encoding.GetBytes((char*)valuePtr, value.Length, buffer, length);
+                }
+
+                buffer[length] = 0;
+
+                return new IntPtr(buffer);
+            }
+            finally
+            {
+                Marshal.ZeroFreeBSTR(valuePtr);
+            }
         }
 
         public static void Cleanup(IntPtr pNativeData)
