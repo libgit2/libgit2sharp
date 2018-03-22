@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -28,14 +27,15 @@ namespace LibGit2Sharp.Core
 
                 string path = Path.Combine(nativeLibraryPath, Platform.ProcessorArchitecture);
 
-                const string pathEnvVariable = "PATH";
-                Environment.SetEnvironmentVariable(pathEnvVariable,
-                    String.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", path, Path.PathSeparator, Environment.GetEnvironmentVariable(pathEnvVariable)));
+                SetDllDirectory(path);
             }
 
             LoadNativeLibrary();
             shutdownObject = new NativeShutdownObject();
         }
+
+        [DllImport("kernel32.dll")]
+        private static extern bool SetDllDirectory(string lpPathName);
 
         // Avoid inlining this method because otherwise mono's JITter may try
         // to load the library _before_ we've configured the path.
