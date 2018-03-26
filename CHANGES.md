@@ -10,9 +10,26 @@
   - Windows (x86/amd64): <https://ci.appveyor.com/project/libgit2/libgit2sharp>
   - Linux/Mac OS X: <https://travis-ci.org/libgit2/libgit2sharp>
 
-## v0.24 + 1
+## v0.25 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.24..v0.25))
+
+LibGit2Sharp is now .NET Core 2.0+ and .NET Framework compatible.
 
 ### Additions
+
+ - `GitObject` now has a `Peel` method that will let you peel (for example)
+    a `Tag` to a `Tree`.
+ - `MergeOptions` now includes an option to `IgnoreWhitespaceChanges`.
+ - `TreeDefinition` can now `Add` an object with only the ID, which allows
+   users of large files to add entries without realizing a `Blob`.
+ - `ObjectDatabase` can now `Write` a `Stream`, which allows users of
+   large files to stream an object into storage without loading it into
+   memory.
+ - `ObjectDatabase` can now `MergeCommitsIntoIndex` allowing users to perform
+   an in-memory merge that produces an `Index` structure with conflicts.
+ - Users can enable or disable dependent object existence checks when
+   creating new objects with `GlobalSettings.SetEnableStrictObjectCreation`
+ - Users can enable or disable `ofs_delta` support with
+   `GlobalSettings.SetEnableOfsDelta`
 
 ### Changes
 
@@ -21,11 +38,15 @@
    the `StatusOptions.RecurseUntrackedDirs` options.
  - Status now does not show the ignored files by default.  To retrieve
    ignored files, include the `StatusOptions.IncludeIgnored` option.
+ - `Commands.Pull` can now provide a `null` value for `PullOptions`,
+   which indicates that default values should be used.
 
 ### Fixes
 
  - The exception thrown when the native library cannot be loaded is now
    able to be caught and will no longer crash the process.
+ - Getting the `Notes` collection from a `Repository` no longer throws an
+   exception when the repository has no notes.
 
 ## v0.24 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.23..v0.24))
 
