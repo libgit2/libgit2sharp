@@ -1,9 +1,14 @@
 using System;
-using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core.Handles;
+
+// Restrict the set of directories where the native library is loaded from to safe directories.
+[assembly: DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory | DllImportSearchPath.ApplicationDirectory | DllImportSearchPath.SafeDirectories)]
+
+#pragma warning disable IDE1006 // Naming Styles
 
 // ReSharper disable InconsistentNaming
 namespace LibGit2Sharp.Core
@@ -17,41 +22,52 @@ namespace LibGit2Sharp.Core
         // This will handle initialization and shutdown of the underlying
         // native library.
 #pragma warning disable 0414
-        private static readonly NativeShutdownObject shutdownObject;
-        #pragma warning restore 0414
+        private static NativeShutdownObject shutdownObject;
+#pragma warning restore 0414
 
         static NativeMethods()
         {
-            if (Platform.OperatingSystem == OperatingSystemType.Windows)
+            if (Platform.IsRunningOnNetFramework())
             {
-                string nativeLibraryPath = GlobalSettings.GetAndLockNativeLibraryPath();
+                string dllPath = Path.Combine(GlobalSettings.GetAndLockNativeLibraryPath(), libgit2 + ".dll");
 
-                string path = Path.Combine(nativeLibraryPath, Platform.ProcessorArchitecture);
-
-                const string pathEnvVariable = "PATH";
-                Environment.SetEnvironmentVariable(pathEnvVariable,
-                    String.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", path, Path.PathSeparator, Environment.GetEnvironmentVariable(pathEnvVariable)));
+                // Try to load the .dll from the path explicitly.
+                // If this call succeeds further DllImports will find the library loaded and not attempt to load it again.
+                // If it fails the next DllImport will load the library from safe directories.
+                LoadWindowsLibrary(dllPath);
             }
 
-            LoadNativeLibrary();
-            shutdownObject = new NativeShutdownObject();
+            InitializeNativeLibrary();
         }
+
+        [DllImport("kernel32", EntryPoint = "LoadLibrary")]
+        private static extern IntPtr LoadWindowsLibrary(string path);
 
         // Avoid inlining this method because otherwise mono's JITter may try
         // to load the library _before_ we've configured the path.
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private static void LoadNativeLibrary()
+        private static void InitializeNativeLibrary()
         {
-            // Configure the OpenSSL locking on the true initialization
-            // of the library.
-            if (git_libgit2_init() == 1)
+            int initCounter;
+            try
+            {
+            }
+            finally // avoid thread aborts
+            {
+                // Initialization can be called multiple times as long as there is a corresponding shutdown to each initialization.
+                initCounter = git_libgit2_init();
+                shutdownObject = new NativeShutdownObject();
+            }
+
+            // Configure the OpenSSL locking on the first initialization of the library in the current process.
+            if (initCounter == 1)
             {
                 git_openssl_set_locking();
             }
         }
 
         // Shutdown the native library in a finalizer.
-        private sealed class NativeShutdownObject
+        private sealed class NativeShutdownObject : CriticalFinalizerObject
         {
             ~NativeShutdownObject()
             {

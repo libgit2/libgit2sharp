@@ -36,5 +36,17 @@ namespace LibGit2Sharp.Core
                 throw new InvalidOperationException();
             }
         }
+
+        /// <summary>
+        /// Returns true if the runtime is Mono.
+        /// </summary>
+        public static bool IsRunningOnMono()
+            => Type.GetType("Mono.Runtime") != null;
+
+        /// <summary>
+        /// Returns true if the runtime is .NET Framework.
+        /// </summary>
+        public static bool IsRunningOnNetFramework()
+            => typeof(object).Assembly.GetName().Name == "mscorlib" && !IsRunningOnMono();
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -13,6 +14,7 @@ namespace LibGit2Sharp
     {
         private static readonly Lazy<Version> version = new Lazy<Version>(Version.Build);
         private static readonly Dictionary<Filter, FilterRegistration> registeredFilters;
+        private static readonly bool nativeLibraryPathAllowed;
 
         private static LogConfiguration logConfiguration = LogConfiguration.None;
 
@@ -21,7 +23,9 @@ namespace LibGit2Sharp
 
         static GlobalSettings()
         {
-            if (Platform.OperatingSystem == OperatingSystemType.Windows)
+            nativeLibraryPathAllowed = Platform.IsRunningOnNetFramework();
+
+            if (nativeLibraryPathAllowed)
             {
                 /* Assembly.CodeBase is not actually a correctly formatted
                  * URI.  It's merely prefixed with `file:///` and has its
@@ -148,23 +152,24 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Sets a hint path for searching for native binaries: when
-        /// specified, native binaries will first be searched in a
-        /// subdirectory of the given path corresponding to the operating
-        /// system and architecture (eg, "x86" or "x64") before falling
-        /// back to the default path ("lib\win32\x86" or "lib\win32\x64"
-        /// next to the application).
+        /// Sets a path for loading native binaries on .NET Framework.
+        /// When specified, native .dll will first be searched in a
+        /// subdirectory of the given path corresponding to the
+        /// architecture ("x86" or "x64") before falling
+        /// back to searching the default load directories
+        /// (<see cref="DllImportSearchPath.AssemblyDirectory"/>,
+        /// <see cref="DllImportSearchPath.ApplicationDirectory"/> and
+        /// <see cref="DllImportSearchPath.SafeDirectories"/>).
         /// <para>
         /// This must be set before any other calls to the library,
-        /// and is not available on Unix platforms: see your dynamic
-        /// library loader's documentation for details.
+        /// and is not available on other platforms than .NET Framework.
         /// </para>
         /// </summary>
         public static string NativeLibraryPath
         {
             get
             {
-                if (Platform.OperatingSystem != OperatingSystemType.Windows)
+                if (!nativeLibraryPathAllowed)
                 {
                     throw new LibGit2SharpException("Querying the native hint path is only supported on Windows platforms");
                 }
@@ -174,7 +179,7 @@ namespace LibGit2Sharp
 
             set
             {
-                if (Platform.OperatingSystem != OperatingSystemType.Windows)
+                if (!nativeLibraryPathAllowed)
                 {
                     throw new LibGit2SharpException("Setting the native hint path is only supported on Windows platforms");
                 }
@@ -184,14 +189,21 @@ namespace LibGit2Sharp
                     throw new LibGit2SharpException("You cannot set the native library path after it has been loaded");
                 }
 
-                nativeLibraryPath = value;
+                try
+                {
+                    nativeLibraryPath = Path.GetFullPath(value);
+                }
+                catch (Exception e)
+                {
+                    throw new LibGit2SharpException(e.Message);
+                }
             }
         }
 
         internal static string GetAndLockNativeLibraryPath()
         {
             nativeLibraryPathLocked = true;
-            return nativeLibraryPath;
+            return Path.Combine(nativeLibraryPath, Platform.ProcessorArchitecture);
         }
 
         /// <summary>
