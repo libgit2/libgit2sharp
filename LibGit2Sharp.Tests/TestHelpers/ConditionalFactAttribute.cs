@@ -6,7 +6,7 @@ using Xunit;
 
 namespace LibGit2Sharp.Tests
 {
-    public class ConditionalFactAttribute : FactAttribute
+    internal class ConditionalFactAttribute : FactAttribute
     {
         public ConditionalFactAttribute(params Type[] skipConditions)
         {
@@ -22,13 +22,13 @@ namespace LibGit2Sharp.Tests
         }
     }
 
-    public abstract class ExecutionCondition
+    internal abstract class ExecutionCondition
     {
         public abstract bool ShouldSkip { get; }
         public abstract string SkipReason { get; }
     }
 
-    public class NetFramework : ExecutionCondition
+    internal class NetFramework : ExecutionCondition
     {
         public override bool ShouldSkip => !Platform.IsRunningOnNetFramework();
         public override string SkipReason => ".NET Framework only test";
