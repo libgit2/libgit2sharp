@@ -54,22 +54,22 @@ namespace LibGit2Sharp.Tests
         }
 
         [SkippableTheory]
-        [InlineData(new object[] { "x86" })]
-        [InlineData(new object[] { "x64" })]
-        public void LoadFromSpecifiedPath(string platform)
+        [InlineData("x86")]
+        [InlineData("x64")]
+        public void LoadFromSpecifiedPath(string architecture)
         {
             Skip.IfNot(Platform.IsRunningOnNetFramework(), ".NET Framework only test.");
 
             var nativeDllFileName = NativeDllName.Name + ".dll";
             var testDir = Path.GetDirectoryName(typeof(GlobalSettingsFixture).Assembly.Location);
-            var testAppExe = Path.Combine(testDir, $"LibGit2Sharp.TestApp.{platform}.exe");
+            var testAppExe = Path.Combine(testDir, $"LibGit2Sharp.TestApp.{architecture}.exe");
             var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             var platformDir = Path.Combine(tempDir, "plat");
 
             try
             {
-                Directory.CreateDirectory(Path.Combine(platformDir, platform));
-                File.Copy(Path.Combine(GlobalSettings.NativeLibraryPath, platform, nativeDllFileName), Path.Combine(platformDir, platform, nativeDllFileName));
+                Directory.CreateDirectory(Path.Combine(platformDir, architecture));
+                File.Copy(Path.Combine(GlobalSettings.NativeLibraryPath, architecture, nativeDllFileName), Path.Combine(platformDir, architecture, nativeDllFileName));
 
                 var (output, exitCode) = ProcessHelper.RunProcess(testAppExe, arguments: $@"{NativeDllName.Name} ""{platformDir}""", workingDirectory: tempDir);
 
