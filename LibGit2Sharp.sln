@@ -15,7 +15,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		version.json = version.json
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp.TestApp", "LibGit2Sharp.TestApp\LibGit2Sharp.TestApp.csproj", "{86453D2C-4953-4DF4-B12A-ADE579608BAA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibGit2Sharp.TestApp.x86", "LibGit2Sharp.TestApp\x86\LibGit2Sharp.TestApp.x86.csproj", "{86453D2C-4953-4DF4-B12A-ADE579608BAA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibGit2Sharp.TestApp.x64", "LibGit2Sharp.TestApp\x64\LibGit2Sharp.TestApp.x64.csproj", "{5C55175D-6A1F-4C51-B791-BF7DD00124EE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +37,10 @@ Global
 		{86453D2C-4953-4DF4-B12A-ADE579608BAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86453D2C-4953-4DF4-B12A-ADE579608BAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{86453D2C-4953-4DF4-B12A-ADE579608BAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C55175D-6A1F-4C51-B791-BF7DD00124EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C55175D-6A1F-4C51-B791-BF7DD00124EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C55175D-6A1F-4C51-B791-BF7DD00124EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C55175D-6A1F-4C51-B791-BF7DD00124EE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

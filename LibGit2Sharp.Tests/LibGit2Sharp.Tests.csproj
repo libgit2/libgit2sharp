@@ -2,11 +2,13 @@
 
   <PropertyGroup>
     <TargetFrameworks>net461;netcoreapp2.0</TargetFrameworks>
+    <DefineConstants Condition=" '$(TargetFramework)' == 'net461' ">$(DefineConstants);DESKTOP</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\LibGit2Sharp\LibGit2Sharp.csproj" />
-    <ProjectReference Include="..\LibGit2Sharp.TestApp\LibGit2Sharp.TestApp.csproj" Condition="'$(TargetFramework)' == 'net461'" />
+    <ProjectReference Include="..\LibGit2Sharp.TestApp\x86\LibGit2Sharp.TestApp.x86.csproj" Condition="'$(TargetFramework)' == 'net461'" ReferenceOutputAssembly="false" OutputItemType="TestAppExe" />
+    <ProjectReference Include="..\LibGit2Sharp.TestApp\x64\LibGit2Sharp.TestApp.x64.csproj" Condition="'$(TargetFramework)' == 'net461'" ReferenceOutputAssembly="false" OutputItemType="TestAppExe" />
   </ItemGroup>
 
   <ItemGroup>
@@ -18,8 +20,20 @@
     <PackageReference Include="xunit.skippablefact" Version="1.3.3" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Remove="desktop\**" Condition=" '$(TargetFramework)' != 'net461' " />
+  <Target Name="CopyTestAppExes" AfterTargets="ResolveProjectReferences">
+    <ItemGroup>
+      <_TestAppFile Include="@(TestAppExe->'%(RootDir)%(Directory)%(Filename).exe')" />
+      <_TestAppFile Include="@(TestAppExe->'%(RootDir)%(Directory)%(Filename).exe.config')" />
+      <_TestAppFile Include="@(TestAppExe->'%(RootDir)%(Directory)%(Filename).pdb')" />
+    </ItemGroup>
+      
+    <ItemGroup>
+      <Content Include="@(_TestAppFile)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+    </ItemGroup>
+  </Target>
+    
+  <ItemGroup Condition="'$(TargetFramework)' != 'net461'">
+    <Compile Remove="desktop\**" />
   </ItemGroup>
 
 </Project>

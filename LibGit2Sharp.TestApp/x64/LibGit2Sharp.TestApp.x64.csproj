@@ -3,11 +3,15 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net461</TargetFramework>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LibGit2Sharp\LibGit2Sharp.csproj" />
+    <ProjectReference Include="..\..\LibGit2Sharp\LibGit2Sharp.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\*.cs" />
   </ItemGroup>
 
 </Project>

@@ -53,23 +53,23 @@ namespace LibGit2Sharp.Tests
             Assert.Throws<LibGit2SharpException>(() => { GlobalSettings.NativeLibraryPath = "C:/Foo"; });
         }
 
-        [ConditionalFact(typeof(NetFramework))]
-        public void LoadFromSpecifiedPath()
+        [SkippableTheory]
+        [InlineData(new object[] { "x86" })]
+        [InlineData(new object[] { "x64" })]
+        public void LoadFromSpecifiedPath(string platform)
         {
-#if NET461
-            var nativeDllFileName = NativeDllName.Name + ".dll";
+            Skip.IfNot(Platform.IsRunningOnNetFramework(), ".NET Framework only test.");
 
-            var testAppExe = typeof(TestApp).Assembly.Location;
+            var nativeDllFileName = NativeDllName.Name + ".dll";
+            var testDir = Path.GetDirectoryName(typeof(GlobalSettingsFixture).Assembly.Location);
+            var testAppExe = Path.Combine(testDir, $"LibGit2Sharp.TestApp.{platform}.exe");
             var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             var platformDir = Path.Combine(tempDir, "plat");
 
             try
             {
-                Directory.CreateDirectory(Path.Combine(platformDir, "x86"));
-                Directory.CreateDirectory(Path.Combine(platformDir, "x64"));
-
-                File.Copy(Path.Combine(GlobalSettings.NativeLibraryPath, "x86", nativeDllFileName), Path.Combine(platformDir, "x86", nativeDllFileName));
-                File.Copy(Path.Combine(GlobalSettings.NativeLibraryPath, "x64", nativeDllFileName), Path.Combine(platformDir, "x64", nativeDllFileName));
+                Directory.CreateDirectory(Path.Combine(platformDir, platform));
+                File.Copy(Path.Combine(GlobalSettings.NativeLibraryPath, platform, nativeDllFileName), Path.Combine(platformDir, platform, nativeDllFileName));
 
                 var (output, exitCode) = ProcessHelper.RunProcess(testAppExe, arguments: $@"{NativeDllName.Name} ""{platformDir}""", workingDirectory: tempDir);
 
@@ -80,7 +80,6 @@ namespace LibGit2Sharp.Tests
             {
                 DirectoryHelper.DeleteDirectory(tempDir);
             }
-#endif
         }
     }
 }
