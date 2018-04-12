@@ -5,6 +5,8 @@
     <OutputPath>$(MSBuildThisFileDirectory)bin\$(MSBuildProjectName)\$(Configuration)\</OutputPath>
     <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
     <DefineConstants Condition=" '$(ExtraDefine)' != '' ">$(DefineConstants);$(ExtraDefine)</DefineConstants>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\libgit2sharp.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
 </Project>

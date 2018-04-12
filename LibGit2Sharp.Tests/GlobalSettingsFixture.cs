@@ -1,4 +1,7 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.IO;
+using System.Text.RegularExpressions;
+using LibGit2Sharp.Core;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
@@ -48,6 +51,36 @@ namespace LibGit2Sharp.Tests
             var features = GlobalSettings.Version.Features;
 
             Assert.Throws<LibGit2SharpException>(() => { GlobalSettings.NativeLibraryPath = "C:/Foo"; });
+        }
+
+        [ConditionalFact(typeof(NetFramework))]
+        public void LoadFromSpecifiedPath()
+        {
+#if NET461
+            var nativeDllFileName = NativeDllName.Name + ".dll";
+
+            var testAppExe = typeof(TestApp).Assembly.Location;
+            var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            var platformDir = Path.Combine(tempDir, "plat");
+
+            try
+            {
+                Directory.CreateDirectory(Path.Combine(platformDir, "x86"));
+                Directory.CreateDirectory(Path.Combine(platformDir, "x64"));
+
+                File.Copy(Path.Combine(GlobalSettings.NativeLibraryPath, "x86", nativeDllFileName), Path.Combine(platformDir, "x86", nativeDllFileName));
+                File.Copy(Path.Combine(GlobalSettings.NativeLibraryPath, "x64", nativeDllFileName), Path.Combine(platformDir, "x64", nativeDllFileName));
+
+                var (output, exitCode) = ProcessHelper.RunProcess(testAppExe, arguments: $@"{NativeDllName.Name} ""{platformDir}""", workingDirectory: tempDir);
+
+                Assert.Empty(output);
+                Assert.Equal(0, exitCode);
+            }
+            finally
+            {
+                DirectoryHelper.DeleteDirectory(tempDir);
+            }
+#endif
         }
     }
 }

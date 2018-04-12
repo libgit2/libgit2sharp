@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <TargetFrameworks>net461;netcoreapp2.0</TargetFrameworks>
-    <DefineConstants Condition=" '$(TargetFramework)' == 'net461' ">$(DefineConstants);DESKTOP</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\LibGit2Sharp\LibGit2Sharp.csproj" />
+    <ProjectReference Include="..\LibGit2Sharp.TestApp\LibGit2Sharp.TestApp.csproj" Condition="'$(TargetFramework)' == 'net461'" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,8 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\LibGit2Sharp\Core\Epoch.cs" Link="TestHelpers\Epoch.cs" />
-    <Compile Include="..\LibGit2Sharp\Core\Platform.cs" Link="TestHelpers\Platform.cs" />
     <Compile Remove="desktop\**" Condition=" '$(TargetFramework)' != 'net461' " />
   </ItemGroup>
 
