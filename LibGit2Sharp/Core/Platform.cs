@@ -33,8 +33,46 @@ namespace LibGit2Sharp.Core
                     return OperatingSystemType.MacOSX;
                 }
 
-                throw new InvalidOperationException();
+                throw new PlatformNotSupportedException();
             }
+        }
+
+        /// <summary>
+        /// Determines the RID to use when loading libgit2 native library.
+        /// This method only supports RIDs that are currently used by LibGit2Sharp.NativeBinaries.
+        /// </summary>
+        public static string GetNativeLibraryRuntimeId()
+        {
+            switch (OperatingSystem)
+            {
+                case OperatingSystemType.MacOSX:
+                    return "osx";
+
+                case OperatingSystemType.Unix:
+                    return "linux-" + ProcessorArchitecture;
+
+                case OperatingSystemType.Windows:
+                    return "win7-" + ProcessorArchitecture;
+            }
+
+            throw new PlatformNotSupportedException();
+        }
+
+        public static string GetNativeLibraryExtension()
+        {
+            switch (OperatingSystem)
+            {
+                case OperatingSystemType.MacOSX:
+                    return ".dylib";
+
+                case OperatingSystemType.Unix:
+                    return ".so";
+
+                case OperatingSystemType.Windows:
+                    return ".dll";
+            }
+
+            throw new PlatformNotSupportedException();
         }
 
         /// <summary>
@@ -48,5 +86,11 @@ namespace LibGit2Sharp.Core
         /// </summary>
         public static bool IsRunningOnNetFramework()
             => typeof(object).Assembly.GetName().Name == "mscorlib" && !IsRunningOnMono();
+
+        /// <summary>
+        /// Returns true if the runtime is .NET Core.
+        /// </summary>
+        public static bool IsRunningOnNetCore()
+            => typeof(object).Assembly.GetName().Name != "mscorlib";
     }
 }
