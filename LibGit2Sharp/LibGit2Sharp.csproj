@@ -9,7 +9,9 @@
     <PackageTags>libgit2 git</PackageTags>
     <PackageProjectUrl>https://github.com/libgit2/libgit2sharp/</PackageProjectUrl>
     <Authors>LibGit2Sharp contributors</Authors>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>    
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\libgit2sharp.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <!-- Disable SourceLink when running on Travis CI -->
