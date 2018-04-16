@@ -6,33 +6,9 @@
 
   <Target Name="DefineProperties">
     <PropertyGroup>
-      <NativeDllNamePath>$(IntermediateOutputPath)NativeDllName.g.cs</NativeDllNamePath>
       <UniqueIdentifierPath>$(IntermediateOutputPath)UniqueIdentifier.g.cs</UniqueIdentifierPath>
       <AssemblyCommitIdsPath>$(IntermediateOutputPath)AssemblyCommitIds.g.cs</AssemblyCommitIdsPath>
     </PropertyGroup>
-  </Target>
-
-
-  <Target Name="GenerateNativeDllNameCs" Inputs="$(libgit2_propsfile)" Outputs="$(NativeDllNamePath)" BeforeTargets="CoreCompile" DependsOnTargets="DefineProperties">
-    <PropertyGroup>
-      <NativeDllNameSourceLines>
-        namespace LibGit2Sharp.Core
-        {
-        internal static class NativeDllName
-        {
-        public const string Name = "$(libgit2_filename)"%3b
-        }
-        }
-      </NativeDllNameSourceLines>
-    </PropertyGroup>
-
-    <WriteLinesToFile File="$(NativeDllNamePath)" Lines="$(NativeDllNameSourceLines)" Overwrite="true" />
-
-    <ItemGroup>
-      <Compile Include="$(NativeDllNamePath)" />
-      <FileWrites Include="$(NativeDllNamePath)" />
-    </ItemGroup>
-
   </Target>
 
 
