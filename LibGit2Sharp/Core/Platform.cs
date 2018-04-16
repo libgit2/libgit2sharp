@@ -37,27 +37,6 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        /// <summary>
-        /// Determines the RID to use when loading libgit2 native library.
-        /// This method only supports RIDs that are currently used by LibGit2Sharp.NativeBinaries.
-        /// </summary>
-        public static string GetNativeLibraryRuntimeId()
-        {
-            switch (OperatingSystem)
-            {
-                case OperatingSystemType.MacOSX:
-                    return "osx";
-
-                case OperatingSystemType.Unix:
-                    return "linux-" + ProcessorArchitecture;
-
-                case OperatingSystemType.Windows:
-                    return "win7-" + ProcessorArchitecture;
-            }
-
-            throw new PlatformNotSupportedException();
-        }
-
         public static string GetNativeLibraryExtension()
         {
             switch (OperatingSystem)
