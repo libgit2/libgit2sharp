@@ -62,7 +62,7 @@ namespace LibGit2Sharp.Tests
 
             var nativeDllFileName = NativeDllName.Name + ".dll";
             var testDir = Path.GetDirectoryName(typeof(GlobalSettingsFixture).Assembly.Location);
-            var testAppExe = Path.Combine(testDir, $"LibGit2Sharp.TestApp.{architecture}.exe");
+            var testAppExe = Path.Combine(testDir, $"NativeLibraryLoadTestApp.{architecture}.exe");
             var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             var platformDir = Path.Combine(tempDir, "plat");
 
