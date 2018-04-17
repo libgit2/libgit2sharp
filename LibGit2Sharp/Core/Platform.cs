@@ -33,8 +33,43 @@ namespace LibGit2Sharp.Core
                     return OperatingSystemType.MacOSX;
                 }
 
-                throw new InvalidOperationException();
+                throw new PlatformNotSupportedException();
             }
         }
+
+        public static string GetNativeLibraryExtension()
+        {
+            switch (OperatingSystem)
+            {
+                case OperatingSystemType.MacOSX:
+                    return ".dylib";
+
+                case OperatingSystemType.Unix:
+                    return ".so";
+
+                case OperatingSystemType.Windows:
+                    return ".dll";
+            }
+
+            throw new PlatformNotSupportedException();
+        }
+
+        /// <summary>
+        /// Returns true if the runtime is Mono.
+        /// </summary>
+        public static bool IsRunningOnMono()
+            => Type.GetType("Mono.Runtime") != null;
+
+        /// <summary>
+        /// Returns true if the runtime is .NET Framework.
+        /// </summary>
+        public static bool IsRunningOnNetFramework()
+            => typeof(object).Assembly.GetName().Name == "mscorlib" && !IsRunningOnMono();
+
+        /// <summary>
+        /// Returns true if the runtime is .NET Core.
+        /// </summary>
+        public static bool IsRunningOnNetCore()
+            => typeof(object).Assembly.GetName().Name != "mscorlib";
     }
 }

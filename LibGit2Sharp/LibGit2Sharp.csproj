@@ -38,7 +38,8 @@
     <DotNetCliToolReference Include="dotnet-sourcelink-git" Version="2.8.0" />
   </ItemGroup>
 
-  <Import Project="CodeGenerator.targets" />
+  <Import Project="..\Targets\CodeGenerator.targets" />
+  <Import Project="..\Targets\GenerateNativeDllName.targets" />
 
   <Target Name="SetNuSpecProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="GetBuildVersion">
     <PropertyGroup>

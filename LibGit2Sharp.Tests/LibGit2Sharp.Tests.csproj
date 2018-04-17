@@ -7,6 +7,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LibGit2Sharp\LibGit2Sharp.csproj" />
+    <ProjectReference Include="..\NativeLibraryLoadTestApp\x86\NativeLibraryLoadTestApp.x86.csproj" Condition="'$(TargetFramework)' == 'net461'" ReferenceOutputAssembly="false" OutputItemType="TestAppExe" />
+    <ProjectReference Include="..\NativeLibraryLoadTestApp\x64\NativeLibraryLoadTestApp.x64.csproj" Condition="'$(TargetFramework)' == 'net461'" ReferenceOutputAssembly="false" OutputItemType="TestAppExe" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,5 +25,19 @@
     <Compile Include="..\LibGit2Sharp\Core\Platform.cs" Link="TestHelpers\Platform.cs" />
     <Compile Remove="desktop\**" Condition=" '$(TargetFramework)' != 'net461' " />
   </ItemGroup>
+
+  <Target Name="CopyTestAppExes" AfterTargets="ResolveProjectReferences">
+    <ItemGroup>
+      <_TestAppFile Include="@(TestAppExe->'%(RootDir)%(Directory)%(Filename).exe')" />
+      <_TestAppFile Include="@(TestAppExe->'%(RootDir)%(Directory)%(Filename).exe.config')" />
+      <_TestAppFile Include="@(TestAppExe->'%(RootDir)%(Directory)%(Filename).pdb')" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="@(_TestAppFile)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+    </ItemGroup>
+  </Target>
+
+  <Import Project="..\Targets\GenerateNativeDllName.targets" />
 
 </Project>
