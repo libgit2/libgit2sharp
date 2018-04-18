@@ -13,7 +13,7 @@ namespace LibGit2Sharp.Tests
         private readonly string[] expectedTags = new[] { "e90810b", "lw", "point_to_blob", "tag_without_tagger", "test", };
 
         private static readonly Signature signatureTim = new Signature("Tim Clem", "timothy.clem@gmail.com", TruncateSubSeconds(DateTimeOffset.UtcNow));
-        private static readonly Signature signatureNtk = new Signature("nulltoken", "emeric.fermas@gmail.com", Epoch.ToDateTimeOffset(1300557894, 60));
+        private static readonly Signature signatureNtk = new Signature("nulltoken", "emeric.fermas@gmail.com", DateTimeOffset.FromUnixTimeSeconds(1300557894).ToOffset(TimeSpan.FromMinutes(60)));
         private const string tagTestSha = "b25fa35b38051e4ae45d4222e795f9df2e43f1d1";
         private const string commitE90810BSha = "e90810b8df3e80c413d903f631643c716887138d";
         private const string tagE90810BSha = "7b4384978d2493e851f9cca7858815fac9b10980";
