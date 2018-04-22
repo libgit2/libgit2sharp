@@ -29,6 +29,8 @@
     <None Include="..\LICENSE.md" Pack="true" PackagePath="App_Readme\" />
     <None Include="..\CHANGES.md" Pack="true" PackagePath="App_Readme\" />
     <Compile Update="Core\Handles\Objects.cs" DependentUpon="Objects.tt" />
+    <None Remove="runtime.json" />
+    <EmbeddedResource Include="runtime.json" LogicalName="runtime.json" />
   </ItemGroup>
 
   <ItemGroup>
