@@ -6,9 +6,34 @@
 
   <Target Name="DefineProperties">
     <PropertyGroup>
+      <NativeLibraryPathResolverPath>$(IntermediateOutputPath)NativeLibraryPathResolver.g.cs</NativeLibraryPathResolverPath>
       <UniqueIdentifierPath>$(IntermediateOutputPath)UniqueIdentifier.g.cs</UniqueIdentifierPath>
       <AssemblyCommitIdsPath>$(IntermediateOutputPath)AssemblyCommitIds.g.cs</AssemblyCommitIdsPath>
     </PropertyGroup>
+  </Target>
+
+
+  <Target Name="GenerateNativeLibraryPathResolverCs" Inputs="$(libgit2_propsfile)" Outputs="$(NativeLibraryPathResolverPath)" BeforeTargets="CoreCompile" DependsOnTargets="DefineProperties">
+
+    <PropertyGroup>
+      <NativeLibraryPathResolverSourceLines>
+        namespace LibGit2Sharp
+        {
+        static partial class NativeLibraryPathResolver
+        {
+        static readonly System.Collections.Generic.HashSet&lt;string&gt; nativeLibraries = new System.Collections.Generic.HashSet&lt;string&gt; { @(libgit2_rid, ', ') }%3b
+        }
+        }
+      </NativeLibraryPathResolverSourceLines>
+    </PropertyGroup>
+
+    <WriteLinesToFile File="$(NativeLibraryPathResolverPath)" Lines="$(NativeLibraryPathResolverSourceLines)" Overwrite="true" />
+
+    <ItemGroup>
+      <Compile Include="$(NativeLibraryPathResolverPath)" />
+      <FileWrites Include="$(NativeLibraryPathResolverPath)" />
+    </ItemGroup>
+
   </Target>
 
 

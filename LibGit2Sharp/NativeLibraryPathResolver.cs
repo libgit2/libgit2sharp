@@ -6,10 +6,8 @@ using SimpleJson;
 
 namespace LibGit2Sharp
 {
-    static class NativeLibraryPathResolver
+    static partial class NativeLibraryPathResolver
     {
-        static readonly HashSet<string> nativeLibraries = new HashSet<string> { "debian.9-x64", "fedora-x64", "linux-x64", "osx", "rhel-x64", "win-x64", "win-x86" };
-
         public static string GetNativeLibraryDefaultPath()
         {
             var runtimeIdentifier = RuntimeEnvironment.GetRuntimeIdentifier();
