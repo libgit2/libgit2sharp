@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using Microsoft.DotNet.PlatformAbstractions;
+using System.Runtime.InteropServices;
 using SimpleJson;
+
+using static Microsoft.DotNet.PlatformAbstractions.RuntimeEnvironment;
 
 namespace LibGit2Sharp
 {
@@ -10,7 +12,7 @@ namespace LibGit2Sharp
     {
         public static string GetNativeLibraryDefaultPath()
         {
-            var runtimeIdentifier = RuntimeEnvironment.GetRuntimeIdentifier();
+            var runtimeIdentifier = GetRuntimeIdentifier();
             var graph = BuildRuntimeGraph();
 
             var compatibleRuntimeIdentifiers = graph.GetCompatibleRuntimeIdentifiers(runtimeIdentifier);
@@ -71,19 +73,22 @@ namespace LibGit2Sharp
             // backslashes flipped.  This is superior to EscapedCodeBase,
             // which does not correctly escape things, and ambiguates a
             // space (%20) with a literal `%20` in the path.  Sigh.
-            var managedPath = Assembly.GetExecutingAssembly().CodeBase;
+            var managedPath = Assembly.GetExecutingAssembly().CodeBase ?? Assembly.GetExecutingAssembly().Location;
 
-            if (managedPath == null)
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                managedPath = Assembly.GetExecutingAssembly().Location;
-            }
-            else if (managedPath.StartsWith("file:///"))
-            {
-                managedPath = managedPath.Substring(8).Replace('/', '\\');
+                if (managedPath.StartsWith("file:///"))
+                {
+                    managedPath = managedPath.Substring(8).Replace('/', '\\');
+                }
+                else if (managedPath.StartsWith("file://"))
+                {
+                    managedPath = @"\\" + managedPath.Substring(7).Replace('/', '\\');
+                }
             }
             else if (managedPath.StartsWith("file://"))
             {
-                managedPath = @"\\" + managedPath.Substring(7).Replace('/', '\\');
+                managedPath = managedPath.Substring(7);
             }
 
             managedPath = Path.GetDirectoryName(managedPath);
