@@ -27,24 +27,22 @@ namespace LibGit2Sharp.Core
 
         static NativeMethods()
         {
-            if (Platform.IsRunningOnNetFramework() || Platform.IsRunningOnNetCore())
-            {
-                string nativeLibraryDir = GlobalSettings.GetAndLockNativeLibraryPath();
-                if (nativeLibraryDir != null)
-                {
-                    string nativeLibraryPath = Path.Combine(nativeLibraryDir, libgit2 + Platform.GetNativeLibraryExtension());
+            var nativeLibraryDir = GlobalSettings.GetAndLockNativeLibraryPath();
 
-                    // Try to load the .dll from the path explicitly.
-                    // If this call succeeds further DllImports will find the library loaded and not attempt to load it again.
-                    // If it fails the next DllImport will load the library from safe directories.
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                    {
-                        LoadWindowsLibrary(nativeLibraryPath);
-                    }
-                    else
-                    {
-                        LoadUnixLibrary(nativeLibraryPath, RTLD_NOW);
-                    }
+            if (nativeLibraryDir != null)
+            {
+                var nativeLibraryPath = Path.Combine(nativeLibraryDir, libgit2 + Platform.GetNativeLibraryExtension());
+
+                // Try to load the library from the path explicitly.
+                // If this call succeeds, further DllImports will find the library loaded and not attempt to load it again.
+                // If it fails, the next DllImport will load the library from safe directories.
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    LoadWindowsLibrary(nativeLibraryPath);
+                }
+                else
+                {
+                    LoadUnixLibrary(nativeLibraryPath, RTLD_NOW);
                 }
             }
 

@@ -14,7 +14,6 @@ namespace LibGit2Sharp
     {
         private static readonly Lazy<Version> version = new Lazy<Version>(Version.Build);
         private static readonly Dictionary<Filter, FilterRegistration> registeredFilters;
-        private static readonly bool nativeLibraryPathAllowed;
 
         private static LogConfiguration logConfiguration = LogConfiguration.None;
 
@@ -24,47 +23,9 @@ namespace LibGit2Sharp
 
         static GlobalSettings()
         {
-            bool netFX = Platform.IsRunningOnNetFramework();
-            bool netCore = Platform.IsRunningOnNetCore();
-
-            nativeLibraryPathAllowed = netFX || netCore;
-
-            if (netFX)
-            {
-                // For .NET Framework apps the dependencies are deployed to lib/win32/{architecture} directory
-                nativeLibraryDefaultPath = Path.Combine(GetExecutingAssemblyDirectory(), "lib", "win32");
-            }
-            else
-            {
-                nativeLibraryDefaultPath = null;
-            }
+            nativeLibraryDefaultPath = NativeLibraryPathResolver.GetNativeLibraryDefaultPath();
 
             registeredFilters = new Dictionary<Filter, FilterRegistration>();
-        }
-
-        private static string GetExecutingAssemblyDirectory()
-        {
-            // Assembly.CodeBase is not actually a correctly formatted
-            // URI.  It's merely prefixed with `file:///` and has its
-            // backslashes flipped.  This is superior to EscapedCodeBase,
-            // which does not correctly escape things, and ambiguates a
-            // space (%20) with a literal `%20` in the path.  Sigh.
-            var managedPath = Assembly.GetExecutingAssembly().CodeBase;
-            if (managedPath == null)
-            {
-                managedPath = Assembly.GetExecutingAssembly().Location;
-            }
-            else if (managedPath.StartsWith("file:///"))
-            {
-                managedPath = managedPath.Substring(8).Replace('/', '\\');
-            }
-            else if (managedPath.StartsWith("file://"))
-            {
-                managedPath = @"\\" + managedPath.Substring(7).Replace('/', '\\');
-            }
-
-            managedPath = Path.GetDirectoryName(managedPath);
-            return managedPath;
         }
 
         /// <summary>
@@ -186,21 +147,11 @@ namespace LibGit2Sharp
         {
             get
             {
-                if (!nativeLibraryPathAllowed)
-                {
-                    throw new LibGit2SharpException("Querying the native hint path is only supported on .NET Framework and .NET Core platforms");
-                }
-
                 return nativeLibraryPath ?? nativeLibraryDefaultPath;
             }
 
             set
             {
-                if (!nativeLibraryPathAllowed)
-                {
-                    throw new LibGit2SharpException("Setting the native hint path is only supported on .NET Framework and .NET Core platforms");
-                }
-
                 if (nativeLibraryPathLocked)
                 {
                     throw new LibGit2SharpException("You cannot set the native library path after it has been loaded");
@@ -220,8 +171,8 @@ namespace LibGit2Sharp
         internal static string GetAndLockNativeLibraryPath()
         {
             nativeLibraryPathLocked = true;
-            string result = nativeLibraryPath ?? nativeLibraryDefaultPath;
-            return Platform.IsRunningOnNetFramework() ? Path.Combine(result, Platform.ProcessorArchitecture) : result;
+
+            return nativeLibraryPath ?? nativeLibraryDefaultPath;
         }
 
         /// <summary>
