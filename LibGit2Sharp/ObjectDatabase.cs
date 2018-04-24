@@ -562,37 +562,26 @@ namespace LibGit2Sharp
         public virtual MergeTreeResult CherryPickCommit(Commit cherryPickCommit, Commit cherryPickOnto, int mainline, MergeTreeOptions options)
         {
             Ensure.ArgumentNotNull(cherryPickCommit, "cherryPickCommit");
-            Ensure.ArgumentNotNull(cherryPickOnto, "ours");
+            Ensure.ArgumentNotNull(cherryPickOnto, "cherryPickOnto");
 
-            options = options ?? new MergeTreeOptions();
+            var modifiedOptions = new MergeTreeOptions();
 
             // We throw away the index after looking at the conflicts, so we'll never need the REUC
             // entries to be there
-            GitMergeFlag mergeFlags = GitMergeFlag.GIT_MERGE_NORMAL | GitMergeFlag.GIT_MERGE_SKIP_REUC;
-            if (options.FindRenames)
-            {
-                mergeFlags |= GitMergeFlag.GIT_MERGE_FIND_RENAMES;
-            }
-            if (options.FailOnConflict)
-            {
-                mergeFlags |= GitMergeFlag.GIT_MERGE_FAIL_ON_CONFLICT;
-            }
+            modifiedOptions.SkipReuc = true;
 
-
-            var opts = new GitMergeOpts
+            if (options != null)
             {
-                Version = 1,
-                MergeFileFavorFlags = options.MergeFileFavor,
-                MergeTreeFlags = mergeFlags,
-                RenameThreshold = (uint)options.RenameThreshold,
-                TargetLimit = (uint)options.TargetLimit
-            };
+                modifiedOptions.FailOnConflict = options.FailOnConflict;
+                modifiedOptions.FindRenames = options.FindRenames;
+                modifiedOptions.MergeFileFavor = options.MergeFileFavor;
+                modifiedOptions.RenameThreshold = options.RenameThreshold;
+                modifiedOptions.TargetLimit = options.TargetLimit;
+            }
 
             bool earlyStop;
 
-            using (var cherryPickOntoHandle = Proxy.git_object_lookup(repo.Handle, cherryPickOnto.Id, GitObjectType.Commit))
-            using (var cherryPickCommitHandle = Proxy.git_object_lookup(repo.Handle, cherryPickCommit.Id, GitObjectType.Commit))
-            using (var indexHandle = Proxy.git_cherrypick_commit(repo.Handle, cherryPickCommitHandle, cherryPickOntoHandle, (uint)mainline, opts, out earlyStop))
+            using (var indexHandle = CherryPickCommit(cherryPickCommit, cherryPickOnto, mainline, modifiedOptions, out earlyStop))
             {
                 MergeTreeResult cherryPickResult;
 
@@ -880,6 +869,36 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Performs a cherry-pick of <paramref name="cherryPickCommit"/> onto <paramref name="cherryPickOnto"/> commit.
+        /// </summary>
+        /// <param name="cherryPickCommit">The commit to cherry-pick.</param>
+        /// <param name="cherryPickOnto">The commit to cherry-pick onto.</param>
+        /// <param name="mainline">Which commit to consider the parent for the diff when cherry-picking a merge commit.</param>
+        /// <param name="options">The options for the merging in the cherry-pick operation.</param>
+        /// <returns>The <see cref="TransientIndex"/> containing the cherry-pick result tree and any conflicts, or null if the merge stopped early due to conflicts.
+        /// The index must be disposed by the caller. </returns>
+        public virtual TransientIndex CherryPickCommitIntoIndex(Commit cherryPickCommit, Commit cherryPickOnto, int mainline, MergeTreeOptions options)
+        {
+            Ensure.ArgumentNotNull(cherryPickCommit, "cherryPickCommit");
+            Ensure.ArgumentNotNull(cherryPickOnto, "cherryPickOnto");
+
+            options = options ?? new MergeTreeOptions();
+
+            bool earlyStop;
+            var indexHandle = CherryPickCommit(cherryPickCommit, cherryPickOnto, mainline, options, out earlyStop);
+            if (earlyStop)
+            {
+                if (indexHandle != null)
+                {
+                    indexHandle.Dispose();
+                }
+                return null;
+            }
+            var result = new TransientIndex(indexHandle, repo);
+            return result;
+        }
+
+        /// <summary>
         /// Perform a three-way merge of two commits, looking up their
         /// commit ancestor. The returned index will contain the results
         /// of the merge and can be examined for conflicts.
@@ -917,6 +936,48 @@ namespace LibGit2Sharp
             using (var twoHandle = Proxy.git_object_lookup(repo.Handle, theirs.Id, GitObjectType.Commit))
             {
                 var indexHandle = Proxy.git_merge_commits(repo.Handle, oneHandle, twoHandle, mergeOptions, out earlyStop);
+                return indexHandle;
+            }
+        }
+
+        /// <summary>
+        /// Performs a cherry-pick of <paramref name="cherryPickCommit"/> onto <paramref name="cherryPickOnto"/> commit.
+        /// </summary>
+        /// <param name="cherryPickCommit">The commit to cherry-pick.</param>
+        /// <param name="cherryPickOnto">The commit to cherry-pick onto.</param>
+        /// <param name="mainline">Which commit to consider the parent for the diff when cherry-picking a merge commit.</param>
+        /// <param name="options">The options for the merging in the cherry-pick operation.</param>
+        /// <param name="earlyStop">True if the cherry-pick stopped early due to conflicts</param>
+        /// <returns>The <see cref="IndexHandle"/> containing the cherry-pick result tree and any conflicts</returns>
+        private IndexHandle CherryPickCommit(Commit cherryPickCommit, Commit cherryPickOnto, int mainline, MergeTreeOptions options, out bool earlyStop)
+        {
+            GitMergeFlag mergeFlags = GitMergeFlag.GIT_MERGE_NORMAL;
+            if (options.SkipReuc)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_SKIP_REUC;
+            }
+            if (options.FindRenames)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_FIND_RENAMES;
+            }
+            if (options.FailOnConflict)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_FAIL_ON_CONFLICT;
+            }
+
+            var mergeOptions = new GitMergeOpts
+            {
+                Version = 1,
+                MergeFileFavorFlags = options.MergeFileFavor,
+                MergeTreeFlags = mergeFlags,
+                RenameThreshold = (uint)options.RenameThreshold,
+                TargetLimit = (uint)options.TargetLimit,
+            };
+
+            using (var cherryPickOntoHandle = Proxy.git_object_lookup(repo.Handle, cherryPickOnto.Id, GitObjectType.Commit))
+            using (var cherryPickCommitHandle = Proxy.git_object_lookup(repo.Handle, cherryPickCommit.Id, GitObjectType.Commit))
+            {
+                var indexHandle = Proxy.git_cherrypick_commit(repo.Handle, cherryPickCommitHandle, cherryPickOntoHandle, (uint)mainline, mergeOptions, out earlyStop);
                 return indexHandle;
             }
         }
