@@ -12,15 +12,17 @@
   </Target>
 
 
-  <Target Name="GenerateUniqueIdentifierCs" Inputs="$(MSBuildThisFileFullPath);$(MSBuildAllProjects);@(Compile)" Outputs="$(UniqueIdentifierPath)" BeforeTargets="CoreCompile" DependsOnTargets="DefineProperties">
+  <Target Name="GenerateUniqueIdentifierCs" Inputs="$(VersionSourceFile)" Outputs="$(UniqueIdentifierPath)" BeforeTargets="CoreCompile" AfterTargets="GenerateAssemblyVersionInfo" DependsOnTargets="DefineProperties">
 
     <PropertyGroup>
+      <UniqueIdentifier>$([System.Guid]::NewGuid())</UniqueIdentifier>
+      <UniqueIdentifier Condition="'$(GitCommitId)' != ''">$(GitCommitId)</UniqueIdentifier>
       <UniqueIdSourceLines>
         namespace LibGit2Sharp.Core
         {
         internal static class UniqueId
         {
-        public const string UniqueIdentifier = "$([System.Guid]::NewGuid())"%3b
+        public const string UniqueIdentifier = "$(UniqueIdentifier)"%3b
         }
         }
       </UniqueIdSourceLines>
