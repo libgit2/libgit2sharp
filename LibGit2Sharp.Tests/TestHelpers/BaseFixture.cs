@@ -51,8 +51,8 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
         protected static DateTimeOffset TruncateSubSeconds(DateTimeOffset dto)
         {
-            int seconds = dto.ToSecondsSinceEpoch();
-            return Epoch.ToDateTimeOffset(seconds, (int)dto.Offset.TotalMinutes);
+            var seconds = dto.ToUnixTimeSeconds();
+            return DateTimeOffset.FromUnixTimeSeconds(seconds).ToOffset(dto.Offset);
         }
 
         private static void SetUpTestEnvironment()

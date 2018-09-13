@@ -2793,7 +2793,7 @@ namespace LibGit2Sharp.Core
         {
             git_signature* ptr;
 
-            int res = NativeMethods.git_signature_new(out ptr, name, email, when.ToSecondsSinceEpoch(),
+            int res = NativeMethods.git_signature_new(out ptr, name, email, when.ToUnixTimeSeconds(),
                                                       (int)when.Offset.TotalMinutes);
             Ensure.ZeroResult(res);
 

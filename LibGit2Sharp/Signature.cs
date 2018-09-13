@@ -21,7 +21,7 @@ namespace LibGit2Sharp
         {
             name = LaxUtf8Marshaler.FromNative(sig->name);
             email = LaxUtf8Marshaler.FromNative(sig->email);
-            when = Epoch.ToDateTimeOffset(sig->when.time, sig->when.offset);
+            when = DateTimeOffset.FromUnixTimeSeconds(sig->when.time).ToOffset(TimeSpan.FromMinutes(sig->when.offset));
         }
 
         /// <summary>

@@ -21,7 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\LibGit2Sharp\Core\Epoch.cs" Link="TestHelpers\Epoch.cs" />
     <Compile Include="..\LibGit2Sharp\Core\Platform.cs" Link="TestHelpers\Platform.cs" />
     <Compile Remove="desktop\**" Condition=" '$(TargetFramework)' != 'net461' " />
   </ItemGroup>

@@ -332,7 +332,7 @@ namespace LibGit2Sharp.Core
 
                 this.mode = Convert.ToString(mode, 8).PadLeft(7, '0');
                 this.size = size;
-                unixTime = Convert.ToString(lastModificationTime.ToSecondsSinceEpoch(), 8).PadLeft(11, '0');
+                unixTime = Convert.ToString(lastModificationTime.ToUnixTimeSeconds(), 8).PadLeft(11, '0');
                 this.userId = userId.PadLeft(7, '0');
                 this.groupId = userId.PadLeft(7, '0');
                 this.userName = userName;

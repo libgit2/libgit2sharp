@@ -475,12 +475,12 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(commit.Author);
                 Assert.Equal("Scott Chacon", commit.Author.Name);
                 Assert.Equal("schacon@gmail.com", commit.Author.Email);
-                Assert.Equal(1273360386, commit.Author.When.ToSecondsSinceEpoch());
+                Assert.Equal(1273360386, commit.Author.When.ToUnixTimeSeconds());
 
                 Assert.NotNull(commit.Committer);
                 Assert.Equal("Scott Chacon", commit.Committer.Name);
                 Assert.Equal("schacon@gmail.com", commit.Committer.Email);
-                Assert.Equal(1273360386, commit.Committer.When.ToSecondsSinceEpoch());
+                Assert.Equal(1273360386, commit.Committer.When.ToUnixTimeSeconds());
 
                 Assert.Equal("181037049a54a1eb5fab404658a3a250b44335d7", commit.Tree.Sha);
 
@@ -889,9 +889,9 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 var author = new Signature("Wilbert van Dolleweerd", "getit@xs4all.nl",
-                                           Epoch.ToDateTimeOffset(1244187936, 120));
+                                           DateTimeOffset.FromUnixTimeSeconds(1244187936).ToOffset(TimeSpan.FromMinutes(120)));
                 var committer = new Signature("Henk Westhuis", "Henk_Westhuis@hotmail.com",
-                                           Epoch.ToDateTimeOffset(1244286496, 120));
+                                           DateTimeOffset.FromUnixTimeSeconds(1244286496).ToOffset(TimeSpan.FromMinutes(120)));
 
                 Commit c = repo.Commit("I can haz an author and a committer!", author, committer);
 
