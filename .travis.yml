@@ -3,7 +3,7 @@
 
 language: csharp
 dist: trusty
-dotnet: 2.0.0
+dotnet: 2.1.401
 mono: none
 osx_image: xcode8.3
 

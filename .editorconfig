@@ -10,9 +10,9 @@ trim_trailing_whitespace = true
 insert_final_newline = true
 
 ; Not change VS generated files
-[*.{sln,csroj}]
+[*.{sln,csproj}]
 trim_trailing_whitespace = false
 insert_final_newline = false
 
-[*.{props,targets}]
+[*.{props,targets,csproj}]
 indent_size = 2

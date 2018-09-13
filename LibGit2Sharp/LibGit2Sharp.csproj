@@ -9,14 +9,11 @@
     <PackageTags>libgit2 git</PackageTags>
     <PackageProjectUrl>https://github.com/libgit2/libgit2sharp/</PackageProjectUrl>
     <Authors>LibGit2Sharp contributors</Authors>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\libgit2sharp.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-
-  <!-- Disable SourceLink when running on Travis CI -->
-  <PropertyGroup>
-    <SourceLinkCreate Condition="'$(TRAVIS)' == 'true'">false</SourceLinkCreate>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,9 +30,8 @@
 
   <ItemGroup>
     <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="[1.0.226]" PrivateAssets="none" />
-    <PackageReference Include="Nerdbank.GitVersioning" Version="2.1.23" PrivateAssets="all" />
-    <PackageReference Include="SourceLink.Create.GitHub" Version="2.8.0" PrivateAssets="all" />
-    <DotNetCliToolReference Include="dotnet-sourcelink-git" Version="2.8.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="all" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="2.2.13" PrivateAssets="all" />
   </ItemGroup>
 
   <Import Project="..\Targets\CodeGenerator.targets" />
