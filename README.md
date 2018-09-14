@@ -1,10 +1,13 @@
 # LibGit2Sharp
 
+[![master azurepipelines][master-azurepipelines-badge]][master-azurepipelines]
 [![master win][master-win-badge]][master-win]
 [![master nix][master-nix-badge]][master-nix]
 [![coverity][coverity-badge]][coverity-project]
 [![coveralls][coveralls-badge]][coveralls-project]
 
+[master-azurepipelines-badge]: https://dev.azure.com/libgit2sharp/libgit2sharp/_apis/build/status/libgit2sharp
+[master-azurepipelines]: https://dev.azure.com/libgit2sharp/libgit2sharp/_apis/build/status/libgit2sharp?branchName=master
 [master-win-badge]: https://ci.appveyor.com/api/projects/status/8qxcoqdo9kp7x2w9/branch/master?svg=true
 [master-win]: https://ci.appveyor.com/project/libgit2/libgit2sharp/branch/master
 [master-nix-badge]: https://travis-ci.org/libgit2/libgit2sharp.svg?branch=master
