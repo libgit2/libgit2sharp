@@ -4,7 +4,6 @@
 [![master win][master-win-badge]][master-win]
 [![master nix][master-nix-badge]][master-nix]
 [![coverity][coverity-badge]][coverity-project]
-[![coveralls][coveralls-badge]][coveralls-project]
 
 [master-azurepipelines-badge]: https://dev.azure.com/libgit2sharp/libgit2sharp/_apis/build/status/libgit2sharp?branchName=master
 [master-azurepipelines]: https://dev.azure.com/libgit2sharp/libgit2sharp/_build/latest?definitionId=1
@@ -15,9 +14,6 @@
 
 [coverity-project]: https://scan.coverity.com/projects/2088
 [coverity-badge]: https://scan.coverity.com/projects/2088/badge.svg
-
-[coveralls-project]: https://coveralls.io/r/libgit2/libgit2sharp?branch=master
-[coveralls-badge]: https://coveralls.io/repos/libgit2/libgit2sharp/badge.svg?branch=master
 
 **LibGit2Sharp brings all the might and speed of [libgit2][libgit2], a native Git implementation, to the managed world of .NET and Mono.**
 
