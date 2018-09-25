@@ -17,9 +17,8 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<Worktree> equalityHelper =
             new LambdaEqualityHelper<Worktree>(x => x.Name);
 
-        private readonly WorktreeHandle handle;
         private readonly Repository parent;
-        private readonly Repository worktree;
+        //private readonly Repository worktree;
         private readonly string name;
         private WorktreeLock worktreeLock;
 
@@ -29,13 +28,20 @@ namespace LibGit2Sharp
         protected Worktree()
         { }
 
-        internal Worktree(WorktreeHandle handle, Repository repo, string name, Repository worktree, WorktreeLock worktreeLock)
+        internal Worktree(Repository repo, string name, WorktreeLock worktreeLock)
         {
-            this.handle = Proxy.git_worktree_lookup(repo.Handle, name);
             this.parent = repo;
             this.name = name;
-            this.worktree = worktree;
             this.worktreeLock = worktreeLock;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        internal WorktreeHandle GetWorktreeHandle()
+        {
+            return Proxy.git_worktree_lookup(parent.Handle, name);
         }
 
         /// <summary>
@@ -46,7 +52,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// The Repository representation of the worktree
         /// </summary>
-        public virtual Repository WorktreeRepository { get { return worktree; } }
+        public virtual Repository WorktreeRepository { get { return new Repository(GetWorktreeHandle()); } }
 
         /// <summary>
         /// A flag indicating if the worktree is locked or not.
@@ -83,8 +89,11 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual void Unlock()
         {
-            Proxy.git_worktree_unlock(handle);
-            this.worktreeLock = Proxy.git_worktree_is_locked(handle);
+            using (var handle = GetWorktreeHandle())
+            {
+                Proxy.git_worktree_unlock(handle);
+                this.worktreeLock = Proxy.git_worktree_is_locked(handle);
+            }
         }
         
         /// <summary>
@@ -92,8 +101,11 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual void Lock(string reason)
         {
-            Proxy.git_worktree_lock(handle, reason);
-            this.worktreeLock = Proxy.git_worktree_is_locked(handle);
+            using (var handle = GetWorktreeHandle())
+            {
+                Proxy.git_worktree_lock(handle, reason);
+                this.worktreeLock = Proxy.git_worktree_is_locked(handle);
+            }
         }
 
         /// <summary>
@@ -123,7 +135,5 @@ namespace LibGit2Sharp
         }
 
         IRepository IBelongToARepository.Repository { get { return parent; } }
-
-        internal WorktreeHandle Handle { get { return this.handle; } }
     }
 }

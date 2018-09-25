@@ -16,6 +16,10 @@
     <AssemblyOriginatorKeyFile>..\libgit2sharp.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;NETSTANDARD2_0;LEAKS_IDENTIFYING;LEAKS_TRACKING</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
     <None Include="Core\Handles\Objects.tt">

@@ -99,6 +99,7 @@ namespace LibGit2Sharp
             {
                 handle = Proxy.git_repository_open_from_worktree(worktreeHandle);
                 RegisterForCleanup(handle);
+                RegisterForCleanup(worktreeHandle);
 
                 isBare = Proxy.git_repository_is_bare(handle);
 

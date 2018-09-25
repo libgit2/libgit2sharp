@@ -41,9 +41,8 @@ namespace LibGit2Sharp
             {
                 Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-                return Lookup(name, handle => new Worktree(handle, repo,
+                return Lookup(name, handle => new Worktree(repo,
                     name,
-                    new Repository(handle),
                     Proxy.git_worktree_is_locked(handle)));
             }
         }
@@ -70,15 +69,21 @@ namespace LibGit2Sharp
                 locked = Convert.ToInt32(isLocked)
             };
 
-            var handle = Proxy.git_worktree_add(repo.Handle, name, path, options);
-            var worktree = new Worktree(handle,
-                repo,
-                name,
-                new Repository(handle),
-                Proxy.git_worktree_is_locked(handle));
+            using (var handle = Proxy.git_worktree_add(repo.Handle, name, path, options))
+            {
+                var worktree = new Worktree(
+                      repo,
+                      name,
+                      Proxy.git_worktree_is_locked(handle));
 
-            // switch the worktree to the target branch
-            Commands.Checkout(worktree.WorktreeRepository, committishOrBranchSpec);
+                // switch the worktree to the target branch
+                using (var repository = worktree.WorktreeRepository)
+                {
+                    Commands.Checkout(repository, committishOrBranchSpec);
+                }
+            }
+
+            
 
             return this[name]; 
         }
@@ -97,12 +102,13 @@ namespace LibGit2Sharp
                 locked = Convert.ToInt32(isLocked)
             };
 
-            var handle = Proxy.git_worktree_add(repo.Handle, name, path, options);
-            return new Worktree(handle,
-                repo,
-                name,
-                new Repository(handle),
-                Proxy.git_worktree_is_locked(handle));
+            using (var handle = Proxy.git_worktree_add(repo.Handle, name, path, options))
+            {
+                return new Worktree(
+                   repo,
+                   name,
+                   Proxy.git_worktree_is_locked(handle));
+            }
         }
 
         /// <summary>
@@ -123,26 +129,32 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public virtual bool Prune(Worktree worktree, bool ifLocked)
         {
-            string wd = worktree.WorktreeRepository.Info.WorkingDirectory;
-
-            if (!Directory.Exists(wd))
+            using (var handle = worktree.GetWorktreeHandle())
             {
-                return false;
+                using (var repository = worktree.WorktreeRepository)
+                {
+                    string wd = repository.Info.WorkingDirectory;
+
+                    if (!Directory.Exists(wd))
+                    {
+                        return false;
+                    }
+
+                    git_worktree_prune_options options = new git_worktree_prune_options
+                    {
+                        version = 1,
+                        // default
+                        flags = GitWorktreePruneOptionFlags.GIT_WORKTREE_PRUNE_WORKING_TREE | GitWorktreePruneOptionFlags.GIT_WORKTREE_PRUNE_VALID
+                    };
+
+                    if (ifLocked)
+                    {
+                        options.flags |= GitWorktreePruneOptionFlags.GIT_WORKTREE_PRUNE_LOCKED;
+                    }
+
+                    return Proxy.git_worktree_prune(handle, options);
+                }
             }
-
-            git_worktree_prune_options options = new git_worktree_prune_options
-            {
-                version = 1,
-                // default
-                flags = GitWorktreePruneOptionFlags.GIT_WORKTREE_PRUNE_WORKING_TREE | GitWorktreePruneOptionFlags.GIT_WORKTREE_PRUNE_VALID
-            };
-
-            if (ifLocked)
-            {
-                options.flags |= GitWorktreePruneOptionFlags.GIT_WORKTREE_PRUNE_LOCKED;
-            }
-
-            return Proxy.git_worktree_prune(worktree.Handle, options);
         }
 
         internal T Lookup<T>(string name, Func<WorktreeHandle, T> selector, bool throwIfNotFound = false)
@@ -170,8 +182,7 @@ namespace LibGit2Sharp
         public virtual IEnumerator<Worktree> GetEnumerator()
         {
             return Proxy.git_worktree_list(repo.Handle)
-                .Select(n => Lookup(n, handle => new Worktree(handle, repo, n,
-                    new Repository(handle), Proxy.git_worktree_is_locked(handle))))
+                .Select(n => Lookup(n, handle => new Worktree(repo, n, Proxy.git_worktree_is_locked(handle))))
                 .GetEnumerator();
         }
 

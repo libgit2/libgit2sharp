@@ -128,8 +128,10 @@ namespace LibGit2Sharp.Tests
                 var worktree = repo.Worktrees["logo"];
 
                 Assert.Equal("logo", worktree.Name);
-                var worktreeRepo = worktree.WorktreeRepository;
-                Assert.NotNull(worktreeRepo);
+                using (var repository = worktree.WorktreeRepository)
+                {
+                    Assert.NotNull(repository);
+                }
             }
         }
 
@@ -259,7 +261,10 @@ namespace LibGit2Sharp.Tests
                 var worktree = repo.Worktrees.Add(committish, name, path, false);
                 Assert.Equal(name, worktree.Name);
                 Assert.False(worktree.IsLocked);
-                Assert.Equal(committish, worktree.WorktreeRepository.Head.FriendlyName);
+                using (var repository = worktree.WorktreeRepository)
+                {
+                    Assert.Equal(committish, repository.Head.FriendlyName);
+                }
                 Assert.Equal(3, repo.Worktrees.Count());
             }
         }

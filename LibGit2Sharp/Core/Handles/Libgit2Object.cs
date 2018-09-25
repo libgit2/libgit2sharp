@@ -138,7 +138,7 @@ namespace LibGit2Sharp.Core.Handles
 
         void Dispose(bool disposing)
         {
-            #if LEAKS_IDENTIFYING
+#if LEAKS_IDENTIFYING
             bool leaked = !disposing && ptr != null;
 
             if (leaked)
