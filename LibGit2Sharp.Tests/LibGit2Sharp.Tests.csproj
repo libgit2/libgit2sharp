@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net461;netcoreapp2.0</TargetFrameworks>
-    <DefineConstants Condition=" '$(TargetFramework)' == 'net461' ">TRACE;DEBUG;DESKTOP;NET461;LEAKS_IDENTIFYING;LEAKS_TRACKING</DefineConstants>
+    <DefineConstants Condition=" '$(TargetFramework)' == 'net461' ">$(DefineConstants);DESKTOP</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
