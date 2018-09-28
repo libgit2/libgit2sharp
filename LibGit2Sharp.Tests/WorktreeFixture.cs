@@ -220,7 +220,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(2, repo.Worktrees.Count());
 
                 var name = "blah";
-                var path = Path.Combine(repo.Info.WorkingDirectory, @"..\worktrees", name);
+                var path = Path.Combine(repo.Info.WorkingDirectory, "..", "worktrees", name);
                 var worktree = repo.Worktrees.Add(name, path, false);
                 Assert.Equal(name, worktree.Name);
                 Assert.False(worktree.IsLocked);
@@ -238,7 +238,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(2, repo.Worktrees.Count());
 
                 var name = "blah";
-                var path = Path.Combine(repo.Info.WorkingDirectory, @"..\worktrees", name);
+                var path = Path.Combine(repo.Info.WorkingDirectory, "..", "worktrees", name);
                 var worktree = repo.Worktrees.Add(name, path, true);
                 Assert.Equal(name, worktree.Name);
                 Assert.True(worktree.IsLocked);
@@ -257,7 +257,7 @@ namespace LibGit2Sharp.Tests
 
                 var name = "blah";
                 var committish = "diff-test-cases";
-                var path = Path.Combine(repo.Info.WorkingDirectory, @"..\worktrees", name);
+                var path = Path.Combine(repo.Info.WorkingDirectory, "..", "worktrees", name);
                 var worktree = repo.Worktrees.Add(committish, name, path, false);
                 Assert.Equal(name, worktree.Name);
                 Assert.False(worktree.IsLocked);
