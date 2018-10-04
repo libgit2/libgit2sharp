@@ -37,7 +37,11 @@ namespace LibGit2Sharp.Core
                     // Try to load the .dll from the path explicitly.
                     // If this call succeeds further DllImports will find the library loaded and not attempt to load it again.
                     // If it fails the next DllImport will load the library from safe directories.
+#if NETFRAMEWORK
+                    if (Platform.OperatingSystem == OperatingSystemType.Windows)
+#else
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+#endif
                     {
                         LoadWindowsLibrary(nativeLibraryPath);
                     }
