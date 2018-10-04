@@ -557,5 +557,54 @@ namespace LibGit2Sharp.Tests
 
             }
         }
+
+        [Fact]
+        public void CannotCloneWithForbiddenCustomHeaders()
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            const string url = "https://github.com/libgit2/TestGitRepository";
+
+            const string knownHeader = "User-Agent: mygit-201";
+            var cloneOptions = new CloneOptions()
+            {
+                FetchOptions = new FetchOptions { CustomHeaders = new String[] { knownHeader } }
+            };
+
+            Assert.Throws<LibGit2SharpException>(() => Repository.Clone(url, scd.DirectoryPath, cloneOptions));
+        }
+
+        [Fact]
+        public void CannotCloneWithMalformedCustomHeaders()
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            const string url = "https://github.com/libgit2/TestGitRepository";
+
+            const string knownHeader = "hello world";
+            var cloneOptions = new CloneOptions()
+            {
+                FetchOptions = new FetchOptions { CustomHeaders = new String[] { knownHeader } }
+            };
+
+            Assert.Throws<LibGit2SharpException>(() => Repository.Clone(url, scd.DirectoryPath, cloneOptions));
+        }
+
+        [Fact]
+        public void CanCloneWithCustomHeaders()
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            const string url = "https://github.com/libgit2/TestGitRepository";
+
+            const string knownHeader = "X-Hello: world";
+            var cloneOptions = new CloneOptions()
+            {
+                FetchOptions = new FetchOptions { CustomHeaders = new String[] { knownHeader } }
+            };
+
+            var clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, cloneOptions);
+            Assert.True(Directory.Exists(clonedRepoPath));
+        }
     }
 }

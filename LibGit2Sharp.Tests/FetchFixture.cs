@@ -239,5 +239,57 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(4, clonedRepo.Branches.Count(b => b.IsRemote));
             }
         }
+
+        [Fact]
+        public void CannotFetchWithForbiddenCustomHeaders()
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            const string url = "https://github.com/libgit2/TestGitRepository";
+
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+
+            const string knownHeader = "User-Agent: mygit-201";
+            var options = new FetchOptions { CustomHeaders = new String[] { knownHeader } };
+            using (var repo = new Repository(clonedRepoPath))
+            {
+                Assert.Throws<LibGit2SharpException>(() => Commands.Fetch(repo, "origin", new string[0], options, null));
+            }
+        }
+
+        [Fact]
+        public void CanFetchWithCustomHeaders()
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            const string url = "https://github.com/libgit2/TestGitRepository";
+
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+
+            const string knownHeader = "X-Hello: mygit-201";
+            var options = new FetchOptions { CustomHeaders = new String[] { knownHeader } };
+            using (var repo = new Repository(clonedRepoPath))
+            {
+                Commands.Fetch(repo, "origin", new string[0], options, null);
+            }
+        }
+
+        [Fact]
+        public void CannotFetchWithMalformedCustomHeaders()
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            const string url = "https://github.com/libgit2/TestGitRepository";
+
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+
+            const string knownHeader = "Hello world";
+            var options = new FetchOptions { CustomHeaders = new String[] { knownHeader } };
+            using (var repo = new Repository(clonedRepoPath))
+            {
+                Assert.Throws<LibGit2SharpException>(() => Commands.Fetch(repo, "origin", new string[0], options, null));
+            }
+        }
+
     }
 }
