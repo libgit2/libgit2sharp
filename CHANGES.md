@@ -10,6 +10,16 @@
   - Windows (x86/amd64): <https://ci.appveyor.com/project/libgit2/libgit2sharp>
   - Linux/Mac OS X: <https://travis-ci.org/libgit2/libgit2sharp>
 
+## v0.25.3 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.25.2..v0.25.3))
+
+This is a security release fixing a number of possible security issues,
+including hardening validation for submodule validation to help protect
+against CVE 2018-17456, and a number of possible errors found by fuzzing
+the libgit2 native library.
+
+This release includes [libgit2
+v0.27.5](https://github.com/libgit2/libgit2/releases/tag/v0.27.5).
+
 ## v0.25.1 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.25..v0.25.1))
 
 This is a security release fixing insufficient validation of submodule
