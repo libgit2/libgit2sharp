@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 
 namespace LibGit2Sharp.Core
 {
@@ -50,12 +52,12 @@ namespace LibGit2Sharp.Core
             public ManagedHttpSmartSubtransportStream(ManagedHttpSmartSubtransport parent, string endpointUrl, bool isPost, string contentType)
                 : base(parent)
             {
-                EndpointUrl = endpointUrl;
+                EndpointUrl = new Uri(endpointUrl);
                 IsPost = isPost;
                 ContentType = contentType;
             }
 
-            private string EndpointUrl
+            private Uri EndpointUrl
             {
                 get;
                 set;
@@ -100,7 +102,15 @@ namespace LibGit2Sharp.Core
                 return 0;
             }
 
-            private static HttpWebRequest CreateWebRequest(string endpointUrl, bool isPost, string contentType)
+            private bool CertificateValidationProxy(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors errors)
+            {
+                int ret = SmartTransport.CertificateCheck(new CertificateX509(cert), (errors == SslPolicyErrors.None), EndpointUrl.Host);
+                Ensure.ZeroResult(ret);
+
+                return true;
+            }
+
+            private HttpWebRequest CreateWebRequest(Uri endpointUrl, bool isPost, string contentType)
             {
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
@@ -108,6 +118,7 @@ namespace LibGit2Sharp.Core
                 webRequest.UserAgent = "git/1.0 (libgit2 custom transport)";
                 webRequest.ServicePoint.Expect100Continue = false;
                 webRequest.AllowAutoRedirect = false;
+                webRequest.ServerCertificateValidationCallback += CertificateValidationProxy;
 
                 if (isPost)
                 {
@@ -147,7 +158,18 @@ namespace LibGit2Sharp.Core
                     }
                     catch (WebException ex)
                     {
-                        response = (HttpWebResponse)ex.Response;
+                        if (ex.Response != null)
+                        {
+                            response = (HttpWebResponse)ex.Response;
+                        }
+                        else if (ex.InnerException != null)
+                        {
+                            throw ex.InnerException;
+                        }
+                        else
+                        {
+                            throw new Exception("unknown network failure");
+                        }
                     }
 
                     if (response.StatusCode == HttpStatusCode.OK)
@@ -171,7 +193,7 @@ namespace LibGit2Sharp.Core
                     }
                     else if (response.StatusCode == HttpStatusCode.Moved || response.StatusCode == HttpStatusCode.Redirect)
                     {
-                        request = CreateWebRequest(response.Headers["Location"], IsPost, ContentType);
+                        request = CreateWebRequest(new Uri(response.Headers["Location"]), IsPost, ContentType);
                         continue;
                     }
 
