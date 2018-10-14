@@ -110,12 +110,24 @@ namespace LibGit2Sharp.Core
                 return true;
             }
 
+            private string getUserAgent()
+            {
+                string userAgent = GlobalSettings.GetUserAgent();
+
+                if (string.IsNullOrEmpty(userAgent))
+                {
+                    userAgent = "LibGit2Sharp " + GlobalSettings.Version.InformationalVersion;
+                }
+
+                return userAgent;
+            }
+
             private HttpWebRequest CreateWebRequest(Uri endpointUrl, bool isPost, string contentType)
             {
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
                 HttpWebRequest webRequest = (HttpWebRequest)HttpWebRequest.Create(endpointUrl);
-                webRequest.UserAgent = "git/1.0 (libgit2 custom transport)";
+                webRequest.UserAgent = String.Format("git/2.0 ({0})", getUserAgent());
                 webRequest.ServicePoint.Expect100Continue = false;
                 webRequest.AllowAutoRedirect = false;
                 webRequest.ServerCertificateValidationCallback += CertificateValidationProxy;
