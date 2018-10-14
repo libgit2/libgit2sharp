@@ -102,6 +102,7 @@ namespace LibGit2Sharp
                 UIntPtr buf_size,
                 out UIntPtr bytes_read)
             {
+                GitErrorCode errorCode = GitErrorCode.Error;
                 bytes_read = UIntPtr.Zero;
 
                 SmartSubtransportStream transportStream =
@@ -124,6 +125,11 @@ namespace LibGit2Sharp
 
                             return toReturn;
                         }
+                        catch (NativeException ex)
+                        {
+                            errorCode = ex.ErrorCode;
+                            Proxy.giterr_set_str(GitErrorCategory.Net, ex);
+                        }
                         catch (Exception ex)
                         {
                             Proxy.git_error_set_str(GitErrorCategory.Net, ex);
@@ -131,7 +137,7 @@ namespace LibGit2Sharp
                     }
                 }
 
-                return (int)GitErrorCode.Error;
+                return (int)errorCode;
             }
 
             private static unsafe int Write(IntPtr stream, IntPtr buffer, UIntPtr len)
