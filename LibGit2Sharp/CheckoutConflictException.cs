@@ -10,7 +10,7 @@ namespace LibGit2Sharp
     /// in the working directory.
     /// </summary>
     [Serializable]
-    public class CheckoutConflictException : LibGit2SharpException
+    public class CheckoutConflictException : NativeException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2Sharp.CheckoutConflictException"/> class.
@@ -53,8 +53,16 @@ namespace LibGit2Sharp
             : base(info, context)
         { }
 
-        internal CheckoutConflictException(string message, GitErrorCode code, GitErrorCategory category)
-            : base(message, code, category)
+        internal CheckoutConflictException(string message, GitErrorCategory category)
+            : base(message, category)
         { }
+
+        internal override GitErrorCode ErrorCode
+        {
+            get
+            {
+                return GitErrorCode.Conflict;
+            }
+        }
     }
 }
