@@ -382,5 +382,25 @@ namespace LibGit2Sharp
         {
             Proxy.git_libgit2_opts_set_enable_strictobjectcreation(enabled);
         }
+
+        /// <summary>
+        /// Sets the user-agent string to be used by the HTTP(S) transport.
+        /// Note that "git/2.0" will be prepended for compatibility.
+        /// </summary>
+        /// <param name="userAgent">The user-agent string to use</param>
+        public static void SetUserAgent(string userAgent)
+        {
+            Proxy.git_libgit2_opts_set_user_agent(userAgent);
+        }
+
+        /// <summary>
+        /// Gets the user-agent string used by libgit2.
+        /// <returns>
+        /// The user-agent string.
+        /// </returns>
+        public static string GetUserAgent()
+        {
+            return Proxy.git_libgit2_opts_get_user_agent();
+        }
     }
 }
