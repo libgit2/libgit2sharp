@@ -1,0 +1,3 @@
+0000000000000000000000000000000000000000 4c062a6361ae6959e06292c1fa5e2822d9c96345 Tim Clem <timothy.clem@gmail.com> 1303768198 -0700	clone: from c:/GitHub/libgit2sharp/Resources/testrepo.git
+4c062a6361ae6959e06292c1fa5e2822d9c96345 592d3c869dbc4127fc57c189cb94f2794fa84e7e Tim Clem <timothy.clem@gmail.com> 1303835722 -0700	commit: add more test files
+592d3c869dbc4127fc57c189cb94f2794fa84e7e 32eab9cb1f450b5fe7ab663462b77d7f4b703344 nulltoken <emeric.fermas@gmail.com> 1320047537 +0100	commit: Add "1.txt" file beside "1" folder

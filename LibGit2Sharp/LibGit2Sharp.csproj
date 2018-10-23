@@ -25,13 +25,20 @@
     <None Include="..\README.md" Pack="true" PackagePath="App_Readme\" />
     <None Include="..\LICENSE.md" Pack="true" PackagePath="App_Readme\" />
     <None Include="..\CHANGES.md" Pack="true" PackagePath="App_Readme\" />
-    <Compile Update="Core\Handles\Objects.cs" DependentUpon="Objects.tt" />
+    <Compile Update="Core\Handles\Objects.cs" DependentUpon="Objects.tt">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="[1.0.235]" PrivateAssets="none" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="all" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="2.2.13" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 
   <Import Project="..\Targets\CodeGenerator.targets" />
