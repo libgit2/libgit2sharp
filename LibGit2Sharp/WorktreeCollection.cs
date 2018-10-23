@@ -131,29 +131,19 @@ namespace LibGit2Sharp
         {
             using (var handle = worktree.GetWorktreeHandle())
             {
-                using (var repository = worktree.WorktreeRepository)
+                git_worktree_prune_options options = new git_worktree_prune_options
                 {
-                    string wd = repository.Info.WorkingDirectory;
+                    version = 1,
+                    // default
+                    flags = GitWorktreePruneOptionFlags.GIT_WORKTREE_PRUNE_WORKING_TREE | GitWorktreePruneOptionFlags.GIT_WORKTREE_PRUNE_VALID
+                };
 
-                    if (!Directory.Exists(wd))
-                    {
-                        return false;
-                    }
-
-                    git_worktree_prune_options options = new git_worktree_prune_options
-                    {
-                        version = 1,
-                        // default
-                        flags = GitWorktreePruneOptionFlags.GIT_WORKTREE_PRUNE_WORKING_TREE | GitWorktreePruneOptionFlags.GIT_WORKTREE_PRUNE_VALID
-                    };
-
-                    if (ifLocked)
-                    {
-                        options.flags |= GitWorktreePruneOptionFlags.GIT_WORKTREE_PRUNE_LOCKED;
-                    }
-
-                    return Proxy.git_worktree_prune(handle, options);
+                if (ifLocked)
+                {
+                    options.flags |= GitWorktreePruneOptionFlags.GIT_WORKTREE_PRUNE_LOCKED;
                 }
+
+                return Proxy.git_worktree_prune(handle, options);
             }
         }
 

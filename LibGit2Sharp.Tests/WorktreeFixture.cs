@@ -155,6 +155,29 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanPruneDeletedWorktree()
+        {
+            var repoPath = SandboxWorktreeTestRepo();
+            using (var repo = new Repository(repoPath))
+            {
+                Assert.Equal(2, repo.Worktrees.Count());
+                var repoPath2 = repo.Info.Path;
+                var repoWd = repo.Info.WorkingDirectory;
+                // unlocked
+                var worktreeUnlocked = repo.Worktrees["i-do-numbers"];
+                Assert.Equal("i-do-numbers", worktreeUnlocked.Name);
+                Assert.False(worktreeUnlocked.IsLocked);
+                var info = worktreeUnlocked.WorktreeRepository.Info;
+
+                Directory.Delete(info.WorkingDirectory, true);
+
+                Assert.True(repo.Worktrees.Prune(worktreeUnlocked));
+
+                Assert.Single(repo.Worktrees);
+            }
+        }
+
+        [Fact]
         public void CanNotPruneLockedWorktree()
         {
             var repoPath = SandboxWorktreeTestRepo();
