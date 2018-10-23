@@ -87,8 +87,8 @@ namespace LibGit2Sharp.Tests.TestHelpers
             AssumeUnchangedRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "assume_unchanged_wd");
             SubmoduleSmallTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "submodule_small_wd");
             PackBuilderTestRepoPath = Path.Combine(ResourcesDirectory.FullName, "packbuilder_testrepo_wd");
-            WorktreeTestRepoWorkingDirPath = Path.Combine(sourceRelativePath, "worktree", "testrepo_wd");
-            WorktreeTestRepoWorktreesDirPath = Path.Combine(sourceRelativePath, "worktree", "worktrees");
+            WorktreeTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "worktree", "testrepo_wd");
+            WorktreeTestRepoWorktreesDirPath = Path.Combine(ResourcesDirectory.FullName, "worktree", "worktrees");
 
             CleanupTestReposOlderThan(TimeSpan.FromMinutes(15));
         }
