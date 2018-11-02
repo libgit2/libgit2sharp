@@ -15,7 +15,7 @@ But first things first...
   * Make sure you fill in the earliest version that you know has the issue.
 * Fork the repository on GitHub, then clone it using your favorite Git client.
 * Make sure the project builds and all tests pass on your machine by running 
-  the `build.libgit2sharp.cmd` script on Windows or `build.libgit2sharp.sh` on Linux/Mac.
+  the `buildandtest.cmd` script on Windows or `buildandtest.sh` on Linux/Mac.
 
 ## LibGit2
 
