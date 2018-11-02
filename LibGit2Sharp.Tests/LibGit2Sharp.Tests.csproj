@@ -25,6 +25,12 @@
     <Compile Remove="desktop\**" Condition=" '$(TargetFramework)' != 'net461' " />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="Resources\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
   <Target Name="CopyTestAppExes" AfterTargets="ResolveProjectReferences">
     <ItemGroup>
       <_TestAppFile Include="@(TestAppExe->'%(RootDir)%(Directory)%(Filename).exe')" />
