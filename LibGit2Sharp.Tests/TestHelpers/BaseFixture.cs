@@ -63,9 +63,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
             if (resourcesPath == null)
             {
-                string initialAssemblyParentFolder = Directory.GetParent(new Uri(typeof(BaseFixture).GetTypeInfo().Assembly.CodeBase).LocalPath).FullName;
-                int pos = initialAssemblyParentFolder.IndexOf("LibGit2Sharp.Tests");
-                resourcesPath = Path.Combine(initialAssemblyParentFolder.Substring(0, pos), "../LibGit2Sharp.Tests/Resources");
+                resourcesPath = Path.Combine(Directory.GetParent(new Uri(typeof(BaseFixture).GetTypeInfo().Assembly.CodeBase).LocalPath).FullName, "Resources");
             }
 
             ResourcesDirectory = new DirectoryInfo(resourcesPath);
