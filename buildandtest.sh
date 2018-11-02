@@ -15,7 +15,7 @@ export Configuration=release
 # On linux we don't pack because we can't build for net40.
 # We just build for CoreCLR and run tests for it.
 dotnet restore
-dotnet build LibGit2Sharp.Tests -f netcoreapp2.0 /property:ExtraDefine="$EXTRADEFINE" /fl /flp:verbosity=detailed
+dotnet build LibGit2Sharp.Tests -f netcoreapp2.0 -property:ExtraDefine="$EXTRADEFINE" -fl -flp:verbosity=detailed
 dotnet test LibGit2Sharp.Tests/LibGit2Sharp.Tests.csproj -f netcoreapp2.0 --no-restore --no-build 
 
 exit $?
