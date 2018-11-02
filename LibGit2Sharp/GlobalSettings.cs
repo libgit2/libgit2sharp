@@ -22,6 +22,14 @@ namespace LibGit2Sharp
         private static bool nativeLibraryPathLocked;
         private static string nativeLibraryDefaultPath;
 
+        internal class SmartSubtransportData
+        {
+            internal bool isCustom;
+            internal SmartSubtransportRegistrationData defaultSubtransport;
+        }
+
+        private static readonly Dictionary<string, SmartSubtransportData> smartSubtransportData = new Dictionary<string, SmartSubtransportData>();
+
         static GlobalSettings()
         {
             bool netFX = Platform.IsRunningOnNetFramework();
@@ -79,6 +87,42 @@ namespace LibGit2Sharp
             }
         }
 
+        private static SmartSubtransportData GetOrCreateSmartSubtransportData(string scheme)
+        {
+            Ensure.ArgumentNotNull(scheme, "scheme");
+
+            lock (smartSubtransportData)
+            {
+                if (!smartSubtransportData.ContainsKey(scheme))
+                {
+                    smartSubtransportData[scheme] = new SmartSubtransportData();
+                }
+
+                return smartSubtransportData[scheme];
+            }
+        }
+
+        internal static SmartSubtransportRegistration<T> RegisterDefaultSmartSubtransport<T>(string scheme)
+            where T : SmartSubtransport, new()
+        {
+            Ensure.ArgumentNotNull(scheme, "scheme");
+
+            lock (smartSubtransportData)
+            {
+                var data = GetOrCreateSmartSubtransportData(scheme);
+
+                if (data.defaultSubtransport != null)
+                {
+                    throw new Exception(string.Format("A default subtransport is already configured for {0}", scheme));
+                }
+
+                var registration = RegisterSmartSubtransportInternal<T>(scheme);
+
+                data.defaultSubtransport = registration;
+                return registration;
+            }
+        }
+
         /// <summary>
         /// Registers a new <see cref="SmartSubtransport"/> as a custom
         /// smart-protocol transport with libgit2.  Any Git remote with
@@ -96,8 +140,34 @@ namespace LibGit2Sharp
         public static SmartSubtransportRegistration<T> RegisterSmartSubtransport<T>(string scheme)
             where T : SmartSubtransport, new()
         {
+            SmartSubtransportRegistration<T> registration;
+
             Ensure.ArgumentNotNull(scheme, "scheme");
 
+            lock (smartSubtransportData)
+            {
+                var data = GetOrCreateSmartSubtransportData(scheme);
+
+                if (data.isCustom)
+                {
+                    throw new EntryExistsException(string.Format("A smart subtransport is already registered for {0}", scheme));
+                }
+
+                if (data.defaultSubtransport != null)
+                {
+                    Proxy.git_transport_unregister(scheme);
+                }
+
+                registration = RegisterSmartSubtransportInternal<T>(scheme);
+                data.isCustom = true;
+            }
+
+            return registration;
+        }
+
+        private static SmartSubtransportRegistration<T> RegisterSmartSubtransportInternal<T>(string scheme)
+            where T : SmartSubtransport, new()
+        {
             var registration = new SmartSubtransportRegistration<T>(scheme);
 
             try
@@ -126,6 +196,59 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(registration, "registration");
 
+            var scheme = registration.Scheme;
+
+            lock (smartSubtransportData)
+            {
+                var data = GetOrCreateSmartSubtransportData(scheme);
+
+                if (!data.isCustom)
+                {
+                    throw new NotFoundException(string.Format("No smart subtransport has been registered for {0}", scheme));
+                }
+
+                UnregisterSmartSubtransportInternal(registration);
+
+                data.isCustom = false;
+
+                if (data.defaultSubtransport != null)
+                {
+                    var defaultRegistration = data.defaultSubtransport;
+
+                    Proxy.git_transport_register(defaultRegistration.Scheme,
+                                                 defaultRegistration.FunctionPointer,
+                                                 defaultRegistration.RegistrationPointer);
+                }
+            }
+        }
+
+        internal static void UnregisterDefaultSmartSubtransport<T>(SmartSubtransportRegistration<T> registration)
+            where T : SmartSubtransport, new()
+        {
+            Ensure.ArgumentNotNull(registration, "registration");
+
+            var scheme = registration.Scheme;
+
+            lock (smartSubtransportData)
+            {
+                if (!smartSubtransportData.ContainsKey(scheme))
+                {
+                    throw new Exception(string.Format("No default smart subtransport has been registered for {0}", scheme));
+                }
+
+                if (registration != smartSubtransportData[scheme].defaultSubtransport)
+                {
+                    throw new Exception(string.Format("The given smart subtransport is not the default for {0}", scheme));
+                }
+
+                smartSubtransportData.Remove(scheme);
+                UnregisterSmartSubtransportInternal(registration);
+            }
+        }
+
+        private static void UnregisterSmartSubtransportInternal<T>(SmartSubtransportRegistration<T> registration)
+            where T : SmartSubtransport, new()
+        {
             Proxy.git_transport_unregister(registration.Scheme);
             registration.Free();
         }

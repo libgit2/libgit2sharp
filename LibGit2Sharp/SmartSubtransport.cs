@@ -110,7 +110,7 @@ namespace LibGit2Sharp
 
             if (credHandle == IntPtr.Zero)
             {
-                throw new InvalidOperationException("creditals callback indicated success but returned no credentials");
+                throw new InvalidOperationException("credentials callback indicated success but returned no credentials");
             }
 
             unsafe

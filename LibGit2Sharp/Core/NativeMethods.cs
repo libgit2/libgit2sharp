@@ -205,8 +205,8 @@ namespace LibGit2Sharp.Core
             // Configure the .NET HTTP(S) mechanism on the first initialization of the library in the current process.
             if (initCounter == 1)
             {
-                httpSubtransportRegistration = GlobalSettings.RegisterSmartSubtransport<ManagedHttpSmartSubtransport>("http");
-                httpsSubtransportRegistration = GlobalSettings.RegisterSmartSubtransport<ManagedHttpSmartSubtransport>("https");
+                httpSubtransportRegistration = GlobalSettings.RegisterDefaultSmartSubtransport<ManagedHttpSmartSubtransport>("http");
+                httpsSubtransportRegistration = GlobalSettings.RegisterDefaultSmartSubtransport<ManagedHttpSmartSubtransport>("https");
             }
         }
 
@@ -217,12 +217,12 @@ namespace LibGit2Sharp.Core
             {
                 if (httpSubtransportRegistration != null)
                 {
-                    GlobalSettings.UnregisterSmartSubtransport(httpSubtransportRegistration);
+                    GlobalSettings.UnregisterDefaultSmartSubtransport(httpSubtransportRegistration);
                 }
 
                 if (httpsSubtransportRegistration != null)
                 {
-                    GlobalSettings.UnregisterSmartSubtransport(httpsSubtransportRegistration);
+                    GlobalSettings.UnregisterDefaultSmartSubtransport(httpsSubtransportRegistration);
                 }
 
                 git_libgit2_shutdown();
