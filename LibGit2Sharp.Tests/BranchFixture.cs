@@ -51,6 +51,19 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Theory]
+        [InlineData("32eab9cb1f450b5fe7ab663462b77d7f4b703344")]
+        public void CanHeadBeDetached(string commit)
+        {
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Assert.False(repo.Info.IsHeadDetached);
+                Commands.Checkout(repo, commit);
+                Assert.True(repo.Info.IsHeadDetached);
+            }
+        }
+
         [Fact]
         public void CanCreateAnUnbornBranch()
         {
