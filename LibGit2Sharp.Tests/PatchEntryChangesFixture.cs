@@ -23,7 +23,7 @@ namespace LibGit2Sharp.Tests
         Tree rootCommitTree = repo.Lookup<Commit>("f8d44d7").Tree;
         Tree commitTreeWithUpdatedFile = repo.Lookup<Commit>("ec9e401").Tree;
 
-        // Create path by diffing
+        // Create patch by diffing
         using (var patch = repo.Diff.Compare<Patch>(rootCommitTree, commitTreeWithUpdatedFile))
         {
           PatchEntryChanges entryChanges = patch[file];
