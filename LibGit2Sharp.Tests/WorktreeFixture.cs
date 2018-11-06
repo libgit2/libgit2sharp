@@ -167,9 +167,12 @@ namespace LibGit2Sharp.Tests
                 var worktreeUnlocked = repo.Worktrees["i-do-numbers"];
                 Assert.Equal("i-do-numbers", worktreeUnlocked.Name);
                 Assert.False(worktreeUnlocked.IsLocked);
-                var info = worktreeUnlocked.WorktreeRepository.Info;
+                using (var wtRepo = worktreeUnlocked.WorktreeRepository)
+                {
+                    var info = wtRepo.Info;
 
-                Directory.Delete(info.WorkingDirectory, true);
+                    Directory.Delete(info.WorkingDirectory, true);
+                }
 
                 Assert.True(repo.Worktrees.Prune(worktreeUnlocked));
 
