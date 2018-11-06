@@ -81,9 +81,21 @@ namespace LibGit2Sharp
                 Marshal.FreeHGlobal(certPtr);
             }
 
+            if (ret > 0)
+            {
+                ret = valid ? 0 : -1;
+            }
+
             return ret;
         }
 
+        /// <summary>
+        /// Call the credential acquisition callback
+        /// </summary>
+        /// <param name="cred">Credential data to populate</param>
+        /// <param name="user">Username from the URL, if any</param>
+        /// <param name="methods">Supported methods</param>
+        /// <returns></returns>
         public int AcquireCredentials(out Credentials cred, string user, params Type[] methods)
         {
             // Convert the user-provided types to libgit2's flags
@@ -126,6 +138,12 @@ namespace LibGit2Sharp
                 }
             }
         }
+
+        /// <summary>
+        /// libgit2 will call an action back with a null url to indicate that
+        /// it should re-use the prior url; store the url so that we can replay.
+        /// </summary>
+        private string LastActionUrl { get; set; }
 
         /// <summary>
         /// Invoked by libgit2 to create a connection using this subtransport.
@@ -202,43 +220,57 @@ namespace LibGit2Sharp
                 SmartSubtransport t = GCHandle.FromIntPtr(Marshal.ReadIntPtr(subtransport, GitSmartSubtransport.GCHandleOffset)).Target as SmartSubtransport;
                 String urlAsString = LaxUtf8Marshaler.FromNative(url);
 
-                if (null != t &&
-                    !String.IsNullOrEmpty(urlAsString))
+                if (t == null)
                 {
-                    try
-                    {
-                        stream = t.Action(urlAsString, action).GitSmartTransportStreamPointer;
-
-                        return 0;
-                    }
-                    catch (Exception ex)
-                    {
-                        Proxy.git_error_set_str(GitErrorCategory.Net, ex);
-                    }
+                    Proxy.git_error_set_str(GitErrorCategory.Net, "no subtransport provided");
+                    return (int)GitErrorCode.Error;
                 }
 
-                return (int)GitErrorCode.Error;
+                if (String.IsNullOrEmpty(urlAsString))
+                {
+                    urlAsString = t.LastActionUrl;
+                }
+
+                if (String.IsNullOrEmpty(urlAsString))
+                {
+                    Proxy.git_error_set_str(GitErrorCategory.Net, "no url provided");
+                    return (int)GitErrorCode.Error;
+                }
+
+                try
+                {
+                    stream = t.Action(urlAsString, action).GitSmartTransportStreamPointer;
+                    t.LastActionUrl = urlAsString;
+                    return 0;
+                }
+                catch (Exception ex)
+                {
+                    Proxy.git_error_set_str(GitErrorCategory.Net, ex);
+                    return (int)GitErrorCode.Error;
+                }
             }
 
             private static int Close(IntPtr subtransport)
             {
                 SmartSubtransport t = GCHandle.FromIntPtr(Marshal.ReadIntPtr(subtransport, GitSmartSubtransport.GCHandleOffset)).Target as SmartSubtransport;
 
-                if (null != t)
+                if (t == null)
                 {
-                    try
-                    {
-                        t.Close();
-
-                        return 0;
-                    }
-                    catch (Exception ex)
-                    {
-                        Proxy.git_error_set_str(GitErrorCategory.Net, ex);
-                    }
+                    Proxy.git_error_set_str(GitErrorCategory.Net, "no subtransport provided");
+                    return (int)GitErrorCode.Error;
                 }
 
-                return (int)GitErrorCode.Error;
+                try
+                {
+                    t.Close();
+
+                    return 0;
+                }
+                catch (Exception ex)
+                {
+                    Proxy.git_error_set_str(GitErrorCategory.Net, ex);
+                    return (int)GitErrorCode.Error;
+                }
             }
 
             private static void Free(IntPtr subtransport)
