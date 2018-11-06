@@ -102,42 +102,48 @@ namespace LibGit2Sharp
                 UIntPtr buf_size,
                 out UIntPtr bytes_read)
             {
-                GitErrorCode errorCode = GitErrorCode.Error;
                 bytes_read = UIntPtr.Zero;
 
                 SmartSubtransportStream transportStream =
                     GCHandle.FromIntPtr(Marshal.ReadIntPtr(stream, GitSmartSubtransportStream.GCHandleOffset)).Target as SmartSubtransportStream;
 
-                if (transportStream != null &&
-                    buf_size.ToUInt64() < (ulong)long.MaxValue)
+                if (transportStream == null)
+                {
+                    Proxy.git_error_set_str(GitErrorCategory.Net, "no transport stream provided");
+                    return (int)GitErrorCode.Error;
+                }
+
+                if (buf_size.ToUInt64() >= (ulong)long.MaxValue)
+                {
+                    Proxy.git_error_set_str(GitErrorCategory.Net, "buffer size is too large");
+                    return (int)GitErrorCode.Error;
+                }
+
+                try
                 {
                     using (UnmanagedMemoryStream memoryStream = new UnmanagedMemoryStream((byte*)buffer, 0,
                                                                                           (long)buf_size.ToUInt64(),
                                                                                           FileAccess.ReadWrite))
                     {
-                        try
-                        {
-                            long longBytesRead;
+                        long longBytesRead;
 
-                            int toReturn = transportStream.Read(memoryStream, (long)buf_size.ToUInt64(), out longBytesRead);
+                        int toReturn = transportStream.Read(memoryStream, (long)buf_size.ToUInt64(), out longBytesRead);
 
-                            bytes_read = new UIntPtr((ulong)Math.Max(0, longBytesRead));
+                        bytes_read = new UIntPtr((ulong)Math.Max(0, longBytesRead));
 
-                            return toReturn;
-                        }
-                        catch (NativeException ex)
-                        {
-                            errorCode = ex.ErrorCode;
-                            Proxy.giterr_set_str(GitErrorCategory.Net, ex);
-                        }
-                        catch (Exception ex)
-                        {
-                            Proxy.git_error_set_str(GitErrorCategory.Net, ex);
-                        }
+                        return toReturn;
                     }
                 }
-
-                return (int)errorCode;
+                catch (NativeException ex)
+                {
+                    Proxy.git_error_set_str(GitErrorCategory.Net, ex);
+                    return (int)ex.ErrorCode;
+                }
+                catch (Exception ex)
+                {
+                    Proxy.git_error_set_str(GitErrorCategory.Net, ex);
+                    return (int)GitErrorCode.Error;
+                }
             }
 
             private static unsafe int Write(IntPtr stream, IntPtr buffer, UIntPtr len)
@@ -145,24 +151,32 @@ namespace LibGit2Sharp
                 SmartSubtransportStream transportStream =
                     GCHandle.FromIntPtr(Marshal.ReadIntPtr(stream, GitSmartSubtransportStream.GCHandleOffset)).Target as SmartSubtransportStream;
 
-                if (transportStream != null && len.ToUInt64() < (ulong)long.MaxValue)
+                if (transportStream == null)
+                {
+                    Proxy.git_error_set_str(GitErrorCategory.Net, "no transport stream provided");
+                    return (int)GitErrorCode.Error;
+                }
+
+                if (len.ToUInt64() >= (ulong)long.MaxValue)
+                {
+                    Proxy.git_error_set_str(GitErrorCategory.Net, "write length is too large");
+                    return (int)GitErrorCode.Error;
+                }
+
+                try
                 {
                     long length = (long)len.ToUInt64();
 
                     using (UnmanagedMemoryStream dataStream = new UnmanagedMemoryStream((byte*)buffer, length))
                     {
-                        try
-                        {
-                            return transportStream.Write(dataStream, length);
-                        }
-                        catch (Exception ex)
-                        {
-                            Proxy.git_error_set_str(GitErrorCategory.Net, ex);
-                        }
+                        return transportStream.Write(dataStream, length);
                     }
                 }
-
-                return (int)GitErrorCode.Error;
+                catch (Exception ex)
+                {
+                    Proxy.git_error_set_str(GitErrorCategory.Net, ex);
+                    return (int)GitErrorCode.Error;
+                }
             }
 
             private static void Free(IntPtr stream)
