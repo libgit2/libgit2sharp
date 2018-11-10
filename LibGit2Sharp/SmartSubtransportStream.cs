@@ -61,6 +61,13 @@ namespace LibGit2Sharp
             get { return this.subtransport; }
         }
 
+        private Exception StoredError { get; set; }
+
+        internal void SetError(Exception ex)
+        {
+            StoredError = ex;
+        }
+
         private SmartSubtransport subtransport;
         private IntPtr nativeStreamPointer;
 
@@ -95,6 +102,19 @@ namespace LibGit2Sharp
             public static GitSmartSubtransportStream.read_callback ReadCallback = new GitSmartSubtransportStream.read_callback(Read);
             public static GitSmartSubtransportStream.write_callback WriteCallback = new GitSmartSubtransportStream.write_callback(Write);
             public static GitSmartSubtransportStream.free_callback FreeCallback = new GitSmartSubtransportStream.free_callback(Free);
+
+            private static int SetError(SmartSubtransportStream stream, Exception caught)
+            {
+                Exception ret = (stream.StoredError != null) ? stream.StoredError : caught;
+                GitErrorCode errorCode = GitErrorCode.Error;
+
+                if (ret is NativeException)
+                {
+                    errorCode = ((NativeException)ret).ErrorCode;
+                }
+
+                return (int)errorCode;
+            }
 
             private unsafe static int Read(
                 IntPtr stream,
@@ -134,15 +154,9 @@ namespace LibGit2Sharp
                         return toReturn;
                     }
                 }
-                catch (NativeException ex)
-                {
-                    Proxy.git_error_set_str(GitErrorCategory.Net, ex);
-                    return (int)ex.ErrorCode;
-                }
                 catch (Exception ex)
                 {
-                    Proxy.git_error_set_str(GitErrorCategory.Net, ex);
-                    return (int)GitErrorCode.Error;
+                    return SetError(transportStream, ex);
                 }
             }
 
@@ -174,8 +188,7 @@ namespace LibGit2Sharp
                 }
                 catch (Exception ex)
                 {
-                    Proxy.git_error_set_str(GitErrorCategory.Net, ex);
-                    return (int)GitErrorCode.Error;
+                    return SetError(transportStream, ex);
                 }
             }
 
