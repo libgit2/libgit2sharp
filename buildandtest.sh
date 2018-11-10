@@ -16,6 +16,6 @@ export Configuration=release
 # We just build for CoreCLR and run tests for it.
 dotnet restore
 dotnet build LibGit2Sharp.Tests -f netcoreapp2.1 -property:ExtraDefine="$EXTRADEFINE" -fl -flp:verbosity=detailed
-dotnet test LibGit2Sharp.Tests/LibGit2Sharp.Tests.csproj -f netcoreapp2.1 --no-restore --no-build 
+dotnet test LibGit2Sharp.Tests/LibGit2Sharp.Tests.csproj -f netcoreapp2.1 --no-restore --no-build
 
 exit $?
