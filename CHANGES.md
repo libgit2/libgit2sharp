@@ -10,6 +10,13 @@
   - Windows (x86/amd64): <https://ci.appveyor.com/project/libgit2/libgit2sharp>
   - Linux/Mac OS X: <https://travis-ci.org/libgit2/libgit2sharp>
 
+## v0.25.4 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.25.3..v0.25.4))
+
+This is a security and bugfix release that fixes a number of minor
+possible security issues, including possible errors during the parsing
+of commit and tag information.  In addition, a number of performance
+improvements and bugfixes are included in the underlying native library.
+
 ## v0.25.3 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.25.2..v0.25.3))
 
 This is a security release fixing a number of possible security issues,
