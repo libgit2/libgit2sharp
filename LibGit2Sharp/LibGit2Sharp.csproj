@@ -16,10 +16,6 @@
     <AssemblyOriginatorKeyFile>..\libgit2sharp.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants Condition=" '$(TargetFramework)' == 'net461' ">$(DefineConstants);DESKTOP</DefineConstants>
-  </PropertyGroup>
-
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
     <None Include="Core\Handles\Objects.tt">
