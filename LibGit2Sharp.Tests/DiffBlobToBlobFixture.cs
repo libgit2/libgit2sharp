@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -163,9 +164,9 @@ namespace LibGit2Sharp.Tests
                 ContentChanges changes1 = repo.Diff.Compare(oldBlob, newBlob, indentHeuristicOption);
 
                 Assert.NotEqual(changes0.Patch, changes1.Patch);
+                Assert.Equal(CanonicalChangedLines(changes0), CanonicalChangedLines(changes1));
             }
         }
-
 
         [Fact]
         public void ComparingBlobsWithNoSpacesIndentHeuristicOptionMakesNoDifference()
@@ -199,6 +200,12 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(changes0.Patch, changes1.Patch);
             }
+        }
+
+        static string CanonicalChangedLines(ContentChanges changes)
+        {
+            // Create an ordered representation of lines that have been added or removed
+            return string.Join("\n", changes.Patch.Split('\n').Where(l => l.StartsWith("+") || l.StartsWith("-")).OrderBy(l => l));
         }
     }
 }
