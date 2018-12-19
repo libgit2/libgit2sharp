@@ -128,7 +128,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void ComparingBlobsWithIndentHeuristicOptionMakesADifference()
+        public void ComparingBlobsWithNoSpacesAndIndentHeuristicOptionMakesADifference()
         {
             var path = SandboxStandardTestRepoGitDir();
             using (var repo = new Repository(path))
@@ -163,6 +163,41 @@ namespace LibGit2Sharp.Tests
                 ContentChanges changes1 = repo.Diff.Compare(oldBlob, newBlob, indentHeuristicOption);
 
                 Assert.NotEqual(changes0.Patch, changes1.Patch);
+            }
+        }
+
+
+        [Fact]
+        public void ComparingBlobsWithNoSpacesIndentHeuristicOptionMakesNoDifference()
+        {
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
+            {
+                var oldContent =
+@"	1
+	2
+	a
+	b
+	3
+	4";
+                var newContent =
+@"	1
+	2
+	a
+	b
+	a
+	b
+	3
+	4";
+                var oldBlob = repo.ObjectDatabase.CreateBlob(new MemoryStream(Encoding.UTF8.GetBytes(oldContent)));
+                var newBlob = repo.ObjectDatabase.CreateBlob(new MemoryStream(Encoding.UTF8.GetBytes(newContent)));
+                var noIndentHeuristicOption = new CompareOptions { IndentHeuristic = false };
+                var indentHeuristicOption = new CompareOptions { IndentHeuristic = true };
+
+                ContentChanges changes0 = repo.Diff.Compare(oldBlob, newBlob, noIndentHeuristicOption);
+                ContentChanges changes1 = repo.Diff.Compare(oldBlob, newBlob, indentHeuristicOption);
+
+                Assert.Equal(changes0.Patch, changes1.Patch);
             }
         }
     }
