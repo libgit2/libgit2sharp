@@ -134,6 +134,13 @@ namespace LibGit2Sharp.Core
          */
 
         /// <summary>
+        /// Use a heuristic that takes indentation and whitespace into account
+        /// which generally can produce better diffs when dealing with ambiguous
+        /// diff hunks.
+        /// </summary>
+        GIT_DIFF_INDENT_HEURISTIC = (1 << 18),
+
+        /// <summary>
         /// Treat all files as text, disabling binary attributes and detection
         /// </summary>
         GIT_DIFF_FORCE_TEXT = (1 << 20),
@@ -304,11 +311,11 @@ namespace LibGit2Sharp.Core
 
     enum GitDiffFormat
     {
-        GIT_DIFF_FORMAT_PATCH        = 1, // < full git diff
+        GIT_DIFF_FORMAT_PATCH = 1, // < full git diff
         GIT_DIFF_FORMAT_PATCH_HEADER = 2, // < just the file headers of patch
-        GIT_DIFF_FORMAT_RAW          = 3, // < like git diff --raw
-        GIT_DIFF_FORMAT_NAME_ONLY    = 4, // < like git diff --name-only
-        GIT_DIFF_FORMAT_NAME_STATUS  = 5, // < like git diff --name-status
+        GIT_DIFF_FORMAT_RAW = 3, // < like git diff --raw
+        GIT_DIFF_FORMAT_NAME_ONLY = 4, // < like git diff --name-only
+        GIT_DIFF_FORMAT_NAME_STATUS = 5, // < like git diff --name-status
     }
 
     [Flags]

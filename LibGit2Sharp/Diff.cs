@@ -63,6 +63,11 @@ namespace LibGit2Sharp
                 options.Flags |= GitDiffOptionFlags.GIT_DIFF_DISABLE_PATHSPEC_MATCH;
             }
 
+            if (compareOptions.IndentHeuristic)
+            {
+                options.Flags |= GitDiffOptionFlags.GIT_DIFF_INDENT_HEURISTIC;
+            }
+
             if (matchedPathsAggregator != null)
             {
                 options.NotifyCallback = matchedPathsAggregator.OnGitDiffNotify;
@@ -351,7 +356,7 @@ namespace LibGit2Sharp
             }
 
             DiffHandle diff = BuildDiffList(oldTreeId, null, comparer, diffOptions, paths, explicitPathsOptions, compareOptions);
-            
+
             try
             {
                 return BuildDiffResult<T>(diff);
