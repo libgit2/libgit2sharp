@@ -44,5 +44,11 @@ namespace LibGit2Sharp
         /// By default, <see cref="DiffAlgorithm.Myers"/> will be used.
         /// </summary>
         public DiffAlgorithm Algorithm { get; set; }
+
+        /// <summary>
+        /// Enable --indent-heuristic Diff option, that attempts to produce more aesthetically pleasing diffs.
+        /// By default, this option will be false.
+        /// </summary>
+        public bool IndentHeuristic { get; set; }
     }
 }
