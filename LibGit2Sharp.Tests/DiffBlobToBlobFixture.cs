@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -125,6 +126,86 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(0, changes.LinesAdded);
                 Assert.Equal(0, changes.LinesDeleted);
             }
+        }
+
+        [Fact]
+        public void ComparingBlobsWithNoSpacesAndIndentHeuristicOptionMakesADifference()
+        {
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
+            {
+                // Based on test diff indent heuristic from:
+                // https://github.com/git/git/blob/433860f3d0beb0c6f205290bd16cda413148f098/t/t4061-diff-indent.sh#L17
+                var oldContent =
+@"	1
+	2
+	a
+
+	b
+	3
+	4";
+                var newContent =
+@"	1
+	2
+	a
+
+	b
+	a
+
+	b
+	3
+	4";
+                var oldBlob = repo.ObjectDatabase.CreateBlob(new MemoryStream(Encoding.UTF8.GetBytes(oldContent)));
+                var newBlob = repo.ObjectDatabase.CreateBlob(new MemoryStream(Encoding.UTF8.GetBytes(newContent)));
+                var noIndentHeuristicOption = new CompareOptions { IndentHeuristic = false };
+                var indentHeuristicOption = new CompareOptions { IndentHeuristic = true };
+
+                ContentChanges changes0 = repo.Diff.Compare(oldBlob, newBlob, noIndentHeuristicOption);
+                ContentChanges changes1 = repo.Diff.Compare(oldBlob, newBlob, indentHeuristicOption);
+
+                Assert.NotEqual(changes0.Patch, changes1.Patch);
+                Assert.Equal(CanonicalChangedLines(changes0), CanonicalChangedLines(changes1));
+            }
+        }
+
+        [Fact]
+        public void ComparingBlobsWithNoSpacesIndentHeuristicOptionMakesNoDifference()
+        {
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
+            {
+                var oldContent =
+@"	1
+	2
+	a
+	b
+	3
+	4";
+                var newContent =
+@"	1
+	2
+	a
+	b
+	a
+	b
+	3
+	4";
+                var oldBlob = repo.ObjectDatabase.CreateBlob(new MemoryStream(Encoding.UTF8.GetBytes(oldContent)));
+                var newBlob = repo.ObjectDatabase.CreateBlob(new MemoryStream(Encoding.UTF8.GetBytes(newContent)));
+                var noIndentHeuristicOption = new CompareOptions { IndentHeuristic = false };
+                var indentHeuristicOption = new CompareOptions { IndentHeuristic = true };
+
+                ContentChanges changes0 = repo.Diff.Compare(oldBlob, newBlob, noIndentHeuristicOption);
+                ContentChanges changes1 = repo.Diff.Compare(oldBlob, newBlob, indentHeuristicOption);
+
+                Assert.Equal(changes0.Patch, changes1.Patch);
+            }
+        }
+
+        static string CanonicalChangedLines(ContentChanges changes)
+        {
+            // Create an ordered representation of lines that have been added or removed
+            return string.Join("\n", changes.Patch.Split('\n').Where(l => l.StartsWith("+") || l.StartsWith("-")).OrderBy(l => l));
         }
     }
 }
