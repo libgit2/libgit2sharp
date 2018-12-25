@@ -49,7 +49,7 @@ namespace LibGit2Sharp.Tests
             Exception exceptionToThrow = new AggregateException(aggregateExceptionMessage, new Exception(innerExceptionMessage), new Exception(innerExceptionMessage2));
 
             StringBuilder sb = new StringBuilder();
-#if DESKTOP
+#if NETFRAMEWORK
             sb.AppendLine(aggregateExceptionMessage);
 #else
             sb.AppendLine($"{aggregateExceptionMessage} ({innerExceptionMessage}) ({innerExceptionMessage2})");
