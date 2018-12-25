@@ -27,5 +27,6 @@ namespace LibGit2Sharp.Core
     internal struct git_object {}
     internal struct git_rebase {}
     internal struct git_odb_stream {}
+    internal struct git_worktree { }
 }
 

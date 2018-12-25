@@ -3450,6 +3450,127 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
+        #region git_worktree_
+
+        /// <summary>
+        /// Returns a handle to the corresponding worktree,
+        /// or an invalid handle if a worktree is not found.
+        /// </summary>
+        public static unsafe WorktreeHandle git_worktree_lookup(RepositoryHandle repo, string name)
+        {
+            git_worktree* worktree;
+            var res = NativeMethods.git_worktree_lookup(out worktree, repo, name);
+
+            switch (res)
+            {
+                case (int)GitErrorCode.Error:
+                case (int)GitErrorCode.NotFound:
+                case (int)GitErrorCode.Exists:
+                case (int)GitErrorCode.OrphanedHead:
+                    return null;
+
+                default:
+                    Ensure.ZeroResult(res);
+                    return new WorktreeHandle(worktree, true);
+            }
+        }
+
+        public static unsafe IList<string> git_worktree_list(RepositoryHandle repo)
+        {
+            var array = new GitStrArrayNative();
+
+            try
+            {
+                int res = NativeMethods.git_worktree_list(out array.Array, repo);
+                Ensure.ZeroResult(res);
+
+                return array.ReadStrings();
+            }
+            finally
+            {
+                array.Dispose();
+            }
+        }
+
+        public static unsafe RepositoryHandle git_repository_open_from_worktree(WorktreeHandle handle)
+        {
+            git_repository* repo;
+            int res = NativeMethods.git_repository_open_from_worktree(out repo, handle);
+
+            if (res == (int)GitErrorCode.NotFound)
+            {
+                throw new RepositoryNotFoundException("Handle doesn't point at a valid Git repository or workdir.");
+            }
+
+            Ensure.ZeroResult(res);
+
+            return new RepositoryHandle(repo, true);
+        }
+
+        public static unsafe WorktreeLock git_worktree_is_locked(WorktreeHandle worktree)
+        {
+            using (var buf = new GitBuf())
+            {
+                int res = NativeMethods.git_worktree_is_locked(buf, worktree);
+
+                if(res < 0)
+                {
+                    // error
+                    return null;
+                }
+
+                if (res == (int)GitErrorCode.Ok)
+                {
+                    return new WorktreeLock();
+                }
+
+                return new WorktreeLock(true, LaxUtf8Marshaler.FromNative(buf.ptr));
+            }
+        }
+
+        public static unsafe bool git_worktree_validate(WorktreeHandle worktree)
+        {
+            int res = NativeMethods.git_worktree_validate(worktree);
+
+            return res == (int)GitErrorCode.Ok;
+        }
+
+        public static unsafe bool git_worktree_unlock(WorktreeHandle worktree)
+        {
+            int res = NativeMethods.git_worktree_unlock(worktree);
+
+            return res == (int)GitErrorCode.Ok;
+        }
+
+        public static unsafe bool git_worktree_lock(WorktreeHandle worktree, string reason)
+        {
+            int res = NativeMethods.git_worktree_lock(worktree, reason);
+
+            return res == (int)GitErrorCode.Ok;
+        }
+
+        public static unsafe WorktreeHandle git_worktree_add(
+            RepositoryHandle repo,
+            string name,
+            string path,
+            git_worktree_add_options options)
+        {
+            git_worktree* worktree;
+            int res = NativeMethods.git_worktree_add(out worktree, repo, name, path, options);
+            Ensure.ZeroResult(res);
+            return new WorktreeHandle(worktree, true);
+        }
+
+        public static unsafe bool git_worktree_prune(WorktreeHandle worktree,
+            git_worktree_prune_options options)
+        {
+            int res = NativeMethods.git_worktree_prune(worktree, options);
+            Ensure.ZeroResult(res);
+            return true;
+        }
+
+        #endregion
+
         private static ICollection<TResult> git_foreach<T, TResult>(
             Func<T, TResult> resultSelector,
             Func<Func<T, IntPtr, int>, int> iterator,

@@ -1888,6 +1888,56 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern void git_transaction_free(IntPtr txn);
+
+        [DllImport(libgit2)]
+        internal static extern unsafe void git_worktree_free(git_worktree* worktree);
+
+        [DllImport(libgit2)]
+        internal static extern unsafe int git_worktree_lookup(
+            out git_worktree* reference,
+            git_repository* repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
+
+        [DllImport(libgit2)]
+        internal static extern unsafe int git_worktree_list(
+            out GitStrArray array,
+            git_repository* repo);
+
+        [DllImport(libgit2)]
+        internal static extern unsafe int git_repository_open_from_worktree(
+            out git_repository* repository,
+            git_worktree* worktree);
+
+        [DllImport(libgit2)]
+        internal static extern unsafe int git_worktree_is_locked(
+            GitBuf reason,
+            git_worktree* worktree);
+
+        [DllImport(libgit2)]
+        internal static extern unsafe int git_worktree_validate(
+            git_worktree* worktree);
+
+        [DllImport(libgit2)]
+        internal static extern unsafe int git_worktree_lock(
+            git_worktree* worktree,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string reason);
+
+        [DllImport(libgit2)]
+        internal static extern unsafe int git_worktree_unlock(
+            git_worktree* worktree);
+
+        [DllImport(libgit2)]
+        internal static extern unsafe int git_worktree_add (
+            out git_worktree* reference,
+            git_repository* repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string path,
+            git_worktree_add_options options);
+
+        [DllImport(libgit2)]
+        internal static extern unsafe int git_worktree_prune(
+            git_worktree* worktree,
+            git_worktree_prune_options options);
     }
 }
 // ReSharper restore InconsistentNaming
