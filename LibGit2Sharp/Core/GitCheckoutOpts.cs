@@ -118,6 +118,7 @@ namespace LibGit2Sharp.Core
         GIT_CHECKOUT_UPDATE_SUBMODULES_IF_CHANGED = (1 << 17),
     }
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     internal delegate int checkout_notify_cb(
         CheckoutNotifyFlags why,
         IntPtr path,
@@ -126,12 +127,14 @@ namespace LibGit2Sharp.Core
         IntPtr workdir,
         IntPtr payload);
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     internal delegate void progress_cb(
             IntPtr strPtr,
             UIntPtr completed_steps,
             UIntPtr total_steps,
             IntPtr payload);
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     internal delegate int perfdata_cb(
             IntPtr perfdata,
             IntPtr payload);
