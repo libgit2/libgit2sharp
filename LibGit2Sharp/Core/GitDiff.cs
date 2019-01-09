@@ -198,12 +198,14 @@ namespace LibGit2Sharp.Core
         GIT_DIFF_SHOW_BINARY = (1 << 30),
     }
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     internal delegate int diff_notify_cb(
         IntPtr diff_so_far,
         IntPtr delta_to_add,
         IntPtr matched_pathspec,
         IntPtr payload);
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     internal delegate int diff_progress_cb(
         IntPtr diff_so_far,
         IntPtr old_path,
