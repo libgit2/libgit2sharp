@@ -1632,6 +1632,31 @@ namespace LibGit2Sharp.Core
         internal static extern void git_strarray_free(
             ref GitStrArray array);
 
+        /// <summary>
+        /// To fully emulate "git submodule add", call this function, then open
+        /// the submodule repo and perform the clone step as needed.  Lastly, call
+        /// 'git_submodule_add_finalize()' to wrap up adding the new submodule and
+        /// .gitmodules to the index to be ready to commit.
+        ///
+        /// In our case, go ahead and do the clone first.  The setup can be done
+        /// with the directory contents already in place.
+        /// </summary>
+        [DllImport(libgit2)]
+        private static extern unsafe int git_submodule_add_setup(
+            out git_submodule* reference,
+            git_repository* repo,
+            [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* url,
+            [CustomMarshaler(typeof(StrictUtf8Marshaler), typeof(string))] byte* path,
+            int use_gitlink);
+
+        [DllImport(libgit2)]
+        internal static extern unsafe int git_submodule_add_finalize(
+            git_submodule* submodule);
+
+        [DllImport(libgit2)]
+        internal static extern unsafe string git_submodule_name(
+            git_submodule* submodule);
+
         [DllImport(libgit2)]
         internal static extern unsafe int git_submodule_lookup(
             out git_submodule* reference,

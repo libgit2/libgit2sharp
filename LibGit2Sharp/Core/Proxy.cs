@@ -2952,6 +2952,32 @@ namespace LibGit2Sharp.Core
 #region git_submodule_
 
         /// <summary>
+        /// This does "git submodule add" up to the fetch and checkout of the
+        /// submodule contents.  It preps a new submodule, creates an entry in
+        /// .gitmodules and creates an empty initialized repository either at the
+        /// given path in the working directory or in .git/modules with a gitlink
+        /// from the working directory to the new repo.
+        /// </summary>s
+        public static unsafe SubmoduleHandle git_submodule_add_setup(RepositoryHandle repo, string url, string path, int useGitLink)
+        {
+            git_submodule* submodule;
+            var res = NativeMethods.git_submodule_add_setup(out submodule, repo, url, path, useGitLink);
+            Ensure.ZeroResult(res);
+            return new SubmoduleHandle(submodule, true);
+        }
+
+        public static unsafe void git_submodule_add_finalize(SubmoduleHandle submodule)
+        {
+            var res = NativeMethods.git_submodule_add_finalize(submodule);
+            Ensure.ZeroResult(res);
+        }
+
+        public static unsafe string git_submodule_name(SubmoduleHandle submodule)
+        {
+            return NativeMethods.git_submodule_name(submodule);
+        }
+
+        /// <summary>
         /// Returns a handle to the corresponding submodule,
         /// or an invalid handle if a submodule is not found.
         /// </summary>
