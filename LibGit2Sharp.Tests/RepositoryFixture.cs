@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
-using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -683,6 +682,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository())
             {
+                Assert.NotNull(repo.ObjectDatabase);
+
                 Assert.True(repo.Info.IsBare);
                 Assert.Null(repo.Info.Path);
                 Assert.Null(repo.Info.WorkingDirectory);
