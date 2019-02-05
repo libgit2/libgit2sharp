@@ -134,7 +134,7 @@ namespace LibGit2Sharp.Core
         {
             string errorMessage;
             GitErrorCategory errorCategory = GitErrorCategory.Unknown;
-            GitError* error = NativeMethods.giterr_last();
+            GitError* error = NativeMethods.git_error_last();
 
             if (error == null)
             {

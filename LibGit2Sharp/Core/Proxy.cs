@@ -14,85 +14,6 @@ namespace LibGit2Sharp.Core
 {
     internal class Proxy
     {
-        #region giterr_
-
-        public static void giterr_set_str(GitErrorCategory error_class, Exception exception)
-        {
-            if (exception is OutOfMemoryException)
-            {
-                NativeMethods.giterr_set_oom();
-            }
-            else
-            {
-                NativeMethods.giterr_set_str(error_class, ErrorMessageFromException(exception));
-            }
-        }
-
-        public static void giterr_set_str(GitErrorCategory error_class, String errorString)
-        {
-            NativeMethods.giterr_set_str(error_class, errorString);
-        }
-
-        /// <summary>
-        /// This method will take an exception and try to generate an error message
-        /// that captures the important messages of the error.
-        /// The formatting is a bit subjective.
-        /// </summary>
-        /// <param name="ex"></param>
-        /// <returns></returns>
-        public static string ErrorMessageFromException(Exception ex)
-        {
-            StringBuilder sb = new StringBuilder();
-            BuildErrorMessageFromException(sb, 0, ex);
-            return sb.ToString();
-        }
-
-        private static void BuildErrorMessageFromException(StringBuilder sb, int level, Exception ex)
-        {
-            string indent = new string(' ', level * 4);
-            sb.AppendFormat("{0}{1}", indent, ex.Message);
-
-            if (ex is AggregateException)
-            {
-                AggregateException aggregateException = ((AggregateException)ex).Flatten();
-
-                if (aggregateException.InnerExceptions.Count == 1)
-                {
-                    sb.AppendLine();
-                    sb.AppendLine();
-
-                    sb.AppendFormat("{0}Contained Exception:{1}", indent, Environment.NewLine);
-                    BuildErrorMessageFromException(sb, level + 1, aggregateException.InnerException);
-                }
-                else
-                {
-                    sb.AppendLine();
-                    sb.AppendLine();
-
-                    sb.AppendFormat("{0}Contained Exceptions:{1}", indent, Environment.NewLine);
-                    for (int i = 0; i < aggregateException.InnerExceptions.Count; i++)
-                    {
-                        if (i != 0)
-                        {
-                            sb.AppendLine();
-                            sb.AppendLine();
-                        }
-
-                        BuildErrorMessageFromException(sb, level + 1, aggregateException.InnerExceptions[i]);
-                    }
-                }
-            }
-            else if (ex.InnerException != null)
-            {
-                sb.AppendLine();
-                sb.AppendLine();
-                sb.AppendFormat("{0}Inner Exception:{1}", indent, Environment.NewLine);
-                BuildErrorMessageFromException(sb, level + 1, ex.InnerException);
-            }
-        }
-
-        #endregion
-
         #region git_blame_
 
         public static unsafe BlameHandle git_blame_file(
@@ -920,6 +841,85 @@ namespace LibGit2Sharp.Core
         public static unsafe git_diff_delta* git_diff_get_delta(DiffHandle diff, int idx)
         {
             return NativeMethods.git_diff_get_delta(diff, (UIntPtr)idx);
+        }
+
+        #endregion
+
+        #region git_error_
+
+        public static void git_error_set_str(GitErrorCategory error_class, Exception exception)
+        {
+            if (exception is OutOfMemoryException)
+            {
+                NativeMethods.git_error_set_oom();
+            }
+            else
+            {
+                NativeMethods.git_error_set_str(error_class, ErrorMessageFromException(exception));
+            }
+        }
+
+        public static void git_error_set_str(GitErrorCategory error_class, String errorString)
+        {
+            NativeMethods.git_error_set_str(error_class, errorString);
+        }
+
+        /// <summary>
+        /// This method will take an exception and try to generate an error message
+        /// that captures the important messages of the error.
+        /// The formatting is a bit subjective.
+        /// </summary>
+        /// <param name="ex"></param>
+        /// <returns></returns>
+        public static string ErrorMessageFromException(Exception ex)
+        {
+            StringBuilder sb = new StringBuilder();
+            BuildErrorMessageFromException(sb, 0, ex);
+            return sb.ToString();
+        }
+
+        private static void BuildErrorMessageFromException(StringBuilder sb, int level, Exception ex)
+        {
+            string indent = new string(' ', level * 4);
+            sb.AppendFormat("{0}{1}", indent, ex.Message);
+
+            if (ex is AggregateException)
+            {
+                AggregateException aggregateException = ((AggregateException)ex).Flatten();
+
+                if (aggregateException.InnerExceptions.Count == 1)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine();
+
+                    sb.AppendFormat("{0}Contained Exception:{1}", indent, Environment.NewLine);
+                    BuildErrorMessageFromException(sb, level + 1, aggregateException.InnerException);
+                }
+                else
+                {
+                    sb.AppendLine();
+                    sb.AppendLine();
+
+                    sb.AppendFormat("{0}Contained Exceptions:{1}", indent, Environment.NewLine);
+                    for (int i = 0; i < aggregateException.InnerExceptions.Count; i++)
+                    {
+                        if (i != 0)
+                        {
+                            sb.AppendLine();
+                            sb.AppendLine();
+                        }
+
+                        BuildErrorMessageFromException(sb, level + 1, aggregateException.InnerExceptions[i]);
+                    }
+                }
+            }
+            else if (ex.InnerException != null)
+            {
+                sb.AppendLine();
+                sb.AppendLine();
+                sb.AppendFormat("{0}Inner Exception:{1}", indent, Environment.NewLine);
+                BuildErrorMessageFromException(sb, level + 1, ex.InnerException);
+            }
         }
 
         #endregion

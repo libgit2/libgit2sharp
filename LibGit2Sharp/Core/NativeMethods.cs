@@ -96,15 +96,15 @@ namespace LibGit2Sharp.Core
         }
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe GitError* giterr_last();
+        internal static extern unsafe GitError* git_error_last();
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void giterr_set_str(
+        internal static extern void git_error_set_str(
             GitErrorCategory error_class,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string errorString);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void giterr_set_oom();
+        internal static extern void git_error_set_oom();
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe UInt32 git_blame_get_hunk_count(git_blame* blame);
