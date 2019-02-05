@@ -286,9 +286,9 @@ namespace LibGit2Sharp.Core
 
         #region git_buf_
 
-        public static void git_buf_free(GitBuf buf)
+        public static void git_buf_dispose(GitBuf buf)
         {
-            NativeMethods.git_buf_free(buf);
+            NativeMethods.git_buf_dispose(buf);
         }
 
         #endregion
