@@ -10,6 +10,7 @@ namespace LibGit2Sharp.Core
         public uint Rpc;
         public uint Param;
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int create_callback(
             out IntPtr subtransport,
             IntPtr owner,

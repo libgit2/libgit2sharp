@@ -236,7 +236,7 @@ namespace LibGit2Sharp
             {
                 Log.Write(LogLevel.Error, "Filter.InitializeCallback exception");
                 Log.Write(LogLevel.Error, exception.ToString());
-                Proxy.giterr_set_str(GitErrorCategory.Filter, exception);
+                Proxy.git_error_set_str(GitErrorCategory.Filter, exception);
                 result = (int)GitErrorCode.Error;
             }
             return result;
@@ -286,7 +286,7 @@ namespace LibGit2Sharp
 
                 Log.Write(LogLevel.Error, "Filter.StreamCreateCallback exception");
                 Log.Write(LogLevel.Error, exception.ToString());
-                Proxy.giterr_set_str(GitErrorCategory.Filter, exception);
+                Proxy.git_error_set_str(GitErrorCategory.Filter, exception);
                 result = (int)GitErrorCode.Error;
             }
 
@@ -322,7 +322,7 @@ namespace LibGit2Sharp
             {
                 Log.Write(LogLevel.Error, "Filter.StreamCloseCallback exception");
                 Log.Write(LogLevel.Error, exception.ToString());
-                Proxy.giterr_set_str(GitErrorCategory.Filter, exception);
+                Proxy.git_error_set_str(GitErrorCategory.Filter, exception);
                 result = (int)GitErrorCode.Error;
             }
 
@@ -384,7 +384,7 @@ namespace LibGit2Sharp
                             break;
 
                         default:
-                            Proxy.giterr_set_str(GitErrorCategory.Filter, "Unexpected filter mode.");
+                            Proxy.git_error_set_str(GitErrorCategory.Filter, "Unexpected filter mode.");
                             return (int)GitErrorCode.Ambiguous;
                     }
                 }
@@ -393,7 +393,7 @@ namespace LibGit2Sharp
             {
                 Log.Write(LogLevel.Error, "Filter.StreamWriteCallback exception");
                 Log.Write(LogLevel.Error, exception.ToString());
-                Proxy.giterr_set_str(GitErrorCategory.Filter, exception);
+                Proxy.git_error_set_str(GitErrorCategory.Filter, exception);
                 result = (int)GitErrorCode.Error;
             }
 
