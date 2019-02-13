@@ -26,10 +26,14 @@ namespace LibGit2Sharp.Core
         [MarshalAs(UnmanagedType.FunctionPtr)]
         public git_merge_driver_apply_fn apply;
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate int git_merge_driver_init_fn(IntPtr merge_driver);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void git_merge_driver_shutdown_fn(IntPtr merge_driver);
 
         /** Called when the merge driver is invoked due to a file level merge conflict. */
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate int git_merge_driver_apply_fn(
             IntPtr merge_driver,
             IntPtr path_out,
