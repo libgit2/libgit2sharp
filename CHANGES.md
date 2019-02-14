@@ -10,7 +10,14 @@
   - Windows (x86/amd64): <https://ci.appveyor.com/project/libgit2/libgit2sharp>
   - Linux/Mac OS X: <https://travis-ci.org/libgit2/libgit2sharp>
 
-## v0.26
+## v0.26 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.25..v0.26))
+
+### Additions
+
+* Add `CherryPickCommitIntoIndex` to `ObjectDatabase`
+* The underlying native library (libgit2) now no longer relies on libcurl
+* The underlying native library now no longer relies on zlib
+* Add `IndentHeuristic` option to `CompareOptions`
 
 ## v0.25 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.24..v0.25))
 
