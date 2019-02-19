@@ -340,7 +340,7 @@ namespace LibGit2Sharp
                 // if the merge driver has already been registered
                 if (registeredMergeDrivers.ContainsKey(mergeDriver))
                 {
-                    throw new EntryExistsException("The merge driver has already been registered.", GitErrorCode.Exists, GitErrorCategory.MergeDriver);
+                    throw new EntryExistsException("The merge driver has already been registered.", GitErrorCode.Exists, GitErrorCategory.Merge);
                 }
 
                 // allocate the registration object

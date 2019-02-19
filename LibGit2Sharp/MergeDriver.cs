@@ -18,9 +18,42 @@ namespace LibGit2Sharp
         /// <summary>
         /// The resulting stream of data of the merge.
         /// <para>This will return <code>null</code> if the merge has been unsuccessful due to non-mergeable conflicts.</para>
-        /// <para>The returned stream will be freed by the caller.</para>
+        /// <para>The returned stream will be freed automatically.</para>
         /// </summary>
         public Stream Content;
+
+        /// <summary>
+        /// Specific mode of the resolved file. If null, an appropriate default mode is chosen.
+        /// </summary>
+        public Mode? ResolvedMode;
+
+        /// <summary>
+        /// Path to select for the resolved file
+        /// </summary>
+        public enum Path
+        {
+            /// <summary>
+            /// No path
+            /// </summary>
+            None,
+            /// <summary>
+            /// Use ancestor path
+            /// </summary>
+            Ancestor,
+            /// <summary>
+            /// Use "ours" path
+            /// </summary>
+            Ours,
+            /// <summary>
+            /// Use "theirs" path
+            /// </summary>
+            Theirs
+        };
+
+        /// <summary>
+        /// Specific path to use for the resolved file. If null, an appropriate default path is chosen.
+        /// </summary>
+        public Path? ResolvedPath;
     }
 
     /// <summary>
@@ -165,7 +198,7 @@ namespace LibGit2Sharp
             {
                 Log.Write(LogLevel.Error, "MergeDriver.InitializeCallback exception");
                 Log.Write(LogLevel.Error, exception.ToString());
-                NativeMethods.git_error_set_str(GitErrorCategory.MergeDriver, exception.ToString());
+                NativeMethods.git_error_set_str(GitErrorCategory.Merge, exception.ToString());
                 result = (int)GitErrorCode.Error;
             }
             return result;
@@ -199,7 +232,8 @@ namespace LibGit2Sharp
                     var ancestorPath = mergeDriverSource.Ancestor != null ? mergeDriverSource.Ancestor.Path : null;
                     var oursPath = mergeDriverSource.Ours != null ? mergeDriverSource.Ours.Path : null;
                     var theirsPath = mergeDriverSource.Theirs != null ? mergeDriverSource.Theirs.Path : null;
-                    var best = BestPath(ancestorPath, oursPath, theirsPath);
+                    var best = SelectPath(result.ResolvedPath, ancestorPath, oursPath, theirsPath);
+
                     // Since there is no memory management of the returned character array 'path_out',
                     // we can only set it to one of the incoming argument strings
                     if (best == null)
@@ -212,10 +246,17 @@ namespace LibGit2Sharp
                         *(char**)path_out.ToPointer() = driver_source->theirs->path;
 
                     // Decide which source to use for mode_out
-                    var ancestorMode = mergeDriverSource.Ancestor != null ? mergeDriverSource.Ancestor.Mode : Mode.Nonexistent;
-                    var oursMode = mergeDriverSource.Ours != null ? mergeDriverSource.Ours.Mode : Mode.Nonexistent;
-                    var theirsMode = mergeDriverSource.Theirs != null ? mergeDriverSource.Theirs.Mode : Mode.Nonexistent;
-                    *(uint*)mode_out.ToPointer() = (uint)BestMode(ancestorMode, oursMode, theirsMode);
+                    Mode resolvedMode;
+                    if (result.ResolvedMode == null)
+                    {
+                        var ancestorMode = mergeDriverSource.Ancestor != null ? mergeDriverSource.Ancestor.Mode : Mode.Nonexistent;
+                        var oursMode = mergeDriverSource.Ours != null ? mergeDriverSource.Ours.Mode : Mode.Nonexistent;
+                        var theirsMode = mergeDriverSource.Theirs != null ? mergeDriverSource.Theirs.Mode : Mode.Nonexistent;
+                        resolvedMode = BestMode(ancestorMode, oursMode, theirsMode);
+                    }
+                    else
+                        resolvedMode = result.ResolvedMode.Value;
+                    *(uint*)mode_out.ToPointer() = (uint)resolvedMode;
                 }
                 return 0;
             }
@@ -226,8 +267,20 @@ namespace LibGit2Sharp
             }
         }
 
-        private string BestPath(string ancestor, string ours, string theirs)
+        private string SelectPath(MergeDriverResult.Path? preferredPath, string ancestor, string ours, string theirs)
         {
+            switch (preferredPath)
+            {
+                case MergeDriverResult.Path.None:
+                    return null;
+                case MergeDriverResult.Path.Ancestor:
+                    return ancestor;
+                case MergeDriverResult.Path.Ours:
+                    return ours;
+                case MergeDriverResult.Path.Theirs:
+                    return theirs;
+            }
+
             if (ancestor == null)
             {
                 if (ours != null && theirs != null && ours == theirs)

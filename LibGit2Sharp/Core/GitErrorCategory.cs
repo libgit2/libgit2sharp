@@ -36,7 +36,6 @@ namespace LibGit2Sharp.Core
         Filesystem,
         Patch,
         Worktree,
-        Sha1,
-        MergeDriver
+        Sha1
     }
 }
