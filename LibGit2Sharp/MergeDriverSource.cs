@@ -11,7 +11,7 @@ namespace LibGit2Sharp
     public class MergeDriverSource
     {
         private static Dictionary<long, Repository> reposesInFlight = new Dictionary<long, Repository>();
-        private readonly RepositoryHandle _reposHandle;
+        private readonly IntPtr _reposPtr;
         private Repository _repos;
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace LibGit2Sharp
             get
             {
                 if (_repos == null)
-                    _repos = GetCachedRepos(_reposHandle);
+                    _repos = GetCachedRepos(_reposPtr);
                 return _repos;
             }
         }
@@ -44,18 +44,13 @@ namespace LibGit2Sharp
         public readonly IndexEntry Theirs;
 
         /// <summary>
-        /// Detect redundant Dispose() calls
-        /// </summary>
-        private bool disposedValue = false;
-
-        /// <summary>
         /// Needed for mocking purposes
         /// </summary>
         protected MergeDriverSource() { }
 
-        internal MergeDriverSource(RepositoryHandle reposHandle, IndexEntry ancestor, IndexEntry ours, IndexEntry theirs)
+        internal MergeDriverSource(IntPtr reposPtr, IndexEntry ancestor, IndexEntry ours, IndexEntry theirs)
         {
-            _reposHandle = reposHandle;
+            _reposPtr = reposPtr;
             Ancestor = ancestor;
             Ours = ours;
             Theirs = theirs;
@@ -81,22 +76,21 @@ namespace LibGit2Sharp
             if (ptr == null)
                 throw new ArgumentException();
 
-            var reposHandle = new RepositoryHandle(ptr->repository, false);
-
-            return new MergeDriverSource(reposHandle,
+            return new MergeDriverSource(new IntPtr(ptr->repository),
                 IndexEntry.BuildFromPtr(ptr->ancestor),
                 IndexEntry.BuildFromPtr(ptr->ours),
                 IndexEntry.BuildFromPtr(ptr->theirs));
         }
 
-        private static Repository GetCachedRepos(RepositoryHandle reposHandle)
+        private static Repository GetCachedRepos(IntPtr reposPtr)
         {
             Repository repos;
-            var cacheKey = reposHandle.AsIntPtr().ToInt64();
+            var cacheKey = reposPtr.ToInt64();
             lock (reposesInFlight)
             {
                 if (!reposesInFlight.TryGetValue(cacheKey, out repos))
                 {
+                    var reposHandle = new RepositoryHandle(reposPtr, false);
                     repos = new Repository(reposHandle);
                     repos.RegisterForCleanup(reposHandle);
                     reposesInFlight.Add(cacheKey, repos);
@@ -105,15 +99,15 @@ namespace LibGit2Sharp
             return repos;
         }
 
-        internal static void OnMergeDone(RepositoryHandle reposHandle)
+        internal static void OnMergeDone(IntPtr reposPtr)
         {
-            if (reposHandle == null)
+            if (reposPtr == null)
                 return;
 
             lock (reposesInFlight)
             {
                 Repository repos;
-                var cacheKey = reposHandle.AsIntPtr().ToInt64();
+                var cacheKey = reposPtr.ToInt64();
                 if (reposesInFlight.TryGetValue(cacheKey, out repos))
                 {
                     reposesInFlight.Remove(cacheKey);

@@ -1561,7 +1561,7 @@ namespace LibGit2Sharp
                 var checkoutOpts = checkoutOptionsWrapper.Options;
 
                 Proxy.git_merge(Handle, annotatedCommits, mergeOptions, checkoutOpts, out earlyStop);
-                MergeDriverSource.OnMergeDone(Handle);
+                MergeDriverSource.OnMergeDone(Handle.AsIntPtr());
             }
 
             if (earlyStop)
