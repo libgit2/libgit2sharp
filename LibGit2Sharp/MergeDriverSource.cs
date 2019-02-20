@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -7,12 +8,25 @@ namespace LibGit2Sharp
     /// <summary>
     /// A merge driver source - describes the direction of merging and the file being merged
     /// </summary>
-    public class MergeDriverSource : IDisposable
+    public class MergeDriverSource
     {
+        private static Dictionary<long, Repository> reposesInFlight = new Dictionary<long, Repository>();
+        private readonly RepositoryHandle _reposHandle;
+        private Repository _repos;
+
         /// <summary>
         /// Repository where merge is taking place
         /// </summary>
-        public readonly Repository Repository;
+        /// <remarks>Marked virtual for xUnit</remarks>
+        public virtual Repository Repository
+        {
+            get
+            {
+                if (_repos == null)
+                    _repos = GetCachedRepos(_reposHandle);
+                return _repos;
+            }
+        }
 
         /// <summary>
         /// Ancestor of merge
@@ -39,9 +53,9 @@ namespace LibGit2Sharp
         /// </summary>
         protected MergeDriverSource() { }
 
-        internal MergeDriverSource(Repository repos, IndexEntry ancestor, IndexEntry ours, IndexEntry theirs)
+        internal MergeDriverSource(RepositoryHandle reposHandle, IndexEntry ancestor, IndexEntry ours, IndexEntry theirs)
         {
-            Repository = repos;
+            _reposHandle = reposHandle;
             Ancestor = ancestor;
             Ours = ours;
             Theirs = theirs;
@@ -68,29 +82,44 @@ namespace LibGit2Sharp
                 throw new ArgumentException();
 
             var reposHandle = new RepositoryHandle(ptr->repository, false);
-            var repos = new Repository(reposHandle);
-            repos.RegisterForCleanup(reposHandle);
 
-            return new MergeDriverSource(repos,
+            return new MergeDriverSource(reposHandle,
                 IndexEntry.BuildFromPtr(ptr->ancestor),
                 IndexEntry.BuildFromPtr(ptr->ours),
                 IndexEntry.BuildFromPtr(ptr->theirs));
         }
 
-        protected virtual void Dispose(bool disposing)
+        private static Repository GetCachedRepos(RepositoryHandle reposHandle)
         {
-            if (!disposedValue)
+            Repository repos;
+            var cacheKey = reposHandle.AsIntPtr().ToInt64();
+            lock (reposesInFlight)
             {
-                if (disposing)
-                    Repository.Dispose();
-
-                disposedValue = true;
+                if (!reposesInFlight.TryGetValue(cacheKey, out repos))
+                {
+                    repos = new Repository(reposHandle);
+                    repos.RegisterForCleanup(reposHandle);
+                    reposesInFlight.Add(cacheKey, repos);
+                }
             }
+            return repos;
         }
 
-        public void Dispose()
+        internal static void OnMergeDone(RepositoryHandle reposHandle)
         {
-            Dispose(true);
+            if (reposHandle == null)
+                return;
+
+            lock (reposesInFlight)
+            {
+                Repository repos;
+                var cacheKey = reposHandle.AsIntPtr().ToInt64();
+                if (reposesInFlight.TryGetValue(cacheKey, out repos))
+                {
+                    reposesInFlight.Remove(cacheKey);
+                    repos.SafeDispose();
+                }
+            }
         }
     }
 }
