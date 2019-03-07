@@ -965,6 +965,12 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe int git_odb_write(out GitOid id, git_odb* odb, byte* data, UIntPtr len, GitObjectType type);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern unsafe int git_odb_hashfile(
+            out GitOid id,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path,
+            GitObjectType type);
+
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe git_oid* git_object_id(git_object* obj);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
@@ -1505,6 +1511,15 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_repository_state(
             git_repository* repository);
+
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern unsafe int git_repository_hashfile(
+            out GitOid oid,
+            git_repository* repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path,
+            GitObjectType type,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath hintPath);
+
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxFilePathNoCleanupMarshaler))]
