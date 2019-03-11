@@ -231,6 +231,45 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanTellHistoryThroughMergeCommit()
+        {
+            string repoPath = CreateEmptyRepository();
+            const string path1 = "Test1.txt";
+            const string path2 = "Test2.txt";
+            const string path3 = "Test3.txt";
+
+            using (var repo = new Repository(repoPath))
+            {
+                MakeAndCommitChange(repo, repoPath, path1, "Initial unrelated file");
+
+                Branch master = repo.Branches[repo.Head.FriendlyName];
+                Branch feature = repo.CreateBranch("feature");
+
+                repo.Checkout("feature");
+
+                MakeAndCommitChange(repo, repoPath, path2, "File on feature branch");
+
+                repo.Checkout("master");
+
+                MakeAndCommitChange(repo, repoPath, path3, "File on master branch");
+
+                repo.Checkout("feature");
+
+                repo.Merge(master, GetNextSignature());
+
+                repo.Checkout("master");
+
+                repo.Merge(feature, GetNextSignature());
+
+                List<LogEntry> file2Logs = repo.Commits.QueryBy(path2).ToList();
+                List<LogEntry> file3Logs = repo.Commits.QueryBy(path3).ToList();
+
+                Assert.Single(file2Logs);
+                Assert.Single(file3Logs);
+            }
+        }
+
+        [Fact]
         public void EmptyRepositoryHasNoHistory()
         {
             var repoPath = CreateEmptyRepository();
