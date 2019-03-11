@@ -114,14 +114,22 @@ namespace LibGit2Sharp.Core
         private static IEnumerable<LogEntry> FullHistory(IRepository repo, string path, CommitFilter filter)
         {
             var map = new Dictionary<Commit, string>();
+            var mustObserve = new HashSet<Commit>();
 
             foreach (var currentCommit in repo.Commits.QueryBy(filter))
             {
+                mustObserve.Remove(currentCommit);
+
                 var currentPath = map.Keys.Count > 0 ? map[currentCommit] : path;
                 var currentTreeEntry = currentCommit.Tree[currentPath];
 
                 if (currentTreeEntry == null)
                 {
+                    if (mustObserve.Any())
+                    {
+                        continue;
+                    }
+
                     yield break;
                 }
 
@@ -136,6 +144,7 @@ namespace LibGit2Sharp.Core
 
                     if (parentCount != 1)
                     {
+                        EnsureParentsAreObserved(currentCommit, mustObserve);
                         continue;
                     }
 
@@ -150,6 +159,14 @@ namespace LibGit2Sharp.Core
                         yield return new LogEntry { Path = currentPath, Commit = currentCommit };
                     }
                 }
+            }
+        }
+
+        private static void EnsureParentsAreObserved(Commit commit, HashSet<Commit> mustObserve)
+        {
+            foreach (Commit parentCommit in commit.Parents)
+            {
+                mustObserve.Add(parentCommit);
             }
         }
 
