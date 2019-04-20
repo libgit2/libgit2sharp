@@ -2,7 +2,7 @@
 # see travis-ci.org for details
 
 language: csharp
-dist: trusty
+dist: xenial
 dotnet: 2.1.506
 mono: none
 osx_image: xcode8.3
