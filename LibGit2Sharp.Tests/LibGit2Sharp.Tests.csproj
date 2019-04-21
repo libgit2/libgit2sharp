@@ -22,13 +22,11 @@
 
   <ItemGroup>
     <Compile Include="..\LibGit2Sharp\Core\Platform.cs" Link="TestHelpers\Platform.cs" />
-    <Compile Remove="desktop\**" Condition=" '$(TargetFramework)' != 'net46' " />
+    <Compile Remove="desktop\**" Condition="'$(TargetFramework)' != 'net46'" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Resources\**\*.*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="Resources\**\*.*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <Target Name="CopyTestAppExes" AfterTargets="ResolveProjectReferences">

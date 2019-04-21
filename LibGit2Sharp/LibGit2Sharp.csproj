@@ -18,14 +18,12 @@
 
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
-    <None Include="Core\Handles\Objects.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>Objects.cs</LastGenOutput>
-    </None>
     <None Include="..\README.md" Pack="true" PackagePath="App_Readme\" />
     <None Include="..\LICENSE.md" Pack="true" PackagePath="App_Readme\" />
     <None Include="..\CHANGES.md" Pack="true" PackagePath="App_Readme\" />
-    <Compile Update="Core\Handles\Objects.cs" DependentUpon="Objects.tt" />
+    <None Update="Core\Handles\Objects.tt" Generator="TextTemplatingFileGenerator" LastGenOutput="Objects.cs" />
+    <Compile Update="Core\Handles\Objects.cs" DependentUpon="Objects.tt" DesignTime="True" AutoGen="True" />
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" /> <!-- Needed for T4 generation -->
   </ItemGroup>
 
   <ItemGroup>
