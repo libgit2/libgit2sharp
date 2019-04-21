@@ -90,7 +90,7 @@ test_script:
       {
         .\packages\OpenCover\tools\OpenCover.Console.exe `
           -register:user `
-          "-target:""$Env:userprofile\.nuget\packages\xunit.runner.console\2.4.0\tools\net46\$runner""" `
+          "-target:""$Env:userprofile\.nuget\packages\xunit.runner.console\2.4.1\tools\net46\$runner""" `
           "-targetargs:""$Env:APPVEYOR_BUILD_FOLDER\bin\LibGit2Sharp.Tests\Release\net46\LibGit2Sharp.Tests.dll"" -noshadow" `
           "-filter:+[LibGit2Sharp]* -[LibGit2Sharp.Tests]*" `
           -hideskipped:All `
@@ -98,12 +98,12 @@ test_script:
       }
       ElseIf ($Env:SHOULD_RUN_COVERITY_ANALYSIS -eq $False)
       {
-        & "$Env:userprofile\.nuget\packages\xunit.runner.console\2.4.0\tools\net46\$runner" `
+        & "$Env:userprofile\.nuget\packages\xunit.runner.console\2.4.1\tools\net46\$runner" `
             "$Env:APPVEYOR_BUILD_FOLDER\bin\LibGit2Sharp.Tests\Release\net46\LibGit2Sharp.Tests.dll" -noshadow
       }
     }
 
-- dotnet test LibGit2Sharp.Tests/LibGit2Sharp.Tests.csproj -f netcoreapp2.0 --no-restore --no-build
+- dotnet test LibGit2Sharp.Tests/LibGit2Sharp.Tests.csproj -f netcoreapp2.1 --no-restore --no-build
 
 after_test:
 - ps: |

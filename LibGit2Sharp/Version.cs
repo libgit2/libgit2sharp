@@ -55,7 +55,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <para>
         ///   The format of the version number is as follows:
-        ///   <para>Major.Minor.Patch[-previewTag]+g{LibGit2Sharp_abbrev_hash}.libgit2-{libgit2_abbrev_hash} (x86|x64 - features)</para>
+        ///   <para>Major.Minor.Patch[-previewTag]+{LibGit2Sharp_abbrev_hash}.libgit2-{libgit2_abbrev_hash} (x86|x64 - features)</para>
         /// </para>
         /// <returns></returns>
         public override string ToString()
