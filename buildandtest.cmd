@@ -33,7 +33,7 @@ dotnet build "%~dp0\" /v:minimal /nologo /property:ExtraDefine="%EXTRADEFINE%"
 :: Run tests on Desktop and CoreCLR
 "%userprofile%\.nuget\packages\xunit.runner.console\2.4.1\tools\net46\xunit.console.exe" "%~dp0bin\LibGit2Sharp.Tests\%Configuration%\net46\LibGit2Sharp.Tests.dll" -noshadow
 @IF ERRORLEVEL 1 EXIT /B %ERRORLEVEL%
-dotnet test "%~dp0LibGit2Sharp.Tests/LibGit2Sharp.Tests.csproj" -f netcoreapp2.0 --no-restore --no-build
+dotnet test "%~dp0LibGit2Sharp.Tests/LibGit2Sharp.Tests.csproj" -f netcoreapp2.1 --no-restore --no-build
 @IF ERRORLEVEL 1 EXIT /B %ERRORLEVEL%
 
 EXIT /B %ERRORLEVEL%
