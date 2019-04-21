@@ -22,9 +22,9 @@ namespace LibGit2Sharp.Tests
         public void CanRetrieveValidVersionString()
         {
             // Version string format is:
-            //      Major.Minor.Patch[-previewTag]+g{LibGit2Sharp_abbrev_hash}.libgit2-{libgit2_abbrev_hash} (x86|x64 - features)
+            //      Major.Minor.Patch[-previewTag]+{LibGit2Sharp_abbrev_hash}.libgit2-{libgit2_abbrev_hash} (x86|x64 - features)
             // Example output:
-            //      "0.25.0-preview.52+g871d13a67f.libgit2-15e1193 (x86 - Threads, Https)"
+            //      "0.25.0-preview.52+871d13a67f.libgit2-15e1193 (x86 - Threads, Https)"
 
             string versionInfo = GlobalSettings.Version.ToString();
 
@@ -33,14 +33,14 @@ namespace LibGit2Sharp.Tests
             //      git2SharpHash: '871d13a67f' LibGit2Sharp hash.
             //      arch: 'x86' or 'x64' libgit2 target.
             //      git2Features: 'Threads, Ssh' libgit2 features compiled with.
-            string regex = @"^(?<version>\d+\.\d+\.\d+(-[\w\-\.]+)?\+(g(?<git2SharpHash>[a-f0-9]{10})\.)?libgit2-[a-f0-9]{7}) \((?<arch>\w+) - (?<git2Features>(?:\w*(?:, )*\w+)*)\)$";
+            string regex = @"^(?<version>\d+\.\d+\.\d+(-[\w\-\.]+)?\+((?<git2SharpHash>[a-f0-9]{10})\.)?libgit2-[a-f0-9]{7}) \((?<arch>\w+) - (?<git2Features>(?:\w*(?:, )*\w+)*)\)$";
 
             Assert.NotNull(versionInfo);
 
             Match regexResult = Regex.Match(versionInfo, regex);
 
             Assert.True(regexResult.Success, "The following version string format is enforced:" +
-                                             "Major.Minor.Patch[-previewTag]+g{LibGit2Sharp_abbrev_hash}.libgit2-{libgit2_abbrev_hash} (x86|x64 - features). " +
+                                             "Major.Minor.Patch[-previewTag]+{LibGit2Sharp_abbrev_hash}.libgit2-{libgit2_abbrev_hash} (x86|x64 - features). " +
                                              "But found \"" + versionInfo + "\" instead.");
         }
 
