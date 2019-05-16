@@ -21,8 +21,8 @@
 
 ## Prerequisites
 
- - **Windows:** .NET 4.6.1+
- - **Linux/Mac OS X:** Mono 5.4+
+ - **Windows:** .NET 4.6.1+ or any platform supporting .NET Standard 2.0+
+ - **Linux/Mac OS X:** Mono 5.4+ or any platform supporting .NET Standard 2.0+
 
 ## Online resources
 
