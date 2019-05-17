@@ -2620,6 +2620,15 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_repository_workdir(repo);
         }
 
+        public static unsafe ConfigurationHandle git_repository_config(RepositoryHandle repo)
+        {
+            git_config* config;
+            int res = NativeMethods.git_repository_config(out config, repo);
+            Ensure.ZeroResult(res);
+
+            return new ConfigurationHandle(config, true);
+        }
+
         public static unsafe void git_repository_set_head_detached(RepositoryHandle repo, ObjectId commitish)
         {
             GitOid oid = commitish.Oid;

@@ -1515,6 +1515,12 @@ namespace LibGit2Sharp.Core
         internal static extern FilePath git_repository_workdir(IntPtr repository);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern unsafe int git_repository_config(
+            out git_config* cfg,
+            git_repository* repository
+        );
+
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_reset(
             git_repository* repo,
             git_object* target,
