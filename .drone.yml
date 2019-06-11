@@ -1,0 +1,15 @@
+kind: pipeline
+name: default
+
+platform:
+  os: linux
+  arch: arm64
+
+steps:
+- name: build
+  image: mcr.microsoft.com/dotnet/core/sdk:3.0-bionic-arm64v8
+  commands:
+  - date -u
+  - uname -a
+  - env | sort
+  - ./buildandtest.sh 'LEAKS_IDENTIFYING'
