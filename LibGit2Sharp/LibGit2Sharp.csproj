@@ -16,6 +16,7 @@
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\libgit2sharp.snk</AssemblyOriginatorKeyFile>
+    <DefineConstants Condition="'$(TargetArchitecture)' == 'Arm64'">$(DefineConstants);ARM64</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
