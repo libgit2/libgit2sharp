@@ -12,7 +12,7 @@
   </Target>
 
 
-  <Target Name="GenerateUniqueIdentifierCs" Inputs="$(VersionSourceFile)" Outputs="$(UniqueIdentifierPath)" BeforeTargets="CoreCompile" AfterTargets="GenerateAssemblyVersionInfo" DependsOnTargets="DefineProperties">
+  <Target Name="GenerateUniqueIdentifierCs" Inputs="$(VersionSourceFile)" Outputs="$(UniqueIdentifierPath)" BeforeTargets="CoreCompile" DependsOnTargets="DefineProperties">
 
     <PropertyGroup>
       <UniqueIdentifier>$([System.Guid]::NewGuid())</UniqueIdentifier>
