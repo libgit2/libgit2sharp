@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetArchitecture Condition="'$(TargetArchitecture)' == ''">$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)</TargetArchitecture>
-    <TargetFrameworks>netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(TargetArchitecture)' != 'Arm64'">$(TargetFrameworks);net46</TargetFrameworks>
   </PropertyGroup>
 
