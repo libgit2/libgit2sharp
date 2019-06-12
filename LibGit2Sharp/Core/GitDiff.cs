@@ -241,6 +241,14 @@ namespace LibGit2Sharp.Core
         }
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    internal class GitPatchIdOptions
+    {
+        public uint Version = 1;
+
+        public static readonly GitPatchIdOptions Default = new GitPatchIdOptions();
+    }
+
     [Flags]
     internal enum GitDiffFlags
     {
