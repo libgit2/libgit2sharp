@@ -678,7 +678,7 @@ namespace LibGit2Sharp
             using (RemoteHandle remoteHandle = Proxy.git_remote_create_anonymous(repositoryHandle, url))
             {
                 var gitCallbacks = new GitRemoteCallbacks { version = 1 };
-                var proxyOptions = new GitProxyOptions { Version = 1 };
+                var proxyOptions = new GitProxyOptions { Version = 1, Type = GitProxyType.Auto };
 
                 if (credentialsProvider != null)
                 {
@@ -768,7 +768,7 @@ namespace LibGit2Sharp
                 var gitCheckoutOptions = checkoutOptionsWrapper.Options;
 
                 var gitFetchOptions = fetchOptionsWrapper.Options;
-                gitFetchOptions.ProxyOptions = new GitProxyOptions { Version = 1 };
+                gitFetchOptions.ProxyOptions = new GitProxyOptions { Version = 1, Type = GitProxyType.Auto };
                 gitFetchOptions.RemoteCallbacks = new RemoteCallbacks(options).GenerateCallbacks();
                 if (options.FetchOptions != null && options.FetchOptions.CustomHeaders != null)
                 {
