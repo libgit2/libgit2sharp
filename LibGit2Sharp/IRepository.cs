@@ -75,6 +75,11 @@ namespace LibGit2Sharp
         WorktreeCollection Worktrees { get; }
 
         /// <summary>
+        /// Mailmap in the repository.
+        /// </summary>
+        Mailmap Mailmap { get; }
+
+        /// <summary>
         /// Checkout the specified tree.
         /// </summary>
         /// <param name="tree">The <see cref="Tree"/> to checkout.</param>
