@@ -20,4 +20,16 @@ namespace LibGit2Sharp.Core
         public IntPtr CertificateCheck;
         public IntPtr CbPayload;
     }
+
+    internal static class GitProxyOptionsFactory
+    {
+        public static GitProxyOptions CreateDefaultProxyOptions()
+        {
+            return new GitProxyOptions
+            {
+                Version = 1,
+                Type = GitProxyType.Auto
+            };
+        }
+    }
 }
