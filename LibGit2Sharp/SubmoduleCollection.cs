@@ -106,7 +106,7 @@ namespace LibGit2Sharp
                     {
                         Version = 1,
                         CheckoutOptions = gitCheckoutOptions,
-                        FetchOptions = new GitFetchOptions { ProxyOptions = proxyOptions/*ProxyOptions = new GitProxyOptions { Version = 1 }*/, RemoteCallbacks = gitRemoteCallbacks },
+                        FetchOptions = new GitFetchOptions { ProxyOptions = proxyOptions, RemoteCallbacks = gitRemoteCallbacks },
                         CloneCheckoutStrategy = CheckoutStrategy.GIT_CHECKOUT_SAFE
                     };
 
