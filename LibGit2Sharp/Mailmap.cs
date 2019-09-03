@@ -12,6 +12,12 @@ namespace LibGit2Sharp
         private readonly Repository repo;
         private readonly MailmapHandle mailmapHandle;
 
+        /// <summary>
+        /// Needed for mocking purposes.
+        /// </summary>
+        protected Mailmap()
+        { }
+
         internal Mailmap(Repository repo)
         {
             this.repo = repo;
