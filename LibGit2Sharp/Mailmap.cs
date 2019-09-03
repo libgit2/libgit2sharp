@@ -25,7 +25,7 @@ namespace LibGit2Sharp
         /// <param name="name">the name to look up</param>
         /// <param name="email">the email to look up</param>
         /// <returns>the real email</returns>
-        public string ResolveRealEmail(string name, string email)
+        public virtual string ResolveRealEmail(string name, string email)
         {
             Proxy.git_mailmap_resolve(out var realName, out var realEmail, mailmapHandle, name, email);
 
@@ -38,7 +38,7 @@ namespace LibGit2Sharp
         /// <param name="name">the name to look up</param>
         /// <param name="email">the email to look up</param>
         /// <returns>the real name</returns>
-        public string ResolveRealName(string name, string email)
+        public virtual string ResolveRealName(string name, string email)
         {
             Proxy.git_mailmap_resolve(out var realName, out var realEmail, mailmapHandle, name, email);
 
@@ -50,7 +50,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="signature">signature to resolve</param>
         /// <returns>new signature</returns>
-        public unsafe Signature ResolveSignature(Signature signature)
+        public virtual unsafe Signature ResolveSignature(Signature signature)
         {
             using (var signatureHandle = Proxy.git_mailmap_resolve_signature(mailmapHandle, signature.BuildHandle()))
             {
