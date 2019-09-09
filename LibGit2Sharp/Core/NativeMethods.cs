@@ -61,9 +61,6 @@ namespace LibGit2Sharp.Core
             InitializeNativeLibrary();
         }
 
-        private delegate bool TryLoadLibraryByNameDelegate(string libraryName, Assembly assembly, DllImportSearchPath? searchPath, out IntPtr handle);
-        private delegate bool TryLoadLibraryByPathDelegate(string libraryPath, out IntPtr handle);
-
         private static string GetGlobalSettingsNativeLibraryPath()
         {
             string nativeLibraryDir = GlobalSettings.GetAndLockNativeLibraryPath();
@@ -73,6 +70,9 @@ namespace LibGit2Sharp.Core
             }
             return Path.Combine(nativeLibraryDir, libgit2 + Platform.GetNativeLibraryExtension());
         }
+
+        private delegate bool TryLoadLibraryByNameDelegate(string libraryName, Assembly assembly, DllImportSearchPath? searchPath, out IntPtr handle);
+        private delegate bool TryLoadLibraryByPathDelegate(string libraryPath, out IntPtr handle);
 
         static TryLoadLibraryByNameDelegate _tryLoadLibraryByName;
         static TryLoadLibraryByPathDelegate _tryLoadLibraryByPath;
@@ -146,13 +146,14 @@ namespace LibGit2Sharp.Core
                     return handle;
                 }
 
+#if NETFRAMEWORK
+#else
                 // We cary a number of .so files for Linux which are linked against various
                 // libc/OpenSSL libraries. Try them out.
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
                     // The libraries are located at 'runtimes/<rid>/native/lib{libraryName}.so'
                     // The <rid> ends with the processor architecture. e.g. fedora-x64.
-
                     string assemblyDirectory = Path.GetDirectoryName(typeof(NativeMethods).Assembly.Location);
                     string processorArchitecture = RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant();
                     foreach (var runtimeFolder in Directory.GetDirectories(Path.Combine(assemblyDirectory, "runtimes"), $"*-{processorArchitecture}"))
@@ -164,6 +165,7 @@ namespace LibGit2Sharp.Core
                         }
                     }
                 }
+#endif
             }
             return handle;
         }
