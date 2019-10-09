@@ -254,7 +254,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Unset a configuration values in a multivar variable (key and value) in the local configuration.
+        /// Unset all configuration values in a multivar variable (key and value) in the local configuration.
         /// </summary>
         /// <param name="key">The key to unset.</param>
         public virtual bool UnsetAll(string key)
