@@ -3,7 +3,7 @@
 
 language: csharp
 dist: xenial
-dotnet: 2.1.506
+dotnet: 2.1.802
 mono: none
 osx_image: xcode8.3
 

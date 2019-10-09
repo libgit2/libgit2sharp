@@ -51,6 +51,119 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanAddAndReadMultivarFromTheLocalConfiguration()
+        {
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Assert.Empty(repo.Config
+                    .OfType<ConfigurationEntry<string>>()
+                    .Where(x => x.Key == "unittests.plugin"));
+
+                repo.Config.Add("unittests.plugin", "value1", ConfigurationLevel.Local);
+                repo.Config.Add("unittests.plugin", "value2", ConfigurationLevel.Local);
+
+                Assert.Equal(new[] { "value1", "value2" }, repo.Config
+                    .OfType<ConfigurationEntry<string>>()
+                    .Where(x => x.Key == "unittests.plugin" && x.Level == ConfigurationLevel.Local)
+                    .Select(x => x.Value)
+                    .ToArray());
+            }
+        }
+
+        [Fact]
+        public void CanAddAndReadMultivarFromTheGlobalConfiguration()
+        {
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Assert.True(repo.Config.HasConfig(ConfigurationLevel.Global));
+                Assert.Empty(repo.Config
+                    .OfType<ConfigurationEntry<string>>()
+                    .Where(x => x.Key == "unittests.plugin"));
+
+                repo.Config.Add("unittests.plugin", "value1", ConfigurationLevel.Global);
+                repo.Config.Add("unittests.plugin", "value2", ConfigurationLevel.Global);
+
+                Assert.Equal(new[] { "value1", "value2" }, repo.Config
+                    .OfType<ConfigurationEntry<string>>()
+                    .Where(x => x.Key == "unittests.plugin")
+                    .Select(x => x.Value)
+                    .ToArray());
+            }
+        }
+
+        [Fact]
+        public void CanUnsetAllFromTheGlobalConfiguration()
+        {
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Assert.True(repo.Config.HasConfig(ConfigurationLevel.Global));
+                Assert.Empty(repo.Config
+                    .OfType<ConfigurationEntry<string>>()
+                    .Where(x => x.Key == "unittests.plugin")
+                    .Select(x => x.Value)
+                    .ToArray());
+
+                repo.Config.Add("unittests.plugin", "value1", ConfigurationLevel.Global);
+                repo.Config.Add("unittests.plugin", "value2", ConfigurationLevel.Global);
+
+                Assert.Equal(2, repo.Config
+                    .OfType<ConfigurationEntry<string>>()
+                    .Where(x => x.Key == "unittests.plugin" && x.Level == ConfigurationLevel.Global)
+                    .Select(x => x.Value)
+                    .Count());
+
+                repo.Config.UnsetAll("unittests.plugin");
+
+                Assert.Equal(2, repo.Config
+                    .OfType<ConfigurationEntry<string>>()
+                    .Where(x => x.Key == "unittests.plugin" && x.Level == ConfigurationLevel.Global)
+                    .Select(x => x.Value)
+                    .Count());
+
+                repo.Config.UnsetAll("unittests.plugin", ConfigurationLevel.Global);
+
+                Assert.Empty(repo.Config
+                    .OfType<ConfigurationEntry<string>>()
+                    .Where(x => x.Key == "unittests.plugin")
+                    .Select(x => x.Value)
+                    .ToArray());
+            }
+        }
+
+        [Fact]
+        public void CanUnsetAllFromTheLocalConfiguration()
+        {
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Assert.True(repo.Config.HasConfig(ConfigurationLevel.Global));
+                Assert.Empty(repo.Config
+                    .OfType<ConfigurationEntry<string>>()
+                    .Where(x => x.Key == "unittests.plugin")
+                    .Select(x => x.Value)
+                    .ToArray());
+
+                repo.Config.Add("unittests.plugin", "value1");
+                repo.Config.Add("unittests.plugin", "value2");
+
+                Assert.Equal(2, repo.Config
+                    .OfType<ConfigurationEntry<string>>()
+                    .Where(x => x.Key == "unittests.plugin" && x.Level == ConfigurationLevel.Local)
+                    .Select(x => x.Value)
+                    .Count());
+
+                repo.Config.UnsetAll("unittests.plugin");
+
+                Assert.Empty(repo.Config
+                    .OfType<ConfigurationEntry<string>>()
+                    .Where(x => x.Key == "unittests.plugin"));
+            }
+        }
+
+        [Fact]
         public void CanReadBooleanValue()
         {
             var path = SandboxStandardTestRepoGitDir();
