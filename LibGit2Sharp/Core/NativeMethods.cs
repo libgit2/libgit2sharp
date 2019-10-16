@@ -321,6 +321,13 @@ namespace LibGit2Sharp.Core
             git_repository* repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string canonical_branch_name);
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate int commit_signing_callback(
+            IntPtr signature,
+            IntPtr signature_field,
+            IntPtr commit_content,
+            IntPtr payload);
+
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_rebase_init(
             out git_rebase* rebase,
@@ -2036,6 +2043,13 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void git_transaction_free(IntPtr txn);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate int url_resolve_callback(
+            IntPtr url_resolved,
+            IntPtr url,
+            int direction,
+            IntPtr payload);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe void git_worktree_free(git_worktree* worktree);
