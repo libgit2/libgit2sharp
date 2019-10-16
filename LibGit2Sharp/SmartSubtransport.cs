@@ -81,7 +81,7 @@ namespace LibGit2Sharp
                 Marshal.FreeHGlobal(certPtr);
             }
 
-            if (ret > 0)
+            if (ret > 0 || ret == (int)GitErrorCode.PassThrough)
             {
                 ret = valid ? 0 : -1;
             }
