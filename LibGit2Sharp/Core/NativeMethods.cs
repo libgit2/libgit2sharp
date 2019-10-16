@@ -2037,6 +2037,13 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void git_transaction_free(IntPtr txn);
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate int url_resolve_callback(
+            IntPtr url_resolved,
+            IntPtr url,
+            int direction,
+            IntPtr payload);
+
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe void git_worktree_free(git_worktree* worktree);
 
