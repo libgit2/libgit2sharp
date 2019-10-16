@@ -196,7 +196,7 @@ namespace LibGit2Sharp.Core
                             request.Content.Headers.Add("Content-Type", ContentType);
                         }
 
-                        var response = httpClient.SendAsync(request).Result;
+                        var response = httpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead).Result;
 
                         if (response.StatusCode == HttpStatusCode.OK)
                         {
