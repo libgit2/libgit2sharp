@@ -297,14 +297,6 @@ namespace LibGit2Sharp.Tests
             Assert.True(checksHappy);
         }
 
-        [Fact]
-        public void CloningAnUrlWithoutPathThrows()
-        {
-            var scd = BuildSelfCleaningDirectory();
-
-            Assert.Throws<InvalidSpecificationException>(() => Repository.Clone("http://github.com", scd.DirectoryPath));
-        }
-
         [Theory]
         [InlineData("git://github.com/libgit2/TestGitRepository")]
         public void CloningWithoutWorkdirPathThrows(string url)
