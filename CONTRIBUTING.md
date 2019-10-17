@@ -1,8 +1,8 @@
-# How to Contribute
+# ➡️ How to Contribute
 
 We love Pull Requests! Your contributions help make LibGit2Sharp great.
 
-## Getting Started
+## 🔥 Getting Started
 
 So you want to contribute to LibGit2Sharp. Great! Contributions take many forms from 
 submitting issues, writing documentation, to making code changes. We welcome it all.
@@ -17,7 +17,7 @@ But first things first...
 * Make sure the project builds and all tests pass on your machine by running 
   the `buildandtest.cmd` script on Windows or `buildandtest.sh` on Linux/Mac.
 
-## LibGit2
+## ☕️ LibGit2
 
 LibGit2Sharp brings all the might and speed of libgit2, a native Git implementation, to the managed world of .Net and Mono.
 LibGit2 is a git submodule referencing the [libgit2 project](https://github.com/libgit2/libgit2). To learn more about 
@@ -45,7 +45,7 @@ Some things that will increase the chance that your pull request is accepted.
 * If code from elsewhere is used, proper credit and a link to the source should exist in the code comments. 
   Then licensing issues can be checked against LibGit2Sharp's very permissive MIT based open source license.
 * Having a configured git client that converts line endings to LF. [See here.](https://help.github.com/articles/dealing-with-line-endings/).
-# Additional Resources
+# Additional Resources 👋
 
 * [General GitHub documentation](http://help.github.com/)
 * [GitHub pull request documentation](https://help.github.com/articles/using-pull-requests/)
