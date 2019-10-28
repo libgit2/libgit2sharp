@@ -56,6 +56,21 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static string GetNativeLibraryPrefix()
+        {
+            switch (OperatingSystem)
+            {
+                case OperatingSystemType.MacOSX:
+                case OperatingSystemType.Unix:
+                    return "lib";
+
+                case OperatingSystemType.Windows:
+                    return string.Empty;
+            }
+
+            throw new PlatformNotSupportedException();
+        }
+
         public static string GetNativeLibraryExtension()
         {
             switch (OperatingSystem)

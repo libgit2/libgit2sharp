@@ -68,7 +68,7 @@ namespace LibGit2Sharp.Core
             {
                 return null;
             }
-            return Path.Combine(nativeLibraryDir, "lib" + libgit2 + Platform.GetNativeLibraryExtension());
+            return Path.Combine(nativeLibraryDir, Platform.GetNativeLibraryPrefix() + libgit2 + Platform.GetNativeLibraryExtension());
         }
 
         private delegate bool TryLoadLibraryByNameDelegate(string libraryName, Assembly assembly, DllImportSearchPath? searchPath, out IntPtr handle);
