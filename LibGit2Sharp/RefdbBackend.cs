@@ -310,7 +310,7 @@ namespace LibGit2Sharp
                 bool force,
                 git_signature* who,
                 string message,
-                ref git_oid oid,
+                ref GitOid oid,
                 string oldTarget)
             {
                 return (int)GitErrorCode.Error;
@@ -331,7 +331,7 @@ namespace LibGit2Sharp
             public static int Del(
                 IntPtr backendPtr,
                 string refName,
-                ref git_oid oldId,
+                ref GitOid oldId,
                 string oldTarget)
             {
                 return (int)GitErrorCode.Error;

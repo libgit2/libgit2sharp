@@ -100,7 +100,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.Bool)] bool force,
             git_signature* who,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string message,
-            ref git_oid oid,
+            ref GitOid oid,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string oldTarget);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -117,7 +117,7 @@ namespace LibGit2Sharp.Core
         public delegate int del_callback(
             IntPtr backend,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string refName,
-            ref git_oid oldId,
+            ref GitOid oldId,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string oldTarget);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
