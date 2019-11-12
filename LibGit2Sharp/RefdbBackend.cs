@@ -9,42 +9,6 @@ namespace LibGit2Sharp
 {
     public abstract class RefdbBackend
     {
-        public class ReferenceData
-        {
-            public string RefName { get; private set; }
-            public bool IsSymbolic { get; private set; }
-            public ObjectId ObjectId { get; private set; }
-            public string SymbolicTarget { get; private set; }
-
-            public ReferenceData(string refName, ObjectId directTarget)
-            {
-                this.RefName = refName;
-                this.IsSymbolic = false;
-                this.ObjectId = directTarget;
-                this.SymbolicTarget = null;
-            }
-
-            public ReferenceData(string refName, string symbolicTarget)
-            {
-                this.RefName = refName;
-                this.IsSymbolic = true;
-                this.ObjectId = null;
-                this.SymbolicTarget = symbolicTarget;
-            }
-
-            internal IntPtr GetPtr()
-            {
-                if (IsSymbolic)
-                {
-                    return Proxy.git_reference__alloc_symbolic(RefName, SymbolicTarget).AsIntPtr();
-                }
-                else
-                {
-                    return Proxy.git_reference__alloc(RefName, ObjectId.Oid).AsIntPtr();
-                }
-            }
-        }
-
         private IntPtr nativePointer;
 
         protected Repository Repository { get; private set; }
@@ -107,6 +71,42 @@ namespace LibGit2Sharp
             GCHandle.FromIntPtr(Marshal.ReadIntPtr(nativePointer, GitRefdbBackend.GCHandleOffset)).Free();
             Marshal.FreeHGlobal(nativePointer);
             nativePointer = IntPtr.Zero;
+        }
+
+        public class ReferenceData
+        {
+            public string RefName { get; private set; }
+            public bool IsSymbolic { get; private set; }
+            public ObjectId ObjectId { get; private set; }
+            public string SymbolicTarget { get; private set; }
+
+            public ReferenceData(string refName, ObjectId directTarget)
+            {
+                this.RefName = refName;
+                this.IsSymbolic = false;
+                this.ObjectId = directTarget;
+                this.SymbolicTarget = null;
+            }
+
+            public ReferenceData(string refName, string symbolicTarget)
+            {
+                this.RefName = refName;
+                this.IsSymbolic = true;
+                this.ObjectId = null;
+                this.SymbolicTarget = symbolicTarget;
+            }
+
+            internal IntPtr GetPtr()
+            {
+                if (IsSymbolic)
+                {
+                    return Proxy.git_reference__alloc_symbolic(RefName, SymbolicTarget).AsIntPtr();
+                }
+                else
+                {
+                    return Proxy.git_reference__alloc(RefName, ObjectId.Oid).AsIntPtr();
+                }
+            }
         }
 
         public abstract class RefIterator
