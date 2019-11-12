@@ -2046,13 +2046,13 @@ namespace LibGit2Sharp.Core
         {
             var oid = objectId.Oid;
             var referencePtr = NativeMethods.git_reference__alloc(name, ref oid, IntPtr.Zero);
-            return new ReferenceHandle(referencePtr, true);
+            return new ReferenceHandle(referencePtr, false);
         }
 
         public static unsafe ReferenceHandle git_reference__alloc_symbolic(string name, string target)
         {
             var referencePtr = NativeMethods.git_reference__alloc_symbolic(name, target);
-            return new ReferenceHandle(referencePtr, true);
+            return new ReferenceHandle(referencePtr, false);
         }
 
 #endregion

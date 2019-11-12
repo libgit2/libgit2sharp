@@ -97,6 +97,18 @@ namespace LibGit2Sharp
             }
         }
 
+        internal void Free()
+        {
+            if (IntPtr.Zero == nativePointer)
+            {
+                return;
+            }
+
+            GCHandle.FromIntPtr(Marshal.ReadIntPtr(nativePointer, GitRefdbBackend.GCHandleOffset)).Free();
+            Marshal.FreeHGlobal(nativePointer);
+            nativePointer = IntPtr.Zero;
+        }
+
         public abstract class RefIterator
         {
             public abstract ReferenceData GetNext();
@@ -341,7 +353,7 @@ namespace LibGit2Sharp
 
             public static void Free(IntPtr backend)
             {
-                Marshal.FreeHGlobal(backend);
+                PtrToBackend(backend).Free();
             }
 
             public static int ReflogRead(

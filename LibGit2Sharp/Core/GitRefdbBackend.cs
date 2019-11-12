@@ -33,7 +33,7 @@ namespace LibGit2Sharp.Core
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int next_name_callback(
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] out string refName,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] out string refName,
             IntPtr iterator);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -46,7 +46,7 @@ namespace LibGit2Sharp.Core
     {
         static GitRefdbBackend()
         {
-            GCHandleOffset = Marshal.OffsetOf<GitOdbBackend>(nameof(GCHandle)).ToInt32();
+            GCHandleOffset = Marshal.OffsetOf<GitRefdbBackend>(nameof(GCHandle)).ToInt32();
         }
 
         public uint Version;
@@ -79,19 +79,19 @@ namespace LibGit2Sharp.Core
         public delegate int exists_callback(
             [MarshalAs(UnmanagedType.Bool)] ref bool exists,
             IntPtr backend,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string refNamePtr);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string refNamePtr);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int lookup_callback(
             out IntPtr referencePtr,
             IntPtr backend,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string refName);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string refName);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int iterator_callback(
             out IntPtr iteratorPtr,
             IntPtr backend,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string glob);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string glob);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int write_callback(
@@ -99,36 +99,36 @@ namespace LibGit2Sharp.Core
             git_reference* reference,
             [MarshalAs(UnmanagedType.Bool)] bool force,
             git_signature* who,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string message,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string message,
             ref git_oid oid,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string oldTarget);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string oldTarget);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int rename_callback(
             git_reference* reference,
             IntPtr backend,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string oldName,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string newName,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string oldName,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string newName,
             [MarshalAs(UnmanagedType.Bool)] bool force,
             git_signature* who,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string message);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string message);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int del_callback(
             IntPtr backend,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string refName,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string refName,
             ref git_oid oldId,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string oldTarget);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string oldTarget);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int has_log_callback(
             IntPtr backend,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string refName);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string refName);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int ensure_log_callback(
             IntPtr backend,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string refName);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string refName);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void free_callback(IntPtr backend);
@@ -137,7 +137,7 @@ namespace LibGit2Sharp.Core
         public delegate int reflog_read_callback(
             out git_reflog* reflog,
             IntPtr backend,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string name);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int reflog_write_callback(
@@ -147,12 +147,12 @@ namespace LibGit2Sharp.Core
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int reflog_rename_callback(
             IntPtr backend,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string oldName,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string newName);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string oldName,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string newName);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int reflog_delete_callback(
             IntPtr backend,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string name);
     }
 }
