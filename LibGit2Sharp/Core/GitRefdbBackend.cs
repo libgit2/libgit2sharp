@@ -8,23 +8,36 @@ namespace LibGit2Sharp.Core
     [StructLayout(LayoutKind.Sequential)]
     internal unsafe struct GitRefdbIterator
     {
+        static GitRefdbIterator()
+        {
+            GCHandleOffset = Marshal.OffsetOf<GitRefdbIterator>(nameof(GCHandle)).ToInt32();
+        }
+
         public IntPtr Refdb;
         public next_callback Next;
         public next_name_callback NextName;
         public free_callback Free;
 
+        /* The libgit2 structure definition ends here. Subsequent fields are for libgit2sharp bookkeeping. */
+
+        public IntPtr GCHandle;
+
+        /* The following static fields are not part of the structure definition. */
+
+        public static int GCHandleOffset;
+
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int next_callback(
-            out git_reference* referencePtr,
+            out IntPtr referencePtr,
             IntPtr iterator);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int next_name_callback(
-             out IntPtr refNamePtr,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] out string refName,
             IntPtr iterator);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate int free_callback(
+        public delegate void free_callback(
             IntPtr iterator);
     }
 
@@ -54,11 +67,19 @@ namespace LibGit2Sharp.Core
         public IntPtr Lock;
         public IntPtr Unlock;
 
+        /* The libgit2 structure definition ends here. Subsequent fields are for libgit2sharp bookkeeping. */
+
+        public IntPtr GCHandle;
+
+        /* The following static fields are not part of the structure definition. */
+
+        public static int GCHandleOffset;
+
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int exists_callback(
-            ref IntPtr exists,
+            [MarshalAs(UnmanagedType.Bool)] ref bool exists,
             IntPtr backend,
-            IntPtr refNamePtr);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string refNamePtr);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int lookup_callback(
@@ -133,13 +154,5 @@ namespace LibGit2Sharp.Core
         public delegate int reflog_delete_callback(
             IntPtr backend,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
-
-        /* The libgit2 structure definition ends here. Subsequent fields are for libgit2sharp bookkeeping. */
-
-        public IntPtr GCHandle;
-
-        /* The following static fields are not part of the structure definition. */
-
-        public static int GCHandleOffset;
     }
 }

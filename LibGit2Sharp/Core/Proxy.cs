@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using LibGit2Sharp.Core.Handles;
 using LibGit2Sharp.Handlers;
@@ -1868,9 +1869,32 @@ namespace LibGit2Sharp.Core
             }
         }
 
-#endregion
+        #endregion
 
-#region git_reference_
+        #region git_refdb_
+
+        public static unsafe ReferenceDatabaseHandle git_repository_refdb(RepositoryHandle repo)
+        {
+            git_refdb* refdb;
+            Ensure.ZeroResult(NativeMethods.git_repository_refdb(out refdb, repo));
+            return new ReferenceDatabaseHandle(refdb, true);
+        }
+
+        public static unsafe ReferenceDatabaseHandle git_refdb_new(RepositoryHandle repo)
+        {
+            git_refdb* refdb;
+            Ensure.ZeroResult(NativeMethods.git_refdb_new(out refdb, repo));
+            return new ReferenceDatabaseHandle(refdb, true);
+        }
+
+        public static unsafe void git_refdb_set_backend(ReferenceDatabaseHandle refdb, IntPtr backend)
+        {
+            Ensure.ZeroResult(NativeMethods.git_refdb_set_backend(refdb, backend));
+        }
+
+        #endregion
+
+        #region git_reference_
 
         public static unsafe ReferenceHandle git_reference_create(
             RepositoryHandle repo,
@@ -2016,6 +2040,19 @@ namespace LibGit2Sharp.Core
         {
             int res = NativeMethods.git_reference_ensure_log(repo, refname);
             Ensure.ZeroResult(res);
+        }
+
+        public static unsafe ReferenceHandle git_reference__alloc(string name, ObjectId objectId)
+        {
+            var oid = objectId.Oid;
+            var referencePtr = NativeMethods.git_reference__alloc(name, ref oid, IntPtr.Zero);
+            return new ReferenceHandle(referencePtr, true);
+        }
+
+        public static unsafe ReferenceHandle git_reference__alloc_symbolic(string name, string target)
+        {
+            var referencePtr = NativeMethods.git_reference__alloc_symbolic(name, target);
+            return new ReferenceHandle(referencePtr, true);
         }
 
 #endregion
