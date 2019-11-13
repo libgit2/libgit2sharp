@@ -159,27 +159,29 @@ namespace LibGit2Sharp.Tests
                 return Refs.TryGetValue(refName, out data);
             }
 
-            public override bool TryDelete(ReferenceData refData, out bool notFound, out bool hadConflict)
+            public override void Delete(ReferenceData refData)
             {
-                hadConflict = false;
-                notFound = !this.Refs.Remove(refData.RefName);
-                return !notFound;
+                if (!this.Refs.Remove(refData.RefName))
+                {
+                    throw RefdbBackendException.NotFound(refData.RefName);
+                }
             }
 
-            public override bool TryWrite(ReferenceData newRef, ReferenceData oldRef, bool force, Signature signature, string message)
+            public override void Write(ReferenceData newRef, ReferenceData oldRef, bool force, Signature signature, string message)
             {
                 ReferenceData existingRef;
-                if (this.Refs.TryGetValue(newRef.RefName, out existingRef))
+                if (!force && this.Refs.TryGetValue(newRef.RefName, out existingRef))
                 {
                     // If either oldRef wasn't provided/didn't match, or force isn't enabled, reject.
-                    if (!force || (oldRef != null && !existingRef.Equals(oldRef)))
+                    if ((oldRef != null && !existingRef.Equals(oldRef)))
                     {
-                        return false;
+                        throw RefdbBackendException.Conflict(newRef.RefName);
                     }
+
+                    throw RefdbBackendException.Exists(newRef.RefName);
                 }
 
                 this.Refs[newRef.RefName] = newRef;
-                return true;
             }
 
             private class MockRefIterator : RefIterator

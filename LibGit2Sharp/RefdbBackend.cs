@@ -26,9 +26,9 @@ namespace LibGit2Sharp
 
         public abstract RefIterator Iterate(string glob);
 
-        public abstract bool TryWrite(ReferenceData newRef, ReferenceData oldRef, bool force, Signature signature, string message);
+        public abstract void Write(ReferenceData newRef, ReferenceData oldRef, bool force, Signature signature, string message);
 
-        public abstract bool TryDelete(ReferenceData existingRef, out bool notFound, out bool hadConflict);
+        public abstract void Delete(ReferenceData existingRef);
 
         internal IntPtr RefdbBackendPointer
         {
@@ -174,6 +174,44 @@ namespace LibGit2Sharp
             public abstract ReferenceData GetNext();
         }
 
+        protected sealed class RefdbBackendException : LibGit2SharpException
+        {
+            private RefdbBackendException(GitErrorCode code, string message)
+                : base(message, code, GitErrorCategory.Reference)
+            {
+                Code = code;
+            }
+
+            internal GitErrorCode Code { get; private set; }
+
+            public static RefdbBackendException NotFound(string refName)
+            {
+                return new RefdbBackendException(GitErrorCode.NotFound, string.Format("could not resolve reference '{0}'", refName));
+            }
+
+            public static RefdbBackendException Exists(string refName)
+            {
+                return new RefdbBackendException(GitErrorCode.Exists, string.Format("will not overwrite reference '{0}' without match or force", refName));
+            }
+
+            public static RefdbBackendException Conflict(string refName)
+            {
+                return new RefdbBackendException(GitErrorCode.Conflict, string.Format("conflict occurred while writing reference '{0}'", refName));
+            }
+
+            internal static int GetCode(Exception ex)
+            {
+                Proxy.git_error_set_str(GitErrorCategory.Reference, ex);
+                var backendException = ex as RefdbBackendException;
+                if (backendException == null)
+                {
+                    return (int)GitErrorCode.Error;
+                }
+
+                return (int)backendException.Code;
+            }
+        }
+
         private unsafe static class IteratorEntryPoints
         {
             public static readonly GitRefdbIterator.next_callback NextCallback = Next;
@@ -198,8 +236,7 @@ namespace LibGit2Sharp
                 }
                 catch (Exception ex)
                 {
-                    Proxy.git_error_set_str(GitErrorCategory.Reference, ex);
-                    return (int)GitErrorCode.Error;
+                    return RefdbBackendException.GetCode(ex);
                 }
 
                 if (data == null)
@@ -229,8 +266,7 @@ namespace LibGit2Sharp
                 }
                 catch (Exception ex)
                 {
-                    Proxy.git_error_set_str(GitErrorCategory.Reference, ex);
-                    return (int)GitErrorCode.Error;
+                    return RefdbBackendException.GetCode(ex);
                 }
 
                 if (data == null)
@@ -295,11 +331,10 @@ namespace LibGit2Sharp
                 }
                 catch (Exception ex)
                 {
-                    Proxy.git_error_set_str(GitErrorCategory.Reference, ex);
-                    return (int)GitErrorCode.Error;
+                    return RefdbBackendException.GetCode(ex);
                 }
 
-                return 0;
+                return (int)GitErrorCode.Ok;
             }
 
             public static int Lookup(
@@ -326,11 +361,10 @@ namespace LibGit2Sharp
                 }
                 catch (Exception ex)
                 {
-                    Proxy.git_error_set_str(GitErrorCategory.Reference, ex);
-                    return (int)GitErrorCode.Error;
+                    return RefdbBackendException.GetCode(ex);
                 }
 
-                return 0;
+                return (int)GitErrorCode.Ok;
             }
 
             public static int Iterator(
@@ -352,8 +386,7 @@ namespace LibGit2Sharp
                 }
                 catch (Exception ex)
                 {
-                    Proxy.git_error_set_str(GitErrorCategory.Reference, ex);
-                    return (int)GitErrorCode.Error;
+                    return RefdbBackendException.GetCode(ex);
                 }
 
                 var nativeIterator = new GitRefdbIterator()
@@ -403,27 +436,11 @@ namespace LibGit2Sharp
                 try
                 {
                     // If the user returns false, we detected a conflict and aborted the write.
-                    if (!backend.TryWrite(newRef, oldRef, force, signature, message))
-                    {
-                        if (oldRef != null)
-                        {
-                            Proxy.git_error_set_str(GitErrorCategory.Reference, "old reference value does not match.");
-                            return (int)GitErrorCode.Modified;
-                        }
-
-                        if (!force)
-                        {
-                            Proxy.git_error_set_str(GitErrorCategory.Reference, "name is in conflict.");
-                            return (int)GitErrorCode.Exists;
-                        }
-
-                        return (int)GitErrorCode.Error;
-                    }
+                    backend.Write(newRef, oldRef, force, signature, message);
                 }
                 catch (Exception ex)
                 {
-                    Proxy.git_error_set_str(GitErrorCategory.Reference, ex);
-                    return (int)GitErrorCode.Error;
+                    return RefdbBackendException.GetCode(ex);
                 }
 
                 return (int)GitErrorCode.Ok;
@@ -471,25 +488,11 @@ namespace LibGit2Sharp
 
                 try
                 {
-                    if (!backend.TryDelete(existingRef, out bool notFound, out bool hadConflict))
-                    {
-                        if (notFound)
-                        {
-                            return (int)GitErrorCode.NotFound;
-                        }
-
-                        if (hadConflict)
-                        {
-                            return (int)GitErrorCode.Conflict;
-                        }
-
-                        return (int)GitErrorCode.Error;
-                    }
+                    backend.Delete(existingRef);
                 }
                 catch (Exception ex)
                 {
-                    Proxy.git_error_set_str(GitErrorCategory.Reference, ex);
-                    return (int)GitErrorCode.Error;
+                    return RefdbBackendException.GetCode(ex);
                 }
 
                 return (int)GitErrorCode.Ok;
