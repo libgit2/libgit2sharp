@@ -233,18 +233,24 @@ namespace LibGit2Sharp
                     return (int)GitErrorCode.Error;
                 }
 
+                if (data == null)
+                {
+                    return (int)GitErrorCode.IterOver;
+                }
+
                 refNamePtr = data.RefName;
                 return (int)GitErrorCode.Ok;
             }
 
             public static void Free(IntPtr iterator)
             {
+                GCHandle.FromIntPtr(Marshal.ReadIntPtr(iterator, GitRefdbIterator.GCHandleOffset)).Free();
                 Marshal.FreeHGlobal(iterator);
             }
 
             private static RefIterator PtrToBackend(IntPtr pointer)
             {
-                var intPtr = Marshal.ReadIntPtr(pointer, GitRefdbBackend.GCHandleOffset);
+                var intPtr = Marshal.ReadIntPtr(pointer, GitRefdbIterator.GCHandleOffset);
                 var backend = GCHandle.FromIntPtr(intPtr).Target as RefIterator;
 
                 if (backend == null)
