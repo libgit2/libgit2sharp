@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "LibGit2Sharp.Tests": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

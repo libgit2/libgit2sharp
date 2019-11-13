@@ -2,6 +2,7 @@
 using LibGit2Sharp.Core.Handles;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -24,6 +25,8 @@ namespace LibGit2Sharp
         public abstract bool Lookup(string refName, out ReferenceData data);
 
         public abstract RefIterator Iterate(string glob);
+
+        public abstract bool TryWrite(ReferenceData newRef, ReferenceData oldRef, bool force, Signature signature, string message);
 
         internal IntPtr RefdbBackendPointer
         {
@@ -96,7 +99,7 @@ namespace LibGit2Sharp
                 this.SymbolicTarget = symbolicTarget;
             }
 
-            internal IntPtr GetPtr()
+            internal IntPtr MarshalToPtr()
             {
                 if (IsSymbolic)
                 {
@@ -105,6 +108,27 @@ namespace LibGit2Sharp
                 else
                 {
                     return Proxy.git_reference__alloc(RefName, ObjectId.Oid).AsIntPtr();
+                }
+            }
+
+            internal static unsafe ReferenceData MarshalFromPtr(git_reference* ptr)
+            {
+                var name = Proxy.git_reference_name(ptr);
+                var type = Proxy.git_reference_type(ptr);
+                switch (type)
+                {
+                    case GitReferenceType.Oid:
+                        var targetOid = Proxy.git_reference_target(ptr);
+                        return new ReferenceData(name, targetOid);
+                    case GitReferenceType.Symbolic:
+                        var targetName = Proxy.git_reference_symbolic_target(ptr);
+                        return new ReferenceData(name, targetName);
+                    default:
+                        throw new LibGit2SharpException(
+                            string.Format(
+                                CultureInfo.InvariantCulture,
+                                "Unable to build a new reference from type '{0}'",
+                                type));
                 }
             }
         }
@@ -147,7 +171,7 @@ namespace LibGit2Sharp
                     return (int)GitErrorCode.IterOver;
                 }
 
-                referencePtr = data.GetPtr();
+                referencePtr = data.MarshalToPtr();
                 return (int)GitErrorCode.Ok;
             }
 
@@ -256,7 +280,7 @@ namespace LibGit2Sharp
                         return (int)GitErrorCode.NotFound;
                     }
 
-                    referencePtr = data.GetPtr();
+                    referencePtr = data.MarshalToPtr();
                 }
                 catch (Exception ex)
                 {
@@ -310,10 +334,46 @@ namespace LibGit2Sharp
                 bool force,
                 git_signature* who,
                 string message,
-                ref GitOid oid,
+                IntPtr old,
                 string oldTarget)
             {
-                return (int)GitErrorCode.Error;
+                var backend = PtrToBackend(backendPtr);
+                if (backend == null)
+                {
+                    return (int)GitErrorCode.Error;
+                }
+
+                var signature = new Signature(who);
+
+                // New ref data is constructed directly from the reference pointer.
+                var newRef = ReferenceData.MarshalFromPtr(reference);
+
+                // Old ref value is provided as a check, so that the refdb can atomically test the old value
+                // and set the new value, thereby preventing write conflicts.
+                // If a write conflict is detected, we should return GIT_EMODIFIED.
+                // If the ref is brand new, the "old" oid pointer is null.
+                ReferenceData oldRef = null;
+                if (old != IntPtr.Zero)
+                {
+                    oldRef = new ReferenceData(oldTarget, ObjectId.BuildFromPtr(old));
+                }
+
+                try
+                {
+                    // If the user returns false, we detected a conflict and aborted the write.
+                    if (!backend.TryWrite(newRef, oldRef, force, signature, message))
+                    {
+                        Proxy.git_error_set_str(GitErrorCategory.Reference, "old reference value does not match.");
+                        return (int)GitErrorCode.Modified;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Proxy.git_error_set_str(GitErrorCategory.Reference, ex);
+                    return (int)GitErrorCode.Error;
+                }
+
+                return (int)GitErrorCode.Ok;
             }
 
             public static int Rename(

@@ -100,7 +100,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.Bool)] bool force,
             git_signature* who,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string message,
-            ref GitOid oid,
+            IntPtr oid,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string oldTarget);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
