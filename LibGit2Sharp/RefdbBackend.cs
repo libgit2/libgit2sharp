@@ -30,6 +30,8 @@ namespace LibGit2Sharp
 
         public abstract void Delete(ReferenceData existingRef);
 
+        public abstract ReferenceData Rename(string oldName, string newName, bool force, Signature signature, string message);
+
         internal IntPtr RefdbBackendPointer
         {
             get
@@ -447,7 +449,7 @@ namespace LibGit2Sharp
             }
 
             public static int Rename(
-                git_reference* reference,
+                out IntPtr reference,
                 IntPtr backendPtr,
                 string oldName,
                 string newName,
@@ -455,13 +457,27 @@ namespace LibGit2Sharp
                 git_signature* who,
                 string message)
             {
+                reference = IntPtr.Zero;
                 var backend = PtrToBackend(backendPtr);
                 if (backend == null)
                 {
                     return (int)GitErrorCode.Error;
                 }
 
-                return (int)GitErrorCode.Error;
+                var signature = new Signature(who);
+
+                ReferenceData newRef;
+                try
+                {
+                    newRef = backend.Rename(oldName, newName, force, signature, message);
+                }
+                catch (Exception ex)
+                {
+                    return RefdbBackendException.GetCode(ex);
+                }
+
+                reference = newRef.MarshalToPtr();
+                return (int)GitErrorCode.Ok;
             }
 
             public static int Del(

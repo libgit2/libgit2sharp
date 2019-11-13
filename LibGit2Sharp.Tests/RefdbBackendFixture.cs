@@ -136,6 +136,23 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void RefdbBackendCanRenameAReferenceToADeeperReferenceHierarchy()
+        {
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var backend = new MockRefdbBackend(repo);
+                repo.Refs.SetBackend(backend);
+                backend.Refs["refs/tags/test"] = new RefdbBackend.ReferenceData("refs/tags/test", new ObjectId("be3563ae3f795b2b4353bcce3a527ad0a4f7f644"));
+                const string newName = "refs/tags/test/deep";
+
+                Reference renamed = repo.Refs.Rename("refs/tags/test", newName);
+                Assert.NotNull(renamed);
+                Assert.Equal(newName, renamed.CanonicalName);
+            }
+        }
+
         private class MockRefdbBackend : RefdbBackend
         {
             public MockRefdbBackend(Repository repository) : base(repository)
@@ -182,6 +199,34 @@ namespace LibGit2Sharp.Tests
                 }
 
                 this.Refs[newRef.RefName] = newRef;
+            }
+
+            public override ReferenceData Rename(string oldName, string newName, bool force, Signature signature, string message)
+            {
+                ReferenceData oldValue;
+                if (!this.Refs.TryGetValue(oldName, out oldValue))
+                {
+                    throw RefdbBackendException.NotFound(oldName);
+                }
+
+                if (!force && this.Refs.ContainsKey(newName))
+                {
+                    throw RefdbBackendException.Exists(newName);
+                }
+
+                ReferenceData newRef;
+                if (oldValue.IsSymbolic)
+                {
+                    newRef = new ReferenceData(newName, oldValue.SymbolicTarget);
+                }
+                else
+                {
+                    newRef = new ReferenceData(newName, oldValue.ObjectId);
+                }
+
+                this.Refs.Remove(oldName);
+                this.Refs[newName] = newRef;
+                return newRef;
             }
 
             private class MockRefIterator : RefIterator

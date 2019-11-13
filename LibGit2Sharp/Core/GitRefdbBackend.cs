@@ -105,7 +105,7 @@ namespace LibGit2Sharp.Core
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int rename_callback(
-            git_reference* reference,
+            out IntPtr reference,
             IntPtr backend,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string oldName,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string newName,
