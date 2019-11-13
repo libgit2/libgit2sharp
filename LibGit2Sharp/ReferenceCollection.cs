@@ -845,6 +845,10 @@ namespace LibGit2Sharp
             historyRewriter.Execute();
         }
 
+        /// <summary>
+        /// Replaces the Refdb backend with a custom backend. 
+        /// </summary>
+        /// <param name="backend">Custom backend to use.</param>
         public virtual void SetBackend(RefdbBackend backend)
         {
             Ensure.ArgumentNotNull(backend, "backend");
