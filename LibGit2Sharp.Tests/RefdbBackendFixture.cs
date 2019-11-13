@@ -161,11 +161,6 @@ namespace LibGit2Sharp.Tests
 
             public SortedDictionary<string, ReferenceData> Refs { get; } = new SortedDictionary<string, ReferenceData>();
 
-            protected override SupportedOperations OperationsSupported
-            {
-                get { return SupportedOperations.Minimum | SupportedOperations.LockUnlock; }
-            }
-
             public override bool Exists(string refName)
             {
                 return Refs.ContainsKey(refName);
@@ -240,16 +235,6 @@ namespace LibGit2Sharp.Tests
                 this.Refs.Remove(oldName);
                 this.Refs[newName] = newRef;
                 return newRef;
-            }
-
-            public override object Lock(string refName)
-            {
-                return base.Lock(refName);
-            }
-
-            public override void Unlock(object payload, ReferenceData reference, Signature sig, string message, bool success, bool updateReflog)
-            {
-                base.Unlock(payload, reference, sig, message, success, updateReflog);
             }
         }
     }
