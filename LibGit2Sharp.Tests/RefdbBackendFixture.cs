@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -93,6 +94,48 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanIterateTagsInRefdbBackend()
+        {
+            string path = SandboxStandardTestRepo();
+            using (Repository repo = new Repository(path))
+            {
+                var backend = new MockRefdbBackend(repo);
+                repo.Refs.SetBackend(backend);
+
+                // The behavior of libgit2 has changed:
+                // If libgit2 can't resolve any tag to an OID, then git_tag_list silently fails and returns zero tags.
+                // This test previously used broken refs to test type filtering, but refdb is no longer responsible for type filtering.
+                // The old test code is commented below:
+                // backend.Refs["refs/tags/broken1"] = new RefdbBackend.ReferenceData("refs/tags/broken1", "tags/shouldnt/be/symbolic");
+                // backend.Refs["refs/tags/broken2"] = new RefdbBackend.ReferenceData("refs/tags/broken2", "but/are/here/for/testing");
+                // backend.Refs["refs/tags/broken3"] = new RefdbBackend.ReferenceData("refs/tags/broken3", "the/type/filtering");
+
+                backend.Refs["refs/tags/correct1"] = new RefdbBackend.ReferenceData("refs/tags/correct1", new ObjectId("be3563ae3f795b2b4353bcce3a527ad0a4f7f644"));
+
+                var tagNames = repo.Tags.Select(r => r.CanonicalName);
+                Assert.True(tagNames.SequenceEqual(new List<string> { "refs/tags/correct1" }));
+            }
+        }
+
+        [Fact]
+        public void CanIterateRefdbBackendWithGlob()
+        {
+            string path = SandboxStandardTestRepo();
+            using (Repository repo = new Repository(path))
+            {
+                var backend = new MockRefdbBackend(repo);
+                repo.Refs.SetBackend(backend);
+
+                backend.Refs["HEAD"] = new RefdbBackend.ReferenceData("HEAD", "refs/heads/testref");
+                backend.Refs["refs/heads/testref"] = new RefdbBackend.ReferenceData("refs/heads/testref", new ObjectId("be3563ae3f795b2b4353bcce3a527ad0a4f7f644"));
+                backend.Refs["refs/heads/othersymbolic"] = new RefdbBackend.ReferenceData("refs/heads/othersymbolic", "refs/heads/testref");
+
+                Assert.True(repo.Refs.FromGlob("refs/heads/*").Select(r => r.CanonicalName).SequenceEqual(new List<string>() { "refs/heads/othersymbolic", "refs/heads/testref" }));
+                Assert.True(repo.Refs.FromGlob("refs/heads/?estref").Select(r => r.CanonicalName).SequenceEqual(new List<string>() { "refs/heads/testref" }));
+            }
+        }
+
         private class MockRefdbBackend : RefdbBackend
         {
             public MockRefdbBackend(Repository repository) : base(repository)
@@ -108,7 +151,7 @@ namespace LibGit2Sharp.Tests
 
             public override RefIterator Iterate(string glob)
             {
-                return new MockRefIterator(this);
+                return new MockRefIterator(this, glob);
             }
 
             public override bool Lookup(string refName, out ReferenceData data)
@@ -143,9 +186,17 @@ namespace LibGit2Sharp.Tests
             {
                 private readonly IEnumerator<ReferenceData> enumerator;
 
-                public MockRefIterator(MockRefdbBackend parent)
+                public MockRefIterator(MockRefdbBackend parent, string glob)
                 {
-                    this.enumerator = parent.Refs.Values.GetEnumerator();
+                    if (string.IsNullOrEmpty(glob))
+                    {
+                        this.enumerator = parent.Refs.Values.GetEnumerator();
+                    }
+                    else
+                    {
+                        var globRegex = new Regex("^" + Regex.Escape(glob).Replace(@"\*", ".*").Replace(@"\?", ".") + "$");
+                        this.enumerator = parent.Refs.Values.Where(r => globRegex.IsMatch(r.RefName)).GetEnumerator();
+                    }
                 }
 
                 public override ReferenceData GetNext()
