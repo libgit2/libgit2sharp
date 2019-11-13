@@ -122,7 +122,7 @@ namespace LibGit2Sharp.Tests
         public void CanIterateRefdbBackendWithGlob()
         {
             string path = SandboxStandardTestRepo();
-            using (Repository repo = new Repository(path))
+            using (var repo = new Repository(path))
             {
                 var backend = new MockRefdbBackend(repo);
                 repo.Refs.SetBackend(backend);
@@ -147,7 +147,7 @@ namespace LibGit2Sharp.Tests
                 backend.Refs["refs/tags/test"] = new RefdbBackend.ReferenceData("refs/tags/test", new ObjectId("be3563ae3f795b2b4353bcce3a527ad0a4f7f644"));
                 const string newName = "refs/tags/test/deep";
 
-                Reference renamed = repo.Refs.Rename("refs/tags/test", newName);
+                var renamed = repo.Refs.Rename("refs/tags/test", newName);
                 Assert.NotNull(renamed);
                 Assert.Equal(newName, renamed.CanonicalName);
             }
@@ -160,6 +160,11 @@ namespace LibGit2Sharp.Tests
             }
 
             public SortedDictionary<string, ReferenceData> Refs { get; } = new SortedDictionary<string, ReferenceData>();
+
+            protected override SupportedOperations OperationsSupported
+            {
+                get { return SupportedOperations.Minimum | SupportedOperations.LockUnlock; }
+            }
 
             public override bool Exists(string refName)
             {
@@ -235,6 +240,16 @@ namespace LibGit2Sharp.Tests
                 this.Refs.Remove(oldName);
                 this.Refs[newName] = newRef;
                 return newRef;
+            }
+
+            public override object Lock(string refName)
+            {
+                return base.Lock(refName);
+            }
+
+            public override void Unlock(object payload, ReferenceData reference, Signature sig, string message, bool success, bool updateReflog)
+            {
+                base.Unlock(payload, reference, sig, message, success, updateReflog);
             }
         }
     }

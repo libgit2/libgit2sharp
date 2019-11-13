@@ -129,7 +129,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Unlocks a single reference, given its payload object and operational details.
         /// </summary>
-        public virtual object Unlock(object payload, ReferenceData reference, Signature sig, string message, bool success, bool updateReflog)
+        public virtual void Unlock(object payload, ReferenceData reference, Signature sig, string message, bool success, bool updateReflog)
         {
             throw RefdbBackendException.NotImplemented("Unlock");
         }
@@ -282,6 +282,9 @@ namespace LibGit2Sharp
                 }
             }
 
+            /// <summary>
+            /// Allocates a native git_reference for the <see cref="ReferenceData"/> and returns a pointer.
+            /// </summary>
             internal IntPtr MarshalToPtr()
             {
                 if (IsSymbolic)
@@ -294,6 +297,9 @@ namespace LibGit2Sharp
                 }
             }
 
+            /// <summary>
+            /// Marshals a git_reference into a managed <see cref="ReferenceData"/>
+            /// </summary>
             internal static unsafe ReferenceData MarshalFromPtr(git_reference* ptr)
             {
                 var name = Proxy.git_reference_name(ptr);
@@ -328,6 +334,9 @@ namespace LibGit2Sharp
                 Code = code;
             }
 
+            /// <summary>
+            /// Git error code to return on exception.
+            /// </summary>
             internal GitErrorCode Code { get; private set; }
 
             /// <summary>
@@ -372,6 +381,9 @@ namespace LibGit2Sharp
                 return new RefdbBackendException(GitErrorCode.User, string.Format("operation '{0}' is unsupported by this refdb backend.", operation));
             }
 
+            /// <summary>
+            /// Transform an exception into an error code and message, which is logged.
+            /// </summary>
             internal static int GetCode(Exception ex)
             {
                 Proxy.git_error_set_str(GitErrorCategory.Reference, ex);
@@ -385,6 +397,9 @@ namespace LibGit2Sharp
             }
         }
 
+        /// <summary>
+        /// Wrapper to hold the state of the enumerator.
+        /// </summary>
         private class RefIterator
         {
             private readonly IEnumerator<ReferenceData> enumerator;
@@ -405,6 +420,9 @@ namespace LibGit2Sharp
             }
         }
 
+        /// <summary>
+        /// Static entrypoints that trampoline into the iterator.
+        /// </summary>
         private unsafe static class IteratorEntryPoints
         {
             public static readonly GitRefdbIterator.next_callback NextCallback = Next;
@@ -491,6 +509,9 @@ namespace LibGit2Sharp
             }
         }
 
+        /// <summary>
+        /// Static entry points that trampoline into the custom backend's implementation.
+        /// </summary>
         private unsafe static class BackendEntryPoints
         {
             public static readonly GitRefdbBackend.exists_callback ExistsCallback = Exists;
