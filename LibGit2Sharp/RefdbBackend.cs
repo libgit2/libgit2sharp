@@ -131,7 +131,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Backend's representation of a reference.
         /// </summary>
-        public class ReferenceData
+        public sealed class ReferenceData
         {
             /// <summary>
             /// Reference name.
