@@ -14,7 +14,43 @@ namespace LibGit2Sharp
     /// </summary>
     public abstract class RefdbBackend
     {
+        /// <summary>
+        /// Minimum supported operations.
+        /// </summary>
+        [Flags]
+        public enum SupportedOperations
+        {
+            /// <summary>
+            /// At a minimum: Exists, Lookup, Iterate, Write, Delete, Rename
+            /// </summary>
+            /// <remarks>
+            /// libgit2 wants us to also support all the reflog operations, but unless
+            /// reflog is enabled on the repository, we shouldn't have any issues stubbing those out.
+            /// </remarks>
+            Minimum = 0,
+
+            /// <summary>
+            /// Compress operation.
+            /// </summary>
+            Compress = 1,
+
+            /// <summary>
+            /// Lock and unlock (transactional) operations.
+            /// </summary>
+            LockUnlock = 2,
+
+            /// <summary>
+            /// Reflog operations.
+            /// </summary>
+            Reflog = 4
+        }
+
         private IntPtr nativePointer;
+
+        /// <summary>
+        /// Gets the supported operations.
+        /// </summary>
+        protected abstract SupportedOperations OperationsSupported { get; }
 
         /// <summary>
         /// Gets the repository.
@@ -42,14 +78,41 @@ namespace LibGit2Sharp
         /// <returns>False if the reference doesn't exist.</returns>
         public abstract bool Lookup(string refName, out ReferenceData data);
 
+        /// <summary>
+        /// Iterates all references (if glob is null) or only references matching glob (if not null.)
+        /// </summary>
         public abstract IEnumerable<ReferenceData> Iterate(string glob);
 
+        /// <summary>
+        /// Writes a reference to the database.
+        /// </summary>
+        /// <param name="newRef">New reference to write.</param>
+        /// <param name="oldRef">Old reference (possibly null.)</param>
+        /// <param name="force">True if overwrites are allowed.</param>
+        /// <param name="signature">User signature.</param>
+        /// <param name="message">User message.</param>
         public abstract void Write(ReferenceData newRef, ReferenceData oldRef, bool force, Signature signature, string message);
 
+        /// <summary>
+        /// Deletes a reference from the database.
+        /// </summary>
+        /// <param name="existingRef">Reference to delete.</param>
         public abstract void Delete(ReferenceData existingRef);
 
+        /// <summary>
+        /// Renames a reference.
+        /// </summary>
+        /// <param name="oldName">Old name.</param>
+        /// <param name="newName">New name.</param>
+        /// <param name="force">Allow overwrites.</param>
+        /// <param name="signature">User signature.</param>
+        /// <param name="message">User message.</param>
+        /// <returns>New reference.</returns>
         public abstract ReferenceData Rename(string oldName, string newName, bool force, Signature signature, string message);
 
+        /// <summary>
+        /// Backend pointer. Accessing this lazily allocates a marshalled GitRefdbBackend, which is freed with Free().
+        /// </summary>
         internal IntPtr RefdbBackendPointer
         {
             get
@@ -86,6 +149,9 @@ namespace LibGit2Sharp
             }
         }
 
+        /// <summary>
+        /// Frees the backend pointer, if one has been allocated.
+        /// </summary>
         internal void Free()
         {
             if (IntPtr.Zero == nativePointer)
@@ -98,13 +164,34 @@ namespace LibGit2Sharp
             nativePointer = IntPtr.Zero;
         }
 
+        /// <summary>
+        /// Backend's representation of a reference.
+        /// </summary>
         public class ReferenceData
         {
+            /// <summary>
+            /// Reference name.
+            /// </summary>
             public string RefName { get; private set; }
+
+            /// <summary>
+            /// True if symbolic; otherwise, false.
+            /// </summary>
             public bool IsSymbolic { get; private set; }
+
+            /// <summary>
+            /// Object ID, if the ref isn't symbolic.
+            /// </summary>
             public ObjectId ObjectId { get; private set; }
+
+            /// <summary>
+            /// Target name, if the ref is symbolic.
+            /// </summary>
             public string SymbolicTarget { get; private set; }
 
+            /// <summary>
+            /// Initializes a direct reference.
+            /// </summary>
             public ReferenceData(string refName, ObjectId directTarget)
             {
                 this.RefName = refName;
@@ -113,6 +200,9 @@ namespace LibGit2Sharp
                 this.SymbolicTarget = null;
             }
 
+            /// <summary>
+            /// Initializes a symbolic reference.
+            /// </summary>
             public ReferenceData(string refName, string symbolicTarget)
             {
                 this.RefName = refName;
@@ -121,6 +211,7 @@ namespace LibGit2Sharp
                 this.SymbolicTarget = symbolicTarget;
             }
 
+            /// <inheritdoc />
             public override bool Equals(object obj)
             {
                 var other = obj as ReferenceData;
@@ -135,6 +226,7 @@ namespace LibGit2Sharp
                     && other.SymbolicTarget == this.SymbolicTarget;
             }
 
+            /// <inheritdoc />
             public override int GetHashCode()
             {
                 unchecked
@@ -189,7 +281,11 @@ namespace LibGit2Sharp
             }
         }
 
-        protected sealed class RefdbBackendException : LibGit2SharpException
+        /// <summary>
+        /// Exception types that can be thrown from the backend.
+        /// Exceptions of this type will be converted to libgit2 error codes.
+        /// </summary>
+        public sealed class RefdbBackendException : LibGit2SharpException
         {
             private RefdbBackendException(GitErrorCode code, string message)
                 : base(message, code, GitErrorCategory.Reference)
@@ -199,19 +295,46 @@ namespace LibGit2Sharp
 
             internal GitErrorCode Code { get; private set; }
 
+            /// <summary>
+            /// Reference was not found.
+            /// </summary>
             public static RefdbBackendException NotFound(string refName)
             {
                 return new RefdbBackendException(GitErrorCode.NotFound, string.Format("could not resolve reference '{0}'", refName));
             }
 
+            /// <summary>
+            /// Reference by this name already exists.
+            /// </summary>
             public static RefdbBackendException Exists(string refName)
             {
                 return new RefdbBackendException(GitErrorCode.Exists, string.Format("will not overwrite reference '{0}' without match or force", refName));
             }
 
+            /// <summary>
+            /// Conflict between an expected reference value and the reference's actual value.
+            /// </summary>
             public static RefdbBackendException Conflict(string refName)
             {
                 return new RefdbBackendException(GitErrorCode.Conflict, string.Format("conflict occurred while writing reference '{0}'", refName));
+            }
+
+            /// <summary>
+            /// User is not allowed to alter this reference.
+            /// </summary>
+            /// <param name="message">Arbitrary message.</param>
+            public static RefdbBackendException NotAllowed(string message)
+            {
+                return new RefdbBackendException(GitErrorCode.Auth, message);
+            }
+
+            /// <summary>
+            /// Operation is not implemented.
+            /// </summary>
+            /// <param name="operation">Operation that's not implemented.</param>
+            public static RefdbBackendException NotImplemented(string operation)
+            {
+                return new RefdbBackendException(GitErrorCode.User, string.Format("operation '{0}' is unsupported by this refdb backend.", operation));
             }
 
             internal static int GetCode(Exception ex)
