@@ -12,11 +12,23 @@ namespace LibGit2Sharp.Tests
     public class RefdbBackendFixture : BaseFixture
     {
         [Fact]
+        public void CanWriteToRefdbBackend()
+        {
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var backend = new MockRefdbBackend(repo);
+                repo.Refs.SetBackend(backend);
+                repo.Refs.Add("refs/heads/newref", new ObjectId("be3563ae3f795b2b4353bcce3a527ad0a4f7f644"), true);
+                Assert.Equal(backend.Refs["refs/heads/newref"], new RefdbBackend.ReferenceData("refs/heads/newref", new ObjectId("be3563ae3f795b2b4353bcce3a527ad0a4f7f644")));
+            }
+        }
+
+        [Fact]
         public void CanReadFromRefdbBackend()
         {
-            var scd = new SelfCleaningDirectory(this);
-            Repository.Init(scd.RootedDirectoryPath);
-            using (var repo = new Repository(scd.RootedDirectoryPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 var backend = new MockRefdbBackend(repo);
                 repo.Refs.SetBackend(backend);
@@ -50,6 +62,26 @@ namespace LibGit2Sharp.Tests
             public override bool Lookup(string refName, out ReferenceData data)
             {
                 return Refs.TryGetValue(refName, out data);
+            }
+
+            public override bool TryWrite(ReferenceData newRef, ReferenceData oldRef, bool force, Signature signature, string message)
+            {
+                ReferenceData existingRef;
+                if (this.Refs.TryGetValue(newRef.RefName, out existingRef))
+                {
+                    Assert.NotNull(oldRef);
+                    if (!existingRef.Equals(oldRef))
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    Assert.Null(oldRef);
+                }
+
+                this.Refs[newRef.RefName] = newRef;
+                return true;
             }
 
             private class MockRefIterator : RefIterator

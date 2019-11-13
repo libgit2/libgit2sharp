@@ -99,6 +99,40 @@ namespace LibGit2Sharp
                 this.SymbolicTarget = symbolicTarget;
             }
 
+            public override bool Equals(object obj)
+            {
+                var other = obj as ReferenceData;
+                if (other == null)
+                {
+                    return false;
+                }
+
+                return other.RefName == this.RefName
+                    && other.IsSymbolic == this.IsSymbolic
+                    && other.ObjectId == this.ObjectId
+                    && other.SymbolicTarget == this.SymbolicTarget;
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    var accumulator = this.RefName.GetHashCode();
+                    accumulator = accumulator * 17 + this.IsSymbolic.GetHashCode();
+                    if (this.ObjectId != null)
+                    {
+                        accumulator = accumulator * 17 + this.ObjectId.GetHashCode();
+                    }
+
+                    if (this.SymbolicTarget != null)
+                    {
+                        accumulator = accumulator * 17 + this.SymbolicTarget.GetHashCode();
+                    }
+
+                    return accumulator;
+                }
+            }
+
             internal IntPtr MarshalToPtr()
             {
                 if (IsSymbolic)
