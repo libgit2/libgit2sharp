@@ -41,6 +41,41 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanDeleteFromRefdbBackend()
+        {
+            string path = SandboxStandardTestRepo();
+            using (Repository repo = new Repository(path))
+            {
+                var backend = new MockRefdbBackend(repo);
+                repo.Refs.SetBackend(backend);
+                backend.Refs["HEAD"] = new RefdbBackend.ReferenceData("HEAD", "refs/heads/testref");
+                backend.Refs["refs/heads/testref"] = new RefdbBackend.ReferenceData("refs/heads/testref", new ObjectId("be3563ae3f795b2b4353bcce3a527ad0a4f7f644"));
+
+                repo.Refs.Remove("refs/heads/testref");
+
+                Assert.True(!backend.Refs.ContainsKey("refs/heads/testref"));
+            }
+        }
+
+        [Fact]
+        public void CannotOverwriteExistingInRefdbBackend()
+        {
+            string path = SandboxStandardTestRepo();
+            using (Repository repo = new Repository(path))
+            {
+                var backend = new MockRefdbBackend(repo);
+                repo.Refs.SetBackend(backend);
+
+                repo.Refs.Add("refs/heads/newref", new ObjectId("be3563ae3f795b2b4353bcce3a527ad0a4f7f644"), false);
+
+                Assert.Throws<NameConflictException>(() => repo.Refs.Add("refs/heads/newref", new ObjectId("be3563ae3f795b2b4353bcce3a527ad0a4f7f644"), false));
+
+                // With allowOverwrite, it should succeed:
+                repo.Refs.Add("refs/heads/newref", new ObjectId("be3563ae3f795b2b4353bcce3a527ad0a4f7f644"), true);
+            }
+        }
+
         private class MockRefdbBackend : RefdbBackend
         {
             public MockRefdbBackend(Repository repository) : base(repository)
@@ -64,20 +99,23 @@ namespace LibGit2Sharp.Tests
                 return Refs.TryGetValue(refName, out data);
             }
 
+            public override bool TryDelete(ReferenceData refData, out bool notFound, out bool hadConflict)
+            {
+                hadConflict = false;
+                notFound = !this.Refs.Remove(refData.RefName);
+                return !notFound;
+            }
+
             public override bool TryWrite(ReferenceData newRef, ReferenceData oldRef, bool force, Signature signature, string message)
             {
                 ReferenceData existingRef;
                 if (this.Refs.TryGetValue(newRef.RefName, out existingRef))
                 {
-                    Assert.NotNull(oldRef);
-                    if (!existingRef.Equals(oldRef))
+                    // If either oldRef wasn't provided/didn't match, or force isn't enabled, reject.
+                    if (!force || (oldRef != null && !existingRef.Equals(oldRef)))
                     {
                         return false;
                     }
-                }
-                else
-                {
-                    Assert.Null(oldRef);
                 }
 
                 this.Refs[newRef.RefName] = newRef;

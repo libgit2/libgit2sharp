@@ -28,6 +28,8 @@ namespace LibGit2Sharp
 
         public abstract bool TryWrite(ReferenceData newRef, ReferenceData oldRef, bool force, Signature signature, string message);
 
+        public abstract bool TryDelete(ReferenceData existingRef, out bool notFound, out bool hadConflict);
+
         internal IntPtr RefdbBackendPointer
         {
             get
@@ -397,8 +399,19 @@ namespace LibGit2Sharp
                     // If the user returns false, we detected a conflict and aborted the write.
                     if (!backend.TryWrite(newRef, oldRef, force, signature, message))
                     {
-                        Proxy.git_error_set_str(GitErrorCategory.Reference, "old reference value does not match.");
-                        return (int)GitErrorCode.Modified;
+                        if (oldRef != null)
+                        {
+                            Proxy.git_error_set_str(GitErrorCategory.Reference, "old reference value does not match.");
+                            return (int)GitErrorCode.Modified;
+                        }
+
+                        if (!force)
+                        {
+                            Proxy.git_error_set_str(GitErrorCategory.Reference, "name is in conflict.");
+                            return (int)GitErrorCode.Exists;
+                        }
+
+                        return (int)GitErrorCode.Error;
                     }
                 }
                 catch (Exception ex)
@@ -419,16 +432,61 @@ namespace LibGit2Sharp
                 git_signature* who,
                 string message)
             {
+                var backend = PtrToBackend(backendPtr);
+                if (backend == null)
+                {
+                    return (int)GitErrorCode.Error;
+                }
+
                 return (int)GitErrorCode.Error;
             }
 
             public static int Del(
                 IntPtr backendPtr,
                 string refName,
-                ref GitOid oldId,
+                IntPtr oldId,
                 string oldTarget)
             {
-                return (int)GitErrorCode.Error;
+                var backend = PtrToBackend(backendPtr);
+                if (backend == null)
+                {
+                    return (int)GitErrorCode.Error;
+                }
+
+                ReferenceData existingRef;
+                if (IntPtr.Zero == oldId)
+                {
+                    existingRef = new ReferenceData(refName, oldTarget);
+                }
+                else
+                {
+                    existingRef = new ReferenceData(refName, ObjectId.BuildFromPtr(oldId));
+                }
+
+                try
+                {
+                    if (!backend.TryDelete(existingRef, out bool notFound, out bool hadConflict))
+                    {
+                        if (notFound)
+                        {
+                            return (int)GitErrorCode.NotFound;
+                        }
+
+                        if (hadConflict)
+                        {
+                            return (int)GitErrorCode.Conflict;
+                        }
+
+                        return (int)GitErrorCode.Error;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Proxy.git_error_set_str(GitErrorCategory.Reference, ex);
+                    return (int)GitErrorCode.Error;
+                }
+
+                return (int)GitErrorCode.Ok;
             }
 
             public static int HasLog(

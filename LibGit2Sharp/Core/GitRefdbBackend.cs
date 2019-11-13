@@ -117,7 +117,7 @@ namespace LibGit2Sharp.Core
         public delegate int del_callback(
             IntPtr backend,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string refName,
-            ref GitOid oldId,
+            IntPtr oldId,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string oldTarget);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
