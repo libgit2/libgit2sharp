@@ -56,7 +56,7 @@ namespace LibGit2Sharp.Core
         public write_callback Write;
         public rename_callback Rename;
         public del_callback Del;
-        public IntPtr Compress;
+        public compress_callback Compress;
         public has_log_callback HasLog;
         public ensure_log_callback EnsureLog;
         public free_callback Free;
@@ -64,8 +64,8 @@ namespace LibGit2Sharp.Core
         public reflog_write_callback ReflogWrite;
         public reflog_rename_callback ReflogRename;
         public reflog_delete_callback ReflogDelete;
-        public IntPtr Lock;
-        public IntPtr Unlock;
+        public lock_callback Lock;
+        public unlock_callback Unlock;
 
         /* The libgit2 structure definition ends here. Subsequent fields are for libgit2sharp bookkeeping. */
 
@@ -121,6 +121,9 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string oldTarget);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int compress_callback(IntPtr backend);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int has_log_callback(
             IntPtr backend,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string refName);
@@ -154,5 +157,21 @@ namespace LibGit2Sharp.Core
         public delegate int reflog_delete_callback(
             IntPtr backend,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string name);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int lock_callback(
+            out IntPtr payloadOut,
+            IntPtr backend,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string refName);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int unlock_callback(
+            IntPtr backend,
+            IntPtr payload,
+            [MarshalAs(UnmanagedType.Bool)] bool success,
+            [MarshalAs(UnmanagedType.Bool)] bool updateRefLog,
+            git_reference* reference,
+            git_signature* who,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string message);
     }
 }

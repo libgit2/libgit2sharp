@@ -111,6 +111,30 @@ namespace LibGit2Sharp
         public abstract ReferenceData Rename(string oldName, string newName, bool force, Signature signature, string message);
 
         /// <summary>
+        /// Compresses the references.
+        /// </summary>
+        public virtual void Compress()
+        {
+            throw RefdbBackendException.NotImplemented("Compress");
+        }
+
+        /// <summary>
+        /// Locks a single reference, returning a payload object which is passed to unlock it.
+        /// </summary>
+        public virtual object Lock(string refName)
+        {
+            throw RefdbBackendException.NotImplemented("Lock");
+        }
+
+        /// <summary>
+        /// Unlocks a single reference, given its payload object and operational details.
+        /// </summary>
+        public virtual object Unlock(object payload, ReferenceData reference, Signature sig, string message, bool success, bool updateReflog)
+        {
+            throw RefdbBackendException.NotImplemented("Unlock");
+        }
+
+        /// <summary>
         /// Backend pointer. Accessing this lazily allocates a marshalled GitRefdbBackend, which is freed with Free().
         /// </summary>
         internal IntPtr RefdbBackendPointer
@@ -122,9 +146,9 @@ namespace LibGit2Sharp
                     var nativeBackend = new GitRefdbBackend()
                     {
                         Version = 1,
-                        Compress = IntPtr.Zero,
-                        Lock = IntPtr.Zero,
-                        Unlock = IntPtr.Zero,
+                        Compress = null,
+                        Lock = null,
+                        Unlock = null,
                         Exists = BackendEntryPoints.ExistsCallback,
                         Lookup = BackendEntryPoints.LookupCallback,
                         Iterator = BackendEntryPoints.IteratorCallback,
@@ -140,6 +164,17 @@ namespace LibGit2Sharp
                         ReflogDelete = BackendEntryPoints.ReflogDeleteCallback,
                         GCHandle = GCHandle.ToIntPtr(GCHandle.Alloc(this))
                     };
+
+                    if (OperationsSupported.HasFlag(SupportedOperations.Compress))
+                    {
+                        nativeBackend.Compress = BackendEntryPoints.CompressCallback;
+                    }
+
+                    if (OperationsSupported.HasFlag(SupportedOperations.LockUnlock))
+                    {
+                        nativeBackend.Lock = BackendEntryPoints.LockCallback;
+                        nativeBackend.Unlock = BackendEntryPoints.UnlockCallback;
+                    }
 
                     nativePointer = Marshal.AllocHGlobal(Marshal.SizeOf(nativeBackend));
                     Marshal.StructureToPtr(nativeBackend, nativePointer, false);
@@ -464,6 +499,7 @@ namespace LibGit2Sharp
             public static readonly GitRefdbBackend.write_callback WriteCallback = Write;
             public static readonly GitRefdbBackend.rename_callback RenameCallback = Rename;
             public static readonly GitRefdbBackend.del_callback DelCallback = Del;
+            public static readonly GitRefdbBackend.compress_callback CompressCallback = Compress;
             public static readonly GitRefdbBackend.has_log_callback HasLogCallback = HasLog;
             public static readonly GitRefdbBackend.ensure_log_callback EnsureLogCallback = EnsureLog;
             public static readonly GitRefdbBackend.free_callback FreeCallback = Free;
@@ -471,6 +507,8 @@ namespace LibGit2Sharp
             public static readonly GitRefdbBackend.reflog_write_callback ReflogWriteCallback = ReflogWrite;
             public static readonly GitRefdbBackend.reflog_rename_callback ReflogRenameCallback = ReflogRename;
             public static readonly GitRefdbBackend.reflog_delete_callback ReflogDeleteCallback = ReflogDelete;
+            public static readonly GitRefdbBackend.lock_callback LockCallback = Lock;
+            public static readonly GitRefdbBackend.unlock_callback UnlockCallback = Unlock;
 
             public static int Exists(
                 ref bool exists,
@@ -671,6 +709,26 @@ namespace LibGit2Sharp
                 return (int)GitErrorCode.Ok;
             }
 
+            public static int Compress(IntPtr backendPtr)
+            {
+                var backend = PtrToBackend(backendPtr);
+                if (backend == null)
+                {
+                    return (int)GitErrorCode.Error;
+                }
+
+                try
+                {
+                    backend.Compress();
+                }
+                catch (Exception ex)
+                {
+                    return RefdbBackendException.GetCode(ex);
+                }
+
+                return (int)GitErrorCode.Ok;
+            }
+
             public static int HasLog(
                 IntPtr backend,
                 string refName)
@@ -719,6 +777,66 @@ namespace LibGit2Sharp
                 string name)
             {
                 return (int)GitErrorCode.Error;
+            }
+
+            public static int Lock(
+                out IntPtr payloadPtr,
+                IntPtr backendPtr,
+                string refName)
+            {
+                payloadPtr = IntPtr.Zero;
+                var backend = PtrToBackend(backendPtr);
+                if (backend == null)
+                {
+                    return (int)GitErrorCode.Error;
+                }
+
+                object payload;
+                try
+                {
+                    payload = backend.Lock(refName);
+                }
+                catch (Exception ex)
+                {
+                    return RefdbBackendException.GetCode(ex);
+                }
+
+                payloadPtr = GCHandle.ToIntPtr(GCHandle.Alloc(payload));
+                return (int)GitErrorCode.Ok;
+            }
+
+            public static int Unlock(
+                IntPtr backendPtr,
+                IntPtr payloadPtr,
+                bool success,
+                bool updateReflog,
+                git_reference* referencePtr,
+                git_signature* who,
+                string message)
+            {
+                var backend = PtrToBackend(backendPtr);
+                if (backend == null)
+                {
+                    return (int)GitErrorCode.Error;
+                }
+
+                var reference = ReferenceData.MarshalFromPtr(referencePtr);
+                var signature = new Signature(who);
+
+                var payloadGC = GCHandle.FromIntPtr(payloadPtr);
+                var payload = payloadGC.Target;
+                payloadGC.Free();
+
+                try
+                {
+                    backend.Unlock(payload, reference, signature, message, success, updateReflog);
+                }
+                catch (Exception ex)
+                {
+                    return RefdbBackendException.GetCode(ex);
+                }
+
+                return (int)GitErrorCode.Ok;
             }
 
             private static RefdbBackend PtrToBackend(IntPtr pointer)
