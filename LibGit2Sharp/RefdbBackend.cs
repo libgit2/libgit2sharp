@@ -1,6 +1,7 @@
 ﻿using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.InteropServices;
@@ -8,23 +9,40 @@ using System.Text;
 
 namespace LibGit2Sharp
 {
+    /// <summary>
+    /// Reference database backend.
+    /// </summary>
     public abstract class RefdbBackend
     {
         private IntPtr nativePointer;
 
+        /// <summary>
+        /// Gets the repository.
+        /// </summary>
         protected Repository Repository { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RefdbBackend"/> class.
+        /// </summary>
+        /// <param name="repository">Repository that this refdb is attached to.</param>
         protected RefdbBackend(Repository repository)
         {
             Ensure.ArgumentNotNull(repository, "repository");
             this.Repository = repository;
         }
 
+        /// <summary>
+        /// Checks to see if a reference exists.
+        /// </summary>
         public abstract bool Exists(string refName);
 
+        /// <summary>
+        /// Attempts to look up a reference.
+        /// </summary>
+        /// <returns>False if the reference doesn't exist.</returns>
         public abstract bool Lookup(string refName, out ReferenceData data);
 
-        public abstract RefIterator Iterate(string glob);
+        public abstract IEnumerable<ReferenceData> Iterate(string glob);
 
         public abstract void Write(ReferenceData newRef, ReferenceData oldRef, bool force, Signature signature, string message);
 
@@ -171,11 +189,6 @@ namespace LibGit2Sharp
             }
         }
 
-        public abstract class RefIterator
-        {
-            public abstract ReferenceData GetNext();
-        }
-
         protected sealed class RefdbBackendException : LibGit2SharpException
         {
             private RefdbBackendException(GitErrorCode code, string message)
@@ -211,6 +224,26 @@ namespace LibGit2Sharp
                 }
 
                 return (int)backendException.Code;
+            }
+        }
+
+        private class RefIterator
+        {
+            private readonly IEnumerator<ReferenceData> enumerator;
+
+            public RefIterator(IEnumerator<ReferenceData> enumerator)
+            {
+                this.enumerator = enumerator;
+            }
+
+            public ReferenceData GetNext()
+            {
+                if (this.enumerator.MoveNext())
+                {
+                    return this.enumerator.Current;
+                }
+
+                return null;
             }
         }
 
@@ -384,7 +417,8 @@ namespace LibGit2Sharp
                 RefIterator iterator;
                 try
                 {
-                    iterator = backend.Iterate(glob);
+                    var enumerator = backend.Iterate(glob).GetEnumerator();
+                    iterator = new RefIterator(enumerator);
                 }
                 catch (Exception ex)
                 {

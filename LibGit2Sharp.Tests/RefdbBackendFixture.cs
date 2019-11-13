@@ -166,9 +166,17 @@ namespace LibGit2Sharp.Tests
                 return Refs.ContainsKey(refName);
             }
 
-            public override RefIterator Iterate(string glob)
+            public override IEnumerable<ReferenceData> Iterate(string glob)
             {
-                return new MockRefIterator(this, glob);
+                if (string.IsNullOrEmpty(glob))
+                {
+                    return Refs.Values;
+                }
+                else
+                {
+                    var globRegex = new Regex("^" + Regex.Escape(glob).Replace(@"\*", ".*").Replace(@"\?", ".") + "$");
+                    return Refs.Values.Where(r => globRegex.IsMatch(r.RefName));
+                }
             }
 
             public override bool Lookup(string refName, out ReferenceData data)
@@ -227,34 +235,6 @@ namespace LibGit2Sharp.Tests
                 this.Refs.Remove(oldName);
                 this.Refs[newName] = newRef;
                 return newRef;
-            }
-
-            private class MockRefIterator : RefIterator
-            {
-                private readonly IEnumerator<ReferenceData> enumerator;
-
-                public MockRefIterator(MockRefdbBackend parent, string glob)
-                {
-                    if (string.IsNullOrEmpty(glob))
-                    {
-                        this.enumerator = parent.Refs.Values.GetEnumerator();
-                    }
-                    else
-                    {
-                        var globRegex = new Regex("^" + Regex.Escape(glob).Replace(@"\*", ".*").Replace(@"\?", ".") + "$");
-                        this.enumerator = parent.Refs.Values.Where(r => globRegex.IsMatch(r.RefName)).GetEnumerator();
-                    }
-                }
-
-                public override ReferenceData GetNext()
-                {
-                    if (this.enumerator.MoveNext())
-                    {
-                        return this.enumerator.Current;
-                    }
-
-                    return null;
-                }
             }
         }
     }
