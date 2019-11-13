@@ -76,6 +76,23 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanIterateRefdbBackend()
+        {
+            string path = SandboxStandardTestRepo();
+            using (Repository repo = new Repository(path))
+            {
+                var backend = new MockRefdbBackend(repo);
+                repo.Refs.SetBackend(backend);
+
+                backend.Refs["HEAD"] = new RefdbBackend.ReferenceData("HEAD", "refs/heads/testref");
+                backend.Refs["refs/heads/testref"] = new RefdbBackend.ReferenceData("refs/heads/testref", new ObjectId("be3563ae3f795b2b4353bcce3a527ad0a4f7f644"));
+                backend.Refs["refs/heads/othersymbolic"] = new RefdbBackend.ReferenceData("refs/heads/othersymbolic", "refs/heads/testref");
+
+                Assert.True(repo.Refs.Select(r => r.CanonicalName).SequenceEqual(backend.Refs.Keys));
+            }
+        }
+
         private class MockRefdbBackend : RefdbBackend
         {
             public MockRefdbBackend(Repository repository) : base(repository)
