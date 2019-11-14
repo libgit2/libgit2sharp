@@ -4,14 +4,6 @@
     <TargetFrameworks>net46;netcoreapp2.1</TargetFrameworks>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net46|AnyCPU'">
-    <DefineConstants>TRACE;LEAKS_IDENTIFYING</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net46|AnyCPU'">
-    <DefineConstants>TRACE;LEAKS_IDENTIFYING;LEAKS_TRACKING</DefineConstants>
-  </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\LibGit2Sharp\LibGit2Sharp.csproj" />
     <ProjectReference Include="..\NativeLibraryLoadTestApp\x86\NativeLibraryLoadTestApp.x86.csproj" Condition="'$(TargetFramework)' == 'net46'" ReferenceOutputAssembly="false" OutputItemType="TestAppExe" />

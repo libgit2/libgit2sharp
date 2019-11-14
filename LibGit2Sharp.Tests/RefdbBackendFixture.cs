@@ -2,42 +2,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace LibGit2Sharp.Tests
 {
     public class RefdbBackendFixture : BaseFixture
     {
-        public RefdbBackendFixture(ITestOutputHelper output)
-        {
-            Trace.Listeners.Add(new TestOutputListener(output));
-        }
-
-        private class TestOutputListener : TraceListener
-        {
-            private readonly ITestOutputHelper output;
-            public TestOutputListener(ITestOutputHelper output)
-            {
-                this.output = output;
-            }
-
-            public override void Write(string message)
-            {
-                output.WriteLine(message);
-            }
-
-            public override void WriteLine(string message)
-            {
-                output.WriteLine(message);
-            }
-        }
-
         [Fact]
         public void CanWriteToRefdbBackend()
         {
