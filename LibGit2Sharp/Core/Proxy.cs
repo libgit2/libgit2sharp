@@ -2042,17 +2042,17 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
-        public static unsafe ReferenceHandle git_reference__alloc(string name, ObjectId objectId)
+        public static unsafe IntPtr git_reference__alloc(string name, ObjectId objectId)
         {
             var oid = objectId.Oid;
             var referencePtr = NativeMethods.git_reference__alloc(name, ref oid, IntPtr.Zero);
-            return new ReferenceHandle(referencePtr, false);
+            return new IntPtr(referencePtr);
         }
 
-        public static unsafe ReferenceHandle git_reference__alloc_symbolic(string name, string target)
+        public static unsafe IntPtr git_reference__alloc_symbolic(string name, string target)
         {
             var referencePtr = NativeMethods.git_reference__alloc_symbolic(name, target);
-            return new ReferenceHandle(referencePtr, false);
+            return new IntPtr(referencePtr);
         }
 
 #endregion

@@ -218,11 +218,11 @@ namespace LibGit2Sharp
             {
                 if (IsSymbolic)
                 {
-                    return Proxy.git_reference__alloc_symbolic(RefName, SymbolicTarget).AsIntPtr();
+                    return Proxy.git_reference__alloc_symbolic(RefName, SymbolicTarget);
                 }
                 else
                 {
-                    return Proxy.git_reference__alloc(RefName, ObjectId.Oid).AsIntPtr();
+                    return Proxy.git_reference__alloc(RefName, ObjectId.Oid);
                 }
             }
 
