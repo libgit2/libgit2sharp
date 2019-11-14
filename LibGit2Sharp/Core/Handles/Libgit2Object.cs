@@ -5,7 +5,7 @@
 //
 // Uncomment the line below or add a conditional symbol to activate this mode
 
-// #define LEAKS_IDENTIFYING
+#define LEAKS_IDENTIFYING
 
 // This activates a more throrough mode which will show the stack trace of the
 // allocation code path for each handle that has been improperly released.
@@ -15,7 +15,7 @@
 //
 // Uncomment the line below or add a conditional symbol to activate this mode
 
-// #define LEAKS_TRACKING
+#define LEAKS_TRACKING
 
 using System;
 using System.Linq;
