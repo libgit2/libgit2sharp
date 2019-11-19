@@ -441,27 +441,6 @@ namespace LibGit2Sharp.Core.Handles
         }
     }
 
-    internal unsafe class ReferenceDatabaseHandle : Libgit2Object
-    {
-        public ReferenceDatabaseHandle(void* handle, bool owned) : base(handle, owned)
-        {
-        }
-
-        public ReferenceDatabaseHandle(IntPtr ptr, bool owned) : base(ptr, owned)
-        {
-        }
-
-        public override void Free()
-        {
-            NativeMethods.git_refdb_free((git_refdb*)ptr);
-        }
-
-        public static implicit operator git_refdb*(ReferenceDatabaseHandle handle)
-        {
-            return (git_refdb*)handle.Handle;
-        }
-    }
-
     internal unsafe class RevWalkerHandle : Libgit2Object
     {
         internal RevWalkerHandle(git_revwalk *ptr, bool owned)
@@ -597,6 +576,29 @@ namespace LibGit2Sharp.Core.Handles
         public static implicit operator git_worktree*(WorktreeHandle handle)
         {
             return (git_worktree*) handle.Handle;
+        }
+    }
+
+    internal unsafe class ReferenceDatabaseHandle : Libgit2Object
+    {
+        internal ReferenceDatabaseHandle(git_refdb *ptr, bool owned)
+            : base((void *) ptr, owned)
+        {
+        }
+
+        internal ReferenceDatabaseHandle(IntPtr ptr, bool owned)
+            : base(ptr, owned)
+        {
+        }
+
+        public override void Free()
+        {
+            NativeMethods.git_refdb_free((git_refdb*) ptr);
+        }
+
+        public static implicit operator git_refdb*(ReferenceDatabaseHandle handle)
+        {
+            return (git_refdb*) handle.Handle;
         }
     }
 
