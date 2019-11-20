@@ -156,12 +156,17 @@ namespace LibGit2Sharp.Core
                     // The <rid> ends with the processor architecture. e.g. fedora-x64.
                     string assemblyDirectory = Path.GetDirectoryName(typeof(NativeMethods).Assembly.Location);
                     string processorArchitecture = RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant();
-                    foreach (var runtimeFolder in Directory.GetDirectories(Path.Combine(assemblyDirectory, "runtimes"), $"*-{processorArchitecture}"))
+                    string runtimesDirectory = Path.Combine(assemblyDirectory, "runtimes");
+
+                    if (Directory.Exists(runtimesDirectory))
                     {
-                        string libPath = Path.Combine(runtimeFolder, "native", $"lib{libraryName}.so");
-                        if (TryLoadLibrary(libPath, out handle))
+                        foreach (var runtimeFolder in Directory.GetDirectories(runtimesDirectory, $"*-{processorArchitecture}"))
                         {
-                            return handle;
+                            string libPath = Path.Combine(runtimeFolder, "native", $"lib{libraryName}.so");
+                            if (TryLoadLibrary(libPath, out handle))
+                            {
+                                return handle;
+                            }
                         }
                     }
                 }
