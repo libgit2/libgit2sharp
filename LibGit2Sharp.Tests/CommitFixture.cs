@@ -1058,8 +1058,8 @@ namespace LibGit2Sharp.Tests
         }
 
         private readonly string signedCommit =
-            "tree 6b79e22d69bf46e289df0345a14ca059dfc9bdf6\n" +
-            "parent 34734e478d6cf50c27c9d69026d93974d052c454\n" +
+            "tree 4b825dc642cb6eb9a060e54bf8d69288fbee4904\n" +
+            "parent 8496071c1b46c854b31185ea97743be6a8774479\n" +
             "author Ben Burkert <ben@benburkert.com> 1358451456 -0800\n" +
             "committer Ben Burkert <ben@benburkert.com> 1358451456 -0800\n" +
             "gpgsig -----BEGIN PGP SIGNATURE-----\n" +
@@ -1102,8 +1102,8 @@ namespace LibGit2Sharp.Tests
             "-----END PGP SIGNATURE-----";
 
         private readonly string signedData =
-            "tree 6b79e22d69bf46e289df0345a14ca059dfc9bdf6\n" +
-            "parent 34734e478d6cf50c27c9d69026d93974d052c454\n" +
+            "tree 4b825dc642cb6eb9a060e54bf8d69288fbee4904\n" +
+            "parent 8496071c1b46c854b31185ea97743be6a8774479\n" +
             "author Ben Burkert <ben@benburkert.com> 1358451456 -0800\n" +
             "committer Ben Burkert <ben@benburkert.com> 1358451456 -0800\n" +
             "\n" +
@@ -1155,7 +1155,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateASignedCommit()
         {
-            string repoPath = InitNewRepository();
+            string repoPath = SandboxStandardTestRepo();
             using (var repo = new Repository(repoPath))
             {
                 var odb = repo.ObjectDatabase;
