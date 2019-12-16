@@ -669,8 +669,9 @@ namespace LibGit2Sharp
         /// </para>
         /// <param name="url">The url to list from.</param>
         /// <param name="credentialsProvider">The <see cref="Func{Credentials}"/> used to connect to remote repository.</param>
+        /// <param name="options">Options for remote behaviore <see cref="RemoteOptions"/></param>
         /// <returns>The references in the remote repository.</returns>
-        public static IEnumerable<Reference> ListRemoteReferences(string url, CredentialsHandler credentialsProvider)
+        public static IEnumerable<Reference> ListRemoteReferences(string url, CredentialsHandler credentialsProvider, RemoteOptions options = null)
         {
             Ensure.ArgumentNotNull(url, "url");
 
@@ -678,7 +679,7 @@ namespace LibGit2Sharp
             using (RemoteHandle remoteHandle = Proxy.git_remote_create_anonymous(repositoryHandle, url))
             {
                 var gitCallbacks = new GitRemoteCallbacks { version = 1 };
-                var proxyOptions = GitProxyOptionsFactory.CreateDefaultProxyOptions();
+                var proxyOptions = GitProxyOptionsFactory.CreateGitProxyOptions(options?.ProxyOptions);
 
                 if (credentialsProvider != null)
                 {
@@ -768,7 +769,7 @@ namespace LibGit2Sharp
                 var gitCheckoutOptions = checkoutOptionsWrapper.Options;
 
                 var gitFetchOptions = fetchOptionsWrapper.Options;
-                gitFetchOptions.ProxyOptions = GitProxyOptionsFactory.CreateDefaultProxyOptions();
+                gitFetchOptions.ProxyOptions = GitProxyOptionsFactory.CreateGitProxyOptions(options.ProxyOptions);
                 gitFetchOptions.RemoteCallbacks = new RemoteCallbacks(options).GenerateCallbacks();
                 if (options.FetchOptions != null && options.FetchOptions.CustomHeaders != null)
                 {

@@ -48,5 +48,15 @@ namespace LibGit2Sharp
         /// Completed operating on the current repository.
         /// </summary>
         public RepositoryOperationCompleted RepositoryOperationCompleted { get; set; }
+
+        /// <summary>
+        /// Configures operating behind a proxy
+        /// <para>
+        /// If not set, any proxy settings will be ignored
+        /// </para>
+        /// </summary>
+        public ProxyOptions ProxyOptions { get; set; }
     }
+
+    
 }

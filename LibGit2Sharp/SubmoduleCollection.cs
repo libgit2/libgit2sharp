@@ -100,7 +100,7 @@ namespace LibGit2Sharp
                     var remoteCallbacks = new RemoteCallbacks(options);
                     var gitRemoteCallbacks = remoteCallbacks.GenerateCallbacks();
 
-                    var proxyOptions = GitProxyOptionsFactory.CreateDefaultProxyOptions();
+                    var proxyOptions = GitProxyOptionsFactory.CreateGitProxyOptions(options.ProxyOptions);
 
                     var gitSubmoduleUpdateOpts = new GitSubmoduleUpdateOptions
                     {
