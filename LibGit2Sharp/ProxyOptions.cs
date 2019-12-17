@@ -3,8 +3,14 @@
     /// <summary>
     /// Collection of parameters controlling proxy behavior.
     /// </summary>
-    public class ProxyOptions
+    public sealed class ProxyOptions
     {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public ProxyOptions()
+        { }
+
         /// <summary>
         /// The type of proxy to use, by URL, auto-detect.
         /// </summary>

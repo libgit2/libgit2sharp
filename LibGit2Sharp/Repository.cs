@@ -669,9 +669,25 @@ namespace LibGit2Sharp
         /// </para>
         /// <param name="url">The url to list from.</param>
         /// <param name="credentialsProvider">The <see cref="Func{Credentials}"/> used to connect to remote repository.</param>
-        /// <param name="options">Options for remote behaviore <see cref="RemoteOptions"/></param>
         /// <returns>The references in the remote repository.</returns>
-        public static IEnumerable<Reference> ListRemoteReferences(string url, CredentialsHandler credentialsProvider, RemoteOptions options = null)
+        public static IEnumerable<Reference> ListRemoteReferences(string url, CredentialsHandler credentialsProvider)
+        {
+            return ListRemoteReferences(url, credentialsProvider, new RemoteOptions());
+        }
+
+        /// <summary>
+        /// Lists the Remote Repository References.
+        /// </summary>
+        /// <para>
+        /// Does not require a local Repository. The retrieved
+        /// <see cref="IBelongToARepository.Repository"/>
+        /// throws <see cref="InvalidOperationException"/> in this case.
+        /// </para>
+        /// <param name="url">The url to list from.</param>
+        /// <param name="credentialsProvider">The <see cref="Func{Credentials}"/> used to connect to remote repository.</param>
+        /// <param name="options">Options for remote behavior <see cref="RemoteOptions"/></param>
+        /// <returns>The references in the remote repository.</returns>
+        public static IEnumerable<Reference> ListRemoteReferences(string url, CredentialsHandler credentialsProvider, RemoteOptions options)
         {
             Ensure.ArgumentNotNull(url, "url");
 

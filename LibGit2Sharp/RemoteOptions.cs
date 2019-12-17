@@ -3,8 +3,14 @@
     /// <summary>
     /// Collection of parameters controlling reote behavior.
     /// </summary>
-    public class RemoteOptions
+    public sealed class RemoteOptions
     {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public RemoteOptions()
+        { }
+
         /// <summary>
         /// Configures operating behind a proxy
         /// <para>
