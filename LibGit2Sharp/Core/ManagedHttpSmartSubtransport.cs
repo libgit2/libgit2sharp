@@ -50,6 +50,7 @@ namespace LibGit2Sharp.Core
             private static int MAX_REDIRECTS = 7;
 
             private MemoryStream postBuffer = new MemoryStream();
+            private HttpResponseMessage response;
             private Stream responseStream;
 
             private HttpClientHandler httpClientHandler;
@@ -231,12 +232,12 @@ namespace LibGit2Sharp.Core
 
             public override int Read(Stream dataStream, long length, out long readTotal)
             {
-                byte[] buffer = new byte[4096];
+                byte[] buffer = new byte[16];
                 readTotal = 0;
 
                 if (responseStream == null)
                 {
-                    HttpResponseMessage response = GetResponseWithRedirects();
+                    response = GetResponseWithRedirects();
                     responseStream = response.Content.ReadAsStreamAsync().Result;
                 }
 
@@ -245,7 +246,9 @@ namespace LibGit2Sharp.Core
                     int readLen = responseStream.Read(buffer, 0, (int)Math.Min(buffer.Length, length));
 
                     if (readLen == 0)
+                    {
                         break;
+                    }
 
                     dataStream.Write(buffer, 0, readLen);
                     readTotal += readLen;
@@ -261,6 +264,12 @@ namespace LibGit2Sharp.Core
                 {
                     responseStream.Dispose();
                     responseStream = null;
+                }
+
+                if (response != null)
+                {
+                    response.Dispose();
+                    response = null;
                 }
 
                 if (httpClient != null)
