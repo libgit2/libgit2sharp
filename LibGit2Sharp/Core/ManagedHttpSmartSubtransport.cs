@@ -69,16 +69,9 @@ namespace LibGit2Sharp.Core
 
             private HttpClientHandler CreateClientHandler()
             {
-#if !NETFRAMEWORK
                 var httpClientHandler = new HttpClientHandler();
                 httpClientHandler.SslProtocols |= SslProtocols.Tls12;
                 httpClientHandler.ServerCertificateCustomValidationCallback = CertificateValidationProxy;
-#else
-                var httpClientHandler = new WebRequestHandler();
-                httpClientHandler.ServerCertificateValidationCallback = CertificateValidationProxy;
-
-                ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
-#endif
 
                 httpClientHandler.AllowAutoRedirect = false;
 
