@@ -190,7 +190,7 @@ namespace LibGit2Sharp.Core
                             request.Content.Headers.Add("Content-Type", ContentType);
                         }
 
-                        var response = httpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead).Result;
+                        var response = httpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead).GetAwaiter().GetResult();
 
                         if (response.StatusCode == HttpStatusCode.OK)
                         {
@@ -231,7 +231,7 @@ namespace LibGit2Sharp.Core
                 if (responseStream == null)
                 {
                     response = GetResponseWithRedirects();
-                    responseStream = response.Content.ReadAsStreamAsync().Result;
+                    responseStream = response.Content.ReadAsStreamAsync().GetAwaiter().GetResult();
                 }
 
                 while (length > 0)
