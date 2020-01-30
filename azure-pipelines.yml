@@ -1,34 +1,19 @@
 trigger:
-- master
-- maint/*
+  branches:
+    include:
+    - master
+    - 'maint.*'
+  paths:
+    exclude:
+    - doc/
+    - '*.md'
+    - .vscode/
 
 variables:
-  solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
+  TreatWarningsAsErrors: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  BuildConfiguration: Release
+  NUGET_PACKAGES: $(Agent.TempDirectory)/.nuget/packages
 
 jobs:
-- job: Windows
-  pool:
-    vmImage: 'windows-2019'
-  steps:
-  - pwsh: ./tools/Install-DotNetSdk.ps1
-    displayName: Installing .NET Core SDK and runtimes
-  - script: buildandtest.cmd
-    displayName: Build and test
-- job: Linux
-  pool:
-    vmImage: 'Ubuntu 16.04'
-  steps:
-  - pwsh: ./tools/Install-DotNetSdk.ps1
-    displayName: Installing .NET Core SDK and runtimes
-  - script: ./buildandtest.sh
-    displayName: Build and test
-- job: macOS
-  pool:
-    vmImage: 'macOS 10.13'
-  steps:
-  - pwsh: ./tools/Install-DotNetSdk.ps1
-    displayName: Installing .NET Core SDK and runtimes
-  - script: ./buildandtest.sh
-    displayName: Build and test
+- template: azure-pipelines/build.yml

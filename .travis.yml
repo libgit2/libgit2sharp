@@ -1,46 +1,7 @@
-# Travis-CI Build for libgit2sharp
-# see travis-ci.org for details
-
 language: csharp
 mono: none
 
-matrix:
-  include:
-    - os: linux
-      dist: xenial
-      before_install:
-      - |
-       wget -q https://packages.microsoft.com/config/ubuntu/16.04/packages-microsoft-prod.deb
-       sudo dpkg -i packages-microsoft-prod.deb
-       sudo apt-get update
-       sudo apt-get install -y powershell
-    - os: osx
-      osx_image: xcode8.3
-      before_install:
-      - brew update # This is necessary to get pwsh 6.2 instead of some 6.0-preview that isn't named `pwsh`
-      - brew cask install powershell
-  fast_finish: true
-
-before_install:
- - date -u
- - uname -a
- - env | sort
-
-install:
- - git fetch --unshallow
- - pwsh ./tools/Install-DotNetSdk.ps1 ; export PATH=~/.dotnet:$PATH
-
-# Build libgit2, LibGit2Sharp and run the tests
-script:
- - ./buildandtest.sh 'LEAKS_IDENTIFYING'
-
-# Only watch the development branch
+# Disable Travis-CI
 branches:
  only:
-   - master
-   - /^maint.*/
-
-# Notify of build changes
-notifications:
- email:
-  - emeric.fermas@gmail.com
+   - NOTTHISONE

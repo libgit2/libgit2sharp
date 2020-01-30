@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+      - maint.*
+      - validate/*
+  pull_request:
+
+env:
+  TreatWarningsAsErrors: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  BUILDCONFIGURATION: Release
+  CODECOV_TOKEN: a26c421a-824d-4a30-933b-47b2a203587f
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+
+jobs:
+  leak_check:
+    name: Leak check (ubuntu-18.04)
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+    - name: Install prerequisites
+      run: ./init.ps1 -UpgradePrerequisites
+      shell: pwsh
+    - name: Test
+      run: dotnet test LibGit2Sharp.Tests --no-restore -c ${{ env.BUILDCONFIGURATION }} --filter "TestCategory!=FailsInCloudTest" -v m /p:ExtraDefine=LEAKS_IDENTIFYING -f netcoreapp2.1
+
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+        - ubuntu-18.04
+        - macos-latest
+        - windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+    - name: Install prerequisites
+      run: |
+        ./init.ps1 -UpgradePrerequisites
+        dotnet --info
+      shell: pwsh
+    - name: Build
+      run: dotnet build --no-restore -c ${{ env.BUILDCONFIGURATION }} /v:m /bl:"bin/build_logs/build.binlog"
+    - name: Pack
+      run: dotnet pack --no-build -c ${{ env.BUILDCONFIGURATION }} /v:m /bl:"bin/build_logs/pack.binlog"
+      if: runner.os == 'Windows'
+    - name: Test everything
+      run: dotnet test --no-build -c ${{ env.BUILDCONFIGURATION }} /bl:"bin/build_logs/test.binlog" --filter "TestCategory!=FailsInCloudTest" -v n /p:CollectCoverage=true
+      if: runner.os == 'Windows'
+    - name: Test .NET Core
+      run: dotnet test --no-build -c ${{ env.BUILDCONFIGURATION }} /bl:"bin/build_logs/test.binlog" --filter "TestCategory!=FailsInCloudTest" -v n /p:CollectCoverage=true -f netcoreapp2.1
+      if: runner.os != 'Windows'
+    - name: Collect artifacts
+      run: azure-pipelines/artifacts/_stage_all.ps1
+      shell: pwsh
+      if: always()
+    - name: Upload project.assets.json files
+      if: always()
+      uses: actions/upload-artifact@v1
+      with:
+        name: projectAssetsJson-${{ runner.os }}
+        path: obj/_artifacts/projectAssetsJson
+      continue-on-error: true
+    - name: Upload build_logs
+      if: always()
+      uses: actions/upload-artifact@v1
+      with:
+        name: build_logs-${{ runner.os }}
+        path: obj/_artifacts/build_logs
+      continue-on-error: true
+    - name: Upload coverageResults
+      if: always()
+      uses: actions/upload-artifact@v1
+      with:
+        name: coverageResults-${{ runner.os }}
+        path: obj/_artifacts/coverageResults
+      continue-on-error: true
+    - name: Upload deployables
+      uses: actions/upload-artifact@v1
+      with:
+        name: deployables
+        path: obj/_artifacts/deployables
+      if: runner.os == 'Windows'
+    - name: Publish code coverage results to codecov.io
+      run: bash <(curl -s https://codecov.io/bash)
+      shell: bash
+      timeout-minutes: 3
+      continue-on-error: true
