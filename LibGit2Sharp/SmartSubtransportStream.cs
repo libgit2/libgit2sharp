@@ -44,13 +44,20 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Requests that the stream write the next length bytes of the stream to the provided Stream object.
+        /// Reads from the transport into the provided <paramref name="dataStream"/> object.
         /// </summary>
+        /// <param name="dataStream">The stream to copy the read bytes into.</param>
+        /// <param name="length">The number of bytes expected from the underlying transport.</param>
+        /// <param name="bytesRead">Receives the number of bytes actually read.</param>
+        /// <returns>The error code to propagate back to the native code that requested this operation. 0 is expected, and exceptions may be thrown.</returns>
         public abstract int Read(Stream dataStream, long length, out long bytesRead);
 
         /// <summary>
-        /// Requests that the stream write the first length bytes of the provided Stream object to the stream.
+        /// Writes the content of a given stream to the transport.
         /// </summary>
+        /// <param name="dataStream">The stream with the data to write to the transport.</param>
+        /// <param name="length">The number of bytes to read from <paramref name="dataStream"/>.</param>
+        /// <returns>The error code to propagate back to the native code that requested this operation. 0 is expected, and exceptions may be thrown.</returns>
         public abstract int Write(Stream dataStream, long length);
 
         /// <summary>
