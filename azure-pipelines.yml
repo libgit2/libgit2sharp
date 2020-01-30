@@ -10,16 +10,25 @@ variables:
 jobs:
 - job: Windows
   pool:
-    vmImage: 'VS2017-Win2016'
+    vmImage: 'windows-2019'
   steps:
+  - pwsh: ./tools/Install-DotNetSdk.ps1
+    displayName: Installing .NET Core SDK and runtimes
   - script: buildandtest.cmd
+    displayName: Build and test
 - job: Linux
   pool:
     vmImage: 'Ubuntu 16.04'
   steps:
+  - pwsh: ./tools/Install-DotNetSdk.ps1
+    displayName: Installing .NET Core SDK and runtimes
   - script: ./buildandtest.sh
+    displayName: Build and test
 - job: macOS
   pool:
     vmImage: 'macOS 10.13'
   steps:
+  - pwsh: ./tools/Install-DotNetSdk.ps1
+    displayName: Installing .NET Core SDK and runtimes
   - script: ./buildandtest.sh
+    displayName: Build and test

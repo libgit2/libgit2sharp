@@ -1,6 +1,6 @@
 version: '{build}'
 
-os: Visual Studio 2017
+os: Visual Studio 2019
 
 branches:
   only:
@@ -67,6 +67,8 @@ install:
     {
       cinst curl -y
     }
+
+    ./tools/Install-DotNetSdk.ps1
 
 before_build:
 - ps: |
