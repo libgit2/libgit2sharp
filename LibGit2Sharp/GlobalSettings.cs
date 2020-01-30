@@ -474,6 +474,10 @@ namespace LibGit2Sharp
             Proxy.git_libgit2_opts_set_search_path(level, pathString);
         }
 
+        /// <summary>
+        /// Enable or disable strict hash verification.
+        /// </summary>
+        /// <param name="enabled">true to enable strict hash verification; false otherwise.</param>
         public static void SetStrictHashVerification(bool enabled)
         {
             Proxy.git_libgit2_opts_enable_strict_hash_verification(enabled);
@@ -518,6 +522,7 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Gets the user-agent string used by libgit2.
+        /// </summary>
         /// <returns>
         /// The user-agent string.
         /// </returns>

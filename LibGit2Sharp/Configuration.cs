@@ -661,7 +661,6 @@ namespace LibGit2Sharp
         ///   repo.Config.Add("test.plugin", "first");
         /// </para>
         /// </summary>
-        /// <typeparam name="T">The configuration value type</typeparam>
         /// <param name="key">The key parts</param>
         /// <param name="value">The value</param>
         public virtual void Add(string key, string value)
@@ -682,7 +681,6 @@ namespace LibGit2Sharp
         ///   repo.Config.Add("test.plugin", "first");
         /// </para>
         /// </summary>
-        /// <typeparam name="T">The configuration value type</typeparam>
         /// <param name="key">The key parts</param>
         /// <param name="value">The value</param>
         /// <param name="level">The configuration file which should be considered as the target of this operation</param>

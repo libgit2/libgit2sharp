@@ -3469,6 +3469,7 @@ namespace LibGit2Sharp.Core
 
         /// <summary>
         /// Gets the user-agent string used by libgit2.
+        /// </summary>
         /// <returns>
         /// The user-agent string.
         /// </returns>
