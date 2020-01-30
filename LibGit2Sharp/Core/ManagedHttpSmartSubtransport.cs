@@ -225,7 +225,7 @@ namespace LibGit2Sharp.Core
 
             public override int Read(Stream dataStream, long length, out long readTotal)
             {
-                byte[] buffer = new byte[16];
+                byte[] buffer = new byte[4096];
                 readTotal = 0;
 
                 if (responseStream == null)
