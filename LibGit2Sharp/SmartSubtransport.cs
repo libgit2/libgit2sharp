@@ -84,6 +84,13 @@ namespace LibGit2Sharp
             return ret;
         }
 
+        /// <summary>
+        /// Acquires credentials.
+        /// </summary>
+        /// <param name="cred">Receives the credentials if the operation is successful.</param>
+        /// <param name="user">The username.</param>
+        /// <param name="methods">The credential types allowed. The only supported one is <see cref="UsernamePasswordCredentials"/>. May be empty but should not be null.</param>
+        /// <returns>0 if successful; a non-zero error code that came from <see cref="Proxy.git_transport_smart_credentials"/> otherwise.</returns>
         public int AcquireCredentials(out Credentials cred, string user, params Type[] methods)
         {
             // Convert the user-provided types to libgit2's flags
