@@ -34,6 +34,9 @@ namespace LibGit2Sharp
             repository.RegisterForCleanup(this);
         }
 
+        /// <summary>
+        /// The finalizer for the <see cref="Remote"/> class.
+        /// </summary>
         ~Remote()
         {
             Dispose(false);
