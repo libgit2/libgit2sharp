@@ -5,21 +5,13 @@ jobs:
 - job: Windows
   pool: ${{ parameters.windowsPool }}
   steps:
-  - checkout: self
-    clean: true
   - template: install-dependencies.yml
-
-  - powershell: '& (./azure-pipelines/Get-nbgv.ps1) cloud'
-    displayName: Set build number
-
   - template: dotnet.yml
 
 - job: Linux
   pool:
     vmImage: Ubuntu 18.04
   steps:
-  - checkout: self
-    clean: true
   - template: install-dependencies.yml
   - template: dotnet.yml
 
@@ -27,8 +19,6 @@ jobs:
   pool:
     vmImage: macOS 10.13
   steps:
-  - checkout: self
-    clean: true
   - template: install-dependencies.yml
   - template: dotnet.yml
 
@@ -41,8 +31,6 @@ jobs:
     vmImage: Ubuntu 18.04
   condition: succeededOrFailed()
   steps:
-  - checkout: self
-    clean: true
   - template: install-dependencies.yml
     parameters:
       initArgs: -NoRestore
@@ -53,8 +41,6 @@ jobs:
   pool:
     vmImage: Ubuntu 18.04
   steps:
-  - checkout: self
-    clean: true
   - template: install-dependencies.yml
   - task: DotNetCoreCLI@2
     displayName: dotnet test -f netcoreapp2.1

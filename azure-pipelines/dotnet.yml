@@ -31,26 +31,10 @@ steps:
 
 - task: PowerShell@2
   inputs:
-    filePath: azure-pipelines/variables/_pipelines.ps1
-    failOnStderr: true
-  displayName: Update pipeline variables based on build outputs
-  condition: succeededOrFailed()
-
-- task: PowerShell@2
-  inputs:
     filePath: azure-pipelines/artifacts/_pipelines.ps1
     arguments: -ArtifactNameSuffix "-$(Agent.JobName)"
   displayName: Publish artifacts
   condition: succeededOrFailed()
-
-- task: PublishSymbols@2
-  inputs:
-    SymbolsFolder: $(Build.ArtifactStagingDirectory)/symbols-Windows
-    SearchPattern: '**/*.pdb'
-    IndexSources: false
-    SymbolServerType: TeamServices
-  displayName: Publish symbols to symbol server
-  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'), eq(variables['Agent.OS'], 'Windows_NT'))
 
 - bash: bash <(curl -s https://codecov.io/bash)
   displayName: Publish code coverage results to codecov.io

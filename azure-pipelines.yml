@@ -1,13 +1,6 @@
 trigger:
-  branches:
-    include:
-    - master
-    - 'maint.*'
-  paths:
-    exclude:
-    - doc/
-    - '*.md'
-    - .vscode/
+- master
+- maint/*
 
 variables:
   TreatWarningsAsErrors: true
