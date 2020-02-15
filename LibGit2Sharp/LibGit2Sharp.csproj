@@ -15,15 +15,15 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\libgit2sharp.snk</AssemblyOriginatorKeyFile>
     <PackageIcon>square-logo.png</PackageIcon>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseFile>App_Readme/LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
     <None Include="..\square-logo.png" Pack="true" PackagePath="" />
-    <None Include="..\README.md" Pack="true" PackagePath="App_Readme\" />
-    <None Include="..\LICENSE.md" Pack="true" PackagePath="App_Readme\" />
-    <None Include="..\CHANGES.md" Pack="true" PackagePath="App_Readme\" />
+    <None Include="..\README.md" Pack="true" PackagePath="App_Readme/" />
+    <None Include="..\LICENSE.md" Pack="true" PackagePath="App_Readme/" />
+    <None Include="..\CHANGES.md" Pack="true" PackagePath="App_Readme/" />
     <None Update="Core\Handles\Objects.tt" Generator="TextTemplatingFileGenerator" LastGenOutput="Objects.cs" />
     <Compile Update="Core\Handles\Objects.cs" DependentUpon="Objects.tt" DesignTime="True" AutoGen="True" />
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" /> <!-- Needed for T4 generation -->
