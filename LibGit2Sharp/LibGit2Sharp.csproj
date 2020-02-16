@@ -16,13 +16,16 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\libgit2sharp.snk</AssemblyOriginatorKeyFile>
+    <PackageIcon>square-logo.png</PackageIcon>
+    <PackageLicenseFile>App_Readme/LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
-    <None Include="..\README.md" Pack="true" PackagePath="App_Readme\" />
-    <None Include="..\LICENSE.md" Pack="true" PackagePath="App_Readme\" />
-    <None Include="..\CHANGES.md" Pack="true" PackagePath="App_Readme\" />
+    <None Include="..\square-logo.png" Pack="true" PackagePath="" />
+    <None Include="..\README.md" Pack="true" PackagePath="App_Readme/" />
+    <None Include="..\LICENSE.md" Pack="true" PackagePath="App_Readme/" />
+    <None Include="..\CHANGES.md" Pack="true" PackagePath="App_Readme/" />
     <None Update="Core\Handles\Objects.tt" Generator="TextTemplatingFileGenerator" LastGenOutput="Objects.cs" />
     <Compile Update="Core\Handles\Objects.cs" DependentUpon="Objects.tt" DesignTime="True" AutoGen="True" />
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" /> <!-- Needed for T4 generation -->
@@ -30,8 +33,8 @@
 
   <ItemGroup>
     <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="[2.0.305]" PrivateAssets="none" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="all" />
-    <PackageReference Include="Nerdbank.GitVersioning" Version="2.3.138" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="all" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.0.50" PrivateAssets="all" />
   </ItemGroup>
 
   <Import Project="..\Targets\CodeGenerator.targets" />
@@ -39,9 +42,7 @@
 
   <Target Name="SetNuSpecProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="GetBuildVersion">
     <PropertyGroup>
-      <PackageIconUrl>https://github.com/libgit2/libgit2sharp/raw/$(GitCommitIdShort)/square-logo.png</PackageIconUrl>
       <PackageReleaseNotes>https://github.com/libgit2/libgit2sharp/blob/$(GitCommitIdShort)/CHANGES.md#libgit2sharp-changes</PackageReleaseNotes>
-      <PackageLicenseUrl>https://github.com/libgit2/libgit2sharp/raw/$(GitCommitIdShort)/LICENSE.md</PackageLicenseUrl>
     </PropertyGroup>
   </Target>
 
