@@ -3,23 +3,10 @@ trigger:
 - maint/*
 
 variables:
-  solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
+  TreatWarningsAsErrors: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  BuildConfiguration: Release
+  NUGET_PACKAGES: $(Agent.TempDirectory)/.nuget/packages
 
 jobs:
-- job: Windows
-  pool:
-    vmImage: 'VS2017-Win2016'
-  steps:
-  - script: buildandtest.cmd
-- job: Linux
-  pool:
-    vmImage: 'Ubuntu 16.04'
-  steps:
-  - script: ./buildandtest.sh
-- job: macOS
-  pool:
-    vmImage: 'macOS 10.13'
-  steps:
-  - script: ./buildandtest.sh
+- template: azure-pipelines/build.yml
