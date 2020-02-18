@@ -525,6 +525,7 @@ namespace LibGit2Sharp
         /// <returns>
         /// The user-agent string.
         /// </returns>
+        /// </summary>
         public static string GetUserAgent()
         {
             return Proxy.git_libgit2_opts_get_user_agent();
