@@ -53,18 +53,24 @@ namespace LibGit2Sharp.Core
             private HttpResponseMessage response;
             private Stream responseStream;
 
-            private HttpClientHandler httpClientHandler;
-            private HttpClient httpClient;
-
             public ManagedHttpSmartSubtransportStream(ManagedHttpSmartSubtransport parent, string endpointUrl, bool isPost, string contentType)
                 : base(parent)
             {
                 EndpointUrl = new Uri(endpointUrl);
                 IsPost = isPost;
                 ContentType = contentType;
+            }
 
-                httpClientHandler = CreateClientHandler();
-                httpClient = new HttpClient(httpClientHandler);
+            private HttpClient CreateHttpClient(HttpMessageHandler handler)
+            {
+                return new HttpClient(handler)
+                {
+                    DefaultRequestHeaders =
+                    {
+                        // This worked fine when it was on, but git.exe doesn't specify this header, so we don't either.
+                        ExpectContinue = false,
+                    },
+                };
             }
 
             private HttpClientHandler CreateClientHandler()
@@ -132,7 +138,7 @@ namespace LibGit2Sharp.Core
 
                     return true;
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     SetError(e);
                     return false;
@@ -169,53 +175,55 @@ namespace LibGit2Sharp.Core
 
                 for (retries = 0; ; retries++)
                 {
-                    var httpClientHandler = CreateClientHandler();
-                    httpClientHandler.Credentials = credentials;
-
-                    using (var httpClient = new HttpClient(httpClientHandler))
+                    using (var httpClientHandler = CreateClientHandler())
                     {
-                        var request = CreateRequest(url, IsPost, ContentType);
+                        httpClientHandler.Credentials = credentials;
 
-                        if (retries > MAX_REDIRECTS)
+                        using (var httpClient = this.CreateHttpClient(httpClientHandler))
                         {
-                            throw new Exception("too many redirects or authentication replays");
-                        }
+                            var request = CreateRequest(url, IsPost, ContentType);
 
-                        if (IsPost && postBuffer.Length > 0)
-                        {
-                            var bufferDup = new MemoryStream(postBuffer.GetBuffer(), 0, (int) postBuffer.Length);
-
-                            request.Content = new StreamContent(bufferDup);
-                            request.Content.Headers.Add("Content-Type", ContentType);
-                        }
-
-                        var response = httpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead).GetAwaiter().GetResult();
-
-                        if (response.StatusCode == HttpStatusCode.OK)
-                        {
-                            return response;
-                        }
-                        else if (response.StatusCode == HttpStatusCode.Unauthorized)
-                        {
-                            Credentials cred;
-                            int ret = SmartTransport.AcquireCredentials(out cred, null, typeof(UsernamePasswordCredentials));
-
-                            if (ret != 0)
+                            if (retries > MAX_REDIRECTS)
                             {
-                                throw new InvalidOperationException("authentication cancelled");
+                                throw new Exception("too many redirects or authentication replays");
                             }
 
-                            UsernamePasswordCredentials userpass = (UsernamePasswordCredentials)cred;
-                            credentials = new NetworkCredential(userpass.Username, userpass.Password);
-                            continue;
-                        }
-                        else if (response.StatusCode == HttpStatusCode.Moved || response.StatusCode == HttpStatusCode.Redirect)
-                        {
-                            url = new Uri(response.Headers.GetValues("Location").First());
-                            continue;
-                        }
+                            if (IsPost && postBuffer.Length > 0)
+                            {
+                                var bufferDup = new MemoryStream(postBuffer.GetBuffer(), 0, (int)postBuffer.Length);
 
-                        throw new Exception(string.Format("unexpected HTTP response: {0}", response.StatusCode));
+                                request.Content = new StreamContent(bufferDup);
+                                request.Content.Headers.Add("Content-Type", ContentType);
+                            }
+
+                            var response = httpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead).GetAwaiter().GetResult();
+
+                            if (response.StatusCode == HttpStatusCode.OK)
+                            {
+                                return response;
+                            }
+                            else if (response.StatusCode == HttpStatusCode.Unauthorized)
+                            {
+                                Credentials cred;
+                                int ret = SmartTransport.AcquireCredentials(out cred, null, typeof(UsernamePasswordCredentials));
+
+                                if (ret != 0)
+                                {
+                                    throw new InvalidOperationException("authentication cancelled");
+                                }
+
+                                UsernamePasswordCredentials userpass = (UsernamePasswordCredentials)cred;
+                                credentials = new NetworkCredential(userpass.Username, userpass.Password);
+                                continue;
+                            }
+                            else if (response.StatusCode == HttpStatusCode.Moved || response.StatusCode == HttpStatusCode.Redirect)
+                            {
+                                url = new Uri(response.Headers.GetValues("Location").First());
+                                continue;
+                            }
+
+                            throw new Exception(string.Format("unexpected HTTP response: {0}", response.StatusCode));
+                        }
                     }
                 }
 
@@ -262,12 +270,6 @@ namespace LibGit2Sharp.Core
                 {
                     response.Dispose();
                     response = null;
-                }
-
-                if (httpClient != null)
-                {
-                    httpClient.Dispose();
-                    httpClient = null;
                 }
 
                 base.Free();
