@@ -183,8 +183,7 @@ namespace LibGit2Sharp.Core
 
                         if (IsPost && postBuffer.Length > 0)
                         {
-                            var bufferDup = new MemoryStream(postBuffer.GetBuffer());
-                            bufferDup.Seek(0, SeekOrigin.Begin);
+                            var bufferDup = new MemoryStream(postBuffer.GetBuffer(), 0, (int) postBuffer.Length);
 
                             request.Content = new StreamContent(bufferDup);
                             request.Content.Headers.Add("Content-Type", ContentType);
