@@ -85,23 +85,11 @@ namespace LibGit2Sharp.Core
                 return httpClientHandler;
             }
 
-            private Uri EndpointUrl
-            {
-                get;
-                set;
-            }
+            private Uri EndpointUrl { get; set; }
 
-            private bool IsPost
-            {
-                get;
-                set;
-            }
+            private bool IsPost { get; set; }
 
-            private string ContentType
-            {
-                get;
-                set;
-            }
+            private string ContentType { get; set; }
 
             public override int Write(Stream dataStream, long length)
             {
@@ -204,8 +192,7 @@ namespace LibGit2Sharp.Core
                         }
                         else if (response.StatusCode == HttpStatusCode.Unauthorized)
                         {
-                            Credentials cred;
-                            int ret = SmartTransport.AcquireCredentials(out cred, null, typeof(UsernamePasswordCredentials));
+                            int ret = SmartTransport.AcquireCredentials(out Credentials cred, null, typeof(UsernamePasswordCredentials));
 
                             if (ret != 0)
                             {
