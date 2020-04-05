@@ -176,55 +176,53 @@ namespace LibGit2Sharp.Core
 
                 for (retries = 0; ; retries++)
                 {
-                    using (var httpClientHandler = CreateClientHandler())
+                    var httpClientHandler = CreateClientHandler();
+                    httpClientHandler.Credentials = credentials;
+
+                    using (var httpClient = this.CreateHttpClient(httpClientHandler))
                     {
-                        httpClientHandler.Credentials = credentials;
+                        var request = CreateRequest(url, IsPost, ContentType);
 
-                        using (var httpClient = this.CreateHttpClient(httpClientHandler))
+                        if (retries > MAX_REDIRECTS)
                         {
-                            var request = CreateRequest(url, IsPost, ContentType);
-
-                            if (retries > MAX_REDIRECTS)
-                            {
-                                throw new Exception("too many redirects or authentication replays");
-                            }
-
-                            if (IsPost && postBuffer.Length > 0)
-                            {
-                                var bufferDup = new MemoryStream(postBuffer.GetBuffer(), 0, (int)postBuffer.Length);
-
-                                request.Content = new StreamContent(bufferDup);
-                                request.Content.Headers.Add("Content-Type", ContentType);
-                            }
-
-                            var response = httpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead).GetAwaiter().GetResult();
-
-                            if (response.StatusCode == HttpStatusCode.OK)
-                            {
-                                return response;
-                            }
-                            else if (response.StatusCode == HttpStatusCode.Unauthorized)
-                            {
-                                Credentials cred;
-                                int ret = SmartTransport.AcquireCredentials(out cred, null, typeof(UsernamePasswordCredentials));
-
-                                if (ret != 0)
-                                {
-                                    throw new InvalidOperationException("authentication cancelled");
-                                }
-
-                                UsernamePasswordCredentials userpass = (UsernamePasswordCredentials)cred;
-                                credentials = new NetworkCredential(userpass.Username, userpass.Password);
-                                continue;
-                            }
-                            else if (response.StatusCode == HttpStatusCode.Moved || response.StatusCode == HttpStatusCode.Redirect)
-                            {
-                                url = new Uri(response.Headers.GetValues("Location").First());
-                                continue;
-                            }
-
-                            throw new Exception(string.Format("unexpected HTTP response: {0}", response.StatusCode));
+                            throw new Exception("too many redirects or authentication replays");
                         }
+
+                        if (IsPost && postBuffer.Length > 0)
+                        {
+                            var bufferDup = new MemoryStream(postBuffer.GetBuffer(), 0, (int)postBuffer.Length);
+
+                            request.Content = new StreamContent(bufferDup);
+                            request.Content.Headers.Add("Content-Type", ContentType);
+                        }
+
+                        var response = httpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead).GetAwaiter().GetResult();
+
+                        if (response.StatusCode == HttpStatusCode.OK)
+                        {
+                            return response;
+                        }
+                        else if (response.StatusCode == HttpStatusCode.Unauthorized)
+                        {
+                            Credentials cred;
+                            int ret = SmartTransport.AcquireCredentials(out cred, null, typeof(UsernamePasswordCredentials));
+
+                            if (ret != 0)
+                            {
+                                throw new InvalidOperationException("authentication cancelled");
+                            }
+
+                            UsernamePasswordCredentials userpass = (UsernamePasswordCredentials)cred;
+                            credentials = new NetworkCredential(userpass.Username, userpass.Password);
+                            continue;
+                        }
+                        else if (response.StatusCode == HttpStatusCode.Moved || response.StatusCode == HttpStatusCode.Redirect)
+                        {
+                            url = new Uri(response.Headers.GetValues("Location").First());
+                            continue;
+                        }
+
+                        throw new Exception(string.Format("unexpected HTTP response: {0}", response.StatusCode));
                     }
                 }
 
