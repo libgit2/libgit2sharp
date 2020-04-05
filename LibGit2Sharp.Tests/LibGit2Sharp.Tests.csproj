@@ -6,8 +6,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LibGit2Sharp\LibGit2Sharp.csproj" />
-    <ProjectReference Include="..\NativeLibraryLoadTestApp\x86\NativeLibraryLoadTestApp.x86.csproj" Condition="'$(TargetFramework)' == 'net46'" ReferenceOutputAssembly="false" OutputItemType="TestAppExe" />
-    <ProjectReference Include="..\NativeLibraryLoadTestApp\x64\NativeLibraryLoadTestApp.x64.csproj" Condition="'$(TargetFramework)' == 'net46'" ReferenceOutputAssembly="false" OutputItemType="TestAppExe" />
+    <ProjectReference Include="..\NativeLibraryLoadTestApp\x86\NativeLibraryLoadTestApp.x86.csproj" Condition="'$(TargetFramework)' != 'netcoreapp2.1'" ReferenceOutputAssembly="false" OutputItemType="TestAppExe" />
+    <ProjectReference Include="..\NativeLibraryLoadTestApp\x64\NativeLibraryLoadTestApp.x64.csproj" Condition="'$(TargetFramework)' != 'netcoreapp2.1'" ReferenceOutputAssembly="false" OutputItemType="TestAppExe" />
   </ItemGroup>
 
   <ItemGroup>
