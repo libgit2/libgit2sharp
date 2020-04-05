@@ -1,3 +1,4 @@
+#if !NET46
 using System;
 using System.IO;
 using System.Linq;
@@ -277,3 +278,4 @@ namespace LibGit2Sharp.Core
         }
     }
 }
+#endif

@@ -13,7 +13,7 @@ namespace LibGit2Sharp.Core
     internal static class Platform
     {
         public static string ProcessorArchitecture => IntPtr.Size == 8 ? "x64" : "x86";
-#if NETFRAMEWORK 
+#if NET46
         private static bool? _isRunningOnMac;
         private static bool IsRunningOnMac() => _isRunningOnMac ?? (_isRunningOnMac = TryGetIsRunningOnMac()) ?? false;
 #endif
@@ -22,7 +22,7 @@ namespace LibGit2Sharp.Core
         {
             get
             {
-#if NETFRAMEWORK
+#if NET46
                 var platform = (int)Environment.OSVersion.Platform;
                 if (platform <= 3 || platform == 5)
                 {
@@ -91,7 +91,7 @@ namespace LibGit2Sharp.Core
         public static bool IsRunningOnNetCore()
             => typeof(object).Assembly.GetName().Name != "mscorlib";
 
-#if NETFRAMEWORK
+#if NET46
 #pragma warning disable IDE1006 // Naming Styles
         [DllImport("libc")]
         private static extern int sysctlbyname(

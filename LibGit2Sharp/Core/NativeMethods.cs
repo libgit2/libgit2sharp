@@ -26,8 +26,10 @@ namespace LibGit2Sharp.Core
         private static NativeShutdownObject shutdownObject;
 #pragma warning restore 0414
 
+#if !NET46
         private static SmartSubtransportRegistration<ManagedHttpSmartSubtransport> httpSubtransportRegistration;
         private static SmartSubtransportRegistration<ManagedHttpSmartSubtransport> httpsSubtransportRegistration;
+#endif
 
         static NativeMethods()
         {
@@ -45,7 +47,7 @@ namespace LibGit2Sharp.Core
                     string nativeLibraryPath = GetGlobalSettingsNativeLibraryPath();
                     if (nativeLibraryPath != null)
                     {
-#if NETFRAMEWORK
+#if NET46
                         if (Platform.OperatingSystem == OperatingSystemType.Windows)
 #else
                         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -202,12 +204,14 @@ namespace LibGit2Sharp.Core
                 shutdownObject = new NativeShutdownObject();
             }
 
+#if !NET46
             // Configure the .NET HTTP(S) mechanism on the first initialization of the library in the current process.
             if (initCounter == 1)
             {
                 httpSubtransportRegistration = GlobalSettings.RegisterDefaultSmartSubtransport<ManagedHttpSmartSubtransport>("http");
                 httpsSubtransportRegistration = GlobalSettings.RegisterDefaultSmartSubtransport<ManagedHttpSmartSubtransport>("https");
             }
+#endif
         }
 
         // Shutdown the native library in a finalizer.
@@ -215,6 +219,7 @@ namespace LibGit2Sharp.Core
         {
             ~NativeShutdownObject()
             {
+#if !NET46
                 if (httpSubtransportRegistration != null)
                 {
                     GlobalSettings.UnregisterDefaultSmartSubtransport(httpSubtransportRegistration);
@@ -224,6 +229,7 @@ namespace LibGit2Sharp.Core
                 {
                     GlobalSettings.UnregisterDefaultSmartSubtransport(httpsSubtransportRegistration);
                 }
+#endif
 
                 git_libgit2_shutdown();
             }

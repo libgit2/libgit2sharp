@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net46</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net46;net472</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Description>LibGit2Sharp brings all the might and speed of libgit2, a native Git implementation, to the managed world of .Net and Mono.</Description>
     <Company>LibGit2Sharp contributors</Company>
@@ -31,11 +31,14 @@
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" /> <!-- Needed for T4 generation -->
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="[2.0.305]" PrivateAssets="none" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="all" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.0.50" PrivateAssets="all" />
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
 
   <Import Project="..\Targets\CodeGenerator.targets" />
