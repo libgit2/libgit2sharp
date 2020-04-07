@@ -116,9 +116,15 @@ namespace LibGit2Sharp
                     throw new Exception(string.Format("A default subtransport is already configured for {0}", scheme));
                 }
 
-                var registration = RegisterSmartSubtransportInternal<T>(scheme);
+                var registration = new SmartSubtransportRegistration<T>(scheme);
+
+                if (!data.isCustom)
+                {
+                    RegisterSmartSubtransportInternal(registration);
+                }
 
                 data.defaultSubtransport = registration;
+
                 return registration;
             }
         }
@@ -140,8 +146,6 @@ namespace LibGit2Sharp
         public static SmartSubtransportRegistration<T> RegisterSmartSubtransport<T>(string scheme)
             where T : SmartSubtransport, new()
         {
-            SmartSubtransportRegistration<T> registration;
-
             Ensure.ArgumentNotNull(scheme, "scheme");
 
             lock (smartSubtransportData)
@@ -158,31 +162,39 @@ namespace LibGit2Sharp
                     Proxy.git_transport_unregister(scheme);
                 }
 
-                registration = RegisterSmartSubtransportInternal<T>(scheme);
+                var previousValue = data.isCustom;
                 data.isCustom = true;
-            }
 
-            return registration;
+                var registration = new SmartSubtransportRegistration<T>(scheme);
+
+                try
+                {
+                    RegisterSmartSubtransportInternal(registration);
+                }
+                catch
+                {
+                    data.isCustom = previousValue;
+                    throw;
+                }
+
+                return registration;
+            }
         }
 
-        private static SmartSubtransportRegistration<T> RegisterSmartSubtransportInternal<T>(string scheme)
+        private static void RegisterSmartSubtransportInternal<T>(SmartSubtransportRegistration<T> registration)
             where T : SmartSubtransport, new()
         {
-            var registration = new SmartSubtransportRegistration<T>(scheme);
-
             try
             {
                 Proxy.git_transport_register(registration.Scheme,
                                              registration.FunctionPointer,
                                              registration.RegistrationPointer);
             }
-            catch (Exception)
+            catch
             {
                 registration.Free();
                 throw;
             }
-
-            return registration;
         }
 
         /// <summary>
