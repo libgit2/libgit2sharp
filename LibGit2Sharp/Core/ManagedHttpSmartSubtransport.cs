@@ -146,11 +146,11 @@ namespace LibGit2Sharp.Core
                 return userAgent;
             }
 
-            private HttpRequestMessage CreateRequest(Uri endpointUrl, bool isPost, string contentType)
+            private HttpRequestMessage CreateRequest(Uri endpointUrl, bool isPost)
             {
                 var verb = isPost ? new HttpMethod("POST") : new HttpMethod("GET");
                 var request = new HttpRequestMessage(verb, endpointUrl);
-                request.Headers.Add("User-Agent", String.Format("git/2.0 ({0})", GetUserAgent()));
+                request.Headers.Add("User-Agent", $"git/2.0 ({GetUserAgent()})");
                 request.Headers.Remove("Expect");
 
                 return request;
@@ -169,7 +169,7 @@ namespace LibGit2Sharp.Core
 
                     using (var httpClient = this.CreateHttpClient(httpClientHandler))
                     {
-                        var request = CreateRequest(url, IsPost, ContentType);
+                        var request = CreateRequest(url, IsPost);
 
                         if (retries > MAX_REDIRECTS)
                         {
