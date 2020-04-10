@@ -1,5 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="$(SolutionDir)\Common.props" Condition="Exists('$(SolutionDir)\Common.props')" />
+
   <PropertyGroup>
     <TargetFrameworks>net46;netcoreapp2.1</TargetFrameworks>
   </PropertyGroup>
