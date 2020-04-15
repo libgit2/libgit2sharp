@@ -33,6 +33,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
         public static string BareTestRepoPath { get; private set; }
         public static string StandardTestRepoWorkingDirPath { get; private set; }
+        public static string StandardMultiFetchSpecWorkingDirPath { get; private set; }
         public static string StandardTestRepoPath { get; private set; }
         public static string ShallowTestRepoPath { get; private set; }
         public static string MergedTestRepoWorkingDirPath { get; private set; }
@@ -74,6 +75,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             BareTestRepoPath = Path.Combine(ResourcesDirectory.FullName, "testrepo.git");
             StandardTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "testrepo_wd");
             StandardTestRepoPath = Path.Combine(StandardTestRepoWorkingDirPath, "dot_git");
+            StandardMultiFetchSpecWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "multifetchspec_testrepo_wd");
             ShallowTestRepoPath = Path.Combine(ResourcesDirectory.FullName, "shallow.git");
             MergedTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "mergedrepo_wd");
             MergeRenamesTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "mergerenames_wd");
@@ -181,6 +183,11 @@ namespace LibGit2Sharp.Tests.TestHelpers
         protected string SandboxStandardTestRepo()
         {
             return Sandbox(StandardTestRepoWorkingDirPath);
+        }
+
+        protected string SandboxMultiFetchSpecTestRepo()
+        {
+            return Sandbox(StandardMultiFetchSpecWorkingDirPath);
         }
 
         protected string SandboxMergedTestRepo()
