@@ -2373,8 +2373,9 @@ namespace LibGit2Sharp.Core
             git_remote* handle;
             int res = NativeMethods.git_remote_lookup(out handle, repo, name);
 
-            if (res == (int)GitErrorCode.NotFound && !throwsIfNotFound)
+            if (!throwsIfNotFound)
             {
+                if (res == (int)GitErrorCode.NotFound || res == (int)GitErrorCode.InvalidSpecification)
                 return null;
             }
 
