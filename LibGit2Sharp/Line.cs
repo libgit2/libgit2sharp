@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace LibGit2Sharp.Core
+namespace LibGit2Sharp
 {
     public struct Line
     {

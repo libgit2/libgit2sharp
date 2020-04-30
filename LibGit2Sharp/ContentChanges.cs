@@ -55,9 +55,15 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual int LinesDeleted { get; internal set; }
 
-        public List<Line> AddedLines { get; internal set; }
+        /// <summary>
+        /// Lis of all lines added.
+        /// </summary>
+        public virtual List<Line> AddedLines { get; internal set; }
 
-        public List<Line> DeletedLines { get; internal set; }
+        /// <summary>
+        /// List of all lines deleted.
+        /// </summary>
+        public virtual List<Line> DeletedLines { get; internal set; }
 
 
         /// <summary>
