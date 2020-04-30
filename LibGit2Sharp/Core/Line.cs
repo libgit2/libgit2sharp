@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LibGit2Sharp.Core
 {
-    internal struct Line
+    public struct Line
     {
         /// <summary>
         /// Points to the number of the original line in the blob

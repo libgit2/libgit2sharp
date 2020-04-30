@@ -23,6 +23,9 @@ namespace LibGit2Sharp
 
         internal unsafe ContentChanges(Repository repo, Blob oldBlob, Blob newBlob, GitDiffOptions options)
         {
+            AddedLines = new List<Line>();
+            DeletedLines = new List<Line>();
+
             Proxy.git_diff_blobs(repo.Handle,
                                  oldBlob != null ? oldBlob.Id : null,
                                  newBlob != null ? newBlob.Id : null,
@@ -52,9 +55,9 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual int LinesDeleted { get; internal set; }
 
-        public IEnumerable<Line> AddedLines { get; internal set; }
+        public List<Line> AddedLines { get; internal set; }
 
-        public IEnumerable<Line> DeletedLines { get; internal set; }
+        public List<Line> DeletedLines { get; internal set; }
 
 
         /// <summary>
@@ -101,11 +104,13 @@ namespace LibGit2Sharp
             switch (line.lineOrigin)
             {
                 case GitDiffLineOrigin.GIT_DIFF_LINE_ADDITION:
+                    AddedLines.Add(new Line(line.NewLineNo, decodedContent));
                     LinesAdded++;
                     prefix = Encoding.ASCII.GetString(new[] { (byte)line.lineOrigin });
                     break;
 
                 case GitDiffLineOrigin.GIT_DIFF_LINE_DELETION:
+                    DeletedLines.Add(new Line(line.OldLineNo, decodedContent));
                     LinesDeleted++;
                     prefix = Encoding.ASCII.GetString(new[] { (byte)line.lineOrigin });
                     break;
