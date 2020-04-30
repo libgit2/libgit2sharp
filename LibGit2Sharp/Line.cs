@@ -4,6 +4,9 @@ using System.Text;
 
 namespace LibGit2Sharp
 {
+    /// <summary>
+    /// Represents a Line with line number and content.
+    /// </summary>
     public struct Line
     {
         /// <summary>
