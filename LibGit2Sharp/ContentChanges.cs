@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
@@ -50,6 +51,11 @@ namespace LibGit2Sharp
         /// The number of lines deleted.
         /// </summary>
         public virtual int LinesDeleted { get; internal set; }
+
+        public IEnumerable<Line> AddedLines { get; internal set; }
+
+        public IEnumerable<Line> DeletedLines { get; internal set; }
+
 
         /// <summary>
         /// The patch corresponding to these changes.
