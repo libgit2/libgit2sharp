@@ -937,6 +937,23 @@ namespace LibGit2Sharp.Core
             [In] GitOid[] input_array);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern unsafe int git_merge_file(
+            out git_merge_file_result @out,
+            [In] git_merge_file_input* ancestor,
+            [In] git_merge_file_input* ours,
+            [In] git_merge_file_input* theirs,
+            [In] git_merge_file_options* opts);
+
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern unsafe int git_merge_file_input_init(out git_merge_file_input input, uint version);
+
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern unsafe void git_merge_file_result_free(git_merge_file_result* result);
+
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern unsafe int git_merge_file_options_init(out git_merge_file_options opts, uint version);
+
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_annotated_commit_from_ref(
             out git_annotated_commit* annotatedCommit,
             git_repository* repo,
