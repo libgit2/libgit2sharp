@@ -199,8 +199,16 @@ namespace LibGit2Sharp.Core
                                 throw new InvalidOperationException("authentication cancelled");
                             }
 
-                            UsernamePasswordCredentials userpass = (UsernamePasswordCredentials)cred;
-                            credentials = new NetworkCredential(userpass.Username, userpass.Password);
+                            if (cred is DefaultCredentials)
+                            {
+                                credentials = CredentialCache.DefaultNetworkCredentials;
+                            }
+                            else if (cred is UsernamePasswordCredentials)
+                            {
+                                UsernamePasswordCredentials userpass = (UsernamePasswordCredentials)cred;
+                                credentials = new NetworkCredential(userpass.Username, userpass.Password);
+                            }
+
                             continue;
                         }
                         else if (response.StatusCode == HttpStatusCode.Moved || response.StatusCode == HttpStatusCode.Redirect)

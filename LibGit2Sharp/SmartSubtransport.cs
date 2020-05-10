@@ -106,6 +106,10 @@ namespace LibGit2Sharp
                 {
                     allowed |= (int)GitCredentialType.UserPassPlaintext;
                 }
+                else if (method == typeof(DefaultCredentials))
+                {
+                    allowed |= (int)GitCredentialType.Default;
+                }
                 else
                 {
                     throw new InvalidOperationException("Unknown type passes as allowed credential");
@@ -132,6 +136,9 @@ namespace LibGit2Sharp
                 {
                     case GitCredentialType.UserPassPlaintext:
                         cred = UsernamePasswordCredentials.FromNative((GitCredentialUserpass*) credHandle);
+                        return 0;
+                    case GitCredentialType.Default:
+                        cred = new DefaultCredentials();
                         return 0;
                     default:
                         throw new InvalidOperationException("User returned an unkown credential type");
