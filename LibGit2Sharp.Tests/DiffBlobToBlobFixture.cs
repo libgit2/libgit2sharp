@@ -1,7 +1,7 @@
-﻿using System.IO;
+﻿using LibGit2Sharp.Tests.TestHelpers;
+using System.IO;
 using System.Linq;
 using System.Text;
-using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
 namespace LibGit2Sharp.Tests
@@ -199,6 +199,34 @@ namespace LibGit2Sharp.Tests
                 ContentChanges changes1 = repo.Diff.Compare(oldBlob, newBlob, indentHeuristicOption);
 
                 Assert.Equal(changes0.Patch, changes1.Patch);
+            }
+        }
+
+        [Fact]
+        public void DiffSetsTheAddedAndDeletedLinesCorrectly()
+        {
+            var path = SandboxStandardTestRepoGitDir();
+
+            using (var repo = new Repository(path))
+            {
+                var oldContent =
+                @"1
+2
+3
+4";
+
+                var newContent =
+                   @"1
+2
+3
+5";
+                var oldBlob = repo.ObjectDatabase.CreateBlob(new MemoryStream(Encoding.UTF8.GetBytes(oldContent)));
+                var newBlob = repo.ObjectDatabase.CreateBlob(new MemoryStream(Encoding.UTF8.GetBytes(newContent)));
+
+                ContentChanges changes = repo.Diff.Compare(oldBlob, newBlob);
+
+                Assert.Single(changes.AddedLines);
+                Assert.Single(changes.DeletedLines);
             }
         }
 
