@@ -1,11 +1,11 @@
+using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
-using LibGit2Sharp.Core;
-using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -70,8 +70,8 @@ namespace LibGit2Sharp
 
             string decodedContent = LaxUtf8Marshaler.FromNative(line.content, (int)line.contentLen);
 
-            currentChange.AddedLines = new List<Line>();
-            currentChange.DeletedLines = new List<Line>();
+            currentChange.AddedLines = currentChange.AddedLines ?? new List<Line>();
+            currentChange.DeletedLines = currentChange.DeletedLines ?? new List<Line>();
 
             switch (line.lineOrigin)
             {
@@ -175,7 +175,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="patch"><see cref="Patch"/>.</param>
         /// <returns>The patch content as string.</returns>
-        public static implicit operator string (Patch patch)
+        public static implicit operator string(Patch patch)
         {
             return patch.fullPatchBuilder.ToString();
         }
