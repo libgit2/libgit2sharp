@@ -10,7 +10,7 @@ namespace LibGit2Sharp
     public struct Line
     {
         /// <summary>
-        /// Points to the number of the original line in the blob
+        /// The line number of the original line in the blob.
         /// </summary>
         public int LineNumber { get; }
 
