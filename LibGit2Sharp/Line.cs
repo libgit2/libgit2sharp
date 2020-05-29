@@ -5,7 +5,7 @@ using System.Text;
 namespace LibGit2Sharp
 {
     /// <summary>
-    /// Represents a Line with line number and content.
+    /// Represents a line with line number and content.
     /// </summary>
     public struct Line
     {
@@ -15,9 +15,9 @@ namespace LibGit2Sharp
         public int LineNumber { get; }
 
         /// <summary>
-        /// This content of the line in the original blob
+        /// The content of the line in the original blob.
         /// </summary>
-        public String Content { get; }
+        public string Content { get; }
 
         internal Line(int lineNumber, string content)
         {
