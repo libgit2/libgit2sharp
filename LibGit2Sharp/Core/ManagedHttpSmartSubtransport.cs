@@ -49,9 +49,25 @@ namespace LibGit2Sharp.Core
         {
             private static int MAX_REDIRECTS = 7;
 
+            private static readonly HttpClientHandler httpClientHandler;
+            private static readonly CredentialCache credentialCache;
+
             private MemoryStream postBuffer = new MemoryStream();
             private HttpResponseMessage response;
             private Stream responseStream;
+
+            static ManagedHttpSmartSubtransportStream()
+            {
+                httpClientHandler = new HttpClientHandler();
+
+                httpClientHandler.SslProtocols |= SslProtocols.Tls12;
+                //httpClientHandler.ServerCertificateCustomValidationCallback = CertificateValidationProxy;
+
+                httpClientHandler.AllowAutoRedirect = false;
+
+                credentialCache = new CredentialCache();
+                httpClientHandler.Credentials = credentialCache;
+            }
 
             public ManagedHttpSmartSubtransportStream(ManagedHttpSmartSubtransport parent, string endpointUrl, bool isPost, string contentType)
                 : base(parent)
@@ -63,7 +79,7 @@ namespace LibGit2Sharp.Core
 
             private HttpClient CreateHttpClient(HttpMessageHandler handler)
             {
-                return new HttpClient(handler)
+                return new HttpClient(handler, false)
                 {
                     DefaultRequestHeaders =
                     {
@@ -71,17 +87,6 @@ namespace LibGit2Sharp.Core
                         ExpectContinue = false,
                     },
                 };
-            }
-
-            private HttpClientHandler CreateClientHandler()
-            {
-                var httpClientHandler = new HttpClientHandler();
-                httpClientHandler.SslProtocols |= SslProtocols.Tls12;
-                httpClientHandler.ServerCertificateCustomValidationCallback = CertificateValidationProxy;
-
-                httpClientHandler.AllowAutoRedirect = false;
-
-                return httpClientHandler;
             }
 
             private Uri EndpointUrl { get; set; }
@@ -157,16 +162,12 @@ namespace LibGit2Sharp.Core
 
             private HttpResponseMessage GetResponseWithRedirects()
             {
-                ICredentials credentials = null;
                 var url = EndpointUrl;
                 int retries;
 
                 for (retries = 0; ; retries++)
                 {
-                    var httpClientHandler = CreateClientHandler();
-                    httpClientHandler.Credentials = credentials;
-
-                    using (var httpClient = this.CreateHttpClient(httpClientHandler))
+                    using (var httpClient = CreateHttpClient(httpClientHandler))
                     {
                         var request = CreateRequest(url, IsPost);
 
@@ -198,14 +199,15 @@ namespace LibGit2Sharp.Core
                                 throw new InvalidOperationException("authentication cancelled");
                             }
 
+                            var scheme = response.Headers.WwwAuthenticate.First().Scheme;
+
                             if (cred is DefaultCredentials)
                             {
-                                credentials = CredentialCache.DefaultNetworkCredentials;
+                                credentialCache.Add(url, scheme, CredentialCache.DefaultNetworkCredentials);
                             }
-                            else if (cred is UsernamePasswordCredentials)
+                            else if (cred is UsernamePasswordCredentials userpass)
                             {
-                                UsernamePasswordCredentials userpass = (UsernamePasswordCredentials)cred;
-                                credentials = new NetworkCredential(userpass.Username, userpass.Password);
+                                credentialCache.Add(url, scheme, new NetworkCredential(userpass.Username, userpass.Password));
                             }
 
                             continue;
