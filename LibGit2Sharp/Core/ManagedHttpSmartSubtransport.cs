@@ -75,6 +75,9 @@ namespace LibGit2Sharp.Core
                 EndpointUrl = new Uri(endpointUrl);
                 IsPost = isPost;
                 ContentType = contentType;
+
+                //If we have any concurrency, this is a bad thing to do...
+                httpClientHandler.ServerCertificateCustomValidationCallback = CertificateValidationProxy;
             }
 
             private HttpClient CreateHttpClient(HttpMessageHandler handler)
