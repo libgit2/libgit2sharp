@@ -22,7 +22,7 @@ namespace LibGit2Sharp
         private static bool nativeLibraryPathLocked;
         private static string nativeLibraryDefaultPath;
 
-        private static bool useManagedHttpSmartSubtransport;
+        private static bool useManagedHttpSmartSubtransport = true;
 
         internal class SmartSubtransportData
         {
@@ -541,11 +541,11 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Enables the managed http implementation. This is enabled autmatically on Linux, so this method is only needed when running on Windows or macOS.
+        /// Enables the native http implementation. This can only be enabled on Windows or macOS.
         /// </summary>
-        public static void UseManagedHttpSmartSubtransport()
+        public static void UseNativeHttpTransport()
         {
-            useManagedHttpSmartSubtransport = true;
+            useManagedHttpSmartSubtransport = false;
         }
     }
 }
