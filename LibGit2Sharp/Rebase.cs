@@ -119,7 +119,7 @@ namespace LibGit2Sharp
                                                                                       ontoRefAnnotatedCommitHandle,
                                                                                       gitRebaseOptions))
                 {
-                    this.repository.Submodules.UpdateAll(new SubmoduleUpdateOptions());
+                    this.repository.Submodules.UpdateAll(options.SubmoduleUpdateOptions);
 
                     RebaseResult rebaseResult = RebaseOperationImpl.Run(rebaseOperationHandle,
                                                                         this.repository,
