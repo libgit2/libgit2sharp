@@ -42,7 +42,7 @@ namespace LibGit2Sharp
         public CheckoutFileConflictStrategy FileConflictStrategy { get; set; }
 
         /// <summary>
-        /// Submodule update options passed to submodule updates on rtebase step.
+        /// Submodule update options passed to submodule updates on rebase step.
         /// </summary>
         public SubmoduleUpdateOptions SubmoduleUpdateOptions { get; set; }
 
