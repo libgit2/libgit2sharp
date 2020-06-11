@@ -1,7 +1,7 @@
-using LibGit2Sharp.Tests.TestHelpers;
 using System.IO;
 using System.Linq;
 using System.Text;
+using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
 namespace LibGit2Sharp.Tests

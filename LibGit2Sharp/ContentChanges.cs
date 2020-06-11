@@ -23,9 +23,6 @@ namespace LibGit2Sharp
 
         internal unsafe ContentChanges(Repository repo, Blob oldBlob, Blob newBlob, GitDiffOptions options)
         {
-            AddedLines = new List<Line>();
-            DeletedLines = new List<Line>();
-
             Proxy.git_diff_blobs(repo.Handle,
                                  oldBlob != null ? oldBlob.Id : null,
                                  newBlob != null ? newBlob.Id : null,
@@ -58,13 +55,12 @@ namespace LibGit2Sharp
         /// <summary>
         /// Lis of all lines added.
         /// </summary>
-        public virtual List<Line> AddedLines { get; internal set; }
+        public virtual List<Line> AddedLines { get; } = new List<Line>();
 
         /// <summary>
         /// List of all lines deleted.
         /// </summary>
-        public virtual List<Line> DeletedLines { get; internal set; }
-
+        public virtual List<Line> DeletedLines { get; } = new List<Line>();
 
         /// <summary>
         /// The patch corresponding to these changes.

@@ -1,7 +1,7 @@
-﻿using LibGit2Sharp.Tests.TestHelpers;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Text;
+using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
 namespace LibGit2Sharp.Tests
@@ -227,6 +227,12 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Single(changes.AddedLines);
                 Assert.Single(changes.DeletedLines);
+
+                Assert.Equal("4", changes.DeletedLines.First().Content);
+                Assert.Equal("5", changes.AddedLines.First().Content);
+
+                Assert.Equal(4, changes.DeletedLines.First().LineNumber);
+                Assert.Equal(4, changes.AddedLines.First().LineNumber);
             }
         }
 

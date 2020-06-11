@@ -1,11 +1,11 @@
-using LibGit2Sharp.Core;
-using LibGit2Sharp.Core.Handles;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
+using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -68,11 +68,6 @@ namespace LibGit2Sharp
             PatchEntryChanges currentChange = this[filePath];
             string prefix = string.Empty;
 
-            string decodedContent = LaxUtf8Marshaler.FromNative(line.content, (int)line.contentLen);
-
-            currentChange.AddedLines = currentChange.AddedLines ?? new List<Line>();
-            currentChange.DeletedLines = currentChange.DeletedLines ?? new List<Line>();
-
             switch (line.lineOrigin)
             {
                 case GitDiffLineOrigin.GIT_DIFF_LINE_CONTEXT:
@@ -82,14 +77,14 @@ namespace LibGit2Sharp
                 case GitDiffLineOrigin.GIT_DIFF_LINE_ADDITION:
                     linesAdded++;
                     currentChange.LinesAdded++;
-                    currentChange.AddedLines.Add(new Line(line.NewLineNo, decodedContent));
+                    currentChange.AddedLines.Add(new Line(line.NewLineNo, patchPart));
                     prefix = "+";
                     break;
 
                 case GitDiffLineOrigin.GIT_DIFF_LINE_DELETION:
                     linesDeleted++;
                     currentChange.LinesDeleted++;
-                    currentChange.DeletedLines.Add(new Line(line.OldLineNo, decodedContent));
+                    currentChange.DeletedLines.Add(new Line(line.OldLineNo, patchPart));
                     prefix = "-";
                     break;
             }
