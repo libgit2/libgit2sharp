@@ -219,7 +219,7 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe GitError* git_error_last();
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void git_error_set_str(
+        internal static extern int git_error_set_str(
             GitErrorCategory error_class,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string errorString);
 
@@ -244,25 +244,25 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe void git_blame_free(git_blame* blame);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe int git_blob_create_fromdisk(
+        internal static extern unsafe int git_blob_create_from_disk(
             ref GitOid id,
             git_repository* repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe int git_blob_create_fromworkdir(
+        internal static extern unsafe int git_blob_create_from_workdir(
             ref GitOid id,
             git_repository* repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath relative_path);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe int git_blob_create_fromstream(
+        internal static extern unsafe int git_blob_create_from_stream(
             out IntPtr stream,
             git_repository* repositoryPtr,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string hintpath);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int git_blob_create_fromstream_commit(
+        internal static extern int git_blob_create_from_stream_commit(
             ref GitOid oid,
             IntPtr stream);
 
@@ -1599,7 +1599,7 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe FilePath git_repository_path(git_repository* repository);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_repository_set_config(
+        internal static extern unsafe int git_repository_set_config(
             git_repository* repository,
             git_config* config);
 
@@ -1611,7 +1611,7 @@ namespace LibGit2Sharp.Core
 
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_repository_set_index(
+        internal static extern unsafe int git_repository_set_index(
             git_repository* repository,
             git_index* index);
 
@@ -1693,13 +1693,13 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe int git_revwalk_push(git_revwalk* walker, ref GitOid id);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_revwalk_reset(git_revwalk* walker);
+        internal static extern unsafe int git_revwalk_reset(git_revwalk* walker);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_revwalk_sorting(git_revwalk* walk, CommitSortStrategies sort);
+        internal static extern unsafe int git_revwalk_sorting(git_revwalk* walk, CommitSortStrategies sort);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_revwalk_simplify_first_parent(git_revwalk* walk);
+        internal static extern unsafe int git_revwalk_simplify_first_parent(git_revwalk* walk);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe void git_signature_free(git_signature* signature);
