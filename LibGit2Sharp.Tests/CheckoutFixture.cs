@@ -1028,6 +1028,52 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Theory]
+        [InlineData("br2", "origin")]
+        [InlineData("unique/branch", "another/remote")]
+        public void CheckoutBranchTriesRemoteTrackingBranchAsFallbackAndSucceedsIfOnlyOne(string branchName, string expectedRemoteName)
+        {
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                ResetAndCleanWorkingDirectory(repo);
+
+                // Define another remote
+                var otherRemote = "another/remote";
+                repo.Network.Remotes.Add(otherRemote, "https://github.com/libgit2/TestGitRepository");
+
+                // Define an extra remote tracking branch that does not conflict
+                repo.Refs.Add($"refs/remotes/{otherRemote}/unique/branch", repo.Head.Tip.Sha);
+
+                Branch branch = Commands.Checkout(repo, branchName);
+
+                Assert.NotNull(branch);
+                Assert.True(branch.IsTracking);
+                Assert.Equal($"refs/remotes/{expectedRemoteName}/{branchName}", branch.TrackedBranch.CanonicalName);
+            }
+        }
+
+        [Fact]
+        public void CheckoutBranchTriesRemoteTrackingBranchAsFallbackAndThrowsIfMoreThanOne()
+        {
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                ResetAndCleanWorkingDirectory(repo);
+
+                // Define another remote
+                var otherRemote = "another/remote";
+                repo.Network.Remotes.Add(otherRemote, "https://github.com/libgit2/TestGitRepository");
+
+                // Define remote tracking branches that conflict
+                var branchName = "conflicting/branch";
+                repo.Refs.Add($"refs/remotes/origin/{branchName}", repo.Head.Tip.Sha);
+                repo.Refs.Add($"refs/remotes/{otherRemote}/{branchName}", repo.Head.Tip.Sha);
+
+                Assert.Throws<AmbiguousSpecificationException>(() => Commands.Checkout(repo, branchName));
+            }
+        }
+
         /// <summary>
         /// Helper method to populate a simple repository with
         /// a single file and two branches.
