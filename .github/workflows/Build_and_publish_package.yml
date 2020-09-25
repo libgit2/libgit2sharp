@@ -1,0 +1,52 @@
+name: Build and Deploy Packages
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+  
+jobs:
+  build:
+    # The CMake configure and build commands are platform agnostic and should work equally
+    # well on Windows or Mac.  You can convert this to a matrix build if you need
+    # cross-platform coverage.
+    # See: https://docs.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow#configuring-a-build-matrix
+    runs-on: windows-latest
+    
+    steps:
+    # Checkout repo into build area
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+        
+    # install nbgv please check https://github.com/dotnet/Nerdbank.GitVersioning for more info about nbgv
+    - uses: dotnet/nbgv@master
+      id: nbgv        
+      
+    # Build and deploy nuget package
+    # We include the GitHub package source so that we can reference current packages and also so that we can push to the package repo
+    - name: Build Project and Package
+      run: |
+        nuget source Add -Name "GitHub" -Source "https://nuget.pkg.github.com/mendix/index.json" -UserName MarcellVanRooyen -Password ${{ secrets.GHPACKAGESTOKEN }}
+        dotnet build -c Release
+        nuget pack .\mx_nuget.package\Mendix_package.nuspec  -Version 1.101.10 -NoPackageAnalysis
+      shell: powershell #Keep as powershell and not pwsh
+      
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: nuget package
+        path: ${{ github.workspace }}/**/*.nupkg      
+
+    # After build we copy the binaries to package output folder
+    # Finally we pack and push the package to github packages 
+    - name: Deploy Package
+      run: |
+        nuget source Add -Name "GitHub" -Source "https://nuget.pkg.github.com/mendix/index.json" -UserName MarcellVanRooyen -Password ${{ secrets.GHPACKAGESTOKEN }}
+        nuget push **/Mendix.LibGit2Sharp*.nupkg -Source "GitHub" -SkipDuplicate
+      shell: powershell #Keep as powershell and not pwsh
+      
