@@ -17,7 +17,7 @@
 
 **LibGit2Sharp brings all the might and speed of [libgit2][libgit2], a native Git implementation, to the managed world of .NET and Mono.**
 
- [libgit2]: http://libgit2.github.com/
+ [libgit2]: https://libgit2.github.com/
 
 ## Prerequisites
 
@@ -29,7 +29,7 @@
  - [NuGet package][nuget] (Requires NuGet 2.7+)
  - [Source code][source]
 
- [nuget]: http://nuget.org/List/Packages/LibGit2Sharp
+ [nuget]: https://nuget.org/List/Packages/LibGit2Sharp
  [source]: https://github.com/libgit2/libgit2sharp/
 
 ## Troubleshooting and support
@@ -38,9 +38,9 @@
  - Found a bug or missing a feature? Feed the [issue tracker][tracker]
  - Announcements and related miscellanea through Twitter ([@libgit2sharp][twitter])
 
- [so]: http://stackoverflow.com/questions/tagged/libgit2sharp
+ [so]: https://stackoverflow.com/questions/tagged/libgit2sharp
  [tracker]: https://github.com/libgit2/libgit2sharp/issues
- [twitter]: http://twitter.com/libgit2sharp
+ [twitter]: https://twitter.com/libgit2sharp
 
 ## Quick contributing guide
 
@@ -60,7 +60,7 @@ You can do a few things to optimize running unit-tests on Windows:
 1. Set the `LibGit2TestPath` environment variable to a path in your development environment.
   * If the unit-test framework cannot find the specified folder at runtime, it will fall back to the default location.
 2. Configure your anti-virus software to ignore the `LibGit2TestPath` path.
-3. Install a RAM disk like [IMDisk](http://www.ltr-data.se/opencode.html/#ImDisk) and set `LibGit2TestPath` to use it.
+3. Install a RAM disk like [IMDisk](https://www.ltr-data.se/opencode.html/#ImDisk) and set `LibGit2TestPath` to use it.
   * Use `imdisk.exe -a -s 512M -m X: -p "/fs:fat /q /v:ramdisk /y"` to create a RAM disk. This command requires elevated privileges and can be placed into a scheduled task or run manually before you begin unit-testing.
 
 ## Authors
