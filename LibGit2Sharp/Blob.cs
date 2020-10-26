@@ -6,7 +6,7 @@ using LibGit2Sharp.Core;
 namespace LibGit2Sharp
 {
     /// <summary>
-    /// Stores the binary content of a tracked file.
+    /// Stores the binary content of a tracked file...
     /// </summary>
     public class Blob : GitObject
     {
