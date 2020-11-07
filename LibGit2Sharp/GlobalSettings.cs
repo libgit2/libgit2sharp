@@ -22,8 +22,6 @@ namespace LibGit2Sharp
         private static bool nativeLibraryPathLocked;
         private static string nativeLibraryDefaultPath;
 
-        private static bool useManagedHttpSmartSubtransport = true;
-
         internal class SmartSubtransportData
         {
             internal bool isCustom;
@@ -82,8 +80,6 @@ namespace LibGit2Sharp
         /// library.
         /// </summary>
         public static Version Version => version.Value;
-
-        internal static bool ManagedHttpSmartSubtransportEnabled => RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || useManagedHttpSmartSubtransport;
 
         private static SmartSubtransportData GetOrCreateSmartSubtransportData(string scheme)
         {
@@ -538,14 +534,6 @@ namespace LibGit2Sharp
         public static string GetUserAgent()
         {
             return Proxy.git_libgit2_opts_get_user_agent();
-        }
-
-        /// <summary>
-        /// Enables the native http implementation. This can only be enabled on Windows or macOS.
-        /// </summary>
-        public static void UseNativeHttpTransport()
-        {
-            useManagedHttpSmartSubtransport = false;
         }
     }
 }
