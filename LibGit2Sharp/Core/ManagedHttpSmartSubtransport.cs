@@ -61,7 +61,6 @@ namespace LibGit2Sharp.Core
                 httpClientHandler = new HttpClientHandler();
 
                 httpClientHandler.SslProtocols |= SslProtocols.Tls12;
-                //httpClientHandler.ServerCertificateCustomValidationCallback = CertificateValidationProxy;
 
                 httpClientHandler.AllowAutoRedirect = false;
 
@@ -120,22 +119,6 @@ namespace LibGit2Sharp.Core
                 }
 
                 return 0;
-            }
-
-            private bool CertificateValidationProxy(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors errors)
-            {
-                try
-                {
-                    int ret = SmartTransport.CertificateCheck(new CertificateX509(cert), (errors == SslPolicyErrors.None), EndpointUrl.Host);
-                    Ensure.ZeroResult(ret);
-
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    SetError(e);
-                    return false;
-                }
             }
 
             private string GetUserAgent()
