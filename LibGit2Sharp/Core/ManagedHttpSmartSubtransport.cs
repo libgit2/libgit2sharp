@@ -3,9 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Security;
 using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 
 namespace LibGit2Sharp.Core
 {
@@ -49,7 +47,12 @@ namespace LibGit2Sharp.Core
         {
             private static int MAX_REDIRECTS = 7;
 
-            private static readonly HttpClientHandler httpClientHandler;
+#if NETCOREAPP
+            private static readonly SocketsHttpHandler httpHandler;
+#else
+            private static readonly HttpClientHandler httpHandler;
+#endif
+
             private static readonly CredentialCache credentialCache;
 
             private MemoryStream postBuffer = new MemoryStream();
@@ -58,14 +61,18 @@ namespace LibGit2Sharp.Core
 
             static ManagedHttpSmartSubtransportStream()
             {
-                httpClientHandler = new HttpClientHandler();
+#if NETCOREAPP
+                httpHandler = new SocketsHttpHandler();
+                httpHandler.PooledConnectionLifetime = TimeSpan.FromMinutes(5);
+#else
+                httpHandler = new HttpClientHandler();
+                httpHandler.SslProtocols |= SslProtocols.Tls12;
+#endif
 
-                httpClientHandler.SslProtocols |= SslProtocols.Tls12;
-
-                httpClientHandler.AllowAutoRedirect = false;
+                httpHandler.AllowAutoRedirect = false;
 
                 credentialCache = new CredentialCache();
-                httpClientHandler.Credentials = credentialCache;
+                httpHandler.Credentials = credentialCache;
             }
 
             public ManagedHttpSmartSubtransportStream(ManagedHttpSmartSubtransport parent, string endpointUrl, bool isPost, string contentType)
@@ -150,7 +157,7 @@ namespace LibGit2Sharp.Core
 
                 for (retries = 0; ; retries++)
                 {
-                    using (var httpClient = CreateHttpClient(httpClientHandler))
+                    using (var httpClient = CreateHttpClient(httpHandler))
                     {
                         var request = CreateRequest(url, IsPost);
 
