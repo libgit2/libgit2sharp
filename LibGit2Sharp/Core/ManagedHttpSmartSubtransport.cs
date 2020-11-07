@@ -186,11 +186,17 @@ namespace LibGit2Sharp.Core
 
                             if (cred is DefaultCredentials)
                             {
-                                credentialCache.Add(url, scheme, CredentialCache.DefaultNetworkCredentials);
+                                lock (credentialCache)
+                                {
+                                    credentialCache.Add(url, scheme, CredentialCache.DefaultNetworkCredentials);
+                                }
                             }
                             else if (cred is UsernamePasswordCredentials userpass)
                             {
-                                credentialCache.Add(url, scheme, new NetworkCredential(userpass.Username, userpass.Password));
+                                lock (credentialCache)
+                                {
+                                    credentialCache.Add(url, scheme, new NetworkCredential(userpass.Username, userpass.Password));
+                                }
                             }
 
                             continue;
