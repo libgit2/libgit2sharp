@@ -79,6 +79,20 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void IsValidWithInvalidGitConfig()
+        {
+            string repoPath = InitNewRepository();
+            string[] lines = new[]
+            {
+                @"[diff ""MyTool""]",
+                @"    command = c:\path\to\my\tool\MyToolComparer.exe"
+            };
+            File.AppendAllLines(Path.Combine(repoPath, "config"), lines);
+            var ex = Assert.Throws<LibGit2SharpException>(() => Repository.IsValid(repoPath));
+            Assert.Equal(@"invalid escape at path\to\my\tool\MyToolComparer.exe", ex.Message);
+        }
+
+        [Fact]
         public void CanCreateStandardRepo()
         {
             string repoPath = InitNewRepository();
