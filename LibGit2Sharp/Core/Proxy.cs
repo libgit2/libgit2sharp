@@ -2573,7 +2573,11 @@ namespace LibGit2Sharp.Core
             git_repository *repo;
 
             res = NativeMethods.git_repository_open_ext(out repo, path, flags, ceilingDirs);
-            NativeMethods.git_repository_free(repo);
+
+            if (res != (int)GitErrorCode.Error)
+            {
+                NativeMethods.git_repository_free(repo);
+            }
 
             if (res == (int)GitErrorCode.NotFound)
             {
