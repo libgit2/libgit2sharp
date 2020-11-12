@@ -12,6 +12,9 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>LibGit2Sharp brings all the might and speed of libgit2, a native Git implementation, to the managed world of .Net and Mono.</description>
   </metadata>
+  <dependencies>
+    <dependency id="Mendix.LibGit2Sharp.NativeBinaries" version="[1.101.10]" include="All" />
+  </dependencies>
   <files>
     <file src="../bin/LibGit2Sharp/Release/net46/LibGit2Sharp.dll" target="lib/net46" />
     <file src="../bin/LibGit2Sharp/Release/net46/LibGit2Sharp.pdb" target="lib/net46" />    
