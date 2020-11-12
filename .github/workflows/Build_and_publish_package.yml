@@ -7,7 +7,8 @@ on:
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
+  BUILD_TYPE: 'Release'
+  NUPKG_VERSION: '1.101.11'
   
 jobs:
   build:
@@ -33,7 +34,7 @@ jobs:
       run: |
         nuget source Add -Name "GitHub" -Source "https://nuget.pkg.github.com/mendix/index.json" -UserName srv-LibGit2sharp-mendix -Password ${{ secrets.GHPACKAGESTOKEN }}
         dotnet build -c Release
-        nuget pack .\mx_nuget.package\Mendix_package.nuspec  -Version 1.101.10 -NoPackageAnalysis
+        nuget pack .\mx_nuget.package\Mendix_package.nuspec  -Version ${{ env.NUPKG_VERSION }}  -NoPackageAnalysis
       shell: powershell #Keep as powershell and not pwsh
       
     - name: Upload build artifacts
