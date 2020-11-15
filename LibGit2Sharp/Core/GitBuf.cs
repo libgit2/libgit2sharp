@@ -15,4 +15,12 @@ namespace LibGit2Sharp.Core.Handles
             Proxy.git_buf_dispose(this);
         }
     }
+
+    [StructLayout(LayoutKind.Sequential)]
+    unsafe struct git_buf
+    {
+        public IntPtr ptr;
+        public UIntPtr asize;
+        public UIntPtr size;
+    }
 }

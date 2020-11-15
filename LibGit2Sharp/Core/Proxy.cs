@@ -212,6 +212,11 @@ namespace LibGit2Sharp.Core
             NativeMethods.git_buf_dispose(buf);
         }
 
+        public static int git_buf_grow(IntPtr buf, uint target_size)
+        {
+            return NativeMethods.git_buf_grow(buf, target_size);
+        }
+
         #endregion
 
         #region git_checkout_
@@ -928,6 +933,25 @@ namespace LibGit2Sharp.Core
                 sb.AppendFormat("{0}Inner Exception:{1}", indent, Environment.NewLine);
                 BuildErrorMessageFromException(sb, level + 1, ex.InnerException);
             }
+        }
+
+        #endregion
+
+        #region git_merge_driver_
+        public static void git_merge_driver_register(string name, IntPtr mergeDriverPtr)
+        {
+            int res = NativeMethods.git_merge_driver_register(name, mergeDriverPtr);
+            if (res == (int)GitErrorCode.Exists)
+            {
+                throw new EntryExistsException("A merge driver with the name '{0}' is already registered", name);
+            }
+            Ensure.ZeroResult(res);
+        }
+
+        public static void git_merge_driver_unregister(string name)
+        {
+            int res = NativeMethods.git_merge_driver_unregister(name);
+            Ensure.ZeroResult(res);
         }
 
         #endregion
