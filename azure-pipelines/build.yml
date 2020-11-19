@@ -1,0 +1,50 @@
+parameters:
+  windowsPool: Hosted Windows 2019 with VS2019
+
+jobs:
+- job: Windows
+  pool: ${{ parameters.windowsPool }}
+  steps:
+  - template: install-dependencies.yml
+  - template: dotnet.yml
+
+- job: Linux
+  pool:
+    vmImage: Ubuntu 18.04
+  steps:
+  - template: install-dependencies.yml
+  - template: dotnet.yml
+
+- job: macOS
+  pool:
+    vmImage: macOS-10.15
+  steps:
+  - template: install-dependencies.yml
+  - template: dotnet.yml
+
+- job: WrapUp
+  dependsOn:
+  - Windows
+  - Linux
+  - macOS
+  pool:
+    vmImage: Ubuntu 18.04
+  condition: succeededOrFailed()
+  steps:
+  - template: install-dependencies.yml
+    parameters:
+      initArgs: -NoRestore
+  - template: publish-codecoverage.yml
+  - template: publish-deployables.yml
+
+- job: leak_check
+  pool:
+    vmImage: Ubuntu 18.04
+  steps:
+  - template: install-dependencies.yml
+  - task: DotNetCoreCLI@2
+    displayName: dotnet test -f netcoreapp2.1
+    inputs:
+        command: test
+        arguments: --no-restore -c $(BuildConfiguration) -f netcoreapp2.1 --filter "TestCategory!=FailsInCloudTest" -v m /p:ExtraDefine=LEAKS_IDENTIFYING
+        testRunTitle: netcoreapp2.1-$(Agent.JobName)

@@ -265,7 +265,7 @@ namespace LibGit2Sharp
         /// </para>
         /// <para>
         ///   Optionally, the <paramref name="options"/> parameter allow to tweak the
-        ///   search strategy (considering lightweith tags, or even branches as reference points)
+        ///   search strategy (considering lightweight tags, or even branches as reference points)
         ///   and the formatting of the returned identifier.
         /// </para>
         /// </summary>

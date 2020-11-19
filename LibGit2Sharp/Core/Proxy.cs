@@ -601,6 +601,14 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
+        static readonly string non_existing_regex = Guid.NewGuid().ToString();
+
+        public static unsafe void git_config_add_string(ConfigurationHandle config, string name, string value)
+        {
+            int res = NativeMethods.git_config_set_multivar(config, name, non_existing_regex, value);
+            Ensure.ZeroResult(res);
+        }
+
         public static unsafe ICollection<TResult> git_config_foreach<TResult>(
             ConfigurationHandle config,
             Func<IntPtr, TResult> resultSelector)
