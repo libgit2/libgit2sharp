@@ -81,6 +81,11 @@ namespace LibGit2Sharp
                 Marshal.FreeHGlobal(certPtr);
             }
 
+            if (ret > 0 || ret == (int)GitErrorCode.PassThrough)
+            {
+                ret = valid ? 0 : -1;
+            }
+
             return ret;
         }
 
@@ -101,6 +106,10 @@ namespace LibGit2Sharp
                 {
                     allowed |= (int)GitCredentialType.UserPassPlaintext;
                 }
+                else if (method == typeof(DefaultCredentials))
+                {
+                    allowed |= (int)GitCredentialType.Default;
+                }
                 else
                 {
                     throw new InvalidOperationException("Unknown type passes as allowed credential");
@@ -117,7 +126,7 @@ namespace LibGit2Sharp
 
             if (credHandle == IntPtr.Zero)
             {
-                throw new InvalidOperationException("creditals callback indicated success but returned no credentials");
+                throw new InvalidOperationException("credentials callback indicated success but returned no credentials");
             }
 
             unsafe
@@ -128,11 +137,20 @@ namespace LibGit2Sharp
                     case GitCredentialType.UserPassPlaintext:
                         cred = UsernamePasswordCredentials.FromNative((GitCredentialUserpass*) credHandle);
                         return 0;
+                    case GitCredentialType.Default:
+                        cred = new DefaultCredentials();
+                        return 0;
                     default:
                         throw new InvalidOperationException("User returned an unkown credential type");
                 }
             }
         }
+
+        /// <summary>
+        /// libgit2 will call an action back with a null url to indicate that
+        /// it should re-use the prior url; store the url so that we can replay.
+        /// </summary>
+        private string LastActionUrl { get; set; }
 
         /// <summary>
         /// Invoked by libgit2 to create a connection using this subtransport.
@@ -209,43 +227,57 @@ namespace LibGit2Sharp
                 SmartSubtransport t = GCHandle.FromIntPtr(Marshal.ReadIntPtr(subtransport, GitSmartSubtransport.GCHandleOffset)).Target as SmartSubtransport;
                 String urlAsString = LaxUtf8Marshaler.FromNative(url);
 
-                if (null != t &&
-                    !String.IsNullOrEmpty(urlAsString))
+                if (t == null)
                 {
-                    try
-                    {
-                        stream = t.Action(urlAsString, action).GitSmartTransportStreamPointer;
-
-                        return 0;
-                    }
-                    catch (Exception ex)
-                    {
-                        Proxy.git_error_set_str(GitErrorCategory.Net, ex);
-                    }
+                    Proxy.git_error_set_str(GitErrorCategory.Net, "no subtransport provided");
+                    return (int)GitErrorCode.Error;
                 }
 
-                return (int)GitErrorCode.Error;
+                if (String.IsNullOrEmpty(urlAsString))
+                {
+                    urlAsString = t.LastActionUrl;
+                }
+
+                if (String.IsNullOrEmpty(urlAsString))
+                {
+                    Proxy.git_error_set_str(GitErrorCategory.Net, "no url provided");
+                    return (int)GitErrorCode.Error;
+                }
+
+                try
+                {
+                    stream = t.Action(urlAsString, action).GitSmartTransportStreamPointer;
+                    t.LastActionUrl = urlAsString;
+                    return 0;
+                }
+                catch (Exception ex)
+                {
+                    Proxy.git_error_set_str(GitErrorCategory.Net, ex);
+                    return (int)GitErrorCode.Error;
+                }
             }
 
             private static int Close(IntPtr subtransport)
             {
                 SmartSubtransport t = GCHandle.FromIntPtr(Marshal.ReadIntPtr(subtransport, GitSmartSubtransport.GCHandleOffset)).Target as SmartSubtransport;
 
-                if (null != t)
+                if (t == null)
                 {
-                    try
-                    {
-                        t.Close();
-
-                        return 0;
-                    }
-                    catch (Exception ex)
-                    {
-                        Proxy.git_error_set_str(GitErrorCategory.Net, ex);
-                    }
+                    Proxy.git_error_set_str(GitErrorCategory.Net, "no subtransport provided");
+                    return (int)GitErrorCode.Error;
                 }
 
-                return (int)GitErrorCode.Error;
+                try
+                {
+                    t.Close();
+
+                    return 0;
+                }
+                catch (Exception ex)
+                {
+                    Proxy.git_error_set_str(GitErrorCategory.Net, ex);
+                    return (int)GitErrorCode.Error;
+                }
             }
 
             private static void Free(IntPtr subtransport)

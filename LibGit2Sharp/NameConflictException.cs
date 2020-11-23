@@ -8,7 +8,7 @@ namespace LibGit2Sharp
     /// The exception that is thrown when a reference, a remote, a submodule... with the same name already exists in the repository
     /// </summary>
     [Serializable]
-    public class NameConflictException : LibGit2SharpException
+    public class NameConflictException : NativeException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="NameConflictException"/> class.
@@ -51,8 +51,16 @@ namespace LibGit2Sharp
             : base(info, context)
         { }
 
-        internal NameConflictException(string message, GitErrorCode code, GitErrorCategory category)
-            : base(message, code, category)
+        internal NameConflictException(string message, GitErrorCategory category)
+            : base(message, category)
         { }
+
+        internal override GitErrorCode ErrorCode
+        {
+            get
+            {
+                return GitErrorCode.Exists;
+            }
+        }
     }
 }

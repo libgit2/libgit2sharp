@@ -8,7 +8,7 @@ namespace LibGit2Sharp
     /// The exception that is thrown attempting to reference a resource that does not exist.
     /// </summary>
     [Serializable]
-    public class NotFoundException : LibGit2SharpException
+    public class NotFoundException : NativeException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2Sharp.NotFoundException"/> class.
@@ -51,8 +51,16 @@ namespace LibGit2Sharp
             : base(info, context)
         { }
 
-        internal NotFoundException(string message, GitErrorCode code, GitErrorCategory category)
-            : base(message, code, category)
+        internal NotFoundException(string message, GitErrorCategory category)
+            : base(message, category)
         { }
+
+        internal override GitErrorCode ErrorCode
+        {
+            get
+            {
+                return GitErrorCode.NotFound;
+            }
+        }
     }
 }
