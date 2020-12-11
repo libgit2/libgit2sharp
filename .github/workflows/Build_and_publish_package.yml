@@ -3,51 +3,44 @@ name: Build and Deploy Packages
 on:
   push:
     branches:
-      - master
+      - mendix/releases
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: 'Release'
-  NUPKG_VERSION: '1.101.11'
-  
+  BUILD_TYPE: Release
+
 jobs:
   build:
     # The CMake configure and build commands are platform agnostic and should work equally
     # well on Windows or Mac.  You can convert this to a matrix build if you need
     # cross-platform coverage.
     # See: https://docs.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow#configuring-a-build-matrix
-    runs-on: windows-latest
-    
+    runs-on: windows-2019
+
     steps:
     # Checkout repo into build area
     - uses: actions/checkout@v2
       with:
-        fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
-        
-    # install nbgv please check https://github.com/dotnet/Nerdbank.GitVersioning for more info about nbgv
-    - uses: dotnet/nbgv@master
-      id: nbgv        
-      
+        fetch-depth: 0 # avoid shallow clone so Nerdbank.GitVersioning can do its work.
+
     # Build and deploy nuget package
     # We include the GitHub package source so that we can reference current packages and also so that we can push to the package repo
     - name: Build Project and Package
       run: |
-        nuget source Add -Name "GitHub" -Source "https://nuget.pkg.github.com/mendix/index.json" -UserName srv-LibGit2sharp-mendix -Password ${{ secrets.GHPACKAGESTOKEN }}
-        dotnet build -c Release
-        nuget pack .\mx_nuget.package\Mendix_package.nuspec  -Version ${{ env.NUPKG_VERSION }}  -NoPackageAnalysis
+        dotnet nuget add source "https://nuget.pkg.github.com/mendix/index.json" --name "GitHub" --username ${{ secrets.GHPACKAGESUSER }} --password ${{ secrets.GHPACKAGESTOKEN }}
+        dotnet pack --configuration Release --output "mx_nuget" -p:PublicRelease=true LibGit2Sharp/LibGit2Sharp.csproj
       shell: powershell #Keep as powershell and not pwsh
-      
+
     - name: Upload build artifacts
       uses: actions/upload-artifact@v2
       with:
         name: nuget package
-        path: ${{ github.workspace }}/**/*.nupkg      
+        path: ${{ github.workspace }}/**/*.nupkg
 
     # After build we copy the binaries to package output folder
-    # Finally we pack and push the package to github packages 
+    # Finally we pack and push the package to github packages
     - name: Deploy Package
       run: |
-        nuget source Add -Name "GitHub" -Source "https://nuget.pkg.github.com/mendix/index.json" -UserName srv-LibGit2sharp-mendix -Password ${{ secrets.GHPACKAGESTOKEN }}
-        nuget push **/Mendix.LibGit2Sharp*.nupkg -Source "GitHub" -SkipDuplicate
+        dotnet nuget add source "https://nuget.pkg.github.com/mendix/index.json" --name "GitHub" --username ${{ secrets.GHPACKAGESUSER }} --password ${{ secrets.GHPACKAGESTOKEN }}
+        dotnet nuget push "**/mx_nuget/Mendix.LibGit2Sharp*.nupkg" --source "GitHub" --skip-duplicate
       shell: powershell #Keep as powershell and not pwsh
-      

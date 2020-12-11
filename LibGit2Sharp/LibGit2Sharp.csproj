@@ -16,6 +16,10 @@
     <AssemblyOriginatorKeyFile>..\libgit2sharp.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <PackageId>Mendix.LibGit2Sharp</PackageId>
+  </PropertyGroup>
+
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
     <None Include="Core\Handles\Objects.tt">
@@ -29,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mendix.LibGit2Sharp.NativeBinaries" Version="[1.101.10]" PrivateAssets="none" />
+    <PackageReference Include="Mendix.LibGit2Sharp.NativeBinaries" Version="[1.110.1]" PrivateAssets="none" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="all" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="2.2.13" PrivateAssets="all" />
   </ItemGroup>
@@ -39,9 +43,8 @@
 
   <Target Name="SetNuSpecProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="GetBuildVersion">
     <PropertyGroup>
-      <PackageIconUrl>https://github.com/libgit2/libgit2sharp/raw/$(GitCommitIdShort)/square-logo.png</PackageIconUrl>
-      <PackageReleaseNotes>https://github.com/libgit2/libgit2sharp/blob/$(GitCommitIdShort)/CHANGES.md#libgit2sharp-changes</PackageReleaseNotes>
-      <PackageLicenseUrl>https://github.com/libgit2/libgit2sharp/raw/$(GitCommitIdShort)/LICENSE.md</PackageLicenseUrl>
+      <PackageIconUrl>https://raw.githubusercontent.com/mendix/libgit2sharp/master/square-logo.png</PackageIconUrl>
+      <PackageLicenseUrl>https://raw.githubusercontent.com/mendix/libgit2sharp/master/LICENSE.md</PackageLicenseUrl>
     </PropertyGroup>
   </Target>
 
