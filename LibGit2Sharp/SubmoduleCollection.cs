@@ -73,6 +73,8 @@ namespace LibGit2Sharp
 
         public virtual void UpdateAll(SubmoduleUpdateOptions options)
         {
+            options = options ?? new SubmoduleUpdateOptions();
+
             foreach (var sm in this)
                 Update(sm.Name, options);
         }
