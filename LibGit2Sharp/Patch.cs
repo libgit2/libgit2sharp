@@ -85,7 +85,7 @@ namespace LibGit2Sharp
                     break;
             }
 
-            currentChange.AppendGitDiffLine(line);
+            currentChange.AppendGitDiffLine(line, patchPart);
 
             string formattedOutput = string.Concat(prefix, patchPart);
 

@@ -15,13 +15,11 @@ namespace LibGit2Sharp
         /// <param name="repository">The repository.</param>
         /// <param name="merger">The signature to use for the merge.</param>
         /// <param name="options">The options for fetch and merging.</param>
-        public static MergeResult Pull(Repository repository, Signature merger, PullOptions options)
+        public static MergeResult Pull(Repository repository, Signature merger, PullOptions options = null)
         {
             Ensure.ArgumentNotNull(repository, "repository");
-            Ensure.ArgumentNotNull(merger, "merger");
 
 
-            options = options ?? new PullOptions();
             Branch currentBranch = repository.Head;
 
             if (!currentBranch.IsTracking)
@@ -34,7 +32,24 @@ namespace LibGit2Sharp
                 throw new LibGit2SharpException("No upstream remote for the current branch.");
             }
 
-            Commands.Fetch(repository, currentBranch.RemoteName, new string[0], options.FetchOptions, null);
+            return Pull(repository, currentBranch.RemoteName, merger, options);
+        }
+
+        /// <summary>
+        /// Fetch changes from the configured upstream remote and branch into the branch pointed at by HEAD.
+        /// </summary>
+        /// <param name="repository">The repository.</param>
+        /// <param name="remoteNameOrPath">The remote name or repository path.</param>
+        /// <param name="merger">The signature to use for the merge.</param>
+        /// <param name="options">The options for fetch and merging.</param>
+        public static MergeResult Pull(Repository repository, string remoteNameOrPath, Signature merger, PullOptions options = null)
+        {
+            Ensure.ArgumentNotNull(repository, "repository");
+            Ensure.ArgumentNotNull(merger, "merger");
+
+
+            options = options ?? new PullOptions();
+            Commands.Fetch(repository, remoteNameOrPath, new string[0], options.FetchOptions, null);
             return repository.MergeFetchedRefs(merger, options.MergeOptions);
         }
     }
