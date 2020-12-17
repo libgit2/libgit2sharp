@@ -168,7 +168,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="patch"><see cref="Patch"/>.</param>
         /// <returns>The patch content as string.</returns>
-        public static implicit operator string (Patch patch)
+        public static implicit operator string(Patch patch)
         {
             return patch.fullPatchBuilder.ToString();
         }

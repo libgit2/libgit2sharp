@@ -202,6 +202,40 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void DiffSetsTheAddedAndDeletedLinesCorrectly()
+        {
+            var path = SandboxStandardTestRepoGitDir();
+
+            using (var repo = new Repository(path))
+            {
+                var oldContent =
+                @"1
+2
+3
+4";
+
+                var newContent =
+                   @"1
+2
+3
+5";
+                var oldBlob = repo.ObjectDatabase.CreateBlob(new MemoryStream(Encoding.UTF8.GetBytes(oldContent)));
+                var newBlob = repo.ObjectDatabase.CreateBlob(new MemoryStream(Encoding.UTF8.GetBytes(newContent)));
+
+                ContentChanges changes = repo.Diff.Compare(oldBlob, newBlob);
+
+                Assert.Single(changes.AddedLines);
+                Assert.Single(changes.DeletedLines);
+
+                Assert.Equal("4", changes.DeletedLines.First().Content);
+                Assert.Equal("5", changes.AddedLines.First().Content);
+
+                Assert.Equal(4, changes.DeletedLines.First().LineNumber);
+                Assert.Equal(4, changes.AddedLines.First().LineNumber);
+            }
+        }
+
         static string CanonicalChangedLines(ContentChanges changes)
         {
             // Create an ordered representation of lines that have been added or removed

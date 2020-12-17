@@ -26,6 +26,9 @@ namespace LibGit2Sharp.Core
         private static NativeShutdownObject shutdownObject;
 #pragma warning restore 0414
 
+        private static SmartSubtransportRegistration<ManagedHttpSmartSubtransport> httpSubtransportRegistration;
+        private static SmartSubtransportRegistration<ManagedHttpSmartSubtransport> httpsSubtransportRegistration;
+
         static NativeMethods()
         {
             if (Platform.IsRunningOnNetFramework() || Platform.IsRunningOnNetCore())
@@ -42,11 +45,8 @@ namespace LibGit2Sharp.Core
                     string nativeLibraryPath = GetGlobalSettingsNativeLibraryPath();
                     if (nativeLibraryPath != null)
                     {
-#if NETFRAMEWORK
-                        if (Platform.OperatingSystem == OperatingSystemType.Windows)
-#else
                         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-#endif
+
                         {
                             LoadWindowsLibrary(nativeLibraryPath);
                         }
@@ -146,8 +146,6 @@ namespace LibGit2Sharp.Core
                     return handle;
                 }
 
-#if NETFRAMEWORK
-#else
                 // We cary a number of .so files for Linux which are linked against various
                 // libc/OpenSSL libraries. Try them out.
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -170,7 +168,6 @@ namespace LibGit2Sharp.Core
                         }
                     }
                 }
-#endif
             }
             return handle;
         }
@@ -199,10 +196,11 @@ namespace LibGit2Sharp.Core
                 shutdownObject = new NativeShutdownObject();
             }
 
-            // Configure the OpenSSL locking on the first initialization of the library in the current process.
+            // Configure the .NET HTTP(S) mechanism on the first initialization of the library in the current process.
             if (initCounter == 1)
             {
-                git_openssl_set_locking();
+                httpSubtransportRegistration = GlobalSettings.RegisterDefaultSmartSubtransport<ManagedHttpSmartSubtransport>("http");
+                httpsSubtransportRegistration = GlobalSettings.RegisterDefaultSmartSubtransport<ManagedHttpSmartSubtransport>("https");
             }
         }
 
@@ -211,6 +209,16 @@ namespace LibGit2Sharp.Core
         {
             ~NativeShutdownObject()
             {
+                if (httpSubtransportRegistration != null)
+                {
+                    GlobalSettings.UnregisterDefaultSmartSubtransport(httpSubtransportRegistration);
+                }
+
+                if (httpsSubtransportRegistration != null)
+                {
+                    GlobalSettings.UnregisterDefaultSmartSubtransport(httpsSubtransportRegistration);
+                }
+
                 git_libgit2_shutdown();
             }
         }
@@ -795,6 +803,15 @@ namespace LibGit2Sharp.Core
         // git_libgit2_opts(GIT_OPT_ENABLE_*, int enabled)
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int git_libgit2_opts(int option, int enabled);
+
+        // git_libgit2_opts(GIT_OPT_SET_USER_AGENT, const char *path)
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int git_libgit2_opts(int option,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string path);
+
+        // git_libgit2_opts(GIT_OPT_GET_USER_AGENT, git_buf *buf)
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int git_libgit2_opts(int option, GitBuf buf);
         #endregion
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]

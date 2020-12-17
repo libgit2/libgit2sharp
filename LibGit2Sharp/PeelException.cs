@@ -9,7 +9,7 @@ namespace LibGit2Sharp
     /// target type due to the object model.
     /// </summary>
     [Serializable]
-    public class PeelException : LibGit2SharpException
+    public class PeelException : NativeException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PeelException"/> class.
@@ -52,8 +52,16 @@ namespace LibGit2Sharp
             : base(info, context)
         { }
 
-        internal PeelException(string message, GitErrorCode code, GitErrorCategory category)
-            : base(message, code, category)
+        internal PeelException(string message, GitErrorCategory category)
+            : base(message, category)
         { }
+
+        internal override GitErrorCode ErrorCode
+        {
+            get
+            {
+                return GitErrorCode.Peel;
+            }
+        }
     }
 }

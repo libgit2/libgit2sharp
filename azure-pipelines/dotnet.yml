@@ -23,6 +23,22 @@ steps:
   condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
 
 - task: DotNetCoreCLI@2
+  displayName: dotnet test -f net472 (w/ coverage)
+  inputs:
+    command: test
+    arguments: --no-build -c $(BuildConfiguration) -f net472 --filter "TestCategory!=FailsInCloudTest & TestCategory!=FailsWhileInstrumented" -v n /p:CollectCoverage=true
+    testRunTitle: net472-$(Agent.JobName)
+  condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
+
+- task: DotNetCoreCLI@2
+  displayName: dotnet test -f net472 (w/o coverage)
+  inputs:
+    command: test
+    arguments: --no-build -c $(BuildConfiguration) -f net472 --filter "TestCategory!=FailsInCloudTest & TestCategory=FailsWhileInstrumented" -v n
+    testRunTitle: net472-$(Agent.JobName)-nocoverage
+  condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
+
+- task: DotNetCoreCLI@2
   displayName: dotnet test -f netcoreapp2.1
   inputs:
     command: test

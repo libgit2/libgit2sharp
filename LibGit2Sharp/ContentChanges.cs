@@ -55,6 +55,16 @@ namespace LibGit2Sharp
         public virtual int LinesDeleted { get; internal set; }
 
         /// <summary>
+        /// The list of added lines.
+        /// </summary>
+        public virtual List<Line> AddedLines { get; } = new List<Line>();
+
+        /// <summary>
+        /// The list of deleted lines.
+        /// </summary>
+        public virtual List<Line> DeletedLines { get; } = new List<Line>();
+
+        /// <summary>
         /// The patch corresponding to these changes.
         /// </summary>
         public virtual string Patch
@@ -98,7 +108,6 @@ namespace LibGit2Sharp
             switch (line.lineOrigin)
             {
                 case GitDiffLineOrigin.GIT_DIFF_LINE_ADDITION:
-                case GitDiffLineOrigin.GIT_DIFF_LINE_DELETION:
                 case GitDiffLineOrigin.GIT_DIFF_LINE_CONTEXT:
                     prefix = Encoding.ASCII.GetString(new[] { (byte)line.lineOrigin });
                     break;
@@ -119,11 +128,13 @@ namespace LibGit2Sharp
             switch (line.lineOrigin)
             {
                 case GitDiffLineOrigin.GIT_DIFF_LINE_ADDITION:
+                    AddedLines.Add(new Line(line.NewLineNo, decodedContent));
                     LinesAdded++;
                     lines.Add(new ContentChangeLine(line));
                     break;
 
                 case GitDiffLineOrigin.GIT_DIFF_LINE_DELETION:
+                    DeletedLines.Add(new Line(line.OldLineNo, decodedContent));
                     LinesDeleted++;
                     lines.Add(new ContentChangeLine(line));
                     break;

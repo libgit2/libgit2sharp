@@ -237,65 +237,65 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [SkippableTheory]
-        [InlineData("https://github.com/libgit2/TestGitRepository.git", "github.com", typeof(CertificateX509))]
-        [InlineData("git@github.com:libgit2/TestGitRepository.git", "github.com", typeof(CertificateSsh))]
-        public void CanInspectCertificateOnClone(string url, string hostname, Type certType)
-        {
-            var scd = BuildSelfCleaningDirectory();
+        //[SkippableTheory]
+        //[InlineData("https://github.com/libgit2/TestGitRepository.git", "github.com", typeof(CertificateX509))]
+        //[InlineData("git@github.com:libgit2/TestGitRepository.git", "github.com", typeof(CertificateSsh))]
+        //public void CanInspectCertificateOnClone(string url, string hostname, Type certType)
+        //{
+        //    var scd = BuildSelfCleaningDirectory();
 
-            InconclusiveIf(
-                () =>
-                    certType == typeof (CertificateSsh) && !GlobalSettings.Version.Features.HasFlag(BuiltInFeatures.Ssh),
-                "SSH not supported");
+        //    InconclusiveIf(
+        //        () =>
+        //            certType == typeof (CertificateSsh) && !GlobalSettings.Version.Features.HasFlag(BuiltInFeatures.Ssh),
+        //        "SSH not supported");
 
-            bool wasCalled = false;
-            bool checksHappy = false;
+        //    bool wasCalled = false;
+        //    bool checksHappy = false;
 
-            var options = new CloneOptions {
-                CertificateCheck = (cert, valid, host) => {
-                    wasCalled = true;
+        //    var options = new CloneOptions {
+        //        CertificateCheck = (cert, valid, host) => {
+        //            wasCalled = true;
 
-                    Assert.Equal(hostname, host);
-                    Assert.Equal(certType, cert.GetType());
+        //            Assert.Equal(hostname, host);
+        //            Assert.Equal(certType, cert.GetType());
 
-                    if (certType == typeof(CertificateX509)) {
-                        Assert.True(valid);
-                        var x509 = ((CertificateX509)cert).Certificate;
-                        // we get a string with the different fields instead of a structure, so...
-                        Assert.Contains("CN=github.com,", x509.Subject);
-                        checksHappy = true;
-                        return false;
-                    }
+        //            if (certType == typeof(CertificateX509)) {
+        //                Assert.True(valid);
+        //                var x509 = ((CertificateX509)cert).Certificate;
+        //                // we get a string with the different fields instead of a structure, so...
+        //                Assert.Contains("CN=github.com,", x509.Subject);
+        //                checksHappy = true;
+        //                return false;
+        //            }
 
-                    if (certType == typeof(CertificateSsh)) {
-                        var hostkey = (CertificateSsh)cert;
-                        Assert.True(hostkey.HasMD5);
-                        /*
-                         * Once you've connected and thus your ssh has stored the hostkey,
-                         * you can get the hostkey for a host with
-                         *
-                         *     ssh-keygen -F github.com -l | tail -n 1 | cut -d ' ' -f 2 | tr -d ':'
-                         *
-                         * though GitHub's hostkey won't change anytime soon.
-                         */
-                        Assert.Equal("1627aca576282d36631b564debdfa648",
-                            BitConverter.ToString(hostkey.HashMD5).ToLower().Replace("-", ""));
-                        checksHappy = true;
-                        return false;
-                    }
+        //            if (certType == typeof(CertificateSsh)) {
+        //                var hostkey = (CertificateSsh)cert;
+        //                Assert.True(hostkey.HasMD5);
+        //                /*
+        //                 * Once you've connected and thus your ssh has stored the hostkey,
+        //                 * you can get the hostkey for a host with
+        //                 *
+        //                 *     ssh-keygen -F github.com -l | tail -n 1 | cut -d ' ' -f 2 | tr -d ':'
+        //                 *
+        //                 * though GitHub's hostkey won't change anytime soon.
+        //                 */
+        //                Assert.Equal("1627aca576282d36631b564debdfa648",
+        //                    BitConverter.ToString(hostkey.HashMD5).ToLower().Replace("-", ""));
+        //                checksHappy = true;
+        //                return false;
+        //            }
 
-                    return false;
-                },
-            };
+        //            return false;
+        //        },
+        //    };
 
-            Assert.Throws<UserCancelledException>(() =>
-                Repository.Clone(url, scd.DirectoryPath, options)
-            );
+        //    Assert.Throws<UserCancelledException>(() =>
+        //        Repository.Clone(url, scd.DirectoryPath, options)
+        //    );
 
-            Assert.True(wasCalled);
-            Assert.True(checksHappy);
-        }
+        //    Assert.True(wasCalled);
+        //    Assert.True(checksHappy);
+        //}
 
         [Theory]
         [InlineData("git://github.com/libgit2/TestGitRepository")]
