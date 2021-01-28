@@ -3,9 +3,9 @@
 **LibGit2Sharp brings all the might and speed of libgit2, a native Git implementation, to the managed world of .Net and Mono.**
 
  - Source code: <https://github.com/libgit2/libgit2sharp>
- - NuGet package: <http://nuget.org/List/Packages/LibGit2Sharp>
+ - NuGet package: <https://nuget.org/List/Packages/LibGit2Sharp>
  - Issue tracker: <https://github.com/libgit2/libgit2sharp/issues>
- - @libgit2sharp: <http://twitter.com/libgit2sharp>
+ - @libgit2sharp: <https://twitter.com/libgit2sharp>
  - CI servers:
   - Windows (x86/amd64): <https://ci.appveyor.com/project/libgit2/libgit2sharp>
   - Linux/Mac OS X: <https://travis-ci.org/libgit2/libgit2sharp>
