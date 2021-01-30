@@ -32,7 +32,7 @@ namespace LibGit2Sharp
         /// <param name="options">Fetch options.</param>
         /// <param name="logMessage">Log message for any ref updates.</param>
         /// <param name="refspecs">List of refspecs to apply as active.</param>
-        public static void Fetch(Repository repository, string remote, IEnumerable<string> refspecs, FetchOptions options, string logMessage)
+        public static void Fetch(IRepository repository, string remote, IEnumerable<string> refspecs, FetchOptions options, string logMessage)
         {
             Ensure.ArgumentNotNull(remote, "remote");
 
