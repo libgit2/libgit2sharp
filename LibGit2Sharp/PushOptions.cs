@@ -51,5 +51,13 @@ namespace LibGit2Sharp
         /// information about what updates will be performed.
         /// </summary>
         public PrePushHandler OnNegotiationCompletedBeforePush { get; set; }
+
+        /// <summary>
+        /// Configures operating behind a proxy
+        /// <para>
+        /// If not set, any proxy settings will be ignored
+        /// </para>
+        /// </summary>
+        public ProxyOptions ProxyOptions { get; set; }
     }
 }

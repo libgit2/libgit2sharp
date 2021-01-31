@@ -672,13 +672,30 @@ namespace LibGit2Sharp
         /// <returns>The references in the remote repository.</returns>
         public static IEnumerable<Reference> ListRemoteReferences(string url, CredentialsHandler credentialsProvider)
         {
+            return ListRemoteReferences(url, credentialsProvider, new RemoteOptions());
+        }
+
+        /// <summary>
+        /// Lists the Remote Repository References.
+        /// </summary>
+        /// <para>
+        /// Does not require a local Repository. The retrieved
+        /// <see cref="IBelongToARepository.Repository"/>
+        /// throws <see cref="InvalidOperationException"/> in this case.
+        /// </para>
+        /// <param name="url">The url to list from.</param>
+        /// <param name="credentialsProvider">The <see cref="Func{Credentials}"/> used to connect to remote repository.</param>
+        /// <param name="options">Options for remote behavior <see cref="RemoteOptions"/></param>
+        /// <returns>The references in the remote repository.</returns>
+        public static IEnumerable<Reference> ListRemoteReferences(string url, CredentialsHandler credentialsProvider, RemoteOptions options)
+        {
             Ensure.ArgumentNotNull(url, "url");
 
             using (RepositoryHandle repositoryHandle = Proxy.git_repository_new())
             using (RemoteHandle remoteHandle = Proxy.git_remote_create_anonymous(repositoryHandle, url))
             {
                 var gitCallbacks = new GitRemoteCallbacks { version = 1 };
-                var proxyOptions = new GitProxyOptions { Version = 1 };
+                var proxyOptions = GitProxyOptionsFactory.CreateGitProxyOptions(options?.ProxyOptions);
 
                 if (credentialsProvider != null)
                 {
@@ -768,7 +785,7 @@ namespace LibGit2Sharp
                 var gitCheckoutOptions = checkoutOptionsWrapper.Options;
 
                 var gitFetchOptions = fetchOptionsWrapper.Options;
-                gitFetchOptions.ProxyOptions = new GitProxyOptions { Version = 1 };
+                gitFetchOptions.ProxyOptions = GitProxyOptionsFactory.CreateGitProxyOptions(options.ProxyOptions);
                 gitFetchOptions.RemoteCallbacks = new RemoteCallbacks(options).GenerateCallbacks();
                 if (options.FetchOptions != null && options.FetchOptions.CustomHeaders != null)
                 {
