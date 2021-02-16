@@ -14,6 +14,40 @@ namespace LibGit2Sharp.Core
 {
     internal class Proxy
     {
+        #region git_mailmap_
+
+        public static unsafe MailmapHandle git_mailmap_from_repository(
+            RepositoryHandle repo)
+        {
+            git_mailmap* ptr;
+            int res = NativeMethods.git_mailmap_from_repository(out ptr, repo);
+            Ensure.ZeroResult(res);
+            return new MailmapHandle(ptr, true);
+        }
+
+        public static unsafe void git_mailmap_resolve(
+            out string real_name,
+            out string real_email,
+            MailmapHandle mm,
+            string name,
+            string email)
+        {
+            int res = NativeMethods.git_mailmap_resolve(out real_name, out real_email, mm, name, email);
+            Ensure.ZeroResult(res);
+        }
+
+        public static unsafe SignatureHandle git_mailmap_resolve_signature(
+            MailmapHandle mm,
+            SignatureHandle sig)
+        {
+            git_signature* ptr;
+            int res = NativeMethods.git_mailmap_resolve_signature(out ptr, mm, sig);
+            Ensure.ZeroResult(res);
+            return new SignatureHandle(ptr, true);
+        }
+
+        #endregion
+
         #region git_blame_
 
         public static unsafe BlameHandle git_blame_file(

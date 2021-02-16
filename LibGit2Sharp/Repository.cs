@@ -37,6 +37,7 @@ namespace LibGit2Sharp
         private readonly SubmoduleCollection submodules;
         private readonly WorktreeCollection worktrees;
         private readonly Lazy<PathCase> pathCase;
+        private readonly Lazy<Mailmap> mailmap;
 
         [Flags]
         private enum RepositoryRequiredParameter
@@ -134,6 +135,7 @@ namespace LibGit2Sharp
                 pathCase = new Lazy<PathCase>(() => new PathCase(this));
                 submodules = new SubmoduleCollection(this);
                 worktrees = new WorktreeCollection(this);
+                mailmap = new Lazy<Mailmap>(() => new Mailmap(this));
             }
             catch
             {
@@ -231,6 +233,7 @@ namespace LibGit2Sharp
                 pathCase = new Lazy<PathCase>(() => new PathCase(this));
                 submodules = new SubmoduleCollection(this);
                 worktrees = new WorktreeCollection(this);
+                mailmap = new Lazy<Mailmap>(() => new Mailmap(this));
 
                 EagerlyLoadComponentsWithSpecifiedPaths(options);
             }
@@ -453,6 +456,14 @@ namespace LibGit2Sharp
         public WorktreeCollection Worktrees
         {
             get { return worktrees; }
+        }
+
+        /// <summary>
+        /// Mailmap in the repository.
+        /// </summary>
+        public Mailmap Mailmap
+        {
+            get { return mailmap.Value; }
         }
 
         #region IDisposable Members
@@ -1050,7 +1061,7 @@ namespace LibGit2Sharp
 
                 if (treesame && !amendMergeCommit)
                 {
-                    throw (options.AmendPreviousCommit ? 
+                    throw (options.AmendPreviousCommit ?
                         new EmptyCommitException("Amending this commit would produce a commit that is identical to its parent (id = {0})", parents[0].Id) :
                         new EmptyCommitException("No changes; nothing to commit."));
                 }
@@ -1241,7 +1252,7 @@ namespace LibGit2Sharp
             if (fetchHeads.Length == 0)
             {
                 var expectedRef = this.Head.UpstreamBranchCanonicalName;
-                throw new MergeFetchHeadNotFoundException("The current branch is configured to merge with the reference '{0}' from the remote, but this reference was not fetched.", 
+                throw new MergeFetchHeadNotFoundException("The current branch is configured to merge with the reference '{0}' from the remote, but this reference was not fetched.",
                     expectedRef);
             }
 

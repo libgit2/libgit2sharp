@@ -3,6 +3,28 @@ using System;
 
 namespace LibGit2Sharp.Core.Handles
 {
+    internal unsafe class MailmapHandle : Libgit2Object
+    {
+        internal MailmapHandle(git_mailmap *ptr, bool owned)
+            : base((void *) ptr, owned)
+        {
+        }
+
+        internal MailmapHandle(IntPtr ptr, bool owned)
+            : base(ptr, owned)
+        {
+        }
+
+        public override void Free()
+        {
+            NativeMethods.git_mailmap_free((git_mailmap*) ptr);
+        }
+
+        public static implicit operator git_mailmap*(MailmapHandle handle)
+        {
+            return (git_mailmap*) handle.Handle;
+        }
+    }
 
     internal unsafe class TreeEntryHandle : Libgit2Object
     {
