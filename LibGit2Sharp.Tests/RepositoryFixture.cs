@@ -777,5 +777,62 @@ namespace LibGit2Sharp.Tests
                 });
             }
         }
+
+        [Fact]
+        public void CanHashAnObject()
+        {
+            const string expectedShaWithFilters = "0839846ee3a3ce9868f8f5f41f600143bb1a0918";
+            const string expectedShaWithoutFilters = "28863f22db61878784228bfdff70a4affc70b7a1";
+
+            string repoPath = InitNewRepository();
+            string pathOutsideOfTheRepo = BuildSelfCleaningDirectory().RootedDirectoryPath;
+
+            using (var repo = new Repository(repoPath))
+            {
+                Touch(repo.Info.WorkingDirectory, ".gitattributes", "* text eol=crlf");
+                Commands.Stage(repo, ".gitattributes");
+
+                Signature author = Constants.Signature;
+                repo.Commit("Initial commit", author, author);
+
+                Touch(repo.Info.WorkingDirectory, "file.txt", "line 1\r\nline 2");
+
+                ObjectId result;
+
+                result = repo.HashObject("file.txt");
+                Assert.Equal(expectedShaWithFilters, result.Sha);
+                Assert.Null(repo.Lookup(result));
+
+                result = repo.HashObject(Path.Combine(repo.Info.WorkingDirectory, "file.txt"), true);
+                Assert.Equal(expectedShaWithFilters, result.Sha);
+                Assert.Null(repo.Lookup(result));
+
+                result = repo.HashObject("file.txt", false);
+                Assert.Equal(expectedShaWithoutFilters, result.Sha);
+                Assert.Null(repo.Lookup(result));
+
+                string tempFile = Path.GetRandomFileName();
+                Touch(pathOutsideOfTheRepo, tempFile, "line 1\r\nline 2");
+                pathOutsideOfTheRepo = Path.Combine(pathOutsideOfTheRepo, tempFile);
+                result = repo.HashObject(pathOutsideOfTheRepo, false);
+                Assert.Equal(expectedShaWithoutFilters, result.Sha);
+                Assert.Null(repo.Lookup(result));
+
+                Assert.Throws<ArgumentException>(() => repo.HashObject(pathOutsideOfTheRepo, true));
+            }
+
+            string bareRepoPath = BuildSelfCleaningDirectory().DirectoryPath;
+            Repository.Clone(repoPath, bareRepoPath, new CloneOptions { IsBare = true });
+            using (var repo = new Repository(bareRepoPath))
+            {
+                Assert.Throws<NotFoundException>(() => repo.HashObject("file.txt"));
+
+                ObjectId result = repo.HashObject(pathOutsideOfTheRepo, true);
+                Assert.Equal(expectedShaWithoutFilters, result.Sha);
+
+                result = repo.HashObject(pathOutsideOfTheRepo, false);
+                Assert.Equal(expectedShaWithoutFilters, result.Sha);
+            }
+        }
     }
 }

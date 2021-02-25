@@ -1620,6 +1620,13 @@ namespace LibGit2Sharp.Core
             return id;
         }
 
+        public static ObjectId git_odb_hashfile(FilePath path, GitObjectType objectType)
+        {
+            GitOid id;
+            int res = NativeMethods.git_odb_hashfile(out id, path, GitObjectType.Blob);
+            Ensure.ZeroResult(res);
+            return id;
+        }
 #endregion
 
 #region git_patch_
@@ -2647,6 +2654,13 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
+        public static unsafe ObjectId git_repository_hashfile(RepositoryHandle repo, FilePath path, GitObjectType type, FilePath hintPath)
+        {
+            GitOid oid;
+            int res = NativeMethods.git_repository_hashfile(out oid, repo, path, type, hintPath);
+            Ensure.ZeroResult(res);
+            return oid;
+        }
 #endregion
 
 #region git_reset_

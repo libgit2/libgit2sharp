@@ -282,5 +282,18 @@ namespace LibGit2Sharp
         /// <param name="reference">The reference mentioned in the revision (if any)</param>
         /// <param name="obj">The object which the revision resolves to</param>
         void RevParse(string revision, out Reference reference, out GitObject obj);
+
+        /// <summary>
+        /// Calculate hash of file applying filtering rules such as EOL conversion. Does not create a new blob object for the file.
+        /// </summary>
+        /// <param name="path">The path of the file relative to the repository working dir. May be an absolute path within the working dir.</param>
+        ObjectId HashObject(string path);
+
+        /// <summary>
+        /// Calculate hash of file without creating an object. Does not create a new blob object for the file.
+        /// </summary>
+        /// <param name="path">The path of the file relative to the repository working dir. May be an absolute path within the working dir.</param>
+        /// <param name="applyFilters">Option to apply filters such as EOL conversion.</param>
+        ObjectId HashObject(string path, bool applyFilters);
     }
 }

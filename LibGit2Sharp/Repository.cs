@@ -1758,6 +1758,29 @@ namespace LibGit2Sharp
             }
         }
 
+        /// <summary>
+        /// Calculate hash of file applying filtering rules such as EOL conversion. Does not create a new blob object for the file.
+        /// </summary>
+        /// <param name="path">The path of the file relative to the repository working dir. May be an absolute path within the working dir.</param>
+        public ObjectId HashObject(string path)
+        {
+            return HashObject(path, true);
+        }
+
+        /// <summary>
+        /// Calculate hash of file without creating an object. Does not create a new blob object for the file.
+        /// </summary>
+        /// <param name="path">The path of the file relative to the repository working dir. If an absolute path is provided, it must be within the working dir when applying filters.</param>
+        /// <param name="applyFilters">Option to apply filters such as EOL conversion.</param>
+        public ObjectId HashObject(string path, bool applyFilters)
+        {
+            if (applyFilters)
+                return Proxy.git_repository_hashfile(Handle, isBare ? path : this.BuildRelativePathFrom(path), GitObjectType.Blob, null);
+
+            string fullPath = Path.IsPathRooted(path) ? path : Path.GetFullPath(Path.Combine(Info.WorkingDirectory, path));
+            return Proxy.git_odb_hashfile(fullPath, GitObjectType.Blob);
+        }
+
         private string DebuggerDisplay
         {
             get
