@@ -51,5 +51,10 @@ namespace LibGit2Sharp
         /// information about what updates will be performed.
         /// </summary>
         public PrePushHandler OnNegotiationCompletedBeforePush { get; set; }
+
+        /// <summary>
+        /// Handler for receiving textual progress from the remote.
+        /// </summary>
+        public ProgressHandler OnPushRemoteProgress { get; set; }
     }
 }
