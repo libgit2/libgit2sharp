@@ -31,7 +31,7 @@ _ReSharper*/
 *.ReSharper
 *.ReSharper.user
 [Tt]est[Rr]esult*
-[bB]uild/
+*/[bB]uild/
 *.pidb
 *.userprefs
 *.swp
