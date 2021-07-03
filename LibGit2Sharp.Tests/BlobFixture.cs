@@ -3,7 +3,6 @@ using System.Linq;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
-using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -44,6 +43,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+#if NETFRAMEWORK || NETCOREAPP2_1
         [Theory]
         [InlineData("ascii", 4, "31 32 33 34")]
         [InlineData("utf-7", 4, "31 32 33 34")]
@@ -83,6 +83,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(expectedUtf7Chars, string.Join(" ", utf7Chars));
             }
         }
+#endif
 
         [Fact]
         public void CanGetBlobSize()
@@ -185,7 +186,7 @@ namespace LibGit2Sharp.Tests
                     var sb = new StringBuilder();
                     for (int j = 0; j < 2000; j++)
                     {
-                        sb.Append(((i + 1)*(j + 1)).ToString("X8"));
+                        sb.Append(((i + 1) * (j + 1)).ToString("X8"));
                     }
                     File.AppendAllText(Path.Combine(repo.Info.WorkingDirectory, "small.txt"), sb.ToString());
                 }
