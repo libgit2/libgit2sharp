@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using LibGit2Sharp.Core;
 using Xunit;
 
 namespace LibGit2Sharp.Tests.TestHelpers
@@ -65,7 +64,11 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
             if (resourcesPath == null)
             {
+#if NETFRAMEWORK
                 resourcesPath = Path.Combine(Directory.GetParent(new Uri(typeof(BaseFixture).GetTypeInfo().Assembly.CodeBase).LocalPath).FullName, "Resources");
+#else
+                resourcesPath = Path.Combine(Directory.GetParent(typeof(BaseFixture).GetTypeInfo().Assembly.Location).FullName, "Resources");
+#endif
             }
 
             ResourcesDirectory = new DirectoryInfo(resourcesPath);
