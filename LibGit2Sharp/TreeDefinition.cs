@@ -94,6 +94,7 @@ namespace LibGit2Sharp
             if (segments.Item2 == null)
             {
                 entries.Remove(segments.Item1);
+                unwrappedTrees.Remove(segments.Item1);
             }
 
             if (!unwrappedTrees.ContainsKey(segments.Item1))
