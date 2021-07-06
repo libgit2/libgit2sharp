@@ -37,6 +37,7 @@ var cNames = new[] {
     "git_rebase",
     "git_odb_stream",
     "git_worktree",
+    "git_refdb",
 };
 
 var csNames = new[] {
@@ -64,7 +65,8 @@ var csNames = new[] {
     "ObjectHandle",
     "RebaseHandle",
     "OdbStreamHandle",
-    "WorktreeHandle"
+    "WorktreeHandle",
+    "ReferenceDatabaseHandle",
 };
 
 for (var i = 0; i < cNames.Length; i++)
