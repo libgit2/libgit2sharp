@@ -49,7 +49,7 @@ namespace LibGit2Sharp.Core
         /// <summary>
         /// File merging flags.
         /// </summary>
-        public GitMergeFileFlag FileFlags;
+        public MergeFileFlag FileFlags;
     }
 
     /// <summary>
@@ -145,54 +145,5 @@ namespace LibGit2Sharp.Core
         /// merge base to `git-merge-resolve`.
         /// </summary>
         GIT_MERGE_NO_RECURSIVE = (1 << 3),
-    }
-
-    [Flags]
-    internal enum GitMergeFileFlag
-    {
-        /// <summary>
-        /// Defaults
-        /// </summary>
-        GIT_MERGE_FILE_DEFAULT = 0,
-
-        /// <summary>
-        /// Create standard conflicted merge files
-        /// </summary>
-        GIT_MERGE_FILE_STYLE_MERGE = (1 << 0),
-
-        /// <summary>
-        /// Create diff3-style files
-        /// </summary>
-        GIT_MERGE_FILE_STYLE_DIFF3 = (1 << 1),
-
-        /// <summary>
-        /// Condense non-alphanumeric regions for simplified diff file
-        /// </summary>
-        GIT_MERGE_FILE_SIMPLIFY_ALNUM = (1 << 2),
-
-        /// <summary>
-        /// Ignore all whitespace
-        /// </summary>
-        GIT_MERGE_FILE_IGNORE_WHITESPACE = (1 << 3),
-
-        /// <summary>
-        /// Ignore changes in amount of whitespace
-        /// </summary>
-        GIT_MERGE_FILE_IGNORE_WHITESPACE_CHANGE = (1 << 4),
-
-        /// <summary>
-        /// Ignore whitespace at end of line
-        /// </summary>
-        GIT_MERGE_FILE_IGNORE_WHITESPACE_EOL = (1 << 5),
-
-        /// <summary>
-        /// Use the "patience diff" algorithm
-        /// </summary>
-        GIT_MERGE_FILE_DIFF_PATIENCE = (1 << 6),
-
-        /// <summary>
-        /// Take extra time to find minimal diff
-        /// </summary>
-        GIT_MERGE_FILE_DIFF_MINIMAL = (1 << 7),
     }
 }
