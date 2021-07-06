@@ -30,6 +30,7 @@ namespace LibGit2Sharp
             CertificateCheck = pushOptions.CertificateCheck;
             PushStatusError = pushOptions.OnPushStatusError;
             PrePushCallback = pushOptions.OnNegotiationCompletedBeforePush;
+            Progress = pushOptions.OnPushRemoteProgress;
         }
 
         internal RemoteCallbacks(FetchOptionsBase fetchOptions)
