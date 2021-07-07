@@ -294,5 +294,48 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(3, repo.Worktrees.Count());
             }
         }
+
+        [Fact]
+        public void CanReadRemotesConfigFromWorktree()
+        {
+            const string worktreeName = "i-do-numbers";
+            var expectedRemotes = new[] { "no_url", "origin" };
+
+            var repoPath = SandboxWorktreeTestRepo();
+            using (var repo = new Repository(repoPath))
+            {
+                var worktree = repo.Worktrees[worktreeName];
+                using (var worktreeRepo = worktree.WorktreeRepository)
+                {
+                    var remoteNames = worktreeRepo.Network.Remotes.Select(x => x.Name).OrderBy(x => x).ToArray();
+                    Assert.Equal(expectedRemotes, remoteNames);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Regression test for the https://github.com/libgit2/libgit2sharp/issues/1678.
+        /// </summary>
+        [Fact]
+        public void CanReadRemotesConfigFromWorktreeAfterConfigAccess()
+        {
+            const string worktreeName = "i-do-numbers";
+            var expectedRemotes = new[] { "no_url", "origin" };
+
+            var repoPath = SandboxWorktreeTestRepo();
+            using (var repo = new Repository(repoPath))
+            {
+                var worktree = repo.Worktrees[worktreeName];
+                using (var worktreeRepo = worktree.WorktreeRepository)
+                {
+                    _ = repo.Head.RemoteName;
+                    // Extra dummy access to Configuration. Previously it affected internal repository configuration state.
+                    worktreeRepo.Config.HasConfig(ConfigurationLevel.Local);
+
+                    var remoteNames = worktreeRepo.Network.Remotes.Select(x => x.Name).OrderBy(x => x).ToArray();
+                    Assert.Equal(expectedRemotes, remoteNames);
+                }
+            }
+        }
     }
 }
