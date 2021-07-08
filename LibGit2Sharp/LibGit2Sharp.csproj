@@ -1,5 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="$(SolutionDir)\Common.props" Condition="Exists('$(SolutionDir)\Common.props')" />
+
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netcoreapp2.1</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -18,6 +20,7 @@
     <AssemblyOriginatorKeyFile>..\libgit2sharp.snk</AssemblyOriginatorKeyFile>
     <PackageIcon>square-logo.png</PackageIcon>
     <PackageLicenseFile>App_Readme/LICENSE.md</PackageLicenseFile>
+    <DelaySign>false</DelaySign>
   </PropertyGroup>
 
   <ItemGroup>

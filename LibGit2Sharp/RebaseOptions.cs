@@ -41,6 +41,11 @@ namespace LibGit2Sharp
         /// </summary>
         public CheckoutFileConflictStrategy FileConflictStrategy { get; set; }
 
+        /// <summary>
+        /// Submodule update options passed to submodule updates on rebase step.
+        /// </summary>
+        public SubmoduleUpdateOptions SubmoduleUpdateOptions { get; set; }
+
         CheckoutCallbacks IConvertableToGitCheckoutOpts.GenerateCallbacks()
         {
             return CheckoutCallbacks.From(OnCheckoutProgress, OnCheckoutNotify);

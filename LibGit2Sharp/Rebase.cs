@@ -69,6 +69,56 @@ namespace LibGit2Sharp
                 Proxy.git_annotated_commit_from_ref(this.repository.Handle, refHandle);
         }
 
+        ReferenceHandle RefHandleFrom(Branch b) =>
+            (b == null) ? null : this.repository.Refs.RetrieveReferencePtr(b.CanonicalName);
+
+        ReferenceHandle RefHandleFrom(string name) =>
+            (name == null) ? null : this.repository.Refs.RetrieveReferencePtr(name);
+
+        class RebaseReferenceGuard : IDisposable
+        {
+            Reference rf;
+            Action<Reference> disposeFn;
+
+            public RebaseReferenceGuard(Reference rf_, Action<Reference> disposeFn_)
+            {
+                rf = rf_;
+                disposeFn = disposeFn_;
+            }
+
+            public string CanonicalName => rf.CanonicalName;
+
+            public void Dispose()
+            {
+                disposeFn(rf);
+            }
+        }
+
+        RebaseReferenceGuard ReferenceFrom(Commit c)
+        {
+            if (c == null)
+                return null;
+
+            var rfname = $"refs/rebase/{c.Sha}";
+            var rf = this.repository.Refs.Resolve<Reference>(rfname);
+            rf = rf ?? this.repository.Refs.Add(rfname, c.Id);
+
+            return new RebaseReferenceGuard(rf, r => { try { this.repository.Refs.Remove(r); } catch { }});
+        }
+
+        public virtual RebaseResult Start(Commit annotated, Commit upstream, Commit onto, Identity committer, RebaseOptions options)
+        {
+            Ensure.ArgumentNotNull(upstream, "upstream");
+
+            // TODO: Rebase does not work with just references, is that a bug or design feature?
+            using (var annotatedRef = ReferenceFrom(annotated))
+            using (var upstreamRef = ReferenceFrom(upstream))
+            using (var ontoRef = ReferenceFrom(onto))
+            using (ReferenceHandle annotatedRefPtr = RefHandleFrom(annotatedRef?.CanonicalName))
+            using (ReferenceHandle upstreamRefPtr = RefHandleFrom(upstreamRef?.CanonicalName))
+            using (ReferenceHandle ontoRefPtr = RefHandleFrom(ontoRef?.CanonicalName))
+                return Start(annotatedRefPtr, upstreamRefPtr, ontoRefPtr, committer, options);
+        }
         /// <summary>
         /// Start a rebase operation.
         /// </summary>
@@ -82,6 +132,16 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(upstream, "upstream");
 
+            using (ReferenceHandle branchRefPtr = RefHandleFrom(branch))
+            using (ReferenceHandle upstreamRefPtr = RefHandleFrom(upstream))
+            using (ReferenceHandle ontoRefPtr = RefHandleFrom(onto))
+                return Start(branchRefPtr, upstreamRefPtr, ontoRefPtr, committer, options);
+        }
+
+        internal virtual RebaseResult Start(ReferenceHandle annotatedRefPtr, ReferenceHandle upstreamRefPtr, ReferenceHandle ontoRefPtr, Identity committer, RebaseOptions options)
+        {
+            Ensure.ArgumentNotNull(upstreamRefPtr, "upstream");
+
             options = options ?? new RebaseOptions();
 
             EnsureNonBareRepo();
@@ -92,13 +152,6 @@ namespace LibGit2Sharp
                     this.repository.Info.CurrentOperation);
             }
 
-            Func<Branch, ReferenceHandle> RefHandleFromBranch = (Branch b) =>
-            {
-                return (b == null) ?
-                    null :
-                    this.repository.Refs.RetrieveReferencePtr(b.CanonicalName);
-            };
-
             using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
             {
                 GitRebaseOptions gitRebaseOptions = new GitRebaseOptions()
@@ -107,10 +160,7 @@ namespace LibGit2Sharp
                     checkout_options = checkoutOptionsWrapper.Options,
                 };
 
-                using (ReferenceHandle branchRefPtr = RefHandleFromBranch(branch))
-                using (ReferenceHandle upstreamRefPtr = RefHandleFromBranch(upstream))
-                using (ReferenceHandle ontoRefPtr = RefHandleFromBranch(onto))
-                using (AnnotatedCommitHandle annotatedBranchCommitHandle = AnnotatedCommitHandleFromRefHandle(branchRefPtr))
+                using (AnnotatedCommitHandle annotatedBranchCommitHandle = AnnotatedCommitHandleFromRefHandle(annotatedRefPtr))
                 using (AnnotatedCommitHandle upstreamRefAnnotatedCommitHandle = AnnotatedCommitHandleFromRefHandle(upstreamRefPtr))
                 using (AnnotatedCommitHandle ontoRefAnnotatedCommitHandle = AnnotatedCommitHandleFromRefHandle(ontoRefPtr))
                 using (RebaseHandle rebaseOperationHandle = Proxy.git_rebase_init(this.repository.Handle,
@@ -119,6 +169,8 @@ namespace LibGit2Sharp
                                                                                       ontoRefAnnotatedCommitHandle,
                                                                                       gitRebaseOptions))
                 {
+                    this.repository.Submodules.UpdateAll(options.SubmoduleUpdateOptions);
+
                     RebaseResult rebaseResult = RebaseOperationImpl.Run(rebaseOperationHandle,
                                                                         this.repository,
                                                                         committer,
