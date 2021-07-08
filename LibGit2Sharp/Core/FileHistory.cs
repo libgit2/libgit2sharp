@@ -120,13 +120,8 @@ namespace LibGit2Sharp.Core
                 var currentPath = map.Keys.Count > 0 ? map[currentCommit] : path;
                 var currentTreeEntry = currentCommit.Tree[currentPath];
 
-                if (currentTreeEntry == null)
-                {
-                    yield break;
-                }
-
                 var parentCount = currentCommit.Parents.Count();
-                if (parentCount == 0)
+                if (parentCount == 0 && currentTreeEntry != null)
                 {
                     yield return new LogEntry { Path = currentPath, Commit = currentCommit };
                 }
@@ -134,20 +129,18 @@ namespace LibGit2Sharp.Core
                 {
                     DetermineParentPaths(repo, currentCommit, currentPath, map);
 
-                    if (parentCount != 1)
-                    {
-                        continue;
-                    }
+                    foreach(var parentCommit in currentCommit.Parents)
+                    { 
+                        var parentPath = map[parentCommit];
+                        var parentTreeEntry = parentCommit.Tree[parentPath];
 
-                    var parentCommit = currentCommit.Parents.Single();
-                    var parentPath = map[parentCommit];
-                    var parentTreeEntry = parentCommit.Tree[parentPath];
-
-                    if (parentTreeEntry == null ||
-                        parentTreeEntry.Target.Id != currentTreeEntry.Target.Id ||
-                        parentPath != currentPath)
-                    {
-                        yield return new LogEntry { Path = currentPath, Commit = currentCommit };
+                        if (currentTreeEntry != null &&
+                            (parentTreeEntry == null ||
+                            parentTreeEntry.Target.Id != currentTreeEntry.Target.Id ||
+                            parentPath != currentPath))
+                        {
+                            yield return new LogEntry { Path = currentPath, Commit = currentCommit };
+                        }
                     }
                 }
             }
