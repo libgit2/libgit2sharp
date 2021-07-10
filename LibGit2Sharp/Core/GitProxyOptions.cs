@@ -14,7 +14,7 @@ namespace LibGit2Sharp.Core
     internal struct GitProxyOptions
     {
         public uint Version;
-        public GitProxyType Type;
+        public GitProxyType Type= GitProxyType.Auto;
         public IntPtr Url;
         public IntPtr CredentialsCb;
         public IntPtr CertificateCheck;
