@@ -9,6 +9,31 @@ namespace LibGit2Sharp.Core
 {
     internal class ManagedHttpSmartSubtransport : RpcSmartSubtransport
     {
+#if NETCOREAPP
+        private readonly SocketsHttpHandler httpHandler;
+#else
+        private readonly HttpClientHandler httpHandler;
+#endif
+
+        private readonly CredentialCache credentialCache;
+        private readonly object credentialCacheLock = new object();
+
+        public ManagedHttpSmartSubtransport()
+        {
+#if NETCOREAPP
+            httpHandler = new SocketsHttpHandler();
+            httpHandler.PooledConnectionLifetime = TimeSpan.FromMinutes(5);
+#else
+            httpHandler = new HttpClientHandler();
+            httpHandler.SslProtocols |= SslProtocols.Tls12;
+#endif
+
+            httpHandler.AllowAutoRedirect = false;
+
+            credentialCache = new CredentialCache();
+            httpHandler.Credentials = credentialCache;
+        }
+
         protected override SmartSubtransportStream Action(string url, GitSmartSubtransportAction action)
         {
             string endpointUrl, contentType = null;
@@ -43,37 +68,35 @@ namespace LibGit2Sharp.Core
             return new ManagedHttpSmartSubtransportStream(this, endpointUrl, isPost, contentType);
         }
 
+        internal void AddCredentialToCache(Uri uri, string scheme, NetworkCredential credential)
+        {
+            lock (credentialCacheLock)
+            {
+                credentialCache.Add(uri, scheme, credential);
+            }
+        }
+
+        internal HttpClient CreateHttpClient()
+        {
+            return new HttpClient(httpHandler, false)
+            {
+                DefaultRequestHeaders =
+                {
+                    // This worked fine when it was on, but git.exe doesn't specify this header, so we don't either.
+                    ExpectContinue = false,
+                },
+            };
+        }
+
         private class ManagedHttpSmartSubtransportStream : SmartSubtransportStream
         {
             private static int MAX_REDIRECTS = 7;
 
-#if NETCOREAPP
-            private static readonly SocketsHttpHandler httpHandler;
-#else
-            private static readonly HttpClientHandler httpHandler;
-#endif
-
-            private static readonly CredentialCache credentialCache;
+            private readonly ManagedHttpSmartSubtransport httpSmartSubtransport;
 
             private MemoryStream postBuffer = new MemoryStream();
             private HttpResponseMessage response;
             private Stream responseStream;
-
-            static ManagedHttpSmartSubtransportStream()
-            {
-#if NETCOREAPP
-                httpHandler = new SocketsHttpHandler();
-                httpHandler.PooledConnectionLifetime = TimeSpan.FromMinutes(5);
-#else
-                httpHandler = new HttpClientHandler();
-                httpHandler.SslProtocols |= SslProtocols.Tls12;
-#endif
-
-                httpHandler.AllowAutoRedirect = false;
-
-                credentialCache = new CredentialCache();
-                httpHandler.Credentials = credentialCache;
-            }
 
             public ManagedHttpSmartSubtransportStream(ManagedHttpSmartSubtransport parent, string endpointUrl, bool isPost, string contentType)
                 : base(parent)
@@ -81,18 +104,7 @@ namespace LibGit2Sharp.Core
                 EndpointUrl = new Uri(endpointUrl);
                 IsPost = isPost;
                 ContentType = contentType;
-            }
-
-            private HttpClient CreateHttpClient(HttpMessageHandler handler)
-            {
-                return new HttpClient(handler, false)
-                {
-                    DefaultRequestHeaders =
-                    {
-                        // This worked fine when it was on, but git.exe doesn't specify this header, so we don't either.
-                        ExpectContinue = false,
-                    },
-                };
+                httpSmartSubtransport = parent;
             }
 
             private Uri EndpointUrl { get; set; }
@@ -157,7 +169,7 @@ namespace LibGit2Sharp.Core
 
                 for (retries = 0; ; retries++)
                 {
-                    using (var httpClient = CreateHttpClient(httpHandler))
+                    using (var httpClient = httpSmartSubtransport.CreateHttpClient())
                     {
                         var request = CreateRequest(url, IsPost);
 
@@ -193,17 +205,13 @@ namespace LibGit2Sharp.Core
 
                             if (cred is DefaultCredentials)
                             {
-                                lock (credentialCache)
-                                {
-                                    credentialCache.Add(url, scheme, CredentialCache.DefaultNetworkCredentials);
-                                }
+                                httpSmartSubtransport.AddCredentialToCache(url, scheme,
+                                    CredentialCache.DefaultNetworkCredentials);
                             }
                             else if (cred is UsernamePasswordCredentials userpass)
                             {
-                                lock (credentialCache)
-                                {
-                                    credentialCache.Add(url, scheme, new NetworkCredential(userpass.Username, userpass.Password));
-                                }
+                                httpSmartSubtransport.AddCredentialToCache(url, scheme,
+                                    new NetworkCredential(userpass.Username, userpass.Password));
                             }
 
                             continue;
