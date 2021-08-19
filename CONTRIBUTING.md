@@ -21,7 +21,7 @@ But first things first...
 
 LibGit2Sharp brings all the might and speed of libgit2, a native Git implementation, to the managed world of .Net and Mono.
 LibGit2 is a git submodule referencing the [libgit2 project](https://github.com/libgit2/libgit2). To learn more about
-submodules read [here](http://git-scm.com/book/en/v2/Git-Tools-Submodules).
+submodules read [here](https://git-scm.com/book/en/v2/Git-Tools-Submodules).
 To build libgit2 see [here](https://github.com/libgit2/libgit2sharp/wiki/How-to-build-x64-libgit2-and-LibGit2Sharp).
 
 ## Making Changes
@@ -54,5 +54,5 @@ Some things that will increase the chance that your pull request is accepted.
 * Having a configured git client that converts line endings to LF. [See here.](https://help.github.com/articles/dealing-with-line-endings/).
 # Additional Resources
 
-* [General GitHub documentation](http://help.github.com/)
+* [General GitHub documentation](https://docs.github.com)
 * [GitHub pull request documentation](https://help.github.com/articles/using-pull-requests/)
