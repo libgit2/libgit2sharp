@@ -709,7 +709,7 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData("http://github.com/libgit2/TestGitRepository")]
         [InlineData("https://github.com/libgit2/TestGitRepository")]
-        [InlineData("git://github.com/libgit2/TestGitRepository.git")]
+        //[InlineData("git://github.com/libgit2/TestGitRepository.git")]
         public void CanListRemoteReferences(string url)
         {
             IEnumerable<Reference> references = Repository.ListRemoteReferences(url).ToList();
