@@ -36,6 +36,8 @@ namespace LibGit2Sharp.Core
         Filesystem,
         Patch,
         Worktree,
-        Sha1
+        Sha1,
+        Http,
+        Internal
     }
 }
