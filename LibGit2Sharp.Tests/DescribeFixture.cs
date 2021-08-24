@@ -33,6 +33,10 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("myTag-4-gbe3563a", repo.Describe(masterTip.Parents.Single(),
                     new DescribeOptions { Strategy = DescribeStrategy.Tags }));
 
+                repo.ApplyTag("myOldestTag", "8496071c1b46c854b31185ea97743be6a8774479");
+                Assert.Equal("myOldestTag-6-g4c062a6", repo.Describe(masterTip,
+                    new DescribeOptions { Strategy = DescribeStrategy.Tags, Match = "myOld*"}));
+
                 Assert.Equal("heads/master", repo.Describe(masterTip,
                     new DescribeOptions { Strategy = DescribeStrategy.All }));
                 Assert.Equal("heads/packed-test-3-gbe3563a", repo.Describe(masterTip.Parents.Single(),

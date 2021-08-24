@@ -64,5 +64,10 @@ namespace LibGit2Sharp
         /// </para>
         /// </summary>
         public bool OnlyFollowFirstParent { get; set; }
+
+        /// <summary>
+        /// Only consider tags matching the given glob(7) pattern, excluding the "refs/tags/" prefix.
+        /// </summary>
+        public string Match { get; set; }
     }
 }

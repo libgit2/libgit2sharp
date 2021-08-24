@@ -691,6 +691,7 @@ namespace LibGit2Sharp.Core
                     MaxCandidatesTags = 10,
                     OnlyFollowFirstParent = options.OnlyFollowFirstParent,
                     ShowCommitOidAsFallback = options.UseCommitIdAsFallback,
+                    Pattern = StrictUtf8Marshaler.FromManaged(options.Match)
                 };
 
                 DescribeResultHandle describeHandle = null;
