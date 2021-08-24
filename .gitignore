@@ -36,6 +36,7 @@ _ReSharper*/
 *.userprefs
 *.swp
 *.DotSettings
+.idea
 
 _NCrunch_LibGit2Sharp/
 packages/
