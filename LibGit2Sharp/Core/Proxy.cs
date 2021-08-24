@@ -36,34 +36,34 @@ namespace LibGit2Sharp.Core
 
         #region git_blob_
 
-        public static unsafe IntPtr git_blob_create_fromstream(RepositoryHandle repo, string hintpath)
+        public static unsafe IntPtr git_blob_create_from_stream(RepositoryHandle repo, string hintpath)
         {
             IntPtr writestream_ptr;
 
-            Ensure.ZeroResult(NativeMethods.git_blob_create_fromstream(out writestream_ptr, repo, hintpath));
+            Ensure.ZeroResult(NativeMethods.git_blob_create_from_stream(out writestream_ptr, repo, hintpath));
             return writestream_ptr;
         }
 
         public static unsafe ObjectId git_blob_create_fromstream_commit(IntPtr writestream_ptr)
         {
             var oid = new GitOid();
-            Ensure.ZeroResult(NativeMethods.git_blob_create_fromstream_commit(ref oid, writestream_ptr));
+            Ensure.ZeroResult(NativeMethods.git_blob_create_from_stream_commit(ref oid, writestream_ptr));
             return oid;
         }
 
-        public static unsafe ObjectId git_blob_create_fromdisk(RepositoryHandle repo, FilePath path)
+        public static unsafe ObjectId git_blob_create_from_disk(RepositoryHandle repo, FilePath path)
         {
             var oid = new GitOid();
-            int res = NativeMethods.git_blob_create_fromdisk(ref oid, repo, path);
+            int res = NativeMethods.git_blob_create_from_disk(ref oid, repo, path);
             Ensure.ZeroResult(res);
 
             return oid;
         }
 
-        public static unsafe ObjectId git_blob_create_fromfile(RepositoryHandle repo, FilePath path)
+        public static unsafe ObjectId git_blob_create_from_workdir(RepositoryHandle repo, FilePath path)
         {
             var oid = new GitOid();
-            int res = NativeMethods.git_blob_create_fromworkdir(ref oid, repo, path);
+            int res = NativeMethods.git_blob_create_from_workdir(ref oid, repo, path);
             Ensure.ZeroResult(res);
 
             return oid;
@@ -855,21 +855,22 @@ namespace LibGit2Sharp.Core
 
         #region git_error_
 
-        public static void git_error_set_str(GitErrorCategory error_class, Exception exception)
+        public static int git_error_set_str(GitErrorCategory error_class, Exception exception)
         {
             if (exception is OutOfMemoryException)
             {
                 NativeMethods.git_error_set_oom();
+                return 0;
             }
             else
             {
-                NativeMethods.git_error_set_str(error_class, ErrorMessageFromException(exception));
+                return NativeMethods.git_error_set_str(error_class, ErrorMessageFromException(exception));
             }
         }
 
-        public static void git_error_set_str(GitErrorCategory error_class, String errorString)
+        public static int git_error_set_str(GitErrorCategory error_class, String errorString)
         {
-            NativeMethods.git_error_set_str(error_class, errorString);
+            return NativeMethods.git_error_set_str(error_class, errorString);
         }
 
         /// <summary>
@@ -2589,9 +2590,9 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_repository_path(repo);
         }
 
-        public static unsafe void git_repository_set_config(RepositoryHandle repo, ConfigurationHandle config)
+        public static unsafe int git_repository_set_config(RepositoryHandle repo, ConfigurationHandle config)
         {
-            NativeMethods.git_repository_set_config(repo, config);
+            return NativeMethods.git_repository_set_config(repo, config);
         }
 
         public static unsafe void git_repository_set_ident(RepositoryHandle repo, string name, string email)
@@ -2600,9 +2601,9 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
-        public static unsafe void git_repository_set_index(RepositoryHandle repo, IndexHandle index)
+        public static unsafe int git_repository_set_index(RepositoryHandle repo, IndexHandle index)
         {
-            NativeMethods.git_repository_set_index(repo, index);
+            return NativeMethods.git_repository_set_index(repo, index);
         }
 
         public static unsafe void git_repository_set_workdir(RepositoryHandle repo, FilePath workdir)
@@ -2783,14 +2784,14 @@ namespace LibGit2Sharp.Core
             NativeMethods.git_revwalk_reset(walker);
         }
 
-        public static unsafe void git_revwalk_sorting(RevWalkerHandle walker, CommitSortStrategies options)
+        public static unsafe int git_revwalk_sorting(RevWalkerHandle walker, CommitSortStrategies options)
         {
-            NativeMethods.git_revwalk_sorting(walker, options);
+            return NativeMethods.git_revwalk_sorting(walker, options);
         }
 
-        public static unsafe void git_revwalk_simplify_first_parent(RevWalkerHandle walker)
+        public static unsafe int git_revwalk_simplify_first_parent(RevWalkerHandle walker)
         {
-            NativeMethods.git_revwalk_simplify_first_parent(walker);
+            return NativeMethods.git_revwalk_simplify_first_parent(walker);
         }
 
 #endregion
