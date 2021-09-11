@@ -3381,6 +3381,18 @@ namespace LibGit2Sharp.Core
             GetWindowsSharemode,             // GIT_OPT_GET_WINDOWS_SHAREMODE
             SetWindowsSharemode,             // GIT_OPT_SET_WINDOWS_SHAREMODE
             EnableStrictHashVerification,    // GIT_OPT_ENABLE_STRICT_HASH_VERIFICATION
+            SetAllocator,                    // GIT_OPT_SET_ALLOCATOR,
+            EnableUnsavedIndexSafety,        // GIT_OPT_ENABLE_UNSAVED_INDEX_SAFETY,
+            GetPackMaxObject,                // GIT_OPT_GET_PACK_MAX_OBJECTS,
+            SetPackMaxObjects,               // GIT_OPT_SET_PACK_MAX_OBJECTS,
+            DisabledPackKeepFileChecks,      // GIT_OPT_DISABLE_PACK_KEEP_FILE_CHECKS,
+            EnableHttpExpectContinue,        // GIT_OPT_ENABLE_HTTP_EXPECT_CONTINUE,
+            GetMWindowFileLimit,             // GIT_OPT_GET_MWINDOW_FILE_LIMIT,
+            SetMWindowFileLimit,             // GIT_OPT_SET_MWINDOW_FILE_LIMIT,
+            SetOdbPackedPriority,            // GIT_OPT_SET_ODB_PACKED_PRIORITY,
+            SetOdbLoosePriority,             // GIT_OPT_SET_ODB_LOOSE_PRIORITY,
+            GetExtensions,                   // GIT_OPT_GET_EXTENSIONS,
+            SetExtensions,                   // GIT_OPT_SET_EXTENSIONS
         }
 
         /// <summary>
@@ -3487,6 +3499,29 @@ namespace LibGit2Sharp.Core
             }
 
             return userAgent;
+        }
+
+        public static void git_libgit2_opts_set_extensions(string[] extensions)
+        {
+            var res = NativeMethods.git_libgit2_opts((int)LibGit2Option.SetExtensions, extensions, extensions.Length);
+            Ensure.ZeroResult(res);
+        }
+
+        public static string[] git_libgit2_opts_get_extensions()
+        {
+            var array = new GitStrArrayNative();
+
+            try
+            {
+                var res = NativeMethods.git_libgit2_opts((int)LibGit2Option.GetExtensions, out array.Array);
+                Ensure.ZeroResult(res);
+
+                return array.ReadStrings();
+            }
+            finally
+            {
+                array.Dispose();
+            }
         }
 
         #endregion

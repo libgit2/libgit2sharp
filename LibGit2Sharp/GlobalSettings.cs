@@ -384,6 +384,30 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Set that the given git extensions are supported by the caller.
+        /// </summary>
+        /// <remarks>
+        /// Extensions supported by libgit2 may be negated by prefixing them with a `!`.  For example: setting extensions to { "!noop", "newext" } indicates that the caller does not want
+        /// to support repositories with the `noop` extension but does want to support repositories with the `newext` extension.
+        /// </remarks>
+        /// <param name="extensions">Supported extensions</param>
+        public static void SetExtensions(string[] extensions)
+        {
+            Proxy.git_libgit2_opts_set_extensions(extensions);
+        }
+
+        /// <summary>
+        /// Returns the list of git extensions that are supported.
+        /// </summary>
+        /// <remarks>
+        /// This is the list of built-in extensions supported by libgit2 and custom extensions that have been added with `SetExtensions`. Extensions that have been negated will not be returned.
+        /// </remarks>
+        public static string[] GetExtensions()
+        {
+            return Proxy.git_libgit2_opts_get_extensions();
+        }
+
+        /// <summary>
         /// Gets the user-agent string used by libgit2.
         /// <returns>
         /// The user-agent string.
