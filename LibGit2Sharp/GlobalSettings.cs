@@ -391,7 +391,7 @@ namespace LibGit2Sharp
         /// to support repositories with the `noop` extension but does want to support repositories with the `newext` extension.
         /// </remarks>
         /// <param name="extensions">Supported extensions</param>
-        public static void SetExtensions(string[] extensions)
+        public static void SetExtensions(params string[] extensions)
         {
             Proxy.git_libgit2_opts_set_extensions(extensions);
         }
