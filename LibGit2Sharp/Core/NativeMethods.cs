@@ -26,9 +26,6 @@ namespace LibGit2Sharp.Core
         private static NativeShutdownObject shutdownObject;
 #pragma warning restore 0414
 
-        private static SmartSubtransportRegistration<ManagedHttpSmartSubtransport> httpSubtransportRegistration;
-        private static SmartSubtransportRegistration<ManagedHttpSmartSubtransport> httpsSubtransportRegistration;
-
         static NativeMethods()
         {
             if (Platform.IsRunningOnNetFramework() || Platform.IsRunningOnNetCore())
@@ -106,7 +103,7 @@ namespace LibGit2Sharp.Core
                     new Type[] { typeof(string), typeof(Assembly), typeof(DllImportSearchPath?), typeof(IntPtr).MakeByRefType() })?.CreateDelegate(typeof(TryLoadLibraryByNameDelegate));
             var tryLoadLibraryByPath = (TryLoadLibraryByPathDelegate)nativeLibraryType?.GetMethod("TryLoad",
                     new Type[] { typeof(string), typeof(IntPtr).MakeByRefType() })?.CreateDelegate(typeof(TryLoadLibraryByPathDelegate));
-            MethodInfo setDllImportResolver = nativeLibraryType?.GetMethod("SetDllImportResolver", new Type[] { typeof(Assembly), dllImportResolverType});
+            MethodInfo setDllImportResolver = nativeLibraryType?.GetMethod("SetDllImportResolver", new Type[] { typeof(Assembly), dllImportResolverType });
 
             if (dllImportResolverType == null ||
                 nativeLibraryType == null ||
@@ -196,11 +193,10 @@ namespace LibGit2Sharp.Core
                 shutdownObject = new NativeShutdownObject();
             }
 
-            // Configure the .NET HTTP(S) mechanism on the first initialization of the library in the current process.
+            // Configure the OpenSSL locking on the first initialization of the library in the current process.
             if (initCounter == 1)
             {
-                httpSubtransportRegistration = GlobalSettings.RegisterDefaultSmartSubtransport<ManagedHttpSmartSubtransport>("http");
-                httpsSubtransportRegistration = GlobalSettings.RegisterDefaultSmartSubtransport<ManagedHttpSmartSubtransport>("https");
+                git_openssl_set_locking();
             }
         }
 
@@ -209,16 +205,6 @@ namespace LibGit2Sharp.Core
         {
             ~NativeShutdownObject()
             {
-                if (httpSubtransportRegistration != null)
-                {
-                    GlobalSettings.UnregisterDefaultSmartSubtransport(httpSubtransportRegistration);
-                }
-
-                if (httpsSubtransportRegistration != null)
-                {
-                    GlobalSettings.UnregisterDefaultSmartSubtransport(httpsSubtransportRegistration);
-                }
-
                 git_libgit2_shutdown();
             }
         }
@@ -452,7 +438,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string message,
             ref GitOid tree,
             UIntPtr parentCount,
-            [MarshalAs(UnmanagedType.LPArray)] [In] IntPtr[] parents);
+            [MarshalAs(UnmanagedType.LPArray)][In] IntPtr[] parents);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_commit_create_buffer(
@@ -2111,7 +2097,7 @@ namespace LibGit2Sharp.Core
             git_worktree* worktree);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe int git_worktree_add (
+        internal static extern unsafe int git_worktree_add(
             out git_worktree* reference,
             git_repository* repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name,
