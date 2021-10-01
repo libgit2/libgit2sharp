@@ -203,6 +203,26 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanChangeSubmoduleBranch()
+        {
+            var path = SandboxSubmoduleSmallTestRepo();
+            string submoduleName = "submodule_target_wd";
+            string expectedSubmoduleBranch = @"master";
+
+            using (var repo = new Repository(path))
+            {
+                var submodule = repo.Submodules[submoduleName];
+
+                Assert.Null(submodule.Branch);
+
+                submodule.Branch = expectedSubmoduleBranch;
+
+                Assert.NotNull(submodule.Branch);
+                Assert.Equal(submodule.Branch, expectedSubmoduleBranch);
+            }
+        }
+
+        [Fact]
         public void UpdatingUninitializedSubmoduleThrows()
         {
             var path = SandboxSubmoduleSmallTestRepo();

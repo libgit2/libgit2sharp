@@ -3020,6 +3020,17 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_submodule_url(submodule);
         }
 
+        public static unsafe string git_submodule_branch(SubmoduleHandle submodule)
+        {
+            return NativeMethods.git_submodule_branch(submodule);
+        }
+
+        public static unsafe void git_submodule_set_branch(RepositoryHandle repo, string name, string branch)
+        {
+            var res = NativeMethods.git_submodule_set_branch(repo, name, branch);
+            Ensure.ZeroResult(res);
+        }
+
         public static unsafe ObjectId git_submodule_index_id(SubmoduleHandle submodule)
         {
             return ObjectId.BuildFromPtr(NativeMethods.git_submodule_index_id(submodule));
