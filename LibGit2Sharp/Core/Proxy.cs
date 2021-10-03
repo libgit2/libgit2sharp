@@ -72,7 +72,7 @@ namespace LibGit2Sharp.Core
         public static unsafe UnmanagedMemoryStream git_blob_filtered_content_stream(RepositoryHandle repo, ObjectId id, string path, bool check_for_binary_data)
         {
             var buf = new GitBuf();
-            var handle = new ObjectSafeWrapper(id, repo).ObjectPtr;
+            var handle = new ObjectSafeWrapper(id, repo, throwIfMissing: true).ObjectPtr;
 
             return new RawContentStream(handle, h =>
             {
@@ -85,7 +85,7 @@ namespace LibGit2Sharp.Core
 
         public static unsafe UnmanagedMemoryStream git_blob_rawcontent_stream(RepositoryHandle repo, ObjectId id, Int64 size)
         {
-            var handle = new ObjectSafeWrapper(id, repo).ObjectPtr;
+            var handle = new ObjectSafeWrapper(id, repo, throwIfMissing: true).ObjectPtr;
             return new RawContentStream(handle, h => NativeMethods.git_blob_rawcontent(h), h => size);
         }
 
@@ -3263,7 +3263,7 @@ namespace LibGit2Sharp.Core
 
         public static unsafe TreeEntryHandle git_tree_entry_bypath(RepositoryHandle repo, ObjectId id, string treeentry_path)
         {
-            using (var obj = new ObjectSafeWrapper(id, repo))
+            using (var obj = new ObjectSafeWrapper(id, repo, throwIfMissing: true))
             {
                 git_tree_entry* treeEntryPtr;
                 int res = NativeMethods.git_tree_entry_bypath(out treeEntryPtr, obj.ObjectPtr, treeentry_path);

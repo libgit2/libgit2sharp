@@ -17,6 +17,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 var tree = repo.Lookup<Tree>(sha);
+                Assert.False(tree.IsMissing);
                 TreeEntry treeEntry1 = tree["README"];
                 TreeEntry treeEntry2 = tree["README"];
                 Assert.Equal(treeEntry2, treeEntry1);
@@ -31,6 +32,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 var tree = repo.Lookup<Tree>(sha);
+                Assert.False(tree.IsMissing);
                 TreeEntry treeEntry = tree["README"];
 
                 var blob = treeEntry.Target as Blob;
@@ -45,6 +47,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 var tree = repo.Lookup<Tree>(sha);
+                Assert.False(tree.IsMissing);
                 TreeEntry treeEntry = tree["1"];
 
                 var subtree = treeEntry.Target as Tree;
@@ -59,6 +62,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 var tree = repo.Lookup<Tree>(sha);
+                Assert.False(tree.IsMissing);
 
                 IEnumerable<Blob> blobs = tree
                     .Where(e => e.TargetType == TreeEntryTargetType.Blob)
@@ -76,6 +80,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 var tree = repo.Lookup<Tree>(sha);
+                Assert.False(tree.IsMissing);
 
                 IEnumerable<Tree> subTrees = tree
                     .Where(e => e.TargetType == TreeEntryTargetType.Tree)
@@ -93,6 +98,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 var tree = repo.Lookup<Tree>(sha);
+                Assert.False(tree.IsMissing);
                 Assert.Equal(tree.Count, tree.Count());
 
                 Assert.Equal(new[] { "1", "README", "branch_file.txt", "new.txt" }, tree.Select(te => te.Name).ToArray());
@@ -106,6 +112,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 var tree = repo.Lookup<Tree>(sha);
+                Assert.False(tree.IsMissing);
                 TreeEntry treeEntry = tree["README"];
                 Assert.Equal("a8233120f6ad708f843d861ce2b7228ec4e3dec6", treeEntry.Target.Sha);
                 Assert.Equal("README", treeEntry.Name);
@@ -119,6 +126,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 var tree = repo.Lookup<Tree>(sha);
+                Assert.False(tree.IsMissing);
                 TreeEntry treeEntry = tree["I-do-not-exist"];
                 Assert.Null(treeEntry);
             }
@@ -131,6 +139,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 var tree = repo.Lookup<Tree>(sha);
+                Assert.False(tree.IsMissing);
                 Assert.Equal(4, tree.Count);
             }
         }
@@ -142,6 +151,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 var tree = repo.Lookup<Tree>(sha);
+                Assert.False(tree.IsMissing);
                 Assert.Equal(Mode.NonExecutableFile, tree["README"].Mode);
             }
         }
@@ -154,6 +164,7 @@ namespace LibGit2Sharp.Tests
             {
                 var tree = repo.Lookup<Tree>(sha);
                 Assert.NotNull(tree);
+                Assert.False(tree.IsMissing);
             }
         }
 
@@ -165,6 +176,7 @@ namespace LibGit2Sharp.Tests
             {
                 GitObject tree = repo.Lookup(sha);
                 Assert.NotNull(tree);
+                Assert.False(tree.IsMissing);
             }
         }
 
@@ -175,6 +187,7 @@ namespace LibGit2Sharp.Tests
             {
                 /* From a commit tree */
                 var commitTree = repo.Lookup<Commit>("4c062a6").Tree;
+                Assert.False(commitTree.IsMissing);
                 Assert.NotNull(commitTree["1/branch_file.txt"]);
                 Assert.Null(commitTree["1\\branch_file.txt"]);
             }
@@ -188,6 +201,7 @@ namespace LibGit2Sharp.Tests
             {
                 /* From a commit tree */
                 var commitTree = repo.Lookup<Commit>("4c062a6").Tree;
+                Assert.False(commitTree.IsMissing);
 
                 TreeEntry treeTreeEntry = commitTree["1"];
                 Assert.Equal("1", treeTreeEntry.Path);
@@ -201,6 +215,7 @@ namespace LibGit2Sharp.Tests
                 // tree but exposes a complete path through its Path property
                 var subTree = treeTreeEntry.Target as Tree;
                 Assert.NotNull(subTree);
+                Assert.False(subTree.IsMissing);
                 TreeEntry anInstance = subTree["branch_file.txt"];
 
                 Assert.NotEqual("branch_file.txt", anInstance.Path);
@@ -239,6 +254,7 @@ namespace LibGit2Sharp.Tests
                     .Add("A symlink", linkContent, Mode.SymbolicLink);
 
                 Tree t = repo.ObjectDatabase.CreateTree(td);
+                Assert.False(t.IsMissing);
 
                 var te = t["A symlink"];
 
@@ -246,6 +262,32 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(Mode.SymbolicLink, te.Mode);
                 Assert.Equal(linkContent, te.Target);
+            }
+        }
+
+        [Fact]
+        public void CanTellIfATreeIsMissing()
+        {
+            var path = SandboxBareTestRepo();
+
+            // Manually delete the objects directory to simulate a partial clone
+            Directory.Delete(Path.Combine(path, "objects", "fd"), true);
+
+            using (var repo = new Repository(path))
+            {
+                // Look up for the commit that reference the tree which is now missing
+                var commit = repo.Lookup<Commit>("4a202b346bb0fb0db7eff3cffeb3c70babbd2045");
+
+                Assert.True(commit.Tree.IsMissing);
+                Assert.Equal("fd093bff70906175335656e6ce6ae05783708765", commit.Tree.Sha);
+                Assert.Throws<NotFoundException>(() => commit.Tree.Count);
+                Assert.Throws<NotFoundException>(() => commit.Tree.Count());
+                Assert.Throws<NotFoundException>(() => commit.Tree["README"]);
+                Assert.Throws<NotFoundException>(() => commit.Tree.ToArray());
+                Assert.Throws<NotFoundException>(() =>
+                {
+                    foreach (var _ in commit.Tree) { }
+                });
             }
         }
     }
