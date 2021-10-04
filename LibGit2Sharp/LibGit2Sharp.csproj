@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LibGit2Sharp.NativeBinaries.UiPath" Version="1.1.2" PrivateAssets="none"/>
+    <PackageReference Include="LibGit2Sharp.NativeBinaries.UiPath" Version="1.1.3" PrivateAssets="none"/>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="all" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="2.2.13" PrivateAssets="all" />
   </ItemGroup>
