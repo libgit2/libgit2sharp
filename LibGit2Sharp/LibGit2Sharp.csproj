@@ -20,7 +20,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <CodeAnalysisDictionary Include="CustomDictionary.xml" />
     <None Include="..\square-logo.png" Pack="true" PackagePath="" />
     <None Include="..\README.md" Pack="true" PackagePath="App_Readme/" />
     <None Include="..\LICENSE.md" Pack="true" PackagePath="App_Readme/" />
