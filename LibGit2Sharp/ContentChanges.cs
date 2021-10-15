@@ -117,24 +117,24 @@ namespace LibGit2Sharp
                     break;
             }
 
-            AppendGitDiffLine(line);
+            AppendGitDiffLine(line, decodedContent);
             AppendToPatch(prefix);
             AppendToPatch(decodedContent);
             return 0;
         }
 
-        internal void AppendGitDiffLine(GitDiffLine line)
+        internal void AppendGitDiffLine(GitDiffLine line, string patch)
         {
             switch (line.lineOrigin)
             {
                 case GitDiffLineOrigin.GIT_DIFF_LINE_ADDITION:
-                    AddedLines.Add(new Line(line.NewLineNo, decodedContent));
+                    AddedLines.Add(new Line(line.NewLineNo, patch));
                     LinesAdded++;
                     lines.Add(new ContentChangeLine(line));
                     break;
 
                 case GitDiffLineOrigin.GIT_DIFF_LINE_DELETION:
-                    DeletedLines.Add(new Line(line.OldLineNo, decodedContent));
+                    DeletedLines.Add(new Line(line.OldLineNo, patch));
                     LinesDeleted++;
                     lines.Add(new ContentChangeLine(line));
                     break;
