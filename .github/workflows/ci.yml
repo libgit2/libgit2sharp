@@ -47,9 +47,8 @@ jobs:
           retention-days: 7
       - name: Run net472 tests
         if: matrix.name == 'Windows'
-        run: dotnet test LibGit2Sharp.sln --configuration Release --no-build --framework net472 --logger "GitHubActions"
+        run: dotnet test LibGit2Sharp.sln --configuration Release --no-restore --framework net472 --logger "GitHubActions" /p:ExtraDefine=LEAKS_IDENTIFYING
       - name: Run netcoreapp3.1 tests
-        run: dotnet test LibGit2Sharp.sln --configuration Release --no-build --framework netcoreapp3.1 --logger "GitHubActions"
+        run: dotnet test LibGit2Sharp.sln --configuration Release --no-restore --framework netcoreapp3.1 --logger "GitHubActions" /p:ExtraDefine=LEAKS_IDENTIFYING
       - name: Run net5.0 tests
-        run: dotnet test LibGit2Sharp.sln --configuration Release --no-build --framework net5.0 --logger "GitHubActions"
-
+        run: dotnet test LibGit2Sharp.sln --configuration Release --no-restore --framework net5.0 --logger "GitHubActions" /p:ExtraDefine=LEAKS_IDENTIFYING
