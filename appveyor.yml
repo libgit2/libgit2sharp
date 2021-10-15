@@ -1,4 +1,0 @@
-# Disable AppVeyor
-branches:
- only:
-   - NOTTHISONE

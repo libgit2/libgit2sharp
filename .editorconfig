@@ -14,5 +14,5 @@ insert_final_newline = true
 trim_trailing_whitespace = false
 insert_final_newline = false
 
-[*.{props,targets,csproj}]
+[*.{props,targets,csproj,config}]
 indent_size = 2

@@ -1,7 +1,0 @@
-language: csharp
-mono: none
-
-# Disable Travis-CI
-branches:
- only:
-   - NOTTHISONE
