@@ -45,6 +45,11 @@ jobs:
           name: NuGet packages
           path: bin/Packages/
           retention-days: 7
-      - name: Run tests
-        run: dotnet test LibGit2Sharp.sln --configuration Release --no-build --logger "GitHubActions"
+      - name: Run net472 tests
+        if: matrix.name == 'Windows'
+        run: dotnet test LibGit2Sharp.sln --configuration Release --no-build --framework net472 --logger "GitHubActions"
+      - name: Run netcoreapp3.1 tests
+        run: dotnet test LibGit2Sharp.sln --configuration Release --no-build --framework netcoreapp3.1 --logger "GitHubActions"
+      - name: Run net5.0 tests
+        run: dotnet test LibGit2Sharp.sln --configuration Release --no-build --framework net5.0 --logger "GitHubActions"
 
