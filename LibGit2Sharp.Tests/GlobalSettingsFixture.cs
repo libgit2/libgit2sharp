@@ -15,6 +15,7 @@ namespace LibGit2Sharp.Tests
             BuiltInFeatures features = GlobalSettings.Version.Features;
 
             Assert.True(features.HasFlag(BuiltInFeatures.Threads));
+            Assert.True(features.HasFlag(BuiltInFeatures.Https));
         }
 
         [Fact]
