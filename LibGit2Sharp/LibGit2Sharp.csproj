@@ -18,6 +18,7 @@
     <AssemblyOriginatorKeyFile>..\libgit2sharp.snk</AssemblyOriginatorKeyFile>
     <PackageIcon>square-logo.png</PackageIcon>
     <PackageLicenseFile>App_Readme/LICENSE.md</PackageLicenseFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
