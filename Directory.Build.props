@@ -8,4 +8,8 @@
     <DefineConstants Condition=" '$(ExtraDefine)' != '' ">$(DefineConstants);$(ExtraDefine)</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(CI)' != ''">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
 </Project>
