@@ -20,10 +20,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\square-logo.png" Pack="true" PackagePath="" />
-    <None Include="..\README.md" Pack="true" PackagePath="App_Readme/" />
-    <None Include="..\LICENSE.md" Pack="true" PackagePath="App_Readme/" />
-    <None Include="..\CHANGES.md" Pack="true" PackagePath="App_Readme/" />
+    <None Include="..\square-logo.png" Pack="true" PackagePath="" Visible="false" />
+    <None Include="..\README.md" Pack="true" PackagePath="App_Readme/" Visible="false" />
+    <None Include="..\LICENSE.md" Pack="true" PackagePath="App_Readme/" Visible="false" />
+    <None Include="..\CHANGES.md" Pack="true" PackagePath="App_Readme/" Visible="false" />
     <None Update="Core\Handles\Objects.tt" Generator="TextTemplatingFileGenerator" LastGenOutput="Objects.cs" />
     <Compile Update="Core\Handles\Objects.cs" DependentUpon="Objects.tt" DesignTime="True" AutoGen="True" />
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" /> <!-- Needed for T4 generation -->
