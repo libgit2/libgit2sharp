@@ -9,9 +9,6 @@ using LibGit2Sharp.Core.Handles;
 // Restrict the set of directories where the native library is loaded from to safe directories.
 [assembly: DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory | DllImportSearchPath.ApplicationDirectory | DllImportSearchPath.SafeDirectories)]
 
-#pragma warning disable IDE1006 // Naming Styles
-
-// ReSharper disable InconsistentNaming
 namespace LibGit2Sharp.Core
 {
     internal static class NativeMethods
@@ -22,9 +19,7 @@ namespace LibGit2Sharp.Core
         // An object tied to the lifecycle of the NativeMethods static class.
         // This will handle initialization and shutdown of the underlying
         // native library.
-#pragma warning disable 0414
         private static NativeShutdownObject shutdownObject;
-#pragma warning restore 0414
 
         static NativeMethods()
         {
@@ -2071,4 +2066,3 @@ namespace LibGit2Sharp.Core
             git_worktree_prune_options options);
     }
 }
-// ReSharper restore InconsistentNaming
