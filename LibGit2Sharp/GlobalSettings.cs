@@ -32,7 +32,7 @@ namespace LibGit2Sharp
             if (netFX)
             {
                 // For .NET Framework apps the dependencies are deployed to lib/win32/{architecture} directory
-                nativeLibraryDefaultPath = Path.Combine(GetExecutingAssemblyDirectory(), "lib", "win32");
+                nativeLibraryDefaultPath = Path.Combine(GetExecutingAssemblyDirectory(), "lib", "win32", Platform.ProcessorArchitecture);
             }
             else
             {
@@ -159,8 +159,6 @@ namespace LibGit2Sharp
         /// <summary>
         /// Sets a path for loading native binaries on .NET Framework or .NET Core.
         /// When specified, native library will first be searched under the given path.
-        /// On .NET Framework a subdirectory corresponding to the architecture  ("x86" or "x64") is appended,
-        /// otherwise the native library is expected to be found in the directory as specified.
         ///
         /// If the library is not found it will be searched in standard search paths:
         /// <see cref="DllImportSearchPath.AssemblyDirectory"/>,
@@ -169,10 +167,6 @@ namespace LibGit2Sharp
         /// <para>
         /// This must be set before any other calls to the library,
         /// and is not available on other platforms than .NET Framework and .NET Core.
-        /// </para>
-        /// <para>
-        /// If not specified on .NET Framework it defaults to lib/win32 subdirectory
-        /// of the directory where this assembly is loaded from.
         /// </para>
         /// </summary>
         public static string NativeLibraryPath
@@ -213,8 +207,7 @@ namespace LibGit2Sharp
         internal static string GetAndLockNativeLibraryPath()
         {
             nativeLibraryPathLocked = true;
-            string result = nativeLibraryPath ?? nativeLibraryDefaultPath;
-            return Platform.IsRunningOnNetFramework() ? Path.Combine(result, Platform.ProcessorArchitecture) : result;
+            return nativeLibraryPath ?? nativeLibraryDefaultPath;
         }
 
         /// <summary>
