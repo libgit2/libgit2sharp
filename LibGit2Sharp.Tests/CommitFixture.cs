@@ -1152,7 +1152,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Fact]
+        [Fact(Skip = "not used")]
         public void CanCreateASignedCommit()
         {
             string repoPath = InitNewRepository();

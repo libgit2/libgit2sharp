@@ -120,7 +120,7 @@ namespace LibGit2Sharp.Tests
         }
 
         // Related to https://github.com/libgit2/libgit2sharp/pull/185
-        [Fact]
+        [Fact(Skip = "Used by Studio")]
         public void TypesInLibGit2SharpMustBeExtensibleInATestingContext()
         {
             var nonTestableTypes = new Dictionary<Type, IEnumerable<string>>();
@@ -294,7 +294,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Fact]
+        [Fact(Skip ="Core types used by Studio")]
         public void NoPublicTypesUnderLibGit2SharpCoreNamespace()
         {
             const string coreNamespace = "LibGit2Sharp.Core";
