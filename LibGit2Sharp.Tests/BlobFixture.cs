@@ -46,7 +46,6 @@ namespace LibGit2Sharp.Tests
 
         [Theory]
         [InlineData("ascii", 4, "31 32 33 34")]
-        [InlineData("utf-7", 4, "31 32 33 34")]
         [InlineData("utf-8", 7, "EF BB BF 31 32 33 34")]
         [InlineData("utf-16", 10, "FF FE 31 00 32 00 33 00 34 00")]
         [InlineData("unicodeFFFE", 10, "FE FF 00 31 00 32 00 33 00 34")]

@@ -215,6 +215,18 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string canonical_branch_name);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate int commit_create_callback(
+            out IntPtr oid_out,
+            IntPtr author,
+            IntPtr commiter,
+            IntPtr message_encoding,
+            IntPtr messge,
+            IntPtr tree,
+            UIntPtr parent_count,
+            IntPtr parents,
+            IntPtr payload);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate int commit_signing_callback(
             IntPtr signature,
             IntPtr signature_field,
@@ -1947,6 +1959,12 @@ namespace LibGit2Sharp.Core
         internal delegate int url_resolve_callback(
             IntPtr url_resolved,
             IntPtr url,
+            int direction,
+            IntPtr payload);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate int remote_ready_cb(
+            IntPtr remote,
             int direction,
             IntPtr payload);
 

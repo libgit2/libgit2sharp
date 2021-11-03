@@ -31,6 +31,8 @@ namespace LibGit2Sharp.Core
 
         internal NativeMethods.push_negotiation_callback push_negotiation;
 
+        internal NativeMethods.remote_ready_cb remote_ready;
+
         internal IntPtr transport;
 
         internal IntPtr payload;
