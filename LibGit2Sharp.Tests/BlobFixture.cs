@@ -43,7 +43,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-#if NETFRAMEWORK || NETCOREAPP3_1 //UTF-7 is disabled in .NET 5
+#if NETFRAMEWORK || NETCOREAPP3_1 //UTF-7 is disabled in .NET 5+
         [Theory]
         [InlineData("ascii", 4, "31 32 33 34")]
         [InlineData("utf-7", 4, "31 32 33 34")]
