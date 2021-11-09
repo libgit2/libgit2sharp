@@ -9,9 +9,6 @@ using LibGit2Sharp.Core.Handles;
 // Restrict the set of directories where the native library is loaded from to safe directories.
 [assembly: DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory | DllImportSearchPath.ApplicationDirectory | DllImportSearchPath.SafeDirectories)]
 
-#pragma warning disable IDE1006 // Naming Styles
-
-// ReSharper disable InconsistentNaming
 namespace LibGit2Sharp.Core
 {
     internal static class NativeMethods
@@ -22,15 +19,13 @@ namespace LibGit2Sharp.Core
         // An object tied to the lifecycle of the NativeMethods static class.
         // This will handle initialization and shutdown of the underlying
         // native library.
-#pragma warning disable 0414
         private static NativeShutdownObject shutdownObject;
-#pragma warning restore 0414
 
         static NativeMethods()
         {
             if (Platform.IsRunningOnNetFramework() || Platform.IsRunningOnNetCore())
             {
-                // Use .NET Core 3.0+ NativeLibrary when available.
+                // Use NativeLibrary when available.
                 if (!TryUseNativeLibrary())
                 {
                     // NativeLibrary is not available, fall back.
@@ -40,6 +35,7 @@ namespace LibGit2Sharp.Core
                     // If this call succeeds further DllImports will find the library loaded and not attempt to load it again.
                     // If it fails the next DllImport will load the library from safe directories.
                     string nativeLibraryPath = GetGlobalSettingsNativeLibraryPath();
+
                     if (nativeLibraryPath != null)
                     {
                         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -61,65 +57,21 @@ namespace LibGit2Sharp.Core
         private static string GetGlobalSettingsNativeLibraryPath()
         {
             string nativeLibraryDir = GlobalSettings.GetAndLockNativeLibraryPath();
+
             if (nativeLibraryDir == null)
             {
                 return null;
             }
+
             return Path.Combine(nativeLibraryDir, libgit2 + Platform.GetNativeLibraryExtension());
         }
 
-        private delegate bool TryLoadLibraryByNameDelegate(string libraryName, Assembly assembly, DllImportSearchPath? searchPath, out IntPtr handle);
-        private delegate bool TryLoadLibraryByPathDelegate(string libraryPath, out IntPtr handle);
-
-        static TryLoadLibraryByNameDelegate _tryLoadLibraryByName;
-        static TryLoadLibraryByPathDelegate _tryLoadLibraryByPath;
-
-        static bool TryLoadLibrary(string libraryName, Assembly assembly, DllImportSearchPath? searchPath, out IntPtr handle)
-        {
-            if (_tryLoadLibraryByName == null)
-            {
-                throw new NotSupportedException();
-            }
-            return _tryLoadLibraryByName(libraryName, assembly, searchPath, out handle);
-        }
-
-        static bool TryLoadLibrary(string libraryPath, out IntPtr handle)
-        {
-            if (_tryLoadLibraryByPath == null)
-            {
-                throw new NotSupportedException();
-            }
-            return _tryLoadLibraryByPath(libraryPath, out handle);
-        }
-
+#if NETSTANDARD
+        private static bool TryUseNativeLibrary() => false;
+#else
         private static bool TryUseNativeLibrary()
         {
-            // NativeLibrary is available in .NET Core 3.0+.
-            // We use reflection to use NativeLibrary so this library can target 'netstandard2.0'.
-
-            Type dllImportResolverType = Type.GetType("System.Runtime.InteropServices.DllImportResolver, System.Runtime.InteropServices", throwOnError: false);
-            Type nativeLibraryType = Type.GetType("System.Runtime.InteropServices.NativeLibrary, System.Runtime.InteropServices", throwOnError: false);
-            var tryLoadLibraryByName = (TryLoadLibraryByNameDelegate)nativeLibraryType?.GetMethod("TryLoad",
-                    new Type[] { typeof(string), typeof(Assembly), typeof(DllImportSearchPath?), typeof(IntPtr).MakeByRefType() })?.CreateDelegate(typeof(TryLoadLibraryByNameDelegate));
-            var tryLoadLibraryByPath = (TryLoadLibraryByPathDelegate)nativeLibraryType?.GetMethod("TryLoad",
-                    new Type[] { typeof(string), typeof(IntPtr).MakeByRefType() })?.CreateDelegate(typeof(TryLoadLibraryByPathDelegate));
-            MethodInfo setDllImportResolver = nativeLibraryType?.GetMethod("SetDllImportResolver", new Type[] { typeof(Assembly), dllImportResolverType });
-
-            if (dllImportResolverType == null ||
-                nativeLibraryType == null ||
-                tryLoadLibraryByName == null ||
-                tryLoadLibraryByPath == null ||
-                setDllImportResolver == null)
-            {
-                return false;
-            }
-
-            _tryLoadLibraryByPath = tryLoadLibraryByPath;
-            _tryLoadLibraryByName = tryLoadLibraryByName;
-
-            // NativeMethods.SetDllImportResolver(typeof(NativeMethods).Assembly, ResolveDll);
-            object resolveDelegate = typeof(NativeMethods).GetMethod(nameof(ResolveDll), BindingFlags.NonPublic | BindingFlags.Static).CreateDelegate(dllImportResolverType);
-            setDllImportResolver.Invoke(null, new object[] { typeof(NativeMethods).Assembly, resolveDelegate });
+            NativeLibrary.SetDllImportResolver(typeof(NativeMethods).Assembly, ResolveDll);
 
             return true;
         }
@@ -127,23 +79,24 @@ namespace LibGit2Sharp.Core
         private static IntPtr ResolveDll(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
         {
             IntPtr handle = IntPtr.Zero;
+
             if (libraryName == libgit2)
             {
                 // Use GlobalSettings.NativeLibraryPath when set.
                 string nativeLibraryPath = GetGlobalSettingsNativeLibraryPath();
-                if (nativeLibraryPath != null &&
-                    TryLoadLibrary(nativeLibraryPath, out handle))
+
+                if (nativeLibraryPath != null && NativeLibrary.TryLoad(nativeLibraryPath, out handle))
                 {
                     return handle;
                 }
 
                 // Use Default DllImport resolution.
-                if (TryLoadLibrary(libraryName, assembly, searchPath, out handle))
+                if (NativeLibrary.TryLoad(libraryName, assembly, searchPath, out handle))
                 {
                     return handle;
                 }
 
-                // We cary a number of .so files for Linux which are linked against various
+                // We carry a number of .so files for Linux which are linked against various
                 // libc/OpenSSL libraries. Try them out.
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
@@ -158,7 +111,8 @@ namespace LibGit2Sharp.Core
                         foreach (var runtimeFolder in Directory.GetDirectories(runtimesDirectory, $"*-{processorArchitecture}"))
                         {
                             string libPath = Path.Combine(runtimeFolder, "native", $"lib{libraryName}.so");
-                            if (TryLoadLibrary(libPath, out handle))
+
+                            if (NativeLibrary.TryLoad(libPath, out handle))
                             {
                                 return handle;
                             }
@@ -166,8 +120,10 @@ namespace LibGit2Sharp.Core
                     }
                 }
             }
+
             return handle;
         }
+#endif
 
         public const int RTLD_NOW = 0x002;
 
@@ -2110,4 +2066,3 @@ namespace LibGit2Sharp.Core
             git_worktree_prune_options options);
     }
 }
-// ReSharper restore InconsistentNaming

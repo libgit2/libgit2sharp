@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Tests.TestHelpers;
@@ -64,12 +65,13 @@ namespace LibGit2Sharp.Tests
             var testDir = Path.GetDirectoryName(typeof(GlobalSettingsFixture).Assembly.Location);
             var testAppExe = Path.Combine(testDir, $"NativeLibraryLoadTestApp.{architecture}.exe");
             var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-            var platformDir = Path.Combine(tempDir, "plat");
+            var platformDir = Path.Combine(tempDir, "plat", architecture);
+            var libraryPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "lib", "win32", architecture);
 
             try
             {
-                Directory.CreateDirectory(Path.Combine(platformDir, architecture));
-                File.Copy(Path.Combine(GlobalSettings.NativeLibraryPath, architecture, nativeDllFileName), Path.Combine(platformDir, architecture, nativeDllFileName));
+                Directory.CreateDirectory(platformDir);
+                File.Copy(Path.Combine(libraryPath, nativeDllFileName), Path.Combine(platformDir, nativeDllFileName));
 
                 var (output, exitCode) = ProcessHelper.RunProcess(testAppExe, arguments: $@"{NativeDllName.Name} ""{platformDir}""", workingDirectory: tempDir);
 
