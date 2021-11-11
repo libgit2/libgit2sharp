@@ -58,3 +58,39 @@ jobs:
         run: dotnet test LibGit2Sharp.sln --configuration Release --no-restore --framework net5.0 --logger "GitHubActions" /p:ExtraDefine=LEAKS_IDENTIFYING
       - name: Run net6.0 tests
         run: dotnet test LibGit2Sharp.sln --configuration Release --no-restore --framework net6.0 --logger "GitHubActions" /p:ExtraDefine=LEAKS_IDENTIFYING
+  native_test:
+    name: Test on [${{ matrix.arch }}] net${{ matrix.sdk }} SDK - ${{ matrix.distro }}
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        arch: [ amd64 ]
+        # arch: [ amd64, arm64 ]
+        sdk:  [ '6.0', '5.0', '3.1' ]
+        distro: [ alpine.3.12, alpine.3.13, alpine.3.14, centos.7, centos.8, debian.9, debian.10, debian.11, fedora.33, ubuntu.18.04, ubuntu.20.04 ]
+        exclude:
+        - arch: arm64
+          distro: alpine.3.12
+        - arch: arm64
+          distro: alpine.3.13
+          sdk: '3.1'
+        - arch: arm64
+          distro: alpine.3.14
+          sdk: '3.1'
+        - arch: arm64
+          distro: centos.7
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+        with:
+          fetch-depth: 0
+
+      - name: Setup QEMU
+        run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
+
+      - name: Test with docker
+        run: |
+            [[ ${{ matrix.sdk }} = '3.1' ]] && target="netcoreapp${{ matrix.sdk }}" || target="net${{ matrix.sdk }}"
+
+            test_command="dotnet test LibGit2Sharp.sln --configuration Release -p:TargetFrameworks=$target -p:ExtraDefine=LEAKS_IDENTIFYING -p:GeneratePackageOnBuild=false"
+            docker run -t --rm --platform linux/${{ matrix.arch }} -v "$PWD:/app" gittools/build-images:${{ matrix.distro }}-sdk-${{ matrix.sdk }} sh -c "$test_command"
