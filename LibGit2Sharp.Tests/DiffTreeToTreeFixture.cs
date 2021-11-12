@@ -1256,5 +1256,71 @@ namespace LibGit2Sharp.Tests
                     Assert.Equal(diffPatience, changes);
             }
         }
+
+        [Fact]
+        public void PatchWhitespaceModeIsObeyed()
+        {
+            string repoPath = InitNewRepository();
+
+            var compareOptions = Enum
+                .GetValues(typeof(PatchWhitespaceMode))
+                .Cast<PatchWhitespaceMode>()
+                .Select(whitespaceOption => new CompareOptions() { PatchWhitespaceMode = whitespaceOption });
+
+            using (var repo = new Repository(repoPath))
+            {
+                const string fileName = "file.txt";
+                var commits = new System.Collections.Generic.List<Commit>();
+
+                Touch(repo.Info.WorkingDirectory, fileName, "White  space is not wastedspace.");
+                Commands.Stage(repo, fileName);
+                commits.Add(repo.Commit("Initial", Constants.Signature, Constants.Signature));
+
+                Touch(repo.Info.WorkingDirectory, fileName, "White  space is not wastedspace. \t");
+                Commands.Stage(repo, fileName);
+                commits.Add(repo.Commit("Add trailing whitespace.", Constants.Signature, Constants.Signature));
+
+                Touch(repo.Info.WorkingDirectory, fileName, "White space\tis  not wastedspace. ");
+                Commands.Stage(repo, fileName);
+                commits.Add(repo.Commit("Change whitespace.", Constants.Signature, Constants.Signature));
+
+                Touch(repo.Info.WorkingDirectory, fileName, " Whitespace is not wasted space.");
+                Commands.Stage(repo, fileName);
+                commits.Add(repo.Commit("Insert whitespace.", Constants.Signature, Constants.Signature));
+
+                Touch(repo.Info.WorkingDirectory, fileName, "Completely different content.");
+                Commands.Stage(repo, fileName);
+                commits.Add(repo.Commit("Completely different.", Constants.Signature, Constants.Signature));
+
+                var commitPairs = commits
+                    .Select((oldCommit, index) => new { oldCommit, index })
+                    .Zip(commits.Skip(1), (old, newCommit) => new { old.oldCommit, newCommit, old.index });
+
+                foreach (var commitPair in commitPairs)
+                    foreach (var compareOption in compareOptions)
+                        using (var patch = repo.Diff.Compare<Patch>(commitPair.oldCommit.Tree, commitPair.newCommit.Tree, compareOption))
+                        {
+                            int expectedDiffLines;
+                            switch (compareOption.PatchWhitespaceMode)
+                            {
+                                case PatchWhitespaceMode.DontIgnoreWhitespace:
+                                    expectedDiffLines = 1;
+                                    break;
+                                case PatchWhitespaceMode.IgnoreAllWhitespace:
+                                    expectedDiffLines = commitPair.index > 2 ? 1 : 0;
+                                    break;
+                                case PatchWhitespaceMode.IgnoreWhitespaceChange:
+                                    expectedDiffLines = commitPair.index > 1 ? 1 : 0;
+                                    break;
+                                case PatchWhitespaceMode.IgnoreWhitespaceEol:
+                                    expectedDiffLines = commitPair.index > 0 ? 1 : 0;
+                                    break;
+                                default:
+                                    throw new Exception("Unexpected " + nameof(PatchWhitespaceMode));
+                            }
+                            Assert.Equal(expectedDiffLines, patch.LinesAdded);
+                        }
+            }
+        }
     }
 }
