@@ -156,6 +156,27 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanCreateStandardRepoAndDefineCustomHead()
+        {
+            var scd1 = BuildSelfCleaningDirectory();
+            var scd2 = BuildSelfCleaningDirectory();
+
+            var gitDir = Path.Combine(scd2.DirectoryPath, ".git/");
+
+            string repoPath = Repository.Init(scd1.DirectoryPath, gitDir, new InitOptions(){ InitialHead = "monkey"});
+
+            Assert.True(Repository.IsValid(repoPath));
+
+            using (var repo = new Repository(repoPath))
+            {
+                Assert.True(Repository.IsValid(repo.Info.WorkingDirectory));
+                Assert.True(Repository.IsValid(repo.Info.Path));
+
+                Assert.Equal("monkey", repo.Head.FriendlyName);
+            }
+        }
+
         private static void CheckGitConfigFile(string dir)
         {
             string configFilePath = Path.Combine(dir, "config");

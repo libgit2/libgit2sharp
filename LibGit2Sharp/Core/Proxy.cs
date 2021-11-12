@@ -2480,9 +2480,10 @@ namespace LibGit2Sharp.Core
         public static unsafe RepositoryHandle git_repository_init_ext(
             FilePath workdirPath,
             FilePath gitdirPath,
-            bool isBare)
+            bool isBare,
+            string initialHead)
         {
-            using (var opts = GitRepositoryInitOptions.BuildFrom(workdirPath, isBare))
+            using (var opts = GitRepositoryInitOptions.BuildFrom(workdirPath, isBare, initialHead))
             {
                 git_repository* repo;
                 int res = NativeMethods.git_repository_init_ext(out repo, gitdirPath, opts);
