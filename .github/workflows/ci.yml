@@ -11,17 +11,35 @@ env:
   DOTNET_NOLOGO: true
 jobs:
   build:
-    name: ${{ matrix.name }}
+    name: Build
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+        with:
+          fetch-depth: 0
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v1.8.1
+        with:
+          dotnet-version: 6.0.x
+      - name: Build
+        run: dotnet build LibGit2Sharp.sln --configuration Release
+      - name: Upload packages
+        uses: actions/upload-artifact@v2.2.4
+        with:
+          name: NuGet packages
+          path: bin/Packages/
+          retention-days: 7
+  test:
+    name: Test on [${{ matrix.os }}] ${{ matrix.tfm }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        include:
-          - os: windows-2019
-            name: Windows
-          - os: ubuntu-20.04
-            name: Linux
+        os: [windows-2019, macos-10.15]
+        tfm: [ net472, netcoreapp31, net5.0, net6.0 ]
+        exclude:
           - os: macos-10.15
-            name: macOS
+            tfm: net472
       fail-fast: false
     steps:
       - name: Checkout
@@ -32,33 +50,9 @@ jobs:
         uses: actions/setup-dotnet@v1.8.1
         with:
           dotnet-version: 6.0.x
-      - name: Install .NET 5 runtime
-        uses: actions/setup-dotnet@v1.8.1
-        with:
-          dotnet-version: 5.0.x
-      - name: Install .NET Core 3.1 runtime
-        uses: actions/setup-dotnet@v1.8.1
-        with:
-          dotnet-version: 3.1.x
-      - name: Build
-        run: dotnet build LibGit2Sharp.sln --configuration Release
-      - name: Upload packages
-        if: matrix.name == 'Windows'
-        uses: actions/upload-artifact@v2.2.4
-        with:
-          name: NuGet packages
-          path: bin/Packages/
-          retention-days: 7
-      - name: Run net472 tests
-        if: matrix.name == 'Windows'
-        run: dotnet test LibGit2Sharp.sln --configuration Release --no-restore --framework net472 --logger "GitHubActions" /p:ExtraDefine=LEAKS_IDENTIFYING
-      - name: Run netcoreapp3.1 tests
-        run: dotnet test LibGit2Sharp.sln --configuration Release --no-restore --framework netcoreapp3.1 --logger "GitHubActions" /p:ExtraDefine=LEAKS_IDENTIFYING
-      - name: Run net5.0 tests
-        run: dotnet test LibGit2Sharp.sln --configuration Release --no-restore --framework net5.0 --logger "GitHubActions" /p:ExtraDefine=LEAKS_IDENTIFYING
-      - name: Run net6.0 tests
-        run: dotnet test LibGit2Sharp.sln --configuration Release --no-restore --framework net6.0 --logger "GitHubActions" /p:ExtraDefine=LEAKS_IDENTIFYING
-  native_test:
+      - name: Run ${{ matrix.tfm }} tests
+        run: dotnet test LibGit2Sharp.sln --configuration Release --framework ${{ matrix.tfm }} --logger "GitHubActions" /p:ExtraDefine=LEAKS_IDENTIFYING
+  test-linux:
     name: Test on [${{ matrix.arch }}] net${{ matrix.sdk }} SDK - ${{ matrix.distro }}
     runs-on: ubuntu-20.04
     strategy:
@@ -91,8 +85,9 @@ jobs:
         uses: actions/checkout@v2.3.4
         with:
           fetch-depth: 0
-      #- name: Setup QEMU
-      #  run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
+      - name: Setup QEMU
+        if: matrix.arch == 'arm64'
+        run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
       - name: Test with docker
         run: |
             test_command="dotnet test LibGit2Sharp.sln --configuration Release -p:TargetFrameworks=${{ matrix.tfm }} -p:ExtraDefine=LEAKS_IDENTIFYING -p:GeneratePackageOnBuild=false"
