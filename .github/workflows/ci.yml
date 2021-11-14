@@ -64,7 +64,7 @@ jobs:
       - name: Run ${{ matrix.tfm }} tests
         run: dotnet test LibGit2Sharp.sln --configuration Release --framework ${{ matrix.tfm }} --logger "GitHubActions" /p:ExtraDefine=LEAKS_IDENTIFYING
   test-linux:
-    name: Test / ${{ matrix.os }} / ${{ matrix.arch }} / ${{ matrix.tfm }}
+    name: Test / ${{ matrix.distro }} / ${{ matrix.arch }} / ${{ matrix.tfm }}
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -101,5 +101,5 @@ jobs:
         run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
       - name: Run ${{ matrix.tfm }} tests
         run: |
-            test_command="dotnet test LibGit2Sharp.sln --configuration Release -p:TargetFrameworks=${{ matrix.tfm }} -p:ExtraDefine=LEAKS_IDENTIFYING -p:GeneratePackageOnBuild=false"
+            test_command="dotnet test LibGit2Sharp.sln --configuration Release -p:TargetFrameworks=${{ matrix.tfm }} --logger "GitHubActions" -p:ExtraDefine=LEAKS_IDENTIFYING"
             docker run -t --rm --platform linux/${{ matrix.arch }} -v "$PWD:/app" gittools/build-images:${{ matrix.distro }}-sdk-${{ matrix.sdk }} sh -c "$test_command"
