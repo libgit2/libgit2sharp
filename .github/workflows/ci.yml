@@ -36,7 +36,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-2019, macos-10.15]
-        tfm: [ net472, netcoreapp31, net5.0, net6.0 ]
+        tfm: [ net472, netcoreapp3.1, net5.0, net6.0 ]
         exclude:
           - os: macos-10.15
             tfm: net472
