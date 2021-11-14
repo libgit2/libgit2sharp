@@ -31,10 +31,11 @@ jobs:
           path: bin/Packages/
           retention-days: 7
   test:
-    name: Test on [${{ matrix.os }}] ${{ matrix.tfm }}
+    name: Test / ${{ matrix.os }} / ${{ matrix.arch }} / ${{ matrix.tfm }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        arch: [ amd64 ]
         os: [windows-2019, macos-10.15]
         tfm: [ net472, netcoreapp3.1, net5.0, net6.0 ]
         exclude:
@@ -50,10 +51,20 @@ jobs:
         uses: actions/setup-dotnet@v1.8.1
         with:
           dotnet-version: 6.0.x
+      - name: Install .NET 5 runtime
+        if: matrix.tfm == 'net5.0'
+        uses: actions/setup-dotnet@v1.8.1
+        with:
+          dotnet-version: 5.0.x
+      - name: Install .NET Core 3.1 runtime
+        if: matrix.tfm == 'netcoreapp3.1'
+        uses: actions/setup-dotnet@v1.8.1
+        with:
+          dotnet-version: 3.1.x
       - name: Run ${{ matrix.tfm }} tests
         run: dotnet test LibGit2Sharp.sln --configuration Release --framework ${{ matrix.tfm }} --logger "GitHubActions" /p:ExtraDefine=LEAKS_IDENTIFYING
   test-linux:
-    name: Test on [${{ matrix.arch }}] net${{ matrix.sdk }} SDK - ${{ matrix.distro }}
+    name: Test / ${{ matrix.os }} / ${{ matrix.arch }} / ${{ matrix.tfm }}
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -88,7 +99,7 @@ jobs:
       - name: Setup QEMU
         if: matrix.arch == 'arm64'
         run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
-      - name: Test with docker
+      - name: Run ${{ matrix.tfm }} tests
         run: |
             test_command="dotnet test LibGit2Sharp.sln --configuration Release -p:TargetFrameworks=${{ matrix.tfm }} -p:ExtraDefine=LEAKS_IDENTIFYING -p:GeneratePackageOnBuild=false"
             docker run -t --rm --platform linux/${{ matrix.arch }} -v "$PWD:/app" gittools/build-images:${{ matrix.distro }}-sdk-${{ matrix.sdk }} sh -c "$test_command"
