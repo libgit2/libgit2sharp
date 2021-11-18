@@ -4,6 +4,15 @@
 
 **LibGit2Sharp brings all the might and speed of [libgit2](http://libgit2.github.com/), a native Git implementation, to the managed world of .NET**
 
+To push to apiiro nuget package:
+
+```
+rm bin/Packages/Apiiro.LibGit2Sharp.*.nupkg
+dotnet pack --configuration Release
+dotnet nuget push bin/Packages/Apiiro.LibGit2Sharp.*.nupkg --source "github" --skip-duplicate --no-symbols true
+```
+
+
 ## Online resources
 
 - [NuGet package](http://nuget.org/List/Packages/LibGit2Sharp)

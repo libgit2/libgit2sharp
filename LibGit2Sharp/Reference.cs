@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using LibGit2Sharp.Core;
@@ -53,6 +54,11 @@ namespace LibGit2Sharp
             {
                 case GitReferenceType.Symbolic:
                     string targetIdentifier = Proxy.git_reference_symbolic_target(handle);
+
+                    if (name == targetIdentifier)
+                    {
+                        throw new CyclicReferenceException(name);
+                    }
 
                     var targetRef = repo.Refs[targetIdentifier];
                     reference = new SymbolicReference(repo, name, targetIdentifier, targetRef);
