@@ -17,7 +17,7 @@
     <PackageId>Apiiro.LibGit2Sharp</PackageId>
     <Authors>Apiiro</Authors>
     <Company>Apiiro</Company>
-    <RepositoryUrl>https://github.com/apiiro/GitLabApiClient</RepositoryUrl>
+    <RepositoryUrl>https://github.com/apiiro/libgit2sharp</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
