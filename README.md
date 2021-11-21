@@ -7,11 +7,11 @@
 To push to apiiro nuget package:
 
 ```
+dotnet build --configuration Release
 rm bin/Packages/Apiiro.LibGit2Sharp.*.nupkg
 dotnet pack --configuration Release
 dotnet nuget push bin/Packages/Apiiro.LibGit2Sharp.*.nupkg --source "github" --skip-duplicate --no-symbols true
 ```
-
 
 ## Online resources
 
