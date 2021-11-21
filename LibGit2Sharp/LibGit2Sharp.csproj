@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageDescription>LibGit2Sharp brings all the might and speed of libgit2, a native Git implementation, to the managed world of .NET</PackageDescription>
     <Copyright>Copyright © LibGit2Sharp contributors</Copyright>
@@ -18,6 +17,7 @@
     <Authors>Apiiro</Authors>
     <Company>Apiiro</Company>
     <RepositoryUrl>https://github.com/apiiro/libgit2sharp</RepositoryUrl>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,8 +32,8 @@
 
   <ItemGroup>
     <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="[2.0.315-alpha.0.9]" PrivateAssets="none" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="all" />
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.220" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.244" PrivateAssets="all" />
   </ItemGroup>
 
   <Import Project="..\Targets\CodeGenerator.targets" />
