@@ -3503,8 +3503,11 @@ namespace LibGit2Sharp.Core
 
         public static void git_libgit2_opts_set_extensions(string[] extensions)
         {
-            var res = NativeMethods.git_libgit2_opts((int)LibGit2Option.SetExtensions, extensions, extensions.Length);
-            Ensure.ZeroResult(res);
+            using(var array = GitStrArrayManaged.BuildFrom(extensions))
+            {
+                var res = NativeMethods.git_libgit2_opts((int)LibGit2Option.SetExtensions, array.Array);
+                Ensure.ZeroResult(res);
+            }
         }
 
         public static string[] git_libgit2_opts_get_extensions()

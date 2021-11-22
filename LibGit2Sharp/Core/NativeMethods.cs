@@ -757,7 +757,7 @@ namespace LibGit2Sharp.Core
 
         // git_libgit2_opts(GIT_OPT_SET_EXTENSIONS, const char **extensions, size_t len)
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int git_libgit2_opts(int option, string[] extensions, int len);
+        internal static extern int git_libgit2_opts(int option, GitStrArray extensions);
 
         // git_libgit2_opts(GIT_OPT_GET_EXTENSIONS, git_strarray *out)
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
