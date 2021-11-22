@@ -3505,7 +3505,7 @@ namespace LibGit2Sharp.Core
         {
             using(var array = GitStrArrayManaged.BuildFrom(extensions))
             {
-                var res = NativeMethods.git_libgit2_opts((int)LibGit2Option.SetExtensions, array.Array);
+                var res = NativeMethods.git_libgit2_opts((int)LibGit2Option.SetExtensions, array.Array.Strings, array.Array.Count);
                 Ensure.ZeroResult(res);
             }
         }
