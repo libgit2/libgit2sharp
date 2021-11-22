@@ -93,14 +93,19 @@ namespace LibGit2Sharp.Tests
             Assert.Equal(new[] { "noop" }, extensions);
 
             // Disable "noop" extensions
-            GlobalSettings.SetExtensions(new[] { "!noop" });
+            GlobalSettings.SetExtensions("!noop");
             extensions = GlobalSettings.GetExtensions();
             Assert.Empty(extensions);
 
             // Enable two new extensions (it will reset the configuration and "noop" will be enabled)
-            GlobalSettings.SetExtensions(new[] { "partialclone", "newext" });
+            GlobalSettings.SetExtensions("partialclone", "newext");
             extensions = GlobalSettings.GetExtensions();
             Assert.Equal(new[] { "noop", "partialclone", "newext" }, extensions);
+
+            // You can have multiple times the same extension
+            GlobalSettings.SetExtensions("noop", "test", "test" );
+            extensions = GlobalSettings.GetExtensions();
+            Assert.Equal(new[] { "noop", "noop", "test", "test" }, extensions);
         }
     }
 }
