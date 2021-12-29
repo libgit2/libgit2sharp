@@ -83,5 +83,29 @@ namespace LibGit2Sharp.Tests
                 DirectoryHelper.DeleteDirectory(tempDir);
             }
         }
+
+        [Fact]
+        public void SetExtensions()
+        {
+            var extensions = GlobalSettings.GetExtensions();
+
+            // Assert that "noop" is supported by default
+            Assert.Equal(new[] { "noop" }, extensions);
+
+            // Disable "noop" extensions
+            GlobalSettings.SetExtensions("!noop");
+            extensions = GlobalSettings.GetExtensions();
+            Assert.Empty(extensions);
+
+            // Enable two new extensions (it will reset the configuration and "noop" will be enabled)
+            GlobalSettings.SetExtensions("partialclone", "newext");
+            extensions = GlobalSettings.GetExtensions();
+            Assert.Equal(new[] { "noop", "partialclone", "newext" }, extensions);
+
+            // You can have multiple times the same extension
+            GlobalSettings.SetExtensions("noop", "test", "test" );
+            extensions = GlobalSettings.GetExtensions();
+            Assert.Equal(new[] { "noop", "noop", "test", "test" }, extensions);
+        }
     }
 }
