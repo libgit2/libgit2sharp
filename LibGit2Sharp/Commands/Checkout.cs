@@ -61,12 +61,14 @@ namespace LibGit2Sharp
                 {
                     branch = repository.CreateBranch(committishOrBranchSpec, remoteBranches[0].Tip);
                     repository.Branches.Update(branch, b => b.TrackedBranch = remoteBranches[0].CanonicalName);
+
                     return Checkout(repository, branch, options);
                 }
 
                 if (remoteBranches.Count > 1)
-                    throw new AmbiguousSpecificationException(
-                        $"'{committishOrBranchSpec}' matched multiple ({remoteBranches.Count}) remote tracking branches");
+                {
+                    throw new AmbiguousSpecificationException($"'{committishOrBranchSpec}' matched multiple ({remoteBranches.Count}) remote tracking branches");
+                }
 
                 throw;
             }
