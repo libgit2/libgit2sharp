@@ -1256,5 +1256,40 @@ namespace LibGit2Sharp.Tests
                     Assert.Equal(diffPatience, changes);
             }
         }
+
+        [Fact]
+        public void DiffThrowsANotFoundExceptionIfATreeIsMissing()
+        {
+            string repoPath = SandboxBareTestRepo();
+
+            // Manually delete the objects directory to simulate a partial clone
+            File.Delete(Path.Combine(repoPath, "objects", "58", "1f9824ecaf824221bd36edf5430f2739a7c4f5")); 
+
+            using (var repo = new Repository(repoPath))
+            {
+                // The commit is there but its tree is missing
+                var commit = repo.Lookup<Commit>("4c062a6361ae6959e06292c1fa5e2822d9c96345");
+                Assert.NotNull(commit);
+                Assert.Equal("581f9824ecaf824221bd36edf5430f2739a7c4f5", commit.Tree.Sha);
+                Assert.True(commit.Tree.IsMissing);
+
+                var tree = repo.Lookup<Tree>("581f9824ecaf824221bd36edf5430f2739a7c4f5");
+                Assert.Null(tree);
+
+                var otherCommit = repo.Lookup<Commit>("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
+                Assert.NotNull(otherCommit);
+                Assert.False(otherCommit.Tree.IsMissing);
+
+                Assert.Throws<NotFoundException>(() =>
+                {
+                    using (repo.Diff.Compare<TreeChanges>(commit.Tree, otherCommit.Tree)) {}
+                });
+
+                Assert.Throws<NotFoundException>(() =>
+                {
+                    using (repo.Diff.Compare<TreeChanges>(otherCommit.Tree, commit.Tree)) {}
+                });
+            }
+        }
     }
 }
