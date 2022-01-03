@@ -797,8 +797,8 @@ namespace LibGit2Sharp.Core
             ObjectId newTree,
             GitDiffOptions options)
         {
-            using (var osw1 = new ObjectSafeWrapper(oldTree, repo, true))
-            using (var osw2 = new ObjectSafeWrapper(newTree, repo, true))
+            using (var osw1 = new ObjectSafeWrapper(oldTree, repo, true, throwIfMissing: true))
+            using (var osw2 = new ObjectSafeWrapper(newTree, repo, true, throwIfMissing: true))
             {
                 git_diff* diff;
                 int res = NativeMethods.git_diff_tree_to_tree(out diff, repo, osw1.ObjectPtr, osw2.ObjectPtr, options);
