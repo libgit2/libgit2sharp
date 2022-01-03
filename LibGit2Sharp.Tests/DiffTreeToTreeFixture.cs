@@ -1262,7 +1262,7 @@ namespace LibGit2Sharp.Tests
         {
             string repoPath = SandboxBareTestRepo();
 
-            // Manually delete the objects directory to simulate a partial clone
+            // Manually delete the tree object to simulate a partial clone
             File.Delete(Path.Combine(repoPath, "objects", "58", "1f9824ecaf824221bd36edf5430f2739a7c4f5")); 
 
             using (var repo = new Repository(repoPath))
