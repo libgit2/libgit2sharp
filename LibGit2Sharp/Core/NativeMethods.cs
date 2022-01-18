@@ -1952,6 +1952,15 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string prefix);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern unsafe int git_merge_trees(
+            out git_index* outIndex,
+            git_repository* repo,
+            git_object* ancestorTree,
+            git_object* ourTree,
+            git_object* theirTree,
+            ref GitMergeOpts options);
+
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe uint git_tree_entry_filemode(git_tree_entry* entry);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
