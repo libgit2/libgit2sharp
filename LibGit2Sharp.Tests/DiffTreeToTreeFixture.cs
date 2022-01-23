@@ -1271,6 +1271,8 @@ namespace LibGit2Sharp.Tests
                     Assert.NotNull(changes);
                     Assert.Equal("10c26aa3d58ca4a44e3b102b93bdc0b6600972a2", changes.PatchId.Sha);
                 }
+            }
+        }
 
         [Fact]
         public void DiffThrowsANotFoundExceptionIfATreeIsMissing()
