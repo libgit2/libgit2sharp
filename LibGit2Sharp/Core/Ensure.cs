@@ -114,20 +114,20 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        private static readonly Dictionary<GitErrorCode, Func<string, GitErrorCode, GitErrorCategory, LibGit2SharpException>>
+        private static readonly Dictionary<GitErrorCode, Func<string, GitErrorCategory, LibGit2SharpException>>
             GitErrorsToLibGit2SharpExceptions =
-                new Dictionary<GitErrorCode, Func<string, GitErrorCode, GitErrorCategory, LibGit2SharpException>>
+                new Dictionary<GitErrorCode, Func<string, GitErrorCategory, LibGit2SharpException>>
                 {
-                    { GitErrorCode.User, (m, r, c) => new UserCancelledException(m, r, c) },
-                    { GitErrorCode.BareRepo, (m, r, c) => new BareRepositoryException(m, r, c) },
-                    { GitErrorCode.Exists, (m, r, c) => new NameConflictException(m, r, c) },
-                    { GitErrorCode.InvalidSpecification, (m, r, c) => new InvalidSpecificationException(m, r, c) },
-                    { GitErrorCode.UnmergedEntries, (m, r, c) => new UnmergedIndexEntriesException(m, r, c) },
-                    { GitErrorCode.NonFastForward, (m, r, c) => new NonFastForwardException(m, r, c) },
-                    { GitErrorCode.Conflict, (m, r, c) => new CheckoutConflictException(m, r, c) },
-                    { GitErrorCode.LockedFile, (m, r, c) => new LockedFileException(m, r, c) },
-                    { GitErrorCode.NotFound, (m, r, c) => new NotFoundException(m, r, c) },
-                    { GitErrorCode.Peel, (m, r, c) => new PeelException(m, r, c)  },
+                    { GitErrorCode.User, (m, c) => new UserCancelledException(m, c) },
+                    { GitErrorCode.BareRepo, (m, c) => new BareRepositoryException(m, c) },
+                    { GitErrorCode.Exists, (m, c) => new NameConflictException(m, c) },
+                    { GitErrorCode.InvalidSpecification, (m, c) => new InvalidSpecificationException(m, c) },
+                    { GitErrorCode.UnmergedEntries, (m, c) => new UnmergedIndexEntriesException(m, c) },
+                    { GitErrorCode.NonFastForward, (m, c) => new NonFastForwardException(m, c) },
+                    { GitErrorCode.Conflict, (m, c) => new CheckoutConflictException(m, c) },
+                    { GitErrorCode.LockedFile, (m, c) => new LockedFileException(m, c) },
+                    { GitErrorCode.NotFound, (m, c) => new NotFoundException(m, c) },
+                    { GitErrorCode.Peel, (m, c) => new PeelException(m, c) },
                 };
 
         private static unsafe void HandleError(int result)
@@ -145,13 +145,13 @@ namespace LibGit2Sharp.Core
                 errorMessage = LaxUtf8Marshaler.FromNative(error->Message);
             }
 
-            Func<string, GitErrorCode, GitErrorCategory, LibGit2SharpException> exceptionBuilder;
+            Func<string, GitErrorCategory, LibGit2SharpException> exceptionBuilder;
             if (!GitErrorsToLibGit2SharpExceptions.TryGetValue((GitErrorCode)result, out exceptionBuilder))
             {
-                exceptionBuilder = (m, r, c) => new LibGit2SharpException(m, r, c);
+                exceptionBuilder = (m, c) => new LibGit2SharpException(m, c);
             }
 
-            throw exceptionBuilder(errorMessage, (GitErrorCode)result, errorCategory);
+            throw exceptionBuilder(errorMessage, errorCategory);
         }
 
         /// <summary>

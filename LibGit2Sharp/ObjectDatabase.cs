@@ -104,8 +104,8 @@ namespace LibGit2Sharp
             }
 
             ObjectId id = Path.IsPathRooted(path)
-                ? Proxy.git_blob_create_fromdisk(repo.Handle, path)
-                : Proxy.git_blob_create_fromfile(repo.Handle, path);
+                ? Proxy.git_blob_create_from_disk(repo.Handle, path)
+                : Proxy.git_blob_create_from_workdir(repo.Handle, path);
 
             return repo.Lookup<Blob>(id);
         }
@@ -277,7 +277,7 @@ namespace LibGit2Sharp
                 throw new ArgumentException("The stream cannot be read from.", "stream");
             }
 
-            IntPtr writestream_ptr = Proxy.git_blob_create_fromstream(repo.Handle, hintpath);
+            IntPtr writestream_ptr = Proxy.git_blob_create_from_stream(repo.Handle, hintpath);
             GitWriteStream writestream = Marshal.PtrToStructure<GitWriteStream>(writestream_ptr);
 
             try

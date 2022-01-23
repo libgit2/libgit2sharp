@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Tests.TestHelpers;
@@ -64,12 +65,13 @@ namespace LibGit2Sharp.Tests
             var testDir = Path.GetDirectoryName(typeof(GlobalSettingsFixture).Assembly.Location);
             var testAppExe = Path.Combine(testDir, $"NativeLibraryLoadTestApp.{architecture}.exe");
             var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-            var platformDir = Path.Combine(tempDir, "plat");
+            var platformDir = Path.Combine(tempDir, "plat", architecture);
+            var libraryPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "lib", "win32", architecture);
 
             try
             {
-                Directory.CreateDirectory(Path.Combine(platformDir, architecture));
-                File.Copy(Path.Combine(GlobalSettings.NativeLibraryPath, architecture, nativeDllFileName), Path.Combine(platformDir, architecture, nativeDllFileName));
+                Directory.CreateDirectory(platformDir);
+                File.Copy(Path.Combine(libraryPath, nativeDllFileName), Path.Combine(platformDir, nativeDllFileName));
 
                 var (output, exitCode) = ProcessHelper.RunProcess(testAppExe, arguments: $@"{NativeDllName.Name} ""{platformDir}""", workingDirectory: tempDir);
 
@@ -80,6 +82,30 @@ namespace LibGit2Sharp.Tests
             {
                 DirectoryHelper.DeleteDirectory(tempDir);
             }
+        }
+
+        [Fact]
+        public void SetExtensions()
+        {
+            var extensions = GlobalSettings.GetExtensions();
+
+            // Assert that "noop" is supported by default
+            Assert.Equal(new[] { "noop" }, extensions);
+
+            // Disable "noop" extensions
+            GlobalSettings.SetExtensions("!noop");
+            extensions = GlobalSettings.GetExtensions();
+            Assert.Empty(extensions);
+
+            // Enable two new extensions (it will reset the configuration and "noop" will be enabled)
+            GlobalSettings.SetExtensions("partialclone", "newext");
+            extensions = GlobalSettings.GetExtensions();
+            Assert.Equal(new[] { "noop", "partialclone", "newext" }, extensions);
+
+            // You can have multiple times the same extension
+            GlobalSettings.SetExtensions("noop", "test", "test" );
+            extensions = GlobalSettings.GetExtensions();
+            Assert.Equal(new[] { "noop", "noop", "test", "test" }, extensions);
         }
     }
 }

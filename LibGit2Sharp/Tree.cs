@@ -13,6 +13,9 @@ namespace LibGit2Sharp
     /// <summary>
     /// A container which references a list of other <see cref="Tree"/>s and <see cref="Blob"/>s.
     /// </summary>
+    /// <remarks>
+    /// Since the introduction of partially cloned repositories, trees might be missing on your local repository (see https://git-scm.com/docs/partial-clone)
+    /// </remarks>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Tree : GitObject, IEnumerable<TreeEntry>
     {
@@ -31,19 +34,21 @@ namespace LibGit2Sharp
         {
             this.path = path ?? "";
 
-            lazyCount = GitObjectLazyGroup.Singleton(repo, id, Proxy.git_tree_entrycount);
+            lazyCount = GitObjectLazyGroup.Singleton(repo, id, Proxy.git_tree_entrycount, throwIfMissing: true);
         }
 
         /// <summary>
         /// Gets the number of <see cref="TreeEntry"/> immediately under this <see cref="Tree"/>.
         /// </summary>
-        public virtual int Count { get { return lazyCount.Value; } }
+        /// <exception cref="NotFoundException">Throws if tree is missing</exception>
+        public virtual int Count => lazyCount.Value;
 
         /// <summary>
         /// Gets the <see cref="TreeEntry"/> pointed at by the <paramref name="relativePath"/> in this <see cref="Tree"/> instance.
         /// </summary>
         /// <param name="relativePath">The relative path to the <see cref="TreeEntry"/> from this instance.</param>
         /// <returns><c>null</c> if nothing has been found, the <see cref="TreeEntry"/> otherwise.</returns>
+        /// <exception cref="NotFoundException">Throws if tree is missing</exception>
         public virtual TreeEntry this[string relativePath]
         {
             get { return RetrieveFromPath(relativePath); }
@@ -69,10 +74,7 @@ namespace LibGit2Sharp
             }
         }
 
-        internal string Path
-        {
-            get { return path; }
-        }
+        internal string Path => path;
 
         #region IEnumerable<TreeEntry> Members
 
@@ -103,9 +105,10 @@ namespace LibGit2Sharp
         /// Returns an enumerator that iterates through the collection.
         /// </summary>
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
+        /// <exception cref="NotFoundException">Throws if tree is missing</exception>
         public virtual IEnumerator<TreeEntry> GetEnumerator()
         {
-            using (var obj = new ObjectSafeWrapper(Id, repo.Handle))
+            using (var obj = new ObjectSafeWrapper(Id, repo.Handle, throwIfMissing: true))
             {
                 for (uint i = 0; i < Count; i++) {
                     yield return byIndex(obj, i, Id, repo, path);
@@ -117,6 +120,7 @@ namespace LibGit2Sharp
         /// Returns an enumerator that iterates through the collection.
         /// </summary>
         /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
+        /// <exception cref="NotFoundException">Throws if tree is missing</exception>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

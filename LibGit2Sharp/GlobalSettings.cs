@@ -32,7 +32,7 @@ namespace LibGit2Sharp
             if (netFX)
             {
                 // For .NET Framework apps the dependencies are deployed to lib/win32/{architecture} directory
-                nativeLibraryDefaultPath = Path.Combine(GetExecutingAssemblyDirectory(), "lib", "win32");
+                nativeLibraryDefaultPath = Path.Combine(GetExecutingAssemblyDirectory(), "lib", "win32", Platform.ProcessorArchitecture);
             }
             else
             {
@@ -71,20 +71,13 @@ namespace LibGit2Sharp
         /// Returns information related to the current LibGit2Sharp
         /// library.
         /// </summary>
-        public static Version Version
-        {
-            get
-            {
-                return version.Value;
-            }
-        }
+        public static Version Version => version.Value;
 
         /// <summary>
         /// Registers a new <see cref="SmartSubtransport"/> as a custom
-        /// smart-protocol transport with libgit2.  Any Git remote with
+        /// smart-protocol transport with libgit2. Any Git remote with
         /// the scheme registered will delegate to the given transport
-        /// for all communication with the server.  use this transport to communicate
-        /// with the server This is not commonly
+        /// for all communication with the server. This is not commonly
         /// used: some callers may want to re-use an existing connection to
         /// perform fetch / push operations to a remote.
         ///
@@ -166,8 +159,6 @@ namespace LibGit2Sharp
         /// <summary>
         /// Sets a path for loading native binaries on .NET Framework or .NET Core.
         /// When specified, native library will first be searched under the given path.
-        /// On .NET Framework a subdirectory corresponding to the architecture  ("x86" or "x64") is appended,
-        /// otherwise the native library is expected to be found in the directory as specified.
         ///
         /// If the library is not found it will be searched in standard search paths:
         /// <see cref="DllImportSearchPath.AssemblyDirectory"/>,
@@ -176,10 +167,6 @@ namespace LibGit2Sharp
         /// <para>
         /// This must be set before any other calls to the library,
         /// and is not available on other platforms than .NET Framework and .NET Core.
-        /// </para>
-        /// <para>
-        /// If not specified on .NET Framework it defaults to lib/win32 subdirectory
-        /// of the directory where this assembly is loaded from.
         /// </para>
         /// </summary>
         public static string NativeLibraryPath
@@ -220,8 +207,7 @@ namespace LibGit2Sharp
         internal static string GetAndLockNativeLibraryPath()
         {
             nativeLibraryPathLocked = true;
-            string result = nativeLibraryPath ?? nativeLibraryDefaultPath;
-            return Platform.IsRunningOnNetFramework() ? Path.Combine(result, Platform.ProcessorArchitecture) : result;
+            return nativeLibraryPath ?? nativeLibraryDefaultPath;
         }
 
         /// <summary>
@@ -351,6 +337,10 @@ namespace LibGit2Sharp
             Proxy.git_libgit2_opts_set_search_path(level, pathString);
         }
 
+        /// <summary>
+        /// Enable or disable strict hash verification.
+        /// </summary>
+        /// <param name="enabled">true to enable strict hash verification; false otherwise.</param>
         public static void SetStrictHashVerification(bool enabled)
         {
             Proxy.git_libgit2_opts_enable_strict_hash_verification(enabled);
@@ -381,6 +371,51 @@ namespace LibGit2Sharp
         public static void SetEnableStrictObjectCreation(bool enabled)
         {
             Proxy.git_libgit2_opts_set_enable_strictobjectcreation(enabled);
+        }
+
+        /// <summary>
+        /// Sets the user-agent string to be used by the HTTP(S) transport.
+        /// Note that "git/2.0" will be prepended for compatibility.
+        /// </summary>
+        /// <param name="userAgent">The user-agent string to use</param>
+        public static void SetUserAgent(string userAgent)
+        {
+            Proxy.git_libgit2_opts_set_user_agent(userAgent);
+        }
+
+        /// <summary>
+        /// Set that the given git extensions are supported by the caller.
+        /// </summary>
+        /// <remarks>
+        /// Extensions supported by libgit2 may be negated by prefixing them with a `!`.  For example: setting extensions to { "!noop", "newext" } indicates that the caller does not want
+        /// to support repositories with the `noop` extension but does want to support repositories with the `newext` extension.
+        /// </remarks>
+        /// <param name="extensions">Supported extensions</param>
+        public static void SetExtensions(params string[] extensions)
+        {
+            Proxy.git_libgit2_opts_set_extensions(extensions);
+        }
+
+        /// <summary>
+        /// Returns the list of git extensions that are supported.
+        /// </summary>
+        /// <remarks>
+        /// This is the list of built-in extensions supported by libgit2 and custom extensions that have been added with `SetExtensions`. Extensions that have been negated will not be returned.
+        /// </remarks>
+        public static string[] GetExtensions()
+        {
+            return Proxy.git_libgit2_opts_get_extensions();
+        }
+
+        /// <summary>
+        /// Gets the user-agent string used by libgit2.
+        /// <returns>
+        /// The user-agent string.
+        /// </returns>
+        /// </summary>
+        public static string GetUserAgent()
+        {
+            return Proxy.git_libgit2_opts_get_user_agent();
         }
     }
 }
