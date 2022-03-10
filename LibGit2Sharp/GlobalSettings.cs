@@ -22,14 +22,6 @@ namespace LibGit2Sharp
         private static bool nativeLibraryPathLocked;
         private static string nativeLibraryDefaultPath;
 
-        internal class SmartSubtransportData
-        {
-            internal bool isCustom;
-            internal SmartSubtransportRegistrationData defaultSubtransport;
-        }
-
-        private static readonly Dictionary<string, SmartSubtransportData> smartSubtransportData = new Dictionary<string, SmartSubtransportData>();
-
         static GlobalSettings()
         {
             bool netFX = Platform.IsRunningOnNetFramework();
@@ -40,7 +32,7 @@ namespace LibGit2Sharp
             if (netFX)
             {
                 // For .NET Framework apps the dependencies are deployed to lib/win32/{architecture} directory
-                nativeLibraryDefaultPath = Path.Combine(GetExecutingAssemblyDirectory(), "lib", "win32");
+                nativeLibraryDefaultPath = Path.Combine(GetExecutingAssemblyDirectory(), "lib", "win32", Platform.ProcessorArchitecture);
             }
             else
             {
@@ -81,48 +73,6 @@ namespace LibGit2Sharp
         /// </summary>
         public static Version Version => version.Value;
 
-        private static SmartSubtransportData GetOrCreateSmartSubtransportData(string scheme)
-        {
-            Ensure.ArgumentNotNull(scheme, "scheme");
-
-            lock (smartSubtransportData)
-            {
-                if (!smartSubtransportData.ContainsKey(scheme))
-                {
-                    smartSubtransportData[scheme] = new SmartSubtransportData();
-                }
-
-                return smartSubtransportData[scheme];
-            }
-        }
-
-        internal static SmartSubtransportRegistration<T> RegisterDefaultSmartSubtransport<T>(string scheme)
-            where T : SmartSubtransport, new()
-        {
-            Ensure.ArgumentNotNull(scheme, "scheme");
-
-            lock (smartSubtransportData)
-            {
-                var data = GetOrCreateSmartSubtransportData(scheme);
-
-                if (data.defaultSubtransport != null)
-                {
-                    throw new Exception(string.Format("A default subtransport is already configured for {0}", scheme));
-                }
-
-                var registration = new SmartSubtransportRegistration<T>(scheme);
-
-                if (!data.isCustom)
-                {
-                    RegisterSmartSubtransportInternal(registration);
-                }
-
-                data.defaultSubtransport = registration;
-
-                return registration;
-            }
-        }
-
         /// <summary>
         /// Registers a new <see cref="SmartSubtransport"/> as a custom
         /// smart-protocol transport with libgit2. Any Git remote with
@@ -141,53 +91,21 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(scheme, "scheme");
 
-            lock (smartSubtransportData)
-            {
-                var data = GetOrCreateSmartSubtransportData(scheme);
+            var registration = new SmartSubtransportRegistration<T>(scheme);
 
-                if (data.isCustom)
-                {
-                    throw new EntryExistsException(string.Format("A smart subtransport is already registered for {0}", scheme));
-                }
-
-                if (data.defaultSubtransport != null)
-                {
-                    Proxy.git_transport_unregister(scheme);
-                }
-
-                var previousValue = data.isCustom;
-                data.isCustom = true;
-
-                var registration = new SmartSubtransportRegistration<T>(scheme);
-
-                try
-                {
-                    RegisterSmartSubtransportInternal(registration);
-                }
-                catch
-                {
-                    data.isCustom = previousValue;
-                    throw;
-                }
-
-                return registration;
-            }
-        }
-
-        private static void RegisterSmartSubtransportInternal<T>(SmartSubtransportRegistration<T> registration)
-            where T : SmartSubtransport, new()
-        {
             try
             {
                 Proxy.git_transport_register(registration.Scheme,
                                              registration.FunctionPointer,
                                              registration.RegistrationPointer);
             }
-            catch
+            catch (Exception)
             {
                 registration.Free();
                 throw;
             }
+
+            return registration;
         }
 
         /// <summary>
@@ -201,59 +119,6 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(registration, "registration");
 
-            var scheme = registration.Scheme;
-
-            lock (smartSubtransportData)
-            {
-                var data = GetOrCreateSmartSubtransportData(scheme);
-
-                if (!data.isCustom)
-                {
-                    throw new NotFoundException(string.Format("No smart subtransport has been registered for {0}", scheme));
-                }
-
-                UnregisterSmartSubtransportInternal(registration);
-
-                data.isCustom = false;
-
-                if (data.defaultSubtransport != null)
-                {
-                    var defaultRegistration = data.defaultSubtransport;
-
-                    Proxy.git_transport_register(defaultRegistration.Scheme,
-                                                 defaultRegistration.FunctionPointer,
-                                                 defaultRegistration.RegistrationPointer);
-                }
-            }
-        }
-
-        internal static void UnregisterDefaultSmartSubtransport<T>(SmartSubtransportRegistration<T> registration)
-            where T : SmartSubtransport, new()
-        {
-            Ensure.ArgumentNotNull(registration, "registration");
-
-            var scheme = registration.Scheme;
-
-            lock (smartSubtransportData)
-            {
-                if (!smartSubtransportData.ContainsKey(scheme))
-                {
-                    throw new Exception(string.Format("No default smart subtransport has been registered for {0}", scheme));
-                }
-
-                if (registration != smartSubtransportData[scheme].defaultSubtransport)
-                {
-                    throw new Exception(string.Format("The given smart subtransport is not the default for {0}", scheme));
-                }
-
-                smartSubtransportData.Remove(scheme);
-                UnregisterSmartSubtransportInternal(registration);
-            }
-        }
-
-        private static void UnregisterSmartSubtransportInternal<T>(SmartSubtransportRegistration<T> registration)
-            where T : SmartSubtransport, new()
-        {
             Proxy.git_transport_unregister(registration.Scheme);
             registration.Free();
         }
@@ -294,8 +159,6 @@ namespace LibGit2Sharp
         /// <summary>
         /// Sets a path for loading native binaries on .NET Framework or .NET Core.
         /// When specified, native library will first be searched under the given path.
-        /// On .NET Framework a subdirectory corresponding to the architecture  ("x86" or "x64") is appended,
-        /// otherwise the native library is expected to be found in the directory as specified.
         ///
         /// If the library is not found it will be searched in standard search paths:
         /// <see cref="DllImportSearchPath.AssemblyDirectory"/>,
@@ -304,10 +167,6 @@ namespace LibGit2Sharp
         /// <para>
         /// This must be set before any other calls to the library,
         /// and is not available on other platforms than .NET Framework and .NET Core.
-        /// </para>
-        /// <para>
-        /// If not specified on .NET Framework it defaults to lib/win32 subdirectory
-        /// of the directory where this assembly is loaded from.
         /// </para>
         /// </summary>
         public static string NativeLibraryPath
@@ -348,8 +207,7 @@ namespace LibGit2Sharp
         internal static string GetAndLockNativeLibraryPath()
         {
             nativeLibraryPathLocked = true;
-            string result = nativeLibraryPath ?? nativeLibraryDefaultPath;
-            return Platform.IsRunningOnNetFramework() ? Path.Combine(result, Platform.ProcessorArchitecture) : result;
+            return nativeLibraryPath ?? nativeLibraryDefaultPath;
         }
 
         /// <summary>
@@ -523,6 +381,30 @@ namespace LibGit2Sharp
         public static void SetUserAgent(string userAgent)
         {
             Proxy.git_libgit2_opts_set_user_agent(userAgent);
+        }
+
+        /// <summary>
+        /// Set that the given git extensions are supported by the caller.
+        /// </summary>
+        /// <remarks>
+        /// Extensions supported by libgit2 may be negated by prefixing them with a `!`.  For example: setting extensions to { "!noop", "newext" } indicates that the caller does not want
+        /// to support repositories with the `noop` extension but does want to support repositories with the `newext` extension.
+        /// </remarks>
+        /// <param name="extensions">Supported extensions</param>
+        public static void SetExtensions(params string[] extensions)
+        {
+            Proxy.git_libgit2_opts_set_extensions(extensions);
+        }
+
+        /// <summary>
+        /// Returns the list of git extensions that are supported.
+        /// </summary>
+        /// <remarks>
+        /// This is the list of built-in extensions supported by libgit2 and custom extensions that have been added with `SetExtensions`. Extensions that have been negated will not be returned.
+        /// </remarks>
+        public static string[] GetExtensions()
+        {
+            return Proxy.git_libgit2_opts_get_extensions();
         }
 
         /// <summary>

@@ -12,7 +12,7 @@ namespace LibGit2Sharp.Core
 
     internal static class Platform
     {
-        public static string ProcessorArchitecture => IntPtr.Size == 8 ? "x64" : "x86";
+        public static string ProcessorArchitecture => RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant();
 
         public static OperatingSystemType OperatingSystem
         {

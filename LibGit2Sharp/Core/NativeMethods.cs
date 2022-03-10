@@ -9,9 +9,6 @@ using LibGit2Sharp.Core.Handles;
 // Restrict the set of directories where the native library is loaded from to safe directories.
 [assembly: DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory | DllImportSearchPath.ApplicationDirectory | DllImportSearchPath.SafeDirectories)]
 
-#pragma warning disable IDE1006 // Naming Styles
-
-// ReSharper disable InconsistentNaming
 namespace LibGit2Sharp.Core
 {
     internal static class NativeMethods
@@ -22,18 +19,13 @@ namespace LibGit2Sharp.Core
         // An object tied to the lifecycle of the NativeMethods static class.
         // This will handle initialization and shutdown of the underlying
         // native library.
-#pragma warning disable 0414
         private static NativeShutdownObject shutdownObject;
-#pragma warning restore 0414
-
-        private static SmartSubtransportRegistration<ManagedHttpSmartSubtransport> httpSubtransportRegistration;
-        private static SmartSubtransportRegistration<ManagedHttpSmartSubtransport> httpsSubtransportRegistration;
 
         static NativeMethods()
         {
             if (Platform.IsRunningOnNetFramework() || Platform.IsRunningOnNetCore())
             {
-                // Use .NET Core 3.0+ NativeLibrary when available.
+                // Use NativeLibrary when available.
                 if (!TryUseNativeLibrary())
                 {
                     // NativeLibrary is not available, fall back.
@@ -43,6 +35,7 @@ namespace LibGit2Sharp.Core
                     // If this call succeeds further DllImports will find the library loaded and not attempt to load it again.
                     // If it fails the next DllImport will load the library from safe directories.
                     string nativeLibraryPath = GetGlobalSettingsNativeLibraryPath();
+
                     if (nativeLibraryPath != null)
                     {
                         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -64,65 +57,21 @@ namespace LibGit2Sharp.Core
         private static string GetGlobalSettingsNativeLibraryPath()
         {
             string nativeLibraryDir = GlobalSettings.GetAndLockNativeLibraryPath();
+
             if (nativeLibraryDir == null)
             {
                 return null;
             }
+
             return Path.Combine(nativeLibraryDir, libgit2 + Platform.GetNativeLibraryExtension());
         }
 
-        private delegate bool TryLoadLibraryByNameDelegate(string libraryName, Assembly assembly, DllImportSearchPath? searchPath, out IntPtr handle);
-        private delegate bool TryLoadLibraryByPathDelegate(string libraryPath, out IntPtr handle);
-
-        static TryLoadLibraryByNameDelegate _tryLoadLibraryByName;
-        static TryLoadLibraryByPathDelegate _tryLoadLibraryByPath;
-
-        static bool TryLoadLibrary(string libraryName, Assembly assembly, DllImportSearchPath? searchPath, out IntPtr handle)
-        {
-            if (_tryLoadLibraryByName == null)
-            {
-                throw new NotSupportedException();
-            }
-            return _tryLoadLibraryByName(libraryName, assembly, searchPath, out handle);
-        }
-
-        static bool TryLoadLibrary(string libraryPath, out IntPtr handle)
-        {
-            if (_tryLoadLibraryByPath == null)
-            {
-                throw new NotSupportedException();
-            }
-            return _tryLoadLibraryByPath(libraryPath, out handle);
-        }
-
+#if NETSTANDARD
+        private static bool TryUseNativeLibrary() => false;
+#else
         private static bool TryUseNativeLibrary()
         {
-            // NativeLibrary is available in .NET Core 3.0+.
-            // We use reflection to use NativeLibrary so this library can target 'netstandard2.0'.
-
-            Type dllImportResolverType = Type.GetType("System.Runtime.InteropServices.DllImportResolver, System.Runtime.InteropServices", throwOnError: false);
-            Type nativeLibraryType = Type.GetType("System.Runtime.InteropServices.NativeLibrary, System.Runtime.InteropServices", throwOnError: false);
-            var tryLoadLibraryByName = (TryLoadLibraryByNameDelegate)nativeLibraryType?.GetMethod("TryLoad",
-                    new Type[] { typeof(string), typeof(Assembly), typeof(DllImportSearchPath?), typeof(IntPtr).MakeByRefType() })?.CreateDelegate(typeof(TryLoadLibraryByNameDelegate));
-            var tryLoadLibraryByPath = (TryLoadLibraryByPathDelegate)nativeLibraryType?.GetMethod("TryLoad",
-                    new Type[] { typeof(string), typeof(IntPtr).MakeByRefType() })?.CreateDelegate(typeof(TryLoadLibraryByPathDelegate));
-            MethodInfo setDllImportResolver = nativeLibraryType?.GetMethod("SetDllImportResolver", new Type[] { typeof(Assembly), dllImportResolverType});
-
-            if (dllImportResolverType == null ||
-                nativeLibraryType == null ||
-                tryLoadLibraryByName == null ||
-                tryLoadLibraryByPath == null ||
-                setDllImportResolver == null)
-            {
-                return false;
-            }
-
-            _tryLoadLibraryByPath = tryLoadLibraryByPath;
-            _tryLoadLibraryByName = tryLoadLibraryByName;
-
-            // NativeMethods.SetDllImportResolver(typeof(NativeMethods).Assembly, ResolveDll);
-            object resolveDelegate = typeof(NativeMethods).GetMethod(nameof(ResolveDll), BindingFlags.NonPublic | BindingFlags.Static).CreateDelegate(dllImportResolverType);
-            setDllImportResolver.Invoke(null, new object[] { typeof(NativeMethods).Assembly, resolveDelegate });
+            NativeLibrary.SetDllImportResolver(typeof(NativeMethods).Assembly, ResolveDll);
 
             return true;
         }
@@ -130,23 +79,24 @@ namespace LibGit2Sharp.Core
         private static IntPtr ResolveDll(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
         {
             IntPtr handle = IntPtr.Zero;
+
             if (libraryName == libgit2)
             {
                 // Use GlobalSettings.NativeLibraryPath when set.
                 string nativeLibraryPath = GetGlobalSettingsNativeLibraryPath();
-                if (nativeLibraryPath != null &&
-                    TryLoadLibrary(nativeLibraryPath, out handle))
+
+                if (nativeLibraryPath != null && NativeLibrary.TryLoad(nativeLibraryPath, out handle))
                 {
                     return handle;
                 }
 
                 // Use Default DllImport resolution.
-                if (TryLoadLibrary(libraryName, assembly, searchPath, out handle))
+                if (NativeLibrary.TryLoad(libraryName, assembly, searchPath, out handle))
                 {
                     return handle;
                 }
 
-                // We cary a number of .so files for Linux which are linked against various
+                // We carry a number of .so files for Linux which are linked against various
                 // libc/OpenSSL libraries. Try them out.
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
@@ -161,7 +111,8 @@ namespace LibGit2Sharp.Core
                         foreach (var runtimeFolder in Directory.GetDirectories(runtimesDirectory, $"*-{processorArchitecture}"))
                         {
                             string libPath = Path.Combine(runtimeFolder, "native", $"lib{libraryName}.so");
-                            if (TryLoadLibrary(libPath, out handle))
+
+                            if (NativeLibrary.TryLoad(libPath, out handle))
                             {
                                 return handle;
                             }
@@ -169,8 +120,10 @@ namespace LibGit2Sharp.Core
                     }
                 }
             }
+
             return handle;
         }
+#endif
 
         public const int RTLD_NOW = 0x002;
 
@@ -196,11 +149,10 @@ namespace LibGit2Sharp.Core
                 shutdownObject = new NativeShutdownObject();
             }
 
-            // Configure the .NET HTTP(S) mechanism on the first initialization of the library in the current process.
+            // Configure the OpenSSL locking on the first initialization of the library in the current process.
             if (initCounter == 1)
             {
-                httpSubtransportRegistration = GlobalSettings.RegisterDefaultSmartSubtransport<ManagedHttpSmartSubtransport>("http");
-                httpsSubtransportRegistration = GlobalSettings.RegisterDefaultSmartSubtransport<ManagedHttpSmartSubtransport>("https");
+                git_openssl_set_locking();
             }
         }
 
@@ -209,16 +161,6 @@ namespace LibGit2Sharp.Core
         {
             ~NativeShutdownObject()
             {
-                if (httpSubtransportRegistration != null)
-                {
-                    GlobalSettings.UnregisterDefaultSmartSubtransport(httpSubtransportRegistration);
-                }
-
-                if (httpsSubtransportRegistration != null)
-                {
-                    GlobalSettings.UnregisterDefaultSmartSubtransport(httpsSubtransportRegistration);
-                }
-
                 git_libgit2_shutdown();
             }
         }
@@ -227,7 +169,7 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe GitError* git_error_last();
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void git_error_set_str(
+        internal static extern int git_error_set_str(
             GitErrorCategory error_class,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string errorString);
 
@@ -252,25 +194,25 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe void git_blame_free(git_blame* blame);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe int git_blob_create_fromdisk(
+        internal static extern unsafe int git_blob_create_from_disk(
             ref GitOid id,
             git_repository* repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe int git_blob_create_fromworkdir(
+        internal static extern unsafe int git_blob_create_from_workdir(
             ref GitOid id,
             git_repository* repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath relative_path);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe int git_blob_create_fromstream(
+        internal static extern unsafe int git_blob_create_from_stream(
             out IntPtr stream,
             git_repository* repositoryPtr,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string hintpath);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int git_blob_create_fromstream_commit(
+        internal static extern int git_blob_create_from_stream_commit(
             ref GitOid oid,
             IntPtr stream);
 
@@ -452,7 +394,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string message,
             ref GitOid tree,
             UIntPtr parentCount,
-            [MarshalAs(UnmanagedType.LPArray)] [In] IntPtr[] parents);
+            [MarshalAs(UnmanagedType.LPArray)][In] IntPtr[] parents);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_commit_create_buffer(
@@ -812,6 +754,14 @@ namespace LibGit2Sharp.Core
         // git_libgit2_opts(GIT_OPT_GET_USER_AGENT, git_buf *buf)
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int git_libgit2_opts(int option, GitBuf buf);
+
+        // git_libgit2_opts(GIT_OPT_SET_EXTENSIONS, const char **extensions, size_t len)
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int git_libgit2_opts(int option, IntPtr extensions, UIntPtr len);
+
+        // git_libgit2_opts(GIT_OPT_GET_EXTENSIONS, git_strarray *out)
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int git_libgit2_opts(int option, out GitStrArray extensions);
         #endregion
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
@@ -1616,7 +1566,7 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe FilePath git_repository_path(git_repository* repository);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_repository_set_config(
+        internal static extern unsafe int git_repository_set_config(
             git_repository* repository,
             git_config* config);
 
@@ -1628,7 +1578,7 @@ namespace LibGit2Sharp.Core
 
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_repository_set_index(
+        internal static extern unsafe int git_repository_set_index(
             git_repository* repository,
             git_index* index);
 
@@ -1710,13 +1660,13 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe int git_revwalk_push(git_revwalk* walker, ref GitOid id);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_revwalk_reset(git_revwalk* walker);
+        internal static extern unsafe int git_revwalk_reset(git_revwalk* walker);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_revwalk_sorting(git_revwalk* walk, CommitSortStrategies sort);
+        internal static extern unsafe int git_revwalk_sorting(git_revwalk* walk, CommitSortStrategies sort);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_revwalk_simplify_first_parent(git_revwalk* walk);
+        internal static extern unsafe int git_revwalk_simplify_first_parent(git_revwalk* walk);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe void git_signature_free(git_signature* signature);
@@ -2111,7 +2061,7 @@ namespace LibGit2Sharp.Core
             git_worktree* worktree);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe int git_worktree_add (
+        internal static extern unsafe int git_worktree_add(
             out git_worktree* reference,
             git_repository* repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name,
@@ -2124,4 +2074,3 @@ namespace LibGit2Sharp.Core
             git_worktree_prune_options options);
     }
 }
-// ReSharper restore InconsistentNaming

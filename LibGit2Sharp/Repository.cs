@@ -1500,13 +1500,13 @@ namespace LibGit2Sharp
                     break;
                 default:
                     throw new NotImplementedException(
-                        string.Format(CultureInfo.InvariantCulture, "Unknown fast forward strategy: {0}", mergeAnalysis));
+                        string.Format(CultureInfo.InvariantCulture, "Unknown fast forward strategy: {0}", fastForwardStrategy));
             }
 
             if (mergeResult == null)
             {
                 throw new NotImplementedException(
-                    string.Format(CultureInfo.InvariantCulture, "Unknown merge analysis: {0}", options.FastForwardStrategy));
+                    string.Format(CultureInfo.InvariantCulture, "Unknown merge analysis: {0}", mergeAnalysis));
             }
 
             return mergeResult;
