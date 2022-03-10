@@ -3,7 +3,7 @@
   <Import Project="$(SolutionDir)\Common.props" Condition="Exists('$(SolutionDir)\Common.props')" />
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;netcoreapp3.1;net472;net50;net60</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Description>LibGit2Sharp brings all the might and speed of libgit2, a native Git implementation, to the managed world of .NET</Description>
     <Company>LibGit2Sharp contributors</Company>
@@ -35,7 +35,7 @@
   <ItemGroup>
     <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="[2.0.315-alpha.0.9]" PrivateAssets="none" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="all" />
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.220" PrivateAssets="all" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.255" PrivateAssets="all" />
   </ItemGroup>
 
   <Import Project="..\Targets\CodeGenerator.targets" />
