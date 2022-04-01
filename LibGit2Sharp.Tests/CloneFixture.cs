@@ -13,8 +13,6 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData("http://github.com/libgit2/TestGitRepository")]
         [InlineData("https://github.com/libgit2/TestGitRepository")]
-        [InlineData("git://github.com/libgit2/TestGitRepository")]
-        //[InlineData("git@github.com:libgit2/TestGitRepository")]
         public void CanClone(string url)
         {
             var scd = BuildSelfCleaningDirectory();
@@ -102,8 +100,6 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData("http://github.com/libgit2/TestGitRepository")]
         [InlineData("https://github.com/libgit2/TestGitRepository")]
-        [InlineData("git://github.com/libgit2/TestGitRepository")]
-        //[InlineData("git@github.com:libgit2/TestGitRepository")]
         public void CanCloneBarely(string url)
         {
             var scd = BuildSelfCleaningDirectory();
@@ -126,7 +122,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("git://github.com/libgit2/TestGitRepository")]
+        [InlineData("https://github.com/libgit2/TestGitRepository")]
         public void WontCheckoutIfAskedNotTo(string url)
         {
             var scd = BuildSelfCleaningDirectory();
@@ -143,7 +139,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("git://github.com/libgit2/TestGitRepository")]
+        [InlineData("https://github.com/libgit2/TestGitRepository")]
         public void CallsProgressCallbacks(string url)
         {
             bool transferWasCalled = false;
@@ -301,7 +297,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("git://github.com/libgit2/TestGitRepository")]
+        [InlineData("https://github.com/libgit2/TestGitRepository")]
         public void CloningWithoutWorkdirPathThrows(string url)
         {
             Assert.Throws<ArgumentNullException>(() => Repository.Clone(url, null));
