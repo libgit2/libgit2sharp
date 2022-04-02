@@ -1,12 +1,10 @@
-﻿using LibGit2Sharp.Core;
-using LibGit2Sharp.Core.Handles;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Text;
+using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -48,7 +46,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="committishOrBranchSpec"></param>
         /// <param name="name"></param>
@@ -57,7 +55,7 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public virtual Worktree Add(string committishOrBranchSpec, string name, string path, bool isLocked)
         {
-            if(string.Equals(committishOrBranchSpec, name))
+            if (string.Equals(committishOrBranchSpec, name))
             {
                 // Proxy.git_worktree_add() creates a new branch of name = name, so if we want to checkout a given branch then the 'name' cannot be the same as the target branch
                 return null;
@@ -66,7 +64,8 @@ namespace LibGit2Sharp
             git_worktree_add_options options = new git_worktree_add_options
             {
                 version = 1,
-                locked = Convert.ToInt32(isLocked)
+                locked = Convert.ToInt32(isLocked),
+                checkout_options = new GitCheckoutOpts { version = 1 }
             };
 
             using (var handle = Proxy.git_worktree_add(repo.Handle, name, path, options))
@@ -83,13 +82,13 @@ namespace LibGit2Sharp
                 }
             }
 
-            
 
-            return this[name]; 
+
+            return this[name];
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="name"></param>
         /// <param name="path"></param>
@@ -99,7 +98,8 @@ namespace LibGit2Sharp
             git_worktree_add_options options = new git_worktree_add_options
             {
                 version = 1,
-                locked = Convert.ToInt32(isLocked)
+                locked = Convert.ToInt32(isLocked),
+                checkout_options = new GitCheckoutOpts { version = 1 }
             };
 
             using (var handle = Proxy.git_worktree_add(repo.Handle, name, path, options))
@@ -112,7 +112,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="worktree"></param>
         /// <returns></returns>
@@ -122,7 +122,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="worktree"></param>
         /// <param name="ifLocked"></param>
