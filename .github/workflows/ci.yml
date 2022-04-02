@@ -37,7 +37,7 @@ jobs:
       matrix:
         arch: [ amd64 ]
         os: [windows-2019, macos-10.15]
-        tfm: [ net472, netcoreapp3.1, net5.0, net6.0 ]
+        tfm: [ net472, netcoreapp3.1, net6.0 ]
         exclude:
           - os: macos-10.15
             tfm: net472
@@ -51,11 +51,6 @@ jobs:
         uses: actions/setup-dotnet@v1.8.1
         with:
           dotnet-version: 6.0.x
-      - name: Install .NET 5 runtime
-        if: matrix.tfm == 'net5.0'
-        uses: actions/setup-dotnet@v1.8.1
-        with:
-          dotnet-version: 5.0.x
       - name: Install .NET Core 3.1 runtime
         if: matrix.tfm == 'netcoreapp3.1'
         uses: actions/setup-dotnet@v1.8.1
@@ -71,7 +66,7 @@ jobs:
         arch: [ amd64 ]
         # arch: [ amd64, arm64 ]
         distro: [ alpine.3.12, alpine.3.13, alpine.3.14, centos.7, centos.8, debian.9, debian.10, debian.11, fedora.33, ubuntu.18.04, ubuntu.20.04 ]
-        sdk:  [ '6.0', '5.0', '3.1' ]
+        sdk:  [ '6.0', '3.1' ]
         exclude:
           - arch: arm64
             distro: alpine.3.12
@@ -86,8 +81,6 @@ jobs:
         include:
           - sdk: '6.0'
             tfm: net6.0
-          - sdk: '5.0'
-            tfm: net5.0
           - sdk: '3.1'
             tfm: netcoreapp3.1
       fail-fast: false
