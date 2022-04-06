@@ -66,9 +66,7 @@ namespace LibGit2Sharp.Core
             return Path.Combine(nativeLibraryDir, libgit2 + Platform.GetNativeLibraryExtension());
         }
 
-#if NETSTANDARD
-        private static bool TryUseNativeLibrary() => false;
-#else
+#if NET
         private static bool TryUseNativeLibrary()
         {
             NativeLibrary.SetDllImportResolver(typeof(NativeMethods).Assembly, ResolveDll);
@@ -123,6 +121,9 @@ namespace LibGit2Sharp.Core
 
             return handle;
         }
+
+#else
+        private static bool TryUseNativeLibrary() => false;
 #endif
 
         public const int RTLD_NOW = 0x002;
@@ -725,7 +726,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int git_libgit2_features();
 
-        #region git_libgit2_opts
+#region git_libgit2_opts
 
         // Bindings for git_libgit2_opts(int option, ...):
         // Currently only GIT_OPT_GET_SEARCH_PATH and GIT_OPT_SET_SEARCH_PATH are supported,
@@ -762,9 +763,9 @@ namespace LibGit2Sharp.Core
         // git_libgit2_opts(GIT_OPT_GET_EXTENSIONS, git_strarray *out)
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int git_libgit2_opts(int option, out GitStrArray extensions);
-        #endregion
+#endregion
 
-        #region git_libgit2_opts_osxarm64
+#region git_libgit2_opts_osxarm64
 
         // For RID osx-arm64 the calling convention is different: we need to pad out to 8 arguments before varargs
         // (see discussion at https://github.com/dotnet/runtime/issues/48796)
@@ -798,7 +799,7 @@ namespace LibGit2Sharp.Core
         // git_libgit2_opts(GIT_OPT_GET_EXTENSIONS, git_strarray *out)
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl, EntryPoint = "git_libgit2_opts")]
         internal static extern int git_libgit2_opts_osxarm64(int option, IntPtr nop2, IntPtr nop3, IntPtr nop4, IntPtr nop5, IntPtr nop6, IntPtr nop7, IntPtr nop8, out GitStrArray extensions);
-        #endregion
+#endregion
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_graph_ahead_behind(out UIntPtr ahead, out UIntPtr behind, git_repository* repo, ref GitOid one, ref GitOid two);
