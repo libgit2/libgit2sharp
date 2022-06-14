@@ -35,7 +35,7 @@
   <ItemGroup>
     <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="2.0.315" PrivateAssets="none" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.5.104" PrivateAssets="all" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.5.107" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
