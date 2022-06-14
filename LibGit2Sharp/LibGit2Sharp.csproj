@@ -38,6 +38,10 @@
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.5.104" PrivateAssets="all" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" />
+  </ItemGroup>
+
   <Import Project="..\Targets\CodeGenerator.targets" />
   <Import Project="..\Targets\GenerateNativeDllName.targets" />
 
