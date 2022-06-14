@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
-using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -15,7 +14,6 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData("http://github.com/libgit2/TestGitRepository")]
         [InlineData("https://github.com/libgit2/TestGitRepository")]
-        [InlineData("git://github.com/libgit2/TestGitRepository.git")]
         public void CanFetchIntoAnEmptyRepository(string url)
         {
             string path = InitNewRepository();
@@ -74,7 +72,6 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData("http://github.com/libgit2/TestGitRepository")]
         [InlineData("https://github.com/libgit2/TestGitRepository")]
-        [InlineData("git://github.com/libgit2/TestGitRepository.git")]
         public void CanFetchAllTagsIntoAnEmptyRepository(string url)
         {
             string path = InitNewRepository();
@@ -101,7 +98,8 @@ namespace LibGit2Sharp.Tests
                 }
 
                 // Perform the actual fetch
-                Commands.Fetch(repo, remoteName, new string[0], new FetchOptions {
+                Commands.Fetch(repo, remoteName, new string[0], new FetchOptions
+                {
                     TagFetchMode = TagFetchMode.All,
                     OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler
                 }, null);
@@ -117,7 +115,6 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData("http://github.com/libgit2/TestGitRepository", "test-branch", "master")]
         [InlineData("https://github.com/libgit2/TestGitRepository", "master", "master")]
-        [InlineData("git://github.com/libgit2/TestGitRepository.git", "master", "first-merge")]
         public void CanFetchCustomRefSpecsIntoAnEmptyRepository(string url, string localBranchName, string remoteBranchName)
         {
             string path = InitNewRepository();
@@ -147,7 +144,8 @@ namespace LibGit2Sharp.Tests
                 }
 
                 // Perform the actual fetch
-                Commands.Fetch(repo, remoteName, new string[] { refSpec }, new FetchOptions {
+                Commands.Fetch(repo, remoteName, new string[] { refSpec }, new FetchOptions
+                {
                     TagFetchMode = TagFetchMode.None,
                     OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler
                 }, null);
