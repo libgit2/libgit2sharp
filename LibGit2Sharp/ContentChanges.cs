@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -11,9 +12,10 @@ namespace LibGit2Sharp
     /// Holds the changes between two <see cref="Blob"/>s.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class ContentChanges
+    public class ContentChanges : IEnumerable<ContentChangeLine>
     {
         private readonly StringBuilder patchBuilder = new StringBuilder();
+        private readonly List<ContentChangeLine> lines = new List<ContentChangeLine>();
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -106,17 +108,6 @@ namespace LibGit2Sharp
             switch (line.lineOrigin)
             {
                 case GitDiffLineOrigin.GIT_DIFF_LINE_ADDITION:
-                    AddedLines.Add(new Line(line.NewLineNo, decodedContent));
-                    LinesAdded++;
-                    prefix = Encoding.ASCII.GetString(new[] { (byte)line.lineOrigin });
-                    break;
-
-                case GitDiffLineOrigin.GIT_DIFF_LINE_DELETION:
-                    DeletedLines.Add(new Line(line.OldLineNo, decodedContent));
-                    LinesDeleted++;
-                    prefix = Encoding.ASCII.GetString(new[] { (byte)line.lineOrigin });
-                    break;
-
                 case GitDiffLineOrigin.GIT_DIFF_LINE_CONTEXT:
                     prefix = Encoding.ASCII.GetString(new[] { (byte)line.lineOrigin });
                     break;
@@ -126,9 +117,38 @@ namespace LibGit2Sharp
                     break;
             }
 
+            AppendGitDiffLine(line, decodedContent);
             AppendToPatch(prefix);
             AppendToPatch(decodedContent);
             return 0;
+        }
+
+        internal void AppendGitDiffLine(GitDiffLine line, string patch)
+        {
+            switch (line.lineOrigin)
+            {
+                case GitDiffLineOrigin.GIT_DIFF_LINE_ADDITION:
+                    AddedLines.Add(new Line(line.NewLineNo, patch));
+                    LinesAdded++;
+                    lines.Add(new ContentChangeLine(line));
+                    break;
+
+                case GitDiffLineOrigin.GIT_DIFF_LINE_DELETION:
+                    DeletedLines.Add(new Line(line.OldLineNo, patch));
+                    LinesDeleted++;
+                    lines.Add(new ContentChangeLine(line));
+                    break;
+            }
+        }
+
+        public IEnumerator<ContentChangeLine> GetEnumerator()
+        {
+            return lines.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return lines.GetEnumerator();
         }
 
         private string DebuggerDisplay

@@ -76,18 +76,16 @@ namespace LibGit2Sharp
 
                 case GitDiffLineOrigin.GIT_DIFF_LINE_ADDITION:
                     linesAdded++;
-                    currentChange.LinesAdded++;
-                    currentChange.AddedLines.Add(new Line(line.NewLineNo, patchPart));
                     prefix = "+";
                     break;
 
                 case GitDiffLineOrigin.GIT_DIFF_LINE_DELETION:
                     linesDeleted++;
-                    currentChange.LinesDeleted++;
-                    currentChange.DeletedLines.Add(new Line(line.OldLineNo, patchPart));
                     prefix = "-";
                     break;
             }
+
+            currentChange.AppendGitDiffLine(line, patchPart);
 
             string formattedOutput = string.Concat(prefix, patchPart);
 
