@@ -13,6 +13,8 @@ namespace LibGit2Sharp.Core
 
         public GitStrArrayManaged PathSpec;
 
+        public IntPtr Baseline = IntPtr.Zero;
+
         public void Dispose()
         {
             PathSpec.Dispose();

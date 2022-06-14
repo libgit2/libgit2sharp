@@ -18,6 +18,8 @@ namespace LibGit2Sharp.Core
 
         public GitCheckoutOpts checkout_options = new GitCheckoutOpts { version = 1 };
 
+        private IntPtr padding; // TODO: add git_commit_create_cb
+
         public NativeMethods.commit_signing_callback signing_callback;
     }
 }

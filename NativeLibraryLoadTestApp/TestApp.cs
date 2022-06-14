@@ -11,7 +11,7 @@ namespace LibGit2Sharp.Tests
         private static extern IntPtr GetModuleHandle(string path);
 
         [DllImport("kernel32")]
-        private static extern int GetModuleFileName(IntPtr handle, [Out]StringBuilder path, int size);
+        private static extern int GetModuleFileName(IntPtr handle, [Out] StringBuilder path, int size);
 
         static int Main(string[] args)
         {
@@ -23,7 +23,7 @@ namespace LibGit2Sharp.Tests
 
             var moduleName = args[0];
             var loadFromDirectory = args[1];
-            var expectedPath = Path.Combine(loadFromDirectory, (IntPtr.Size == 4) ? "x86" : "x64", moduleName + ".dll");
+            var expectedPath = Path.Combine(loadFromDirectory, moduleName + ".dll");
 
             GlobalSettings.NativeLibraryPath = loadFromDirectory;
             var isValid = Repository.IsValid(Path.GetTempPath());
