@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace LibGit2Sharp.Core
 {
@@ -37,6 +35,8 @@ namespace LibGit2Sharp.Core
         public int locked;
 
         public IntPtr @ref = IntPtr.Zero;
+
+        public GitCheckoutOpts checkout_options;
     }
 
     [StructLayout(LayoutKind.Sequential)]

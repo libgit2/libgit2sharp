@@ -15,6 +15,8 @@ namespace LibGit2Sharp.Core
 
         public IntPtr Baseline = IntPtr.Zero;
 
+        public ushort RenameThreshold = 50;
+
         public void Dispose()
         {
             PathSpec.Dispose();

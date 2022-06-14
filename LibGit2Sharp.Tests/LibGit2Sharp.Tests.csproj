@@ -3,7 +3,7 @@
   <Import Project="$(SolutionDir)\Common.props" Condition="Exists('$(SolutionDir)\Common.props')" />
 
   <PropertyGroup>
-    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net472;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net472;netcoreapp3.1;net6.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
