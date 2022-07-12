@@ -6,6 +6,10 @@
     "build": {
       "type": "object",
       "properties": {
+        "AutoDetectBranch": {
+          "type": "boolean",
+          "description": "Whether to auto-detect the branch name - this is okay for a local build, but should not be used under CI"
+        },
         "Configuration": {
           "type": "string",
           "description": "Configuration to build - Default is 'Debug' (local) or 'Release' (server)",
@@ -46,6 +50,10 @@
           "type": "boolean",
           "description": "Disables displaying the NUKE logo"
         },
+        "OCTOVERSION_CurrentBranch": {
+          "type": "string",
+          "description": "Branch name for OctoVersion to use to calculate the version number. Can be set via the environment variable OCTOVERSION_CurrentBranch"
+        },
         "Partition": {
           "type": "string",
           "description": "Partition to use on CI"
@@ -75,7 +83,8 @@
               "Compile",
               "Pack",
               "Restore",
-              "Test"
+              "TestNet6",
+              "TestNetCoreApp31"
             ]
           }
         },
@@ -93,7 +102,8 @@
               "Compile",
               "Pack",
               "Restore",
-              "Test"
+              "TestNet6",
+              "TestNetCoreApp31"
             ]
           }
         },

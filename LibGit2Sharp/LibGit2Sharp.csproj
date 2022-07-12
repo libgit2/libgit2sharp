@@ -44,4 +44,10 @@
     </PropertyGroup>
   </Target>
 
+  <Target Name="OverrideVersion" AfterTargets="GetBuildVersion" Condition="'$(OverridePackageVersion)'!=''">
+    <PropertyGroup>
+      <PackageVersion>$(OverridePackageVersion)</PackageVersion>
+    </PropertyGroup>
+  </Target>
+
 </Project>

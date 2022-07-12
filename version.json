@@ -1,13 +1,14 @@
 {
   "$schema": "https://raw.githubusercontent.com/AArnott/Nerdbank.GitVersioning/master/src/NerdBank.GitVersioning/version.schema.json",
-  "version": "0.27.0-preview.{height}",
+  "version": "0.27.0-octopus.{height}",
   "publicReleaseRefSpec": [
     "^refs/heads/master$",                  // we release out of master
     "^refs/heads/maint/v\\d+(?:\\.\\d+)?$"  // and maint/vNN branches
   ],
   "cloudBuild": {
+    "setVersionVariables": false,
     "buildNumber": {
-      "enabled": true
+      "enabled": false
     }
   }
 }
