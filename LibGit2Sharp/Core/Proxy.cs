@@ -35,6 +35,27 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_blame_get_hunk_byindex(blame, idx);
         }
 
+        public static unsafe BlameHandle git_blame_buffer(
+            RepositoryHandle repo,
+            BlameHandle reference,
+            byte[] buffer)
+        {
+            git_blame* ptr;
+            int res;
+
+            unsafe
+            {
+                fixed (byte* p = buffer)
+                {
+                    res = NativeMethods.git_blame_buffer(out ptr, reference, (IntPtr)p, (UIntPtr)buffer.Length);
+                }
+            }
+
+            Ensure.ZeroResult(res);
+
+            return new BlameHandle(ptr, true);
+        }
+
         #endregion
 
         #region git_blob_

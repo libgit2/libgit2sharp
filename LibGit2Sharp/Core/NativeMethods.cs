@@ -191,6 +191,13 @@ namespace LibGit2Sharp.Core
             git_blame_options options);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern unsafe int git_blame_buffer(
+            out git_blame* blame,
+            git_blame* reference,
+            IntPtr buffer,
+            UIntPtr len);
+
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe void git_blame_free(git_blame* blame);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]

@@ -11,10 +11,12 @@ namespace LibGit2Sharp
     /// <summary>
     /// The result of a blame operation.
     /// </summary>
-    public class BlameHunkCollection : IEnumerable<BlameHunk>
+    public class BlameHunkCollection : IEnumerable<BlameHunk>, IDisposable
     {
         private readonly IRepository repo;
         private readonly List<BlameHunk> hunks = new List<BlameHunk>();
+        private readonly RepositoryHandle repoHandle;
+        private readonly BlameHandle blameHandle;
 
         /// <summary>
         /// For easy mocking
@@ -49,15 +51,23 @@ namespace LibGit2Sharp
                 }
             }
 
-            using (var blameHandle = Proxy.git_blame_file(repoHandle, path, rawopts))
-            {
-                var numHunks = NativeMethods.git_blame_get_hunk_count(blameHandle);
-                for (uint i = 0; i < numHunks; ++i)
-                {
-                    var rawHunk = Proxy.git_blame_get_hunk_byindex(blameHandle, i);
-                    hunks.Add(new BlameHunk(this.repo, rawHunk));
-                }
-            }
+            blameHandle = Proxy.git_blame_file(repoHandle, path, rawopts);
+
+            this.PopulateHunks();
+        }
+
+        private unsafe BlameHunkCollection(IRepository repo, RepositoryHandle repoHandle, BlameHandle reference, byte[] buffer)
+        {
+            this.repo = repo;
+            this.repoHandle = repoHandle;
+            this.blameHandle = Proxy.git_blame_buffer(repoHandle, reference, buffer);
+
+            this.PopulateHunks();
+        }
+
+        public BlameHunkCollection FromBuffer(byte[] buffer)
+        {
+            return new BlameHunkCollection(repo, repoHandle, this.blameHandle, buffer);
         }
 
         /// <summary>
@@ -99,6 +109,21 @@ namespace LibGit2Sharp
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        private unsafe void PopulateHunks()
+        {
+            var numHunks = NativeMethods.git_blame_get_hunk_count(blameHandle);
+            for (uint i = 0; i < numHunks; ++i)
+            {
+                var rawHunk = Proxy.git_blame_get_hunk_byindex(blameHandle, i);
+                hunks.Add(new BlameHunk(this.repo, rawHunk));
+            }
+        }
+
+        public void Dispose()
+        {
+            this.blameHandle.Dispose();
         }
     }
 }
