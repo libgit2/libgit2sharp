@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -469,6 +470,38 @@ namespace LibGit2Sharp
         public static string Describe(this IRepository repository, Commit commit)
         {
             return repository.Describe(commit, new DescribeOptions());
+        }
+
+        /// <summary>
+        /// Applies a patch to a repository.
+        /// </summary>
+        /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
+        /// <param name="patchContent">The diff to be applied.</param>
+        /// <param name="applyOptions">The options to use.</param>
+        public static void ApplyPatch(this Repository repository, string patchContent, PatchApplyOptions applyOptions = null)
+        {
+            if (applyOptions == null)
+            {
+                applyOptions = new PatchApplyOptions();
+            }
+
+            using (var diff = Proxy.git_diff_from_buffer(patchContent, (UIntPtr) patchContent.Length))
+            {
+                Proxy.git_apply(repository.Handle, diff, applyOptions.Location, null);
+            }
+        }
+
+        /// <summary>
+        /// Applies a patch file to a repository.
+        /// </summary>
+        /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
+        /// <param name="patchFilePath">The path to the patch file</param>
+        /// <param name="options">The options to use.</param>
+        public static void ApplyPatchFile(this Repository repository, string patchFilePath, PatchApplyOptions options = null)
+        {
+            string content = File.ReadAllText(patchFilePath);
+
+            ApplyPatch(repository, content, options);
         }
     }
 }
