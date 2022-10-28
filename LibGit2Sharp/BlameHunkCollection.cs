@@ -16,7 +16,8 @@ namespace LibGit2Sharp
         private readonly IRepository repo;
         private readonly List<BlameHunk> hunks = new List<BlameHunk>();
         private readonly RepositoryHandle repoHandle;
-        private readonly BlameHandle blameHandle;
+        private readonly BlameHandle referenceHandle;
+        private readonly bool shouldDisposeHandle;
 
         /// <summary>
         /// For easy mocking
@@ -51,23 +52,27 @@ namespace LibGit2Sharp
                 }
             }
 
-            blameHandle = Proxy.git_blame_file(repoHandle, path, rawopts);
-
-            this.PopulateHunks();
+            referenceHandle = Proxy.git_blame_file(repoHandle, path, rawopts);
+            shouldDisposeHandle = true;
+            this.PopulateHunks(this.referenceHandle);
         }
 
         private unsafe BlameHunkCollection(IRepository repo, RepositoryHandle repoHandle, BlameHandle reference, byte[] buffer)
         {
             this.repo = repo;
             this.repoHandle = repoHandle;
-            this.blameHandle = Proxy.git_blame_buffer(repoHandle, reference, buffer);
+            this.referenceHandle = reference;
+            this.shouldDisposeHandle = false;
 
-            this.PopulateHunks();
+            using (var blameHandle = Proxy.git_blame_buffer(repoHandle, reference, buffer))
+            {
+                this.PopulateHunks(blameHandle);
+            }
         }
 
         public BlameHunkCollection FromBuffer(byte[] buffer)
         {
-            return new BlameHunkCollection(repo, repoHandle, this.blameHandle, buffer);
+            return new BlameHunkCollection(repo, repoHandle, this.referenceHandle, buffer);
         }
 
         /// <summary>
@@ -111,7 +116,7 @@ namespace LibGit2Sharp
             return GetEnumerator();
         }
 
-        private unsafe void PopulateHunks()
+        private unsafe void PopulateHunks(BlameHandle blameHandle)
         {
             var numHunks = NativeMethods.git_blame_get_hunk_count(blameHandle);
             for (uint i = 0; i < numHunks; ++i)
@@ -123,7 +128,10 @@ namespace LibGit2Sharp
 
         public void Dispose()
         {
-            this.blameHandle.Dispose();
+            if (shouldDisposeHandle)
+            {
+                this.referenceHandle.Dispose();
+            }
         }
     }
 }
