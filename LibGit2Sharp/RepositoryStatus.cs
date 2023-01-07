@@ -27,6 +27,7 @@ namespace LibGit2Sharp
         private readonly List<StatusEntry> renamedInIndex = new List<StatusEntry>();
         private readonly List<StatusEntry> renamedInWorkDir = new List<StatusEntry>();
         private readonly List<StatusEntry> unaltered = new List<StatusEntry>();
+        private readonly List<StatusEntry> dirty = new List<StatusEntry>();
         private readonly bool isDirty;
 
         private readonly IDictionary<FileStatus, Action<RepositoryStatus, StatusEntry>> dispatcher = Build();
@@ -68,7 +69,8 @@ namespace LibGit2Sharp
                     AddStatusEntryForDelta(entry->status, entry->head_to_index, entry->index_to_workdir);
                 }
 
-                isDirty = statusEntries.Any(entry => entry.IsDirty);
+                dirty = statusEntries.Where(entry => entry.IsDirty).ToList();
+                isDirty = dirty.Any();
             }
         }
 
@@ -307,6 +309,14 @@ namespace LibGit2Sharp
         public virtual IEnumerable<StatusEntry> Unaltered
         {
             get { return unaltered; }
+        }
+
+        /// <summary>
+        /// List of files that alter the index or the working directory since the last commit.
+        /// </summary>
+        public virtual IEnumerable<StatusEntry> Dirty
+        {
+            get { return dirty; }
         }
 
         /// <summary>
