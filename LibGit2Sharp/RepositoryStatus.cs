@@ -68,7 +68,7 @@ namespace LibGit2Sharp
                     AddStatusEntryForDelta(entry->status, entry->head_to_index, entry->index_to_workdir);
                 }
 
-                isDirty = statusEntries.Any(entry => entry.State != FileStatus.Ignored && entry.State != FileStatus.Unaltered);
+                isDirty = statusEntries.Any(entry => entry.IsDirty);
             }
         }
 
