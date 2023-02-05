@@ -28,6 +28,27 @@ namespace LibGit2Sharp
         public int PackbuilderDegreeOfParallelism { get; set; }
 
         /// <summary>
+        /// Get/Set the custom headers.
+        /// 
+        /// <para> 
+        /// This allows you to set custom headers (e.g. X-Forwarded-For, 
+        /// X-Request-Id, etc),
+        /// </para>
+        /// </summary>
+        /// <remarks>
+        /// Libgit2 sets some headers for HTTP requests (User-Agent, Host, 
+        /// Accept, Content-Type, Transfer-Encoding, Content-Length, Accept) that
+        /// cannot be overriden.
+        /// </remarks>
+        /// <example>
+        /// var fetchOptions - new FetchOptions() {
+        ///     CustomHeaders = new String[] {"X-Request-Id: 12345"}
+        /// };
+        /// </example>
+        /// <value>The custom headers string array</value>
+        public string[] CustomHeaders { get; set; } 
+
+        /// <summary>
         /// Delegate to report errors when updating references on the remote.
         /// </summary>
         public PushStatusErrorHandler OnPushStatusError { get; set; }

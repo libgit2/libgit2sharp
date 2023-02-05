@@ -376,6 +376,7 @@ namespace LibGit2Sharp
                                           PackbuilderDegreeOfParallelism = pushOptions.PackbuilderDegreeOfParallelism,
                                           RemoteCallbacks = gitCallbacks,
                                           ProxyOptions = new GitProxyOptions { Version = 1 },
+                                          CustomHeaders = pushOptions.CustomHeaders?.Length > 0 ? GitStrArrayManaged.BuildFrom(pushOptions.CustomHeaders) : new GitStrArrayManaged()
                                       });
             }
         }
