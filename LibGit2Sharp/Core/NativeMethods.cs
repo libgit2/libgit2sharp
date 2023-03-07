@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using LibGit2Sharp.Core.Handles;
 
 // Restrict the set of directories where the native library is loaded from to safe directories.
-[assembly: DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory | DllImportSearchPath.ApplicationDirectory | DllImportSearchPath.SafeDirectories)]
+[assembly: DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory | DllImportSearchPath.ApplicationDirectory | DllImportSearchPath.UserDirectories | DllImportSearchPath.SafeDirectories)]
 
 namespace LibGit2Sharp.Core
 {
