@@ -45,7 +45,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-#if NETFRAMEWORK || NETCOREAPP3_1 //UTF-7 is disabled in .NET 5+
+#if NETFRAMEWORK //UTF-7 is disabled in .NET 5+
         [Theory]
         [InlineData("ascii", 4, "31 32 33 34")]
         [InlineData("utf-7", 4, "31 32 33 34")]
@@ -239,11 +239,11 @@ namespace LibGit2Sharp.Tests
             // Manually delete the objects directory to simulate a partial clone
             Directory.Delete(Path.Combine(repoPath, "objects", "a8"), true);
 
-            using (var repo = new Repository(repoPath)) 
+            using (var repo = new Repository(repoPath))
             {
                 // Look up for the tree that reference the blob which is now missing
                 var tree = repo.Lookup<Tree>("fd093bff70906175335656e6ce6ae05783708765");
-                var blob = (Blob) tree["README"].Target;
+                var blob = (Blob)tree["README"].Target;
 
                 Assert.Equal("a8233120f6ad708f843d861ce2b7228ec4e3dec6", blob.Sha);
                 Assert.NotNull(blob);
