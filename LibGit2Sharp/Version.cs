@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Reflection;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -22,7 +23,14 @@ namespace LibGit2Sharp
         /// <summary>
         /// Returns version of the LibGit2Sharp library.
         /// </summary>
-        public virtual string InformationalVersion => ThisAssembly.AssemblyInformationalVersion;
+        public virtual string InformationalVersion
+        {
+            get
+            {
+                var attribute = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+                return attribute.InformationalVersion;
+            }
+        }
 
         /// <summary>
         /// Returns all the optional features that were compiled into
@@ -55,7 +63,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <para>
         ///   The format of the version number is as follows:
-        ///   <para>Major.Minor.Patch[-previewTag]+{LibGit2Sharp_abbrev_hash}.libgit2-{libgit2_abbrev_hash} (x86|x64 - features)</para>
+        ///   <para>Major.Minor.Patch[-previewTag]+libgit2-{libgit2_abbrev_hash}.{LibGit2Sharp_hash} (arch - features)</para>
         /// </para>
         /// <returns></returns>
         public override string ToString()

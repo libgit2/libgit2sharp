@@ -85,5 +85,7 @@ jobs:
         run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
       - name: Run ${{ matrix.tfm }} tests
         run: |
+            git_command="git config --global --add safe.directory /app"
             test_command="dotnet test LibGit2Sharp.sln --configuration Release -p:TargetFrameworks=${{ matrix.tfm }} --logger "GitHubActions" -p:ExtraDefine=LEAKS_IDENTIFYING"
-            docker run -t --rm --platform linux/${{ matrix.arch }} -v "$PWD:/app" gittools/build-images:${{ matrix.distro }}-sdk-${{ matrix.sdk }} sh -c "$test_command"
+            docker run -t --rm --platform linux/${{ matrix.arch }} -v "$PWD:/app" gittools/build-images:${{ matrix.distro }}-sdk-${{ matrix.sdk }} sh -c "$git_command && $test_command"
+
