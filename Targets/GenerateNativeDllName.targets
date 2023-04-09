@@ -1,9 +1,5 @@
 ﻿<Project>
 
-  <PropertyGroup>
-    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
-  </PropertyGroup>
-
   <Target Name="DefineNativeDllName">
     <PropertyGroup>
       <NativeDllNamePath>$(IntermediateOutputPath)NativeDllName.g.cs</NativeDllNamePath>
@@ -30,4 +26,5 @@
       <FileWrites Include="$(NativeDllNamePath)" />
     </ItemGroup>
   </Target>
+
 </Project>
