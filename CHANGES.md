@@ -1,14 +1,27 @@
 # LibGit2Sharp Changes
 
-**LibGit2Sharp brings all the might and speed of libgit2, a native Git implementation, to the managed world of .Net and Mono.**
+## v0.27 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.26..0.27.0))
 
- - Source code: <https://github.com/libgit2/libgit2sharp>
- - NuGet package: <http://nuget.org/List/Packages/LibGit2Sharp>
- - Issue tracker: <https://github.com/libgit2/libgit2sharp/issues>
- - @libgit2sharp: <http://twitter.com/libgit2sharp>
- - CI servers:
-  - Windows (x86/amd64): <https://ci.appveyor.com/project/libgit2/libgit2sharp>
-  - Linux/Mac OS X: <https://travis-ci.org/libgit2/libgit2sharp>
+### Changes
+- LibGit2Sharp now targets .NET Framework 4.7.2 and .NET 6.
+- This release includes [libgit2 v1.6.3](https://github.com/libgit2/libgit2/releases/tag/v1.6.3).
+- Changes to the native binaries let LibGit2Sharp work on all [.NET 6 supported OS versions and architectures](https://github.com/dotnet/core/blob/main/release-notes/6.0/supported-os.md).
+- `GlobalSetings.NativeLibraryPath` used to automatically append architecture to the path when running on .NET Framework. This behavior has been removed to make it consistent. [#1918](https://github.com/libgit2/libgit2sharp/pull/1918)
+
+### Additions
+- Add support for adding and clearing multi-valued configuration [#1720](https://github.com/libgit2/libgit2sharp/pull/1720)
+- added lines and deleted lines in content changes [#1790](https://github.com/libgit2/libgit2sharp/pull/1790)
+- Set / get supported extensions [#1908](https://github.com/libgit2/libgit2sharp/pull/1908)
+- Simplify dealing with missing git objects [#1909](https://github.com/libgit2/libgit2sharp/pull/1909)
+- Throw NotFoundException if trees are missing when computing diff [#1936](https://github.com/libgit2/libgit2sharp/pull/1936)
+
+### Fixes
+- Adjust GitStatusOptions to match structure of native libgit2 [#1884](https://github.com/libgit2/libgit2sharp/pull/1884)
+- Update git_worktree_add_options struct to include ref pointer [#1890](https://github.com/libgit2/libgit2sharp/pull/1890)
+- Fix git_remote_connect not throwing on non-zero result [#1913](https://github.com/libgit2/libgit2sharp/pull/1913)
+- Fix incorrect information in exceptions [#1919](https://github.com/libgit2/libgit2sharp/pull/1919)
+- Checkout branch looks to remote tracking branches as fallback [#1820](https://github.com/libgit2/libgit2sharp/pull/1820)
+- Fixed calling into native libgit2 on osx-arm64 [#1955](https://github.com/libgit2/libgit2sharp/pull/1955)
 
 ## v0.26 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.25..v0.26))
 
