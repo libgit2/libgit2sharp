@@ -47,4 +47,12 @@
     </PropertyGroup>
   </Target>
 
+  <Target Name="AdjustVersions" AfterTargets="MinVer">
+    <PropertyGroup>
+      <AssemblyVersion>$(MinVerMajor).$(MinVerMinor).0.0</AssemblyVersion>
+      <PackageVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch)</PackageVersion>
+      <PackageVersion Condition="'$(MinVerPreRelease)' != ''">$(PackageVersion)-$(MinVerPreRelease)</PackageVersion>
+    </PropertyGroup>
+  </Target>
+
 </Project>
