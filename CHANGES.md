@@ -1,9 +1,17 @@
 # LibGit2Sharp Changes
 
+## v0.27.2 - ([diff](https://github.com/libgit2/libgit2sharp/compare/0.27.1..0.27.2))
+
+### Changes
+- This release includes [libgit2 v1.6.4](https://github.com/libgit2/libgit2/releases/tag/v1.6.4).
+
+### Fixes
+- Can't access GIT config (Repository.Config) since v0.27.0 [#2031](https://github.com/libgit2/libgit2sharp/issues/2031)
+
 ## v0.27.1 - ([diff](https://github.com/libgit2/libgit2sharp/compare/0.27.0..0.27.1))
 
 ### Fixes
- - AssemblyVersion of v0.27.0 is `0.0.0.0`, which is lower than the AssemblyVersion of the v0.26.x releases. [#2030](https://github.com/libgit2/libgit2sharp/pull/2030)
+- AssemblyVersion of v0.27.0 is `0.0.0.0`, which is lower than the AssemblyVersion of the v0.26.x releases. [#2030](https://github.com/libgit2/libgit2sharp/pull/2030)
 
 ## v0.27 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.26..0.27.0))
 
