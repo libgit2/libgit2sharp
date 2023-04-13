@@ -37,11 +37,12 @@ namespace LibGit2Sharp
                         var delta = Proxy.git_diff_get_delta(diff, i);
                         var pathPtr = delta->new_file.Path != null ? delta->new_file.Path : delta->old_file.Path;
                         var newFilePath = LaxFilePathMarshaler.FromNative(pathPtr);
+                        var oldFilePath = LaxFilePathMarshaler.FromNative(delta->old_file.Path);
 
                         var stats = Proxy.git_patch_line_stats(patch);
                         int added = stats.Item1;
                         int deleted = stats.Item2;
-                        changes.Add(newFilePath, new ContentChangeStats(added, deleted));
+                        changes.Add(newFilePath, new ContentChangeStats(added, deleted, oldFilePath.ToString(), newFilePath.ToString()));
                         totalLinesAdded += added;
                         totalLinesDeleted += deleted;
                     }

@@ -16,15 +16,27 @@ namespace LibGit2Sharp
         public virtual int LinesDeleted { get; private set; }
 
         /// <summary>
+        /// The number of lines deleted in the diff.
+        /// </summary>
+        public virtual string OldFileName { get; private set; }
+
+        /// <summary>
+        /// The number of lines deleted in the diff.
+        /// </summary>
+        public virtual string NewFileName { get; private set; }
+
+        /// <summary>
         /// For mocking.
         /// </summary>
         protected ContentChangeStats()
         { }
 
-        internal ContentChangeStats(int added, int deleted)
+        internal ContentChangeStats(int added, int deleted, string oldFileName, string newFileName)
         {
             LinesAdded = added;
             LinesDeleted = deleted;
+            OldFileName = oldFileName;
+            NewFileName = newFileName;
         }
     }
 }
