@@ -3397,6 +3397,8 @@ namespace LibGit2Sharp.Core
             SetOdbLoosePriority,             // GIT_OPT_SET_ODB_LOOSE_PRIORITY,
             GetExtensions,                   // GIT_OPT_GET_EXTENSIONS,
             SetExtensions,                   // GIT_OPT_SET_EXTENSIONS
+            GetOwnerValidation,              // GIT_OPT_GET_OWNER_VALIDATION
+            SetOwnerValidation               // GIT_OPT_SET_OWNER_VALIDATION
         }
 
         /// <summary>
@@ -3569,6 +3571,41 @@ namespace LibGit2Sharp.Core
                 array.Dispose();
             }
         }
+
+        public static string git_libgit2_opts_get_owner_validation()
+        {
+            string userAgent;
+
+            using (var buf = new GitBuf())
+            {
+                int res;
+                if (isOSXArm64)
+                    res = NativeMethods.git_libgit2_opts_osxarm64((int)LibGit2Option.GetUserAgent, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, buf);
+                else
+                    res = NativeMethods.git_libgit2_opts((int)LibGit2Option.GetOwnerValidation, buf);
+                Ensure.ZeroResult(res);
+
+                userAgent = LaxUtf8Marshaler.FromNative(buf.ptr) ?? string.Empty;
+            }
+
+            return userAgent;
+        }
+
+        /// <summary>
+        /// Enable or disable the ownership validation
+        /// </summary>
+        /// <param name="enabled">true to enable the ownership validation capabilty, false otherwise</param>
+        public static void git_libgit2_opts_set_owner_validation(bool enabled)
+        {
+            // libgit2 expects non-zero value for true
+            int res;
+            if (isOSXArm64)
+                res = NativeMethods.git_libgit2_opts_osxarm64((int)LibGit2Option.SetOwnerValidation, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, enabled ? 1 : 0);
+            else
+                res = NativeMethods.git_libgit2_opts((int)LibGit2Option.SetOwnerValidation, enabled ? 1 : 0);
+            Ensure.ZeroResult(res);
+        }
+
 
         #endregion
 
