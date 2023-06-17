@@ -11,13 +11,18 @@ namespace LibGit2Sharp.Core
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal sealed class GitProxyOptions
+    internal struct GitProxyOptions
     {
         public uint Version;
-        public GitProxyType Type = GitProxyType.Auto;
+        public GitProxyType Type;
         public IntPtr Url;
         public IntPtr CredentialsCb;
         public IntPtr CertificateCheck;
         public IntPtr CbPayload;
+
+        internal static GitProxyOptions CreateGitProxyOptions()
+        {
+            return new GitProxyOptions { Type = GitProxyType.Auto, Version = 1 };
+        }
     }
 }

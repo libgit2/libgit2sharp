@@ -678,7 +678,7 @@ namespace LibGit2Sharp
             using (RemoteHandle remoteHandle = Proxy.git_remote_create_anonymous(repositoryHandle, url))
             {
                 var gitCallbacks = new GitRemoteCallbacks { version = 1 };
-                var proxyOptions = new GitProxyOptions { Version = 1 };
+                var proxyOptions = GitProxyOptions.CreateGitProxyOptions();
 
                 if (credentialsProvider != null)
                 {
@@ -768,7 +768,7 @@ namespace LibGit2Sharp
                 var gitCheckoutOptions = checkoutOptionsWrapper.Options;
 
                 var gitFetchOptions = fetchOptionsWrapper.Options;
-                gitFetchOptions.ProxyOptions = new GitProxyOptions { Version = 1 };
+                gitFetchOptions.ProxyOptions = GitProxyOptions.CreateGitProxyOptions();
                 gitFetchOptions.RemoteCallbacks = new RemoteCallbacks(options).GenerateCallbacks();
                 if (options.FetchOptions != null && options.FetchOptions.CustomHeaders != null)
                 {
@@ -1050,7 +1050,7 @@ namespace LibGit2Sharp
 
                 if (treesame && !amendMergeCommit)
                 {
-                    throw (options.AmendPreviousCommit ? 
+                    throw (options.AmendPreviousCommit ?
                         new EmptyCommitException("Amending this commit would produce a commit that is identical to its parent (id = {0})", parents[0].Id) :
                         new EmptyCommitException("No changes; nothing to commit."));
                 }
@@ -1241,7 +1241,7 @@ namespace LibGit2Sharp
             if (fetchHeads.Length == 0)
             {
                 var expectedRef = this.Head.UpstreamBranchCanonicalName;
-                throw new MergeFetchHeadNotFoundException("The current branch is configured to merge with the reference '{0}' from the remote, but this reference was not fetched.", 
+                throw new MergeFetchHeadNotFoundException("The current branch is configured to merge with the reference '{0}' from the remote, but this reference was not fetched.",
                     expectedRef);
             }
 
