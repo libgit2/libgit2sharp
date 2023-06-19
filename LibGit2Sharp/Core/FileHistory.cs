@@ -134,12 +134,7 @@ namespace LibGit2Sharp.Core
                 {
                     DetermineParentPaths(repo, currentCommit, currentPath, map);
 
-                    if (parentCount != 1)
-                    {
-                        continue;
-                    }
-
-                    var parentCommit = currentCommit.Parents.Single();
+                    var parentCommit = currentCommit.Parents.First();
                     var parentPath = map[parentCommit];
                     var parentTreeEntry = parentCommit.Tree[parentPath];
 
