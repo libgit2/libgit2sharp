@@ -34,9 +34,9 @@ namespace LibGit2Sharp
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
         public static Branch Checkout(IRepository repository, string committishOrBranchSpec, CheckoutOptions options)
         {
-            Ensure.ArgumentNotNull(repository, "repository");
+            Ensure.ArgumentNotNull(repository, nameof(repository));
             Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
-            Ensure.ArgumentNotNull(options, "options");
+            Ensure.ArgumentNotNull(options, nameof(options));
 
             Reference reference = null;
             GitObject obj = null;
@@ -109,9 +109,9 @@ namespace LibGit2Sharp
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
         public static Branch Checkout(IRepository repository, Branch branch, CheckoutOptions options)
         {
-            Ensure.ArgumentNotNull(repository, "repository");
-            Ensure.ArgumentNotNull(branch, "branch");
-            Ensure.ArgumentNotNull(options, "options");
+            Ensure.ArgumentNotNull(repository, nameof(repository));
+            Ensure.ArgumentNotNull(branch, nameof(branch));
+            Ensure.ArgumentNotNull(options, nameof(options));
 
             // Make sure this is not an unborn branch.
             if (branch.Tip == null)
@@ -160,9 +160,9 @@ namespace LibGit2Sharp
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
         public static Branch Checkout(IRepository repository, Commit commit, CheckoutOptions options)
         {
-            Ensure.ArgumentNotNull(repository, "repository");
-            Ensure.ArgumentNotNull(commit, "commit");
-            Ensure.ArgumentNotNull(options, "options");
+            Ensure.ArgumentNotNull(repository, nameof(repository));
+            Ensure.ArgumentNotNull(commit, nameof(commit));
+            Ensure.ArgumentNotNull(options, nameof(options));
 
             Checkout(repository, commit.Tree, options, commit.Id.Sha);
 

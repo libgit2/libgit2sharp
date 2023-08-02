@@ -9,7 +9,7 @@ namespace LibGit2Sharp.Core
 
         public unsafe ObjectSafeWrapper(ObjectId id, RepositoryHandle handle, bool allowNullObjectId = false, bool throwIfMissing = false)
         {
-            Ensure.ArgumentNotNull(handle, "handle");
+            Ensure.ArgumentNotNull(handle, nameof(handle));
 
             if (allowNullObjectId && id == null)
             {
@@ -17,7 +17,7 @@ namespace LibGit2Sharp.Core
             }
             else
             {
-                Ensure.ArgumentNotNull(id, "id");
+                Ensure.ArgumentNotNull(id, nameof(id));
                 objectPtr = Proxy.git_object_lookup(handle, id, GitObjectType.Any);
             }
 
