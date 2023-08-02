@@ -35,7 +35,7 @@ namespace LibGit2Sharp
         public static Branch Checkout(IRepository repository, string committishOrBranchSpec, CheckoutOptions options)
         {
             Ensure.ArgumentNotNull(repository, nameof(repository));
-            Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
+            Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, nameof(committishOrBranchSpec));
             Ensure.ArgumentNotNull(options, nameof(options));
 
             Reference reference = null;
