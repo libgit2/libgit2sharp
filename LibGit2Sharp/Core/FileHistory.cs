@@ -66,9 +66,9 @@ namespace LibGit2Sharp.Core
         /// <exception cref="ArgumentException">When an unsupported commit sort strategy is specified.</exception>
         internal FileHistory(Repository repo, string path, CommitFilter queryFilter)
         {
-            Ensure.ArgumentNotNull(repo, "repo");
-            Ensure.ArgumentNotNull(path, "path");
-            Ensure.ArgumentNotNull(queryFilter, "queryFilter");
+            Ensure.ArgumentNotNull(repo, nameof(repo));
+            Ensure.ArgumentNotNull(path, nameof(path));
+            Ensure.ArgumentNotNull(queryFilter, nameof(queryFilter));
 
             // Ensure the commit sort strategy makes sense.
             if (!AllowedSortStrategies.Contains(queryFilter.SortBy))

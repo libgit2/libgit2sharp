@@ -20,8 +20,8 @@ namespace LibGit2Sharp
 
         internal BranchUpdater(Repository repo, Branch branch)
         {
-            Ensure.ArgumentNotNull(repo, "repo");
-            Ensure.ArgumentNotNull(branch, "branch");
+            Ensure.ArgumentNotNull(repo, nameof(repo));
+            Ensure.ArgumentNotNull(branch, nameof(branch));
 
             this.repo = repo;
             this.branch = branch;

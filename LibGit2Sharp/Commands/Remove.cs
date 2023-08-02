@@ -68,8 +68,8 @@ namespace LibGit2Sharp
         /// </param>
         public static void Remove(IRepository repository, string path, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions)
         {
-            Ensure.ArgumentNotNull(repository, "repository");
-            Ensure.ArgumentNotNull(path, "path");
+            Ensure.ArgumentNotNull(repository, nameof(repository));
+            Ensure.ArgumentNotNull(path, nameof(path));
 
             Remove(repository, new[] { path }, removeFromWorkingDirectory, explicitPathsOptions);
         }
@@ -115,7 +115,7 @@ namespace LibGit2Sharp
         /// </param>
         public static void Remove(IRepository repository, IEnumerable<string> paths, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions)
         {
-            Ensure.ArgumentNotNull(repository, "repository");
+            Ensure.ArgumentNotNull(repository, nameof(repository));
             Ensure.ArgumentNotNullOrEmptyEnumerable<string>(paths, "paths");
 
             var pathsToDelete = paths.Where(p => Directory.Exists(Path.Combine(repository.Info.WorkingDirectory, p))).ToList();

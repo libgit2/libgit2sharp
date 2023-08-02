@@ -13,7 +13,7 @@ namespace LibGit2Sharp
         /// <param name="hintPath">The path that a file would be checked out as</param>
         public FilteringOptions(string hintPath)
         {
-            Ensure.ArgumentNotNull(hintPath, "hintPath");
+            Ensure.ArgumentNotNull(hintPath, nameof(hintPath));
 
             this.HintPath = hintPath;
         }
