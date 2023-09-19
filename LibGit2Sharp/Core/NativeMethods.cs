@@ -38,17 +38,18 @@ namespace LibGit2Sharp.Core
 
                     if (nativeLibraryPath != null)
                     {
+                        string nativeLibraryDir = GlobalSettings.GetAndLockNativeLibraryPath();
                         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-
                         {
-                        foreach(var dependency in new[] { "libcrypto-1_1.dll", "libcrypto-1_1-x64.dll", "libssh2.dll" })
-                        {
-                            var path = Path.Combine(nativeLibraryDir, dependency);
-                            if (File.Exists(path))
+                            foreach(var dependency in new[] { "libcrypto-1_1.dll", "libcrypto-1_1-x64.dll", "libssh2.dll" })
                             {
-                                LoadWindowsLibrary(path);
+                                var path = Path.Combine(nativeLibraryDir, dependency);
+                                if (File.Exists(path))
+                                {
+                                    LoadWindowsLibrary(path);
+                                }
                             }
-                        }
+
                             LoadWindowsLibrary(nativeLibraryPath);
                         }
                         else
@@ -2084,13 +2085,6 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void git_transaction_free(IntPtr txn);
-
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate int url_resolve_callback(
-            IntPtr url_resolved,
-            IntPtr url,
-            int direction,
-            IntPtr payload);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate int remote_ready_cb(

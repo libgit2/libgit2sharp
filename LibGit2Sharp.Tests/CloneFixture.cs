@@ -278,7 +278,7 @@ namespace LibGit2Sharp.Tests
                          *
                          * though GitHub's hostkey won't change anytime soon.
                          */
-                        Assert.Equal("1627aca576282d36631b564debdfa648",
+                        Assert.Equal("65962dfce8d5a911640c0fea006e5bbd",
                             BitConverter.ToString(hostkey.HashMD5).ToLower().Replace("-", ""));
                         checksHappy = true;
                         return false;

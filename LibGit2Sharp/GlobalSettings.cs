@@ -45,7 +45,6 @@ namespace LibGit2Sharp
             registeredFilters = new Dictionary<Filter, FilterRegistration>();
         }
 
-#if NETFRAMEWORK
         private static string GetExecutingAssemblyDirectory()
         {
             // Assembly.CodeBase is not actually a correctly formatted
@@ -70,7 +69,6 @@ namespace LibGit2Sharp
             managedPath = Path.GetDirectoryName(managedPath);
             return managedPath;
         }
-#endif
 
         /// <summary>
         /// Returns information related to the current LibGit2Sharp
