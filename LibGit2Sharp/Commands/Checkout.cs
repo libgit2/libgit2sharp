@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -37,18 +38,49 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
             Ensure.ArgumentNotNull(options, "options");
 
-            Reference reference;
-            GitObject obj;
+            Reference reference = null;
+            GitObject obj = null;
+            Branch branch = null;
 
-            repository.RevParse(committishOrBranchSpec, out reference, out obj);
+            try
+            {
+                repository.RevParse(committishOrBranchSpec, out reference, out obj);
+            }
+            catch (NotFoundException)
+            {
+                // If committishOrBranchSpec is not a local branch but matches a tracking branch
+                // in exactly one remote, use it. This is the "git checkout" command's default behavior.
+                // https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt-emgitcheckoutemltbranchgt
+                var remoteBranches = repository.Network.Remotes
+                    .SelectMany(r => repository.Branches.Where(b =>
+                        b.IsRemote &&
+                        b.CanonicalName == $"refs/remotes/{r.Name}/{committishOrBranchSpec}"))
+                    .ToList();
+
+                if (remoteBranches.Count == 1)
+                {
+                    branch = repository.CreateBranch(committishOrBranchSpec, remoteBranches[0].Tip);
+                    repository.Branches.Update(branch, b => b.TrackedBranch = remoteBranches[0].CanonicalName);
+
+                    return Checkout(repository, branch, options);
+                }
+
+                if (remoteBranches.Count > 1)
+                {
+                    throw new AmbiguousSpecificationException($"'{committishOrBranchSpec}' matched multiple ({remoteBranches.Count}) remote tracking branches");
+                }
+
+                throw;
+            }
+
             if (reference != null && reference.IsLocalBranch)
             {
-                Branch branch = repository.Branches[reference.CanonicalName];
+                branch = repository.Branches[reference.CanonicalName];
                 return Checkout(repository, branch, options);
             }
 
             Commit commit = obj.Peel<Commit>(true);
-            Checkout(repository, commit.Tree,  options, committishOrBranchSpec);
+            Checkout(repository, commit.Tree, options, committishOrBranchSpec);
 
             return repository.Head;
         }

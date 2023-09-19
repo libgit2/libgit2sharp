@@ -21,11 +21,11 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static ILazy<TResult> Singleton<TResult>(Repository repo, ObjectId id, Func<ObjectHandle, TResult> resultSelector)
+        public static ILazy<TResult> Singleton<TResult>(Repository repo, ObjectId id, Func<ObjectHandle, TResult> resultSelector, bool throwIfMissing = false)
         {
             return Singleton(() =>
             {
-                using (var osw = new ObjectSafeWrapper(id, repo.Handle))
+                using (var osw = new ObjectSafeWrapper(id, repo.Handle, throwIfMissing: throwIfMissing))
                 {
                     return resultSelector(osw.ObjectPtr);
                 }

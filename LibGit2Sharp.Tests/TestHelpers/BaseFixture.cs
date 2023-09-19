@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using LibGit2Sharp.Core;
 using Xunit;
 
 namespace LibGit2Sharp.Tests.TestHelpers
@@ -21,7 +20,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             BuildFakeConfigs(this);
 
 #if LEAKS_IDENTIFYING
-            LeaksContainer.Clear();
+            Core.LeaksContainer.Clear();
 #endif
         }
 
@@ -65,7 +64,11 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
             if (resourcesPath == null)
             {
+#if NETFRAMEWORK
                 resourcesPath = Path.Combine(Directory.GetParent(new Uri(typeof(BaseFixture).GetTypeInfo().Assembly.CodeBase).LocalPath).FullName, "Resources");
+#else
+                resourcesPath = Path.Combine(Directory.GetParent(typeof(BaseFixture).GetTypeInfo().Assembly.Location).FullName, "Resources");
+#endif
             }
 
             ResourcesDirectory = new DirectoryInfo(resourcesPath);
@@ -273,11 +276,11 @@ namespace LibGit2Sharp.Tests.TestHelpers
             GC.Collect();
             GC.WaitForPendingFinalizers();
 
-            if (LeaksContainer.TypeNames.Any())
+            if (Core.LeaksContainer.TypeNames.Any())
             {
                 Assert.False(true, string.Format("Some handles of the following types haven't been properly released: {0}.{1}"
                     + "In order to get some help fixing those leaks, uncomment the define LEAKS_TRACKING in Libgit2Object.cs{1}"
-                    + "and run the tests locally.", string.Join(", ", LeaksContainer.TypeNames), Environment.NewLine));
+                    + "and run the tests locally.", string.Join(", ", Core.LeaksContainer.TypeNames), Environment.NewLine));
             }
 #endif
         }
@@ -467,7 +470,11 @@ namespace LibGit2Sharp.Tests.TestHelpers
             Assert.Equal(@from ?? ObjectId.Zero, reflogEntry.From);
 
             Assert.Equal(committer.Email, reflogEntry.Committer.Email);
-            Assert.InRange(reflogEntry.Committer.When, before, DateTimeOffset.Now);
+
+            // When verifying the timestamp range, give a little more room on the 'before' side.
+            // Git or file system datetime truncation seems to cause these stamps to jump up to a second earlier
+            // than we expect. See https://github.com/libgit2/libgit2sharp/issues/1764
+            Assert.InRange(reflogEntry.Committer.When, before - TimeSpan.FromSeconds(1), DateTimeOffset.Now);
         }
 
         protected static void EnableRefLog(IRepository repository, bool enable = true)

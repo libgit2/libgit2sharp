@@ -9,7 +9,7 @@ namespace LibGit2Sharp
     /// against the remote without losing commits.
     /// </summary>
     [Serializable]
-    public class NonFastForwardException : LibGit2SharpException
+    public class NonFastForwardException : NativeException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2Sharp.NonFastForwardException"/> class.
@@ -52,8 +52,16 @@ namespace LibGit2Sharp
             : base(info, context)
         { }
 
-        internal NonFastForwardException(string message, GitErrorCode code, GitErrorCategory category)
-            : base(message, code, category)
+        internal NonFastForwardException(string message, GitErrorCategory category)
+            : base(message, category)
         { }
+
+        internal override GitErrorCode ErrorCode
+        {
+            get
+            {
+                return GitErrorCode.NonFastForward;
+            }
+        }
     }
 }

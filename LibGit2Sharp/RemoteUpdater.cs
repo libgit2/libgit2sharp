@@ -56,7 +56,7 @@ namespace LibGit2Sharp
 
         private void SetFetchRefSpecs(IEnumerable<string> value)
         {
-            repo.Config.UnsetMultivar(string.Format("remote.{0}.fetch", remoteName), ConfigurationLevel.Local);
+            repo.Config.UnsetAll(string.Format("remote.{0}.fetch", remoteName), ConfigurationLevel.Local);
 
             foreach (var url in value)
             {
@@ -74,7 +74,7 @@ namespace LibGit2Sharp
 
         private void SetPushRefSpecs(IEnumerable<string> value)
         {
-            repo.Config.UnsetMultivar(string.Format("remote.{0}.push", remoteName), ConfigurationLevel.Local);
+            repo.Config.UnsetAll(string.Format("remote.{0}.push", remoteName), ConfigurationLevel.Local);
 
             foreach (var url in value)
             {

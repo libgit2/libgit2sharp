@@ -1,22 +1,24 @@
 ﻿<Project>
 
-  <PropertyGroup>
-    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
-  </PropertyGroup>
-
   <Target Name="DefineProperties">
     <PropertyGroup>
+      <SourceRevisionIdPath>$(IntermediateOutputPath)SourceRevisionId.txt</SourceRevisionIdPath>
       <UniqueIdentifierPath>$(IntermediateOutputPath)UniqueIdentifier.g.cs</UniqueIdentifierPath>
       <AssemblyCommitIdsPath>$(IntermediateOutputPath)AssemblyCommitIds.g.cs</AssemblyCommitIdsPath>
     </PropertyGroup>
   </Target>
 
+  <Target Name="WriteSourceRevisionIdToFile" AfterTargets="AddSourceRevisionToInformationalVersion" DependsOnTargets="DefineProperties">
+    <WriteLinesToFile File="$(SourceRevisionIdPath)" Lines="$(SourceRevisionId)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <ItemGroup>
+      <FileWrites Include="$(SourceRevisionIdPath)" />
+    </ItemGroup>
+  </Target>
 
-  <Target Name="GenerateUniqueIdentifierCs" Inputs="$(VersionSourceFile)" Outputs="$(UniqueIdentifierPath)" BeforeTargets="CoreCompile" AfterTargets="GenerateAssemblyVersionInfo" DependsOnTargets="DefineProperties">
-
+  <Target Name="GenerateUniqueIdentifierCs" Inputs="$(SourceRevisionIdPath)" Outputs="$(UniqueIdentifierPath)" BeforeTargets="CoreCompile" AfterTargets="WriteSourceRevisionIdToFile" DependsOnTargets="DefineProperties">
     <PropertyGroup>
-      <UniqueIdentifier>$([System.Guid]::NewGuid())</UniqueIdentifier>
-      <UniqueIdentifier Condition="'$(GitCommitId)' != ''">$(GitCommitId)</UniqueIdentifier>
+      <UniqueIdentifier>$(SourceRevisionId)</UniqueIdentifier>
+      <UniqueIdentifier Condition="'$(UniqueIdentifier)' == ''">$([System.Guid]::NewGuid())</UniqueIdentifier>
       <UniqueIdSourceLines>
         namespace LibGit2Sharp.Core
         {
@@ -34,24 +36,12 @@
       <Compile Include="$(UniqueIdentifierPath)" />
       <FileWrites Include="$(UniqueIdentifierPath)" />
     </ItemGroup>
-
   </Target>
 
-
-  <Target Name="AddNativeDllCommitShaToBuildMetadata" BeforeTargets="GetBuildVersion">
-
-    <ItemGroup>
-      <BuildMetadata Include="libgit2-$(libgit2_hash.Substring(0,7))" />
-    </ItemGroup>
-
-  </Target>
-
-
-  <Target Name="GenerateAssemblyCommitIdsCs" Inputs="$(libgit2_propsfile);$(VersionSourceFile)" Outputs="$(AssemblyCommitIdsPath)" BeforeTargets="CoreCompile" AfterTargets="GenerateAssemblyVersionInfo" DependsOnTargets="DefineProperties">
-
+  <Target Name="GenerateAssemblyCommitIdsCs" Inputs="$(libgit2_propsfile);$(SourceRevisionIdPath)" Outputs="$(AssemblyCommitIdsPath)" BeforeTargets="CoreCompile" AfterTargets="WriteSourceRevisionIdToFile" DependsOnTargets="DefineProperties">
     <PropertyGroup>
-      <LibGit2SharpCommitSha>unknown</LibGit2SharpCommitSha>
-      <LibGit2SharpCommitSha Condition="'$(GitCommitId)' != ''">$(GitCommitId)</LibGit2SharpCommitSha>
+      <LibGit2SharpCommitSha>$(SourceRevisionId)</LibGit2SharpCommitSha>
+      <LibGit2SharpCommitSha Condition="'$(LibGit2SharpCommitSha)' == ''">unknown</LibGit2SharpCommitSha>
       <AssemblyCommitIdsSourceLines>
         namespace LibGit2Sharp
         {
@@ -70,7 +60,6 @@
       <Compile Include="$(AssemblyCommitIdsPath)" />
       <FileWrites Include="$(AssemblyCommitIdsPath)" />
     </ItemGroup>
-
   </Target>
 
 </Project>

@@ -17,7 +17,7 @@ namespace LibGit2Sharp.Tests
 
             File.AppendAllText(fullpath, "world\n");
 
-            Commands.Stage(repo,fullpath);
+            Commands.Stage(repo, fullpath);
 
             File.AppendAllText(fullpath, "!!!\n");
         }
@@ -506,6 +506,26 @@ namespace LibGit2Sharp.Tests
                     Assert.Single(changes.Added);
 
                     Assert.Equal("file.txt", changes.Added.Single().Path);
+                }
+            }
+        }
+
+        [Fact]
+        public void CompareSetsCorrectAddedAndDeletedLines()
+        {
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                SetUpSimpleDiffContext(repo);
+
+                using (var changes = repo.Diff.Compare<Patch>(repo.Head.Tip.Tree,
+                    DiffTargets.WorkingDirectory | DiffTargets.Index))
+                {
+                    foreach (var entry in changes)
+                    {
+                        Assert.Equal(2, entry.AddedLines.Count());
+                    }
                 }
             }
         }

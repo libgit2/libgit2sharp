@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -33,6 +31,8 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<GitObject> equalityHelper =
             new LambdaEqualityHelper<GitObject>(x => x.Id);
 
+        private readonly ILazy<bool> lazyIsMissing;
+
         /// <summary>
         /// The <see cref="Repository"/> containing the object.
         /// </summary>
@@ -53,6 +53,7 @@ namespace LibGit2Sharp
         {
             this.repo = repo;
             Id = id;
+            lazyIsMissing = GitObjectLazyGroup.Singleton(repo, id, handle => handle == null, throwIfMissing: false);
         }
 
         /// <summary>
@@ -61,12 +62,17 @@ namespace LibGit2Sharp
         public virtual ObjectId Id { get; private set; }
 
         /// <summary>
+        ///  Determine if the object is missing
+        /// </summary>
+        /// <remarks>
+        /// This is common when dealing with partially cloned repositories as blobs or trees could be missing
+        /// </remarks>
+        public virtual bool IsMissing => lazyIsMissing.Value;
+
+        /// <summary>
         /// Gets the 40 character sha1 of this object.
         /// </summary>
-        public virtual string Sha
-        {
-            get { return Id.Sha; }
-        }
+        public virtual string Sha => Id.Sha;
 
         internal static GitObject BuildFrom(Repository repo, ObjectId id, GitObjectType type, string path)
         {

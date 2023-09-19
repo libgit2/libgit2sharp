@@ -11,7 +11,7 @@ namespace LibGit2Sharp
     /// create a branch from a blob, or peeling a blob to a commit).
     /// </summary>
     [Serializable]
-    public class InvalidSpecificationException : LibGit2SharpException
+    public class InvalidSpecificationException : NativeException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="InvalidSpecificationException"/> class.
@@ -54,8 +54,16 @@ namespace LibGit2Sharp
             : base(info, context)
         { }
 
-        internal InvalidSpecificationException(string message, GitErrorCode code, GitErrorCategory category)
-            : base(message, code, category)
+        internal InvalidSpecificationException(string message, GitErrorCategory category)
+            : base(message, category)
         { }
+
+        internal override GitErrorCode ErrorCode
+        {
+            get
+            {
+                return GitErrorCode.InvalidSpecification;
+            }
+        }
     }
 }

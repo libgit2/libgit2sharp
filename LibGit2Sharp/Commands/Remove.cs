@@ -1,7 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Collections.Generic;
-using LibGit2Sharp;
+using System.Linq;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp

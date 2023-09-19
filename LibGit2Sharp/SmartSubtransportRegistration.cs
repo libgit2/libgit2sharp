@@ -11,7 +11,7 @@ namespace LibGit2Sharp
     /// under a particular scheme (eg "http").
     /// </summary>
     /// <typeparam name="T">The type of SmartSubtransport to register</typeparam>
-    public sealed class SmartSubtransportRegistration<T>
+    public sealed class SmartSubtransportRegistration<T> : SmartSubtransportRegistrationData
         where T : SmartSubtransport, new()
     {
         /// <summary>
@@ -25,15 +25,6 @@ namespace LibGit2Sharp
             RegistrationPointer = CreateRegistrationPointer();
             FunctionPointer = CreateFunctionPointer();
         }
-
-        /// <summary>
-        /// The URI scheme (eg "http") for this transport.
-        /// </summary>
-        public string Scheme { get; private set; }
-
-        internal IntPtr RegistrationPointer { get; private set; }
-
-        internal IntPtr FunctionPointer { get; private set; }
 
         private IntPtr CreateRegistrationPointer()
         {

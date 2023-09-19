@@ -9,7 +9,7 @@ namespace LibGit2Sharp
     /// is performed against an index with unmerged entries
     /// </summary>
     [Serializable]
-    public class UnmergedIndexEntriesException : LibGit2SharpException
+    public class UnmergedIndexEntriesException : NativeException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="UnmergedIndexEntriesException"/> class.
@@ -52,8 +52,16 @@ namespace LibGit2Sharp
             : base(info, context)
         { }
 
-        internal UnmergedIndexEntriesException(string message, GitErrorCode code, GitErrorCategory category)
-            : base(message, code, category)
+        internal UnmergedIndexEntriesException(string message, GitErrorCategory category)
+            : base(message, category)
         { }
+
+        internal override GitErrorCode ErrorCode
+        {
+            get
+            {
+                return GitErrorCode.UnmergedEntries;
+            }
+        }
     }
 }
