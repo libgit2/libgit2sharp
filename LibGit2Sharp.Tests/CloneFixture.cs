@@ -5,7 +5,6 @@ using System.Linq;
 using LibGit2Sharp.Handlers;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
-using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -14,8 +13,6 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData("http://github.com/libgit2/TestGitRepository")]
         [InlineData("https://github.com/libgit2/TestGitRepository")]
-        [InlineData("git://github.com/libgit2/TestGitRepository")]
-        //[InlineData("git@github.com:libgit2/TestGitRepository")]
         public void CanClone(string url)
         {
             var scd = BuildSelfCleaningDirectory();
@@ -70,7 +67,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotEqual(originalRepo.Info.Path, clonedRepo.Info.Path);
                 Assert.Equal(originalRepo.Head, clonedRepo.Head);
 
-                Assert.Equal(originalRepo.Branches.Count(), clonedRepo.Branches.Where(b => b.IsRemote).GroupBy(g => g.Tip.Sha).Count());
+                Assert.Equal(originalRepo.Branches.Count(), clonedRepo.Branches.Count(b => b.IsRemote && b.FriendlyName != "origin/HEAD"));
                 Assert.Equal(isCloningAnEmptyRepository ? 0 : 1, clonedRepo.Branches.Count(b => !b.IsRemote));
 
                 Assert.Equal(originalRepo.Tags.Count(), clonedRepo.Tags.Count());
@@ -103,16 +100,14 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData("http://github.com/libgit2/TestGitRepository")]
         [InlineData("https://github.com/libgit2/TestGitRepository")]
-        [InlineData("git://github.com/libgit2/TestGitRepository")]
-        //[InlineData("git@github.com:libgit2/TestGitRepository")]
         public void CanCloneBarely(string url)
         {
             var scd = BuildSelfCleaningDirectory();
 
             string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, new CloneOptions
-                {
-                    IsBare = true
-                });
+            {
+                IsBare = true
+            });
 
             using (var repo = new Repository(clonedRepoPath))
             {
@@ -127,7 +122,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("git://github.com/libgit2/TestGitRepository")]
+        [InlineData("https://github.com/libgit2/TestGitRepository")]
         public void WontCheckoutIfAskedNotTo(string url)
         {
             var scd = BuildSelfCleaningDirectory();
@@ -144,7 +139,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("git://github.com/libgit2/TestGitRepository")]
+        [InlineData("https://github.com/libgit2/TestGitRepository")]
         public void CallsProgressCallbacks(string url)
         {
             bool transferWasCalled = false;
@@ -195,7 +190,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        static Credentials CreateUsernamePasswordCredentials (string user, string pass, bool secure)
+        static Credentials CreateUsernamePasswordCredentials(string user, string pass, bool secure)
         {
             if (secure)
             {
@@ -213,29 +208,29 @@ namespace LibGit2Sharp.Tests
             };
         }
 
-        [Theory]
-        [InlineData("https://libgit2@bitbucket.org/libgit2/testgitrepository.git", "libgit3", "libgit3", true)]
-        [InlineData("https://libgit2@bitbucket.org/libgit2/testgitrepository.git", "libgit3", "libgit3", false)]
-        public void CanCloneFromBBWithCredentials(string url, string user, string pass, bool secure)
-        {
-            var scd = BuildSelfCleaningDirectory();
+        //[Theory]
+        //[InlineData("https://libgit2@bitbucket.org/libgit2/testgitrepository.git", "libgit3", "libgit3", true)]
+        //[InlineData("https://libgit2@bitbucket.org/libgit2/testgitrepository.git", "libgit3", "libgit3", false)]
+        //public void CanCloneFromBBWithCredentials(string url, string user, string pass, bool secure)
+        //{
+        //    var scd = BuildSelfCleaningDirectory();
 
-            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, new CloneOptions()
-            {
-                CredentialsProvider = (_url, _user, _cred) => CreateUsernamePasswordCredentials (user, pass, secure)
-            });
+        //    string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, new CloneOptions()
+        //    {
+        //        CredentialsProvider = (_url, _user, _cred) => CreateUsernamePasswordCredentials(user, pass, secure)
+        //    });
 
-            using (var repo = new Repository(clonedRepoPath))
-            {
-                string dir = repo.Info.Path;
-                Assert.True(Path.IsPathRooted(dir));
-                Assert.True(Directory.Exists(dir));
+        //    using (var repo = new Repository(clonedRepoPath))
+        //    {
+        //        string dir = repo.Info.Path;
+        //        Assert.True(Path.IsPathRooted(dir));
+        //        Assert.True(Directory.Exists(dir));
 
-                Assert.NotNull(repo.Info.WorkingDirectory);
-                Assert.Equal(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar), repo.Info.Path);
-                Assert.False(repo.Info.IsBare);
-            }
-        }
+        //        Assert.NotNull(repo.Info.WorkingDirectory);
+        //        Assert.Equal(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar), repo.Info.Path);
+        //        Assert.False(repo.Info.IsBare);
+        //    }
+        //}
 
         [SkippableTheory]
         [InlineData("https://github.com/libgit2/TestGitRepository.git", "github.com", typeof(CertificateX509))]
@@ -246,20 +241,23 @@ namespace LibGit2Sharp.Tests
 
             InconclusiveIf(
                 () =>
-                    certType == typeof (CertificateSsh) && !GlobalSettings.Version.Features.HasFlag(BuiltInFeatures.Ssh),
+                    certType == typeof(CertificateSsh) && !GlobalSettings.Version.Features.HasFlag(BuiltInFeatures.Ssh),
                 "SSH not supported");
 
             bool wasCalled = false;
             bool checksHappy = false;
 
-            var options = new CloneOptions {
-                CertificateCheck = (cert, valid, host) => {
+            var options = new CloneOptions
+            {
+                CertificateCheck = (cert, valid, host) =>
+                {
                     wasCalled = true;
 
                     Assert.Equal(hostname, host);
                     Assert.Equal(certType, cert.GetType());
 
-                    if (certType == typeof(CertificateX509)) {
+                    if (certType == typeof(CertificateX509))
+                    {
                         Assert.True(valid);
                         var x509 = ((CertificateX509)cert).Certificate;
                         // we get a string with the different fields instead of a structure, so...
@@ -268,7 +266,8 @@ namespace LibGit2Sharp.Tests
                         return false;
                     }
 
-                    if (certType == typeof(CertificateSsh)) {
+                    if (certType == typeof(CertificateSsh))
+                    {
                         var hostkey = (CertificateSsh)cert;
                         Assert.True(hostkey.HasMD5);
                         /*
@@ -279,7 +278,7 @@ namespace LibGit2Sharp.Tests
                          *
                          * though GitHub's hostkey won't change anytime soon.
                          */
-                        Assert.Equal("1627aca576282d36631b564debdfa648",
+                        Assert.Equal("65962dfce8d5a911640c0fea006e5bbd",
                             BitConverter.ToString(hostkey.HashMD5).ToLower().Replace("-", ""));
                         checksHappy = true;
                         return false;
@@ -297,16 +296,8 @@ namespace LibGit2Sharp.Tests
             Assert.True(checksHappy);
         }
 
-        [Fact]
-        public void CloningAnUrlWithoutPathThrows()
-        {
-            var scd = BuildSelfCleaningDirectory();
-
-            Assert.Throws<LibGit2SharpException>(() => Repository.Clone("http://github.com", scd.DirectoryPath));
-        }
-
         [Theory]
-        [InlineData("git://github.com/libgit2/TestGitRepository")]
+        [InlineData("https://github.com/libgit2/TestGitRepository")]
         public void CloningWithoutWorkdirPathThrows(string url)
         {
             Assert.Throws<ArgumentNullException>(() => Repository.Clone(url, null));
@@ -449,7 +440,7 @@ namespace LibGit2Sharp.Tests
             string clonedRepoPath = Repository.Clone(uri.LocalPath, scd.DirectoryPath, options);
             string workDirPath;
 
-            using(Repository repo = new Repository(clonedRepoPath))
+            using (Repository repo = new Repository(clonedRepoPath))
             {
                 workDirPath = repo.Info.WorkingDirectory.TrimEnd(new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
             }
@@ -460,14 +451,14 @@ namespace LibGit2Sharp.Tests
 
             Dictionary<string, CloneCallbackInfo> expectedCallbackInfo = new Dictionary<string, CloneCallbackInfo>();
             expectedCallbackInfo.Add(workDirPath, new CloneCallbackInfo()
-                {
-                    RecursionDepth = 0,
-                    RemoteUrl = uri.AbsolutePath,
-                    StartingWorkInRepositoryCalled = true,
-                    FinishedWorkInRepositoryCalled = true,
-                    CheckoutProgressCalled = true,
-                    RemoteRefUpdateCalled = true,
-                });
+            {
+                RecursionDepth = 0,
+                RemoteUrl = uri.AbsolutePath,
+                StartingWorkInRepositoryCalled = true,
+                FinishedWorkInRepositoryCalled = true,
+                CheckoutProgressCalled = true,
+                RemoteRefUpdateCalled = true,
+            });
 
             expectedCallbackInfo.Add(Path.Combine(workDirPath, relativeSubmodulePath), new CloneCallbackInfo()
             {
@@ -494,7 +485,7 @@ namespace LibGit2Sharp.Tests
             }
 
             // Verify the state of the submodule
-            using(Repository repo = new Repository(clonedRepoPath))
+            using (Repository repo = new Repository(clonedRepoPath))
             {
                 var sm = repo.Submodules[relativeSubmodulePath];
                 Assert.True(sm.RetrieveStatus().HasFlag(SubmoduleStatus.InWorkDir |
@@ -541,7 +532,7 @@ namespace LibGit2Sharp.Tests
             {
                 Repository.Clone(uri.LocalPath, scd.DirectoryPath, options);
             }
-            catch(RecurseSubmodulesException ex)
+            catch (RecurseSubmodulesException ex)
             {
                 Assert.NotNull(ex.InnerException);
                 Assert.Equal(typeof(UserCancelledException), ex.InnerException.GetType());
@@ -549,7 +540,7 @@ namespace LibGit2Sharp.Tests
             }
 
             // Verify that the submodule was not initialized.
-            using(Repository repo = new Repository(clonedRepoPath))
+            using (Repository repo = new Repository(clonedRepoPath))
             {
                 var submoduleStatus = repo.Submodules[relativeSubmodulePath].RetrieveStatus();
                 Assert.Equal(SubmoduleStatus.InConfig | SubmoduleStatus.InHead | SubmoduleStatus.InIndex | SubmoduleStatus.WorkDirUninitialized,

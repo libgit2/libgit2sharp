@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net461;net5.0-windows</TargetFrameworks>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Description>LibGit2Sharp brings all the might and speed of libgit2, a native Git implementation, to the managed world of .Net and Mono.</Description>
+    <Description>LibGit2Sharp brings all the might and speed of libgit2, a native Git implementation, to the managed world of .NET</Description>
     <Company>LibGit2Sharp contributors</Company>
     <Copyright>Copyright © LibGit2Sharp contributors</Copyright>
     <PackageTags>libgit2 git</PackageTags>
@@ -11,38 +11,47 @@
     <Authors>LibGit2Sharp contributors</Authors>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <DebugType>embedded</DebugType>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\libgit2sharp.snk</AssemblyOriginatorKeyFile>
     <PackageId>LibGit2Sharp.UiPath</PackageId>
+    <PackageReadmeFile>App_Readme/README.md</PackageReadmeFile>
+    <PackageLicenseFile>App_Readme/LICENSE.md</PackageLicenseFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <MinVerDefaultPreReleaseIdentifiers>preview.0</MinVerDefaultPreReleaseIdentifiers>
+    <MinVerBuildMetadata Condition="'$(libgit2_hash)' != ''">libgit2-$(libgit2_hash.Substring(0,7))</MinVerBuildMetadata>
   </PropertyGroup>
 
   <ItemGroup>
-    <CodeAnalysisDictionary Include="CustomDictionary.xml" />
-    <None Include="Core\Handles\Objects.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>Objects.cs</LastGenOutput>
-    </None>
-    <None Include="..\README.md" Pack="true" PackagePath="App_Readme\" />
-    <None Include="..\LICENSE.md" Pack="true" PackagePath="App_Readme\" />
-    <None Include="..\CHANGES.md" Pack="true" PackagePath="App_Readme\" />
-    <Compile Update="Core\Handles\Objects.cs" DependentUpon="Objects.tt" />
+    <None Include="..\square-logo.png" Pack="true" PackagePath="" Visible="false" />
+    <None Include="..\README.md" Pack="true" PackagePath="App_Readme/" Visible="false" />
+    <None Include="..\LICENSE.md" Pack="true" PackagePath="App_Readme/" Visible="false" />
+    <None Include="..\CHANGES.md" Pack="true" PackagePath="App_Readme/" Visible="false" />
+    <None Update="Core\Handles\Objects.tt" Generator="TextTemplatingFileGenerator" LastGenOutput="Objects.cs" />
+    <Compile Update="Core\Handles\Objects.cs" DependentUpon="Objects.tt" DesignTime="True" AutoGen="True" />
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" /> <!-- Needed for T4 generation -->
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LibGit2Sharp.NativeBinaries.UiPath" Version="1.1.5" PrivateAssets="none"/>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="all" />
-    <PackageReference Include="Nerdbank.GitVersioning" Version="2.2.13" PrivateAssets="all" />
+    <PackageReference Include="LibGit2Sharp.NativeBinaries.UiPath" Version="0.28.3-update-libgit-1-0042" PrivateAssets="none"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
+    <PackageReference Include="MinVer" Version="4.3.0" PrivateAssets="all" />
   </ItemGroup>
 
   <Import Project="..\Targets\CodeGenerator.targets" />
   <Import Project="..\Targets\GenerateNativeDllName.targets" />
 
-  <Target Name="SetNuSpecProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="GetBuildVersion">
+  <Target Name="SetNuspecProperties" BeforeTargets="GenerateNuspec">
     <PropertyGroup>
-      <PackageIconUrl>https://github.com/libgit2/libgit2sharp/raw/$(GitCommitIdShort)/square-logo.png</PackageIconUrl>
-      <PackageReleaseNotes>https://github.com/libgit2/libgit2sharp/blob/$(GitCommitIdShort)/CHANGES.md#libgit2sharp-changes</PackageReleaseNotes>
-      <PackageLicenseUrl>https://github.com/libgit2/libgit2sharp/raw/$(GitCommitIdShort)/LICENSE.md</PackageLicenseUrl>
+      <PackageReleaseNotes>https://github.com/libgit2/libgit2sharp/blob/$(SourceRevisionId)/CHANGES.md</PackageReleaseNotes>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="AdjustVersions" AfterTargets="MinVer">
+    <PropertyGroup>
+      <AssemblyVersion>$(MinVerMajor).$(MinVerMinor).0.0</AssemblyVersion>
+      <PackageVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch)</PackageVersion>
+      <PackageVersion Condition="'$(MinVerPreRelease)' != ''">$(PackageVersion)-$(MinVerPreRelease)</PackageVersion>
     </PropertyGroup>
   </Target>
 

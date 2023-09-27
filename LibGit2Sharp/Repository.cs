@@ -1500,13 +1500,13 @@ namespace LibGit2Sharp
                     break;
                 default:
                     throw new NotImplementedException(
-                        string.Format(CultureInfo.InvariantCulture, "Unknown fast forward strategy: {0}", mergeAnalysis));
+                        string.Format(CultureInfo.InvariantCulture, "Unknown fast forward strategy: {0}", fastForwardStrategy));
             }
 
             if (mergeResult == null)
             {
                 throw new NotImplementedException(
-                    string.Format(CultureInfo.InvariantCulture, "Unknown merge analysis: {0}", options.FastForwardStrategy));
+                    string.Format(CultureInfo.InvariantCulture, "Unknown merge analysis: {0}", mergeAnalysis));
             }
 
             return mergeResult;
@@ -1720,7 +1720,7 @@ namespace LibGit2Sharp
         /// </para>
         /// <para>
         ///   Optionally, the <paramref name="options"/> parameter allow to tweak the
-        ///   search strategy (considering lightweith tags, or even branches as reference points)
+        ///   search strategy (considering lightweight tags, or even branches as reference points)
         ///   and the formatting of the returned identifier.
         /// </para>
         /// </summary>

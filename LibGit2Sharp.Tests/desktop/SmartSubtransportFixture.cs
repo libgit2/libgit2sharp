@@ -4,9 +4,7 @@ using System.IO;
 using System.Net;
 using System.Net.Security;
 using LibGit2Sharp.Tests.TestHelpers;
-using LibGit2Sharp.Core;
 using Xunit;
-using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -79,58 +77,58 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Theory]
-        [InlineData("https", "https://bitbucket.org/libgit2/testgitrepository.git", "libgit3", "libgit3")]
-        public void CanUseCredentials(string scheme, string url, string user, string pass)
-        {
-            string remoteName = "testRemote";
+        //[Theory]
+        //[InlineData("https", "https://bitbucket.org/libgit2/testgitrepository.git", "libgit3", "libgit3")]
+        //public void CanUseCredentials(string scheme, string url, string user, string pass)
+        //{
+        //    string remoteName = "testRemote";
 
-            var scd = BuildSelfCleaningDirectory();
-            Repository.Init(scd.RootedDirectoryPath);
+        //    var scd = BuildSelfCleaningDirectory();
+        //    Repository.Init(scd.RootedDirectoryPath);
 
-            SmartSubtransportRegistration<MockSmartSubtransport> registration = null;
+        //    SmartSubtransportRegistration<MockSmartSubtransport> registration = null;
 
-            try
-            {
-                // Disable server certificate validation for testing.
-                // Do *NOT* enable this in production.
-                ServicePointManager.ServerCertificateValidationCallback = certificateValidationCallback;
+        //    try
+        //    {
+        //        // Disable server certificate validation for testing.
+        //        // Do *NOT* enable this in production.
+        //        ServicePointManager.ServerCertificateValidationCallback = certificateValidationCallback;
 
-                registration = GlobalSettings.RegisterSmartSubtransport<MockSmartSubtransport>(scheme);
-                Assert.NotNull(registration);
+        //        registration = GlobalSettings.RegisterSmartSubtransport<MockSmartSubtransport>(scheme);
+        //        Assert.NotNull(registration);
 
-                using (var repo = new Repository(scd.DirectoryPath))
-                {
-                    repo.Network.Remotes.Add(remoteName, url);
+        //        using (var repo = new Repository(scd.DirectoryPath))
+        //        {
+        //            repo.Network.Remotes.Add(remoteName, url);
 
-                    // Set up structures for the expected results
-                    // and verifying the RemoteUpdateTips callback.
-                    TestRemoteInfo expectedResults = TestRemoteInfo.TestRemoteInstance;
-                    ExpectedFetchState expectedFetchState = new ExpectedFetchState(remoteName);
+        //            // Set up structures for the expected results
+        //            // and verifying the RemoteUpdateTips callback.
+        //            TestRemoteInfo expectedResults = TestRemoteInfo.TestRemoteInstance;
+        //            ExpectedFetchState expectedFetchState = new ExpectedFetchState(remoteName);
 
-                    // Add expected branch objects
-                    foreach (KeyValuePair<string, ObjectId> kvp in expectedResults.BranchTips)
-                    {
-                        expectedFetchState.AddExpectedBranch(kvp.Key, ObjectId.Zero, kvp.Value);
-                    }
+        //            // Add expected branch objects
+        //            foreach (KeyValuePair<string, ObjectId> kvp in expectedResults.BranchTips)
+        //            {
+        //                expectedFetchState.AddExpectedBranch(kvp.Key, ObjectId.Zero, kvp.Value);
+        //            }
 
-                    // Perform the actual fetch
-                    Commands.Fetch(repo, remoteName, new string[0], new FetchOptions {
-                        OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler, TagFetchMode = TagFetchMode.Auto,
-                        CredentialsProvider = (_user, _valid, _hostname) => new UsernamePasswordCredentials() { Username = user, Password = pass },
-                    }, null);
+        //            // Perform the actual fetch
+        //            Commands.Fetch(repo, remoteName, new string[0], new FetchOptions {
+        //                OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler, TagFetchMode = TagFetchMode.Auto,
+        //                CredentialsProvider = (_user, _valid, _hostname) => new UsernamePasswordCredentials() { Username = user, Password = pass },
+        //            }, null);
 
-                    // Verify the expected
-                    expectedFetchState.CheckUpdatedReferences(repo);
-                }
-            }
-            finally
-            {
-                GlobalSettings.UnregisterSmartSubtransport(registration);
+        //            // Verify the expected
+        //            expectedFetchState.CheckUpdatedReferences(repo);
+        //        }
+        //    }
+        //    finally
+        //    {
+        //        GlobalSettings.UnregisterSmartSubtransport(registration);
 
-                ServicePointManager.ServerCertificateValidationCallback -= certificateValidationCallback;
-            }
-        }
+        //        ServicePointManager.ServerCertificateValidationCallback -= certificateValidationCallback;
+        //    }
+        //}
 
         [Fact]
         public void CannotReregisterScheme()

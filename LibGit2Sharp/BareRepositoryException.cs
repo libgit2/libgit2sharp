@@ -9,7 +9,7 @@ namespace LibGit2Sharp
     /// working directory is performed against a bare repository.
     /// </summary>
     [Serializable]
-    public class BareRepositoryException : LibGit2SharpException
+    public class BareRepositoryException : NativeException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2Sharp.BareRepositoryException"/> class.
@@ -52,8 +52,16 @@ namespace LibGit2Sharp
             : base(info, context)
         { }
 
-        internal BareRepositoryException(string message, GitErrorCode code, GitErrorCategory category)
-            : base(message, code, category)
+        internal BareRepositoryException(string message, GitErrorCategory category)
+            : base(message, category)
         { }
+
+        internal override GitErrorCode ErrorCode
+        {
+            get
+            {
+                return GitErrorCode.BareRepo;
+            }
+        }
     }
 }

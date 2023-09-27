@@ -15,6 +15,8 @@ namespace LibGit2Sharp.Core
 
         public git_tree* baseline = default;
 
+        public IntPtr Baseline = IntPtr.Zero;
+
         public void Dispose()
         {
             PathSpec.Dispose();

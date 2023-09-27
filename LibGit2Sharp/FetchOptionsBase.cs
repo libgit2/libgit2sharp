@@ -34,7 +34,7 @@ namespace LibGit2Sharp
         public CredentialsHandler CredentialsProvider { get; set; }
 
         /// <summary>
-        /// This hanlder will be called to let the user make a decision on whether to allow
+        /// This handler will be called to let the user make a decision on whether to allow
         /// the connection to preoceed based on the certificate presented by the server.
         /// </summary>
         public CertificateCheckHandler CertificateCheck { get; set; }

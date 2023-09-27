@@ -7,7 +7,7 @@ namespace LibGit2Sharp.Core
     {
         private readonly ObjectHandle objectPtr;
 
-        public unsafe ObjectSafeWrapper(ObjectId id, RepositoryHandle handle, bool allowNullObjectId = false)
+        public unsafe ObjectSafeWrapper(ObjectId id, RepositoryHandle handle, bool allowNullObjectId = false, bool throwIfMissing = false)
         {
             Ensure.ArgumentNotNull(handle, "handle");
 
@@ -20,12 +20,14 @@ namespace LibGit2Sharp.Core
                 Ensure.ArgumentNotNull(id, "id");
                 objectPtr = Proxy.git_object_lookup(handle, id, GitObjectType.Any);
             }
+
+            if (objectPtr == null && throwIfMissing)
+            {
+                throw new NotFoundException($"No valid git object identified by '{id}' exists in the repository.");
+            }
         }
 
-        public ObjectHandle ObjectPtr
-        {
-            get { return objectPtr; }
-        }
+        public ObjectHandle ObjectPtr => objectPtr;
 
         public void Dispose()
         {

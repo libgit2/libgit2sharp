@@ -8,7 +8,7 @@ namespace LibGit2Sharp
     /// The exception that is thrown attempting to open a locked file.
     /// </summary>
     [Serializable]
-    public class LockedFileException : LibGit2SharpException
+    public class LockedFileException : NativeException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2Sharp.LockedFileException"/> class.
@@ -51,8 +51,16 @@ namespace LibGit2Sharp
             : base(info, context)
         { }
 
-        internal LockedFileException(string message, GitErrorCode code, GitErrorCategory category)
-            : base(message, code, category)
+        internal LockedFileException(string message, GitErrorCategory category)
+            : base(message, category)
         { }
+
+        internal override GitErrorCode ErrorCode
+        {
+            get
+            {
+                return GitErrorCode.LockedFile;
+            }
+        }
     }
 }

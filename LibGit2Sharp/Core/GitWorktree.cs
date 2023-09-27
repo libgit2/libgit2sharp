@@ -33,8 +33,12 @@ namespace LibGit2Sharp.Core
     internal class git_worktree_add_options
     {
         public uint version = 1;
-        
+
         public int locked;
+
+        public IntPtr @ref = IntPtr.Zero;
+
+        public GitCheckoutOpts checkoutOpts = new GitCheckoutOpts { version = 1 };
     }
 
     [StructLayout(LayoutKind.Sequential)]

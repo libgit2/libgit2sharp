@@ -10,7 +10,6 @@ namespace LibGit2Sharp
     /// </summary>
     public class CertificateX509 : Certificate
     {
-
         /// <summary>
         /// For mocking purposes
         /// </summary>
@@ -28,6 +27,11 @@ namespace LibGit2Sharp
             byte[] data = new byte[len];
             Marshal.Copy(new IntPtr(cert->data), data, 0, len);
             Certificate = new X509Certificate(data);
+        }
+
+        internal CertificateX509(X509Certificate cert)
+        {
+            Certificate = cert;
         }
 
         internal unsafe IntPtr ToPointers(out IntPtr dataPtr)

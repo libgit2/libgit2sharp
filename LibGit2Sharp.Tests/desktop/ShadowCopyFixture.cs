@@ -11,6 +11,7 @@ namespace LibGit2Sharp.Tests
     public class ShadowCopyFixture : BaseFixture
     {
         [Fact]
+        [Trait("TestCategory", "FailsWhileInstrumented")]
         public void CanProbeForNativeBinariesFromAShadowCopiedAssembly()
         {
             Type type = typeof(Wrapper);
