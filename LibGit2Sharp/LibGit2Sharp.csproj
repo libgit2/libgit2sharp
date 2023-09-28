@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LibGit2Sharp.NativeBinaries.UiPath" Version="0.28.3-update-libgit-1-0042" PrivateAssets="none"/>
+    <PackageReference Include="LibGit2Sharp.NativeBinaries.UiPath" Version="1.7.1" PrivateAssets="none"/>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
     <PackageReference Include="MinVer" Version="4.3.0" PrivateAssets="all" />
   </ItemGroup>
