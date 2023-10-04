@@ -38,6 +38,7 @@ namespace LibGit2Sharp.Core
         Worktree,
         Sha1,
         Http,
-        Internal
+        Internal,
+        GraphTS
     }
 }

@@ -53,23 +53,25 @@ namespace LibGit2Sharp
             : base(info, context)
         { }
 
-        internal LibGit2SharpException(string message, GitErrorCode code, GitErrorCategory category) : this(message)
+        /// <summary>
+        /// The error code returned by libgit2
+        /// </summary>
+        public GitErrorCode GitErrorCode { get; private set; }
+
+        /// <summary>
+        /// The error category
+        /// </summary>
+        public  GitErrorCategory GitErrorCategory { get; private set; }
+
+        public LibGit2SharpException WithErrorCode(GitErrorCode code, GitErrorCategory category)
         {
             Data.Add("libgit2.code", (int)code);
             Data.Add("libgit2.category", (int)category);
 
             GitErrorCode = code;
             GitErrorCategory = category;
+
+            return this;
         }
-
-        /// <summary>
-        /// The error code returned by libgit2
-        /// </summary>
-        public GitErrorCode GitErrorCode { get; }
-
-        /// <summary>
-        /// The error category
-        /// </summary>
-        public  GitErrorCategory GitErrorCategory { get;  }
     }
 }
