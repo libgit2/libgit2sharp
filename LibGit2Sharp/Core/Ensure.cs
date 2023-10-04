@@ -147,9 +147,10 @@ namespace LibGit2Sharp.Core
             }
 
             Func<string, GitErrorCategory, LibGit2SharpException> exceptionBuilder;
-            if (!GitErrorsToLibGit2SharpExceptions.TryGetValue((GitErrorCode)result, out exceptionBuilder))
+            var errorCode = (GitErrorCode)result;
+            if (!GitErrorsToLibGit2SharpExceptions.TryGetValue(errorCode, out exceptionBuilder))
             {
-                exceptionBuilder = (m, c) => new LibGit2SharpException(m, c);
+                exceptionBuilder = (m, c) => new LibGit2SharpException(m).WithErrorCode(errorCode, errorCategory);
             }
 
             throw exceptionBuilder(errorMessage, errorCategory);

@@ -265,7 +265,7 @@ namespace LibGit2Sharp
                 // if the filter has already been registered
                 if (registeredFilters.ContainsKey(filter))
                 {
-                    throw new EntryExistsException("The filter has already been registered.", GitErrorCode.Exists, GitErrorCategory.Filter);
+                    throw new EntryExistsException("The filter has already been registered.").WithErrorCode(GitErrorCode.Exists, GitErrorCategory.Filter);
                 }
 
                 // allocate the registration object

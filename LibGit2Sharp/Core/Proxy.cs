@@ -1536,9 +1536,7 @@ namespace LibGit2Sharp.Core
             if (IntPtr.Zero == toReturn)
             {
                 throw new LibGit2SharpException("Unable to allocate {0} bytes; out of memory",
-                                                len,
-                                                GitErrorCode.Error,
-                                                GitErrorCategory.NoMemory);
+                                                len).WithErrorCode( GitErrorCode.Error, GitErrorCategory.NoMemory);
             }
 
             return toReturn;
