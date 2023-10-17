@@ -20,7 +20,7 @@ namespace LibGit2Sharp
 
         private static string nativeLibraryPath;
         private static bool nativeLibraryPathLocked;
-        private static string nativeLibraryDefaultPath;
+        private static readonly string nativeLibraryDefaultPath = null;
 
         static GlobalSettings()
         {
@@ -29,19 +29,18 @@ namespace LibGit2Sharp
 
             nativeLibraryPathAllowed = netFX || netCore;
 
+#if NETFRAMEWORK
             if (netFX)
             {
                 // For .NET Framework apps the dependencies are deployed to lib/win32/{architecture} directory
                 nativeLibraryDefaultPath = Path.Combine(GetExecutingAssemblyDirectory(), "lib", "win32", Platform.ProcessorArchitecture);
             }
-            else
-            {
-                nativeLibraryDefaultPath = null;
-            }
+#endif
 
             registeredFilters = new Dictionary<Filter, FilterRegistration>();
         }
 
+#if NETFRAMEWORK
         private static string GetExecutingAssemblyDirectory()
         {
             // Assembly.CodeBase is not actually a correctly formatted
@@ -66,6 +65,7 @@ namespace LibGit2Sharp
             managedPath = Path.GetDirectoryName(managedPath);
             return managedPath;
         }
+#endif
 
         /// <summary>
         /// Returns information related to the current LibGit2Sharp

@@ -12,20 +12,20 @@ env:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v3.5.0
         with:
           fetch-depth: 0
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v1.8.1
+        uses: actions/setup-dotnet@v3.0.3
         with:
-          dotnet-version: 6.0.x
+          dotnet-version: 7.0.x
       - name: Build
         run: dotnet build LibGit2Sharp.sln --configuration Release
       - name: Upload packages
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@v3.1.2
         with:
           name: NuGet packages
           path: bin/Packages/
@@ -36,57 +36,48 @@ jobs:
     strategy:
       matrix:
         arch: [ amd64 ]
-        os: [windows-2019, macos-10.15]
-        tfm: [ net472, netcoreapp3.1, net6.0 ]
+        os: [ windows-2019, macos-11 ]
+        tfm: [ net472, net6.0, net7.0 ]
         exclude:
-          - os: macos-10.15
+          - os: macos-11
             tfm: net472
       fail-fast: false
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v3.5.0
         with:
           fetch-depth: 0
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v1.8.1
+        uses: actions/setup-dotnet@v3.0.3
         with:
-          dotnet-version: 6.0.x
-      - name: Install .NET Core 3.1 runtime
-        if: matrix.tfm == 'netcoreapp3.1'
-        uses: actions/setup-dotnet@v1.8.1
-        with:
-          dotnet-version: 3.1.x
+          dotnet-version: |
+            7.0.x
+            6.0.x
       - name: Run ${{ matrix.tfm }} tests
         run: dotnet test LibGit2Sharp.sln --configuration Release --framework ${{ matrix.tfm }} --logger "GitHubActions" /p:ExtraDefine=LEAKS_IDENTIFYING
   test-linux:
     name: Test / ${{ matrix.distro }} / ${{ matrix.arch }} / ${{ matrix.tfm }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         arch: [ amd64 ]
         # arch: [ amd64, arm64 ]
-        distro: [ alpine.3.12, alpine.3.13, alpine.3.14, centos.7, centos.8, debian.9, debian.10, debian.11, fedora.33, ubuntu.18.04, ubuntu.20.04 ]
-        sdk:  [ '6.0', '3.1' ]
+        distro: [ alpine.3.13, alpine.3.14, alpine.3.15, alpine.3.16, alpine.3.17, centos.7, centos.stream.8, debian.10, debian.11, fedora.36, ubuntu.18.04, ubuntu.20.04, ubuntu.22.04 ]
+        sdk:  [ '6.0', '7.0' ]
         exclude:
-          - arch: arm64
-            distro: alpine.3.12
-          - arch: arm64
-            distro: alpine.3.13
-            sdk: '3.1'
-          - arch: arm64
-            distro: alpine.3.14
-            sdk: '3.1'
-          - arch: arm64
-            distro: centos.7
+          - distro: alpine.3.13
+            sdk: '7.0'
+          - distro: alpine.3.14
+            sdk: '7.0'
         include:
           - sdk: '6.0'
             tfm: net6.0
-          - sdk: '3.1'
-            tfm: netcoreapp3.1
+          - sdk: '7.0'
+            tfm: net7.0
       fail-fast: false
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v3.5.0
         with:
           fetch-depth: 0
       - name: Setup QEMU
@@ -94,5 +85,7 @@ jobs:
         run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
       - name: Run ${{ matrix.tfm }} tests
         run: |
+            git_command="git config --global --add safe.directory /app"
             test_command="dotnet test LibGit2Sharp.sln --configuration Release -p:TargetFrameworks=${{ matrix.tfm }} --logger "GitHubActions" -p:ExtraDefine=LEAKS_IDENTIFYING"
-            docker run -t --rm --platform linux/${{ matrix.arch }} -v "$PWD:/app" gittools/build-images:${{ matrix.distro }}-sdk-${{ matrix.sdk }} sh -c "$test_command"
+            docker run -t --rm --platform linux/${{ matrix.arch }} -v "$PWD:/app" gittools/build-images:${{ matrix.distro }}-sdk-${{ matrix.sdk }} sh -c "$git_command && $test_command"
+

@@ -37,6 +37,8 @@ namespace LibGit2Sharp.Core
         public int locked;
 
         public IntPtr @ref = IntPtr.Zero;
+
+        public GitCheckoutOpts checkoutOpts = new GitCheckoutOpts { version = 1 };
     }
 
     [StructLayout(LayoutKind.Sequential)]
