@@ -68,6 +68,21 @@ namespace LibGit2Sharp
                 options.Flags |= GitDiffOptionFlags.GIT_DIFF_INDENT_HEURISTIC;
             }
 
+            switch (compareOptions.PatchWhitespaceMode)
+            {
+                case PatchWhitespaceMode.DontIgnoreWhitespace:
+                    break;
+                case PatchWhitespaceMode.IgnoreAllWhitespace:
+                    options.Flags |= GitDiffOptionFlags.GIT_DIFF_IGNORE_WHITESPACE;
+                    break;
+                case PatchWhitespaceMode.IgnoreWhitespaceChange:
+                    options.Flags |= GitDiffOptionFlags.GIT_DIFF_IGNORE_WHITESPACE_CHANGE;
+                    break;
+                case PatchWhitespaceMode.IgnoreWhitespaceEol:
+                    options.Flags |= GitDiffOptionFlags.GIT_DIFF_IGNORE_WHITESPACE_EOL;
+                    break;
+            }
+
             if (matchedPathsAggregator != null)
             {
                 options.NotifyCallback = matchedPathsAggregator.OnGitDiffNotify;
@@ -546,7 +561,7 @@ namespace LibGit2Sharp
 
             MatchedPathsAggregator matchedPaths = null;
 
-            // We can't match paths unless we've got something to match 
+            // We can't match paths unless we've got something to match
             // against and we're told to do so.
             if (filePaths != null && explicitPathsOptions != null)
             {

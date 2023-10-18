@@ -1,7 +1,9 @@
 # LibGit2Sharp
 
-[![CI](https://github.com/libgit2/libgit2sharp/actions/workflows/ci.yml/badge.svg)](https://github.com/libgit2/libgit2sharp/actions/workflows/ci.yml) 
+[![CI](https://github.com/libgit2/libgit2sharp/actions/workflows/ci.yml/badge.svg)](https://github.com/libgit2/libgit2sharp/actions/workflows/ci.yml)
 [![NuGet version (LibGit2Sharp)](https://img.shields.io/nuget/v/LibGit2Sharp.svg)](https://www.nuget.org/packages/LibGit2Sharp/)
+
+## This is copy of LibGit2Sharp from master/8c32b6160a49890e26100148e73c1558b0daa9af made 18.10.2023, as it is seems to be not actively maintained anymore
 
 **LibGit2Sharp brings all the might and speed of [libgit2](http://libgit2.github.com/), a native Git implementation, to the managed world of .NET**
 

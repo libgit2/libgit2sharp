@@ -1,5 +1,8 @@
 # LibGit2Sharp Changes
 
+## darthkurak v0.27.3 ([diff](https://github.com/libgit2/libgit2sharp/compare/0.27.2..0.27.3))
+* Expose whitespace settings for diff patch
+
 ## v0.27.2 - ([diff](https://github.com/libgit2/libgit2sharp/compare/0.27.1..0.27.2))
 
 ### Changes

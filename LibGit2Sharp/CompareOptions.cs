@@ -3,6 +3,29 @@ using System;
 namespace LibGit2Sharp
 {
     /// <summary>
+    /// Represents a mode for handling whitespace while creating a patch.
+    /// </summary>
+    public enum PatchWhitespaceMode
+    {
+        /// <summary>
+        /// Do not ignore changes in whitespace when comparing lines.
+        /// </summary>
+        DontIgnoreWhitespace = 0,
+        /// <summary>
+        /// Ignore whitespace when comparing lines. This ignores differences even if one line has whitespace where the other line has none.
+        /// </summary>
+        IgnoreAllWhitespace = 1,
+        /// <summary>
+        /// Ignore changes in amount of whitespace. This ignores whitespace at line end, and considers all other sequences of one or more whitespace characters to be equivalent.
+        /// </summary>
+        IgnoreWhitespaceChange = 2,
+        /// <summary>
+        /// Ignore changes in whitespace at EOL.
+        /// </summary>
+        IgnoreWhitespaceEol = 3,
+    }
+
+    /// <summary>
     /// Options to define file comparison behavior.
     /// </summary>
     public sealed class CompareOptions
@@ -14,6 +37,7 @@ namespace LibGit2Sharp
         {
             ContextLines = 3;
             InterhunkLines = 0;
+            PatchWhitespaceMode = PatchWhitespaceMode.DontIgnoreWhitespace;
             Algorithm = DiffAlgorithm.Myers;
         }
 
@@ -28,6 +52,11 @@ namespace LibGit2Sharp
         /// (Default = 0)
         /// </summary>
         public int InterhunkLines { get; set; }
+
+        /// <summary>
+        /// The mode for handling whitespace when comparing lines. Default is DontIgnoreWhitespace
+        /// </summary>
+        public PatchWhitespaceMode PatchWhitespaceMode { get; set; }
 
         /// <summary>
         /// Options for rename detection. If null, the `diff.renames` configuration setting is used.
