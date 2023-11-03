@@ -365,18 +365,27 @@ namespace LibGit2Sharp
 
             // Load the remote.
             using (RemoteHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, remote.Name, true))
+
+            // Create a git options wrapper so managed strings are disposed.
+            using (var pushOptionsWrapper = new GitPushOptionsWrapper())
             {
                 var callbacks = new RemoteCallbacks(pushOptions);
                 GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
 
+                var gitPushOptions = pushOptionsWrapper.Options;
+                gitPushOptions.PackbuilderDegreeOfParallelism = pushOptions.PackbuilderDegreeOfParallelism;
+                gitPushOptions.RemoteCallbacks = gitCallbacks;
+                gitPushOptions.ProxyOptions = new GitProxyOptions { Version = 1 };
+
+                // If there are custom headers, create a managed string array.
+                if (pushOptions.CustomHeaders != null && pushOptions.CustomHeaders.Length > 0)
+                {
+                    gitPushOptions.CustomHeaders = GitStrArrayManaged.BuildFrom(pushOptions.CustomHeaders);
+                }
+
                 Proxy.git_remote_push(remoteHandle,
                                       pushRefSpecs,
-                                      new GitPushOptions()
-                                      {
-                                          PackbuilderDegreeOfParallelism = pushOptions.PackbuilderDegreeOfParallelism,
-                                          RemoteCallbacks = gitCallbacks,
-                                          ProxyOptions = new GitProxyOptions { Version = 1 },
-                                      });
+                                      gitPushOptions);
             }
         }
 
