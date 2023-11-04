@@ -35,7 +35,7 @@
   <ItemGroup>
     <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="[2.0.320]" PrivateAssets="none" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
-    <PackageReference Include="MinVer" Version="4.3.0" PrivateAssets="all" />
+    <PackageReference Include="MinVer" Version="5.0.0-beta.1" PrivateAssets="all" />
   </ItemGroup>
 
   <Import Project="..\Targets\CodeGenerator.targets" />
@@ -50,8 +50,6 @@
   <Target Name="AdjustVersions" AfterTargets="MinVer">
     <PropertyGroup>
       <AssemblyVersion>$(MinVerMajor).$(MinVerMinor).0.0</AssemblyVersion>
-      <PackageVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch)</PackageVersion>
-      <PackageVersion Condition="'$(MinVerPreRelease)' != ''">$(PackageVersion)-$(MinVerPreRelease)</PackageVersion>
     </PropertyGroup>
   </Target>
 
