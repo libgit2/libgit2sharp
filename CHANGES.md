@@ -1,5 +1,10 @@
 # LibGit2Sharp Changes
 
+## v0.28
+
+### Additions
+- Add CustomHeaders to PushOptions [#2052](https://github.com/libgit2/libgit2sharp/pull/2052)
+
 ## v0.27.2 - ([diff](https://github.com/libgit2/libgit2sharp/compare/0.27.1..0.27.2))
 
 ### Changes
