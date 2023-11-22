@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -91,6 +92,12 @@ namespace LibGit2Sharp.Core
 
             if (libraryName == libgit2)
             {
+                if (Environment.GetEnvironmentVariable("UIPATH_STUDIO_GIT_USE_SCHANNEL") == "1")
+                {
+                    Trace.TraceInformation("Using git with schannel");
+                    libraryName = libraryName + "_schannel";
+                }
+
                 // Use GlobalSettings.NativeLibraryPath when set.
                 string nativeLibraryPath = GetGlobalSettingsNativeLibraryPath();
 
