@@ -16,8 +16,8 @@ namespace LibGit2Sharp.Core
         public uint Version;
         public GitProxyType Type;
         public IntPtr Url;
-        public IntPtr CredentialsCb;
-        public IntPtr CertificateCheck;
-        public IntPtr CbPayload;
+        public NativeMethods.git_cred_acquire_cb Credentials;
+        public NativeMethods.git_transport_certificate_check_cb CertificateCheck;
+        public IntPtr Payload;
     }
 }
