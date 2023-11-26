@@ -49,6 +49,6 @@ namespace LibGit2Sharp
         /// </summary>
         public RepositoryOperationCompleted RepositoryOperationCompleted { get; set; }
 
-        public ProxyOptions ProxyOptions { get; set; }
+        public ProxyOptions ProxyOptions { get; set; } = new();
     }
 }

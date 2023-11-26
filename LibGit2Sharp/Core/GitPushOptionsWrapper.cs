@@ -24,6 +24,7 @@ namespace LibGit2Sharp.Core
                 return;
 
             this.Options.CustomHeaders.Dispose();
+            EncodingMarshaler.Cleanup(Options.ProxyOptions.Url);
             disposedValue = true;
         }
 
