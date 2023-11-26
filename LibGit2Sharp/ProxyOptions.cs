@@ -4,7 +4,7 @@ using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
-    public class ProxyOptions
+    public sealed class ProxyOptions
     {
         public ProxyType ProxyType { get; set; } = ProxyType.Auto;
 
