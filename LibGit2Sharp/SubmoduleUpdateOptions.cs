@@ -6,7 +6,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// Options controlling Submodule Update behavior and callbacks.
     /// </summary>
-    public sealed class SubmoduleUpdateOptions : FetchOptionsBase, IConvertableToGitCheckoutOpts
+    public sealed class SubmoduleUpdateOptions : IConvertableToGitCheckoutOpts
     {
         /// <summary>
         /// Initialize the submodule if it is not already initialized.
@@ -29,6 +29,11 @@ namespace LibGit2Sharp
         /// reported through the OnCheckoutNotify delegate.
         /// </summary>
         public CheckoutNotifyFlags CheckoutNotifyFlags { get; set; }
+
+        /// <summary>
+        /// Collection of parameters controlling Fetch behavior.
+        /// </summary>
+        public FetchOptions FetchOptions { get; internal set; } = new();
 
         CheckoutCallbacks IConvertableToGitCheckoutOpts.GenerateCallbacks()
         {
