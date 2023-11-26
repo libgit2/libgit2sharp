@@ -46,7 +46,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets or sets the fetch options.
         /// </summary>
-        public FetchOptions FetchOptions { get; set; }
+        public FetchOptions FetchOptions { get; set; } = new();
 
         #region IConvertableToGitCheckoutOpts
 
