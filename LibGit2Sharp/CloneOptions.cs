@@ -6,7 +6,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// Options to define clone behaviour
     /// </summary>
-    public sealed class CloneOptions : FetchOptionsBase, IConvertableToGitCheckoutOpts
+    public sealed class CloneOptions : IConvertableToGitCheckoutOpts
     {
         /// <summary>
         /// Creates default <see cref="CloneOptions"/> for a non-bare clone
