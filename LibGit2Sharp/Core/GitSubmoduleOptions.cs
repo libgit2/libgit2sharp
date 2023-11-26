@@ -11,8 +11,6 @@ namespace LibGit2Sharp.Core
 
         public GitFetchOptions FetchOptions;
 
-        public CheckoutStrategy CloneCheckoutStrategy;
-
         public int AllowFetch;
     }
 }

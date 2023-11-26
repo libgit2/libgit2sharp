@@ -865,14 +865,11 @@ namespace LibGit2Sharp
 
                 using (Repository repo = new Repository(repoPath))
                 {
-                    SubmoduleUpdateOptions updateOptions = new SubmoduleUpdateOptions()
+                    var updateOptions = new SubmoduleUpdateOptions()
                     {
                         Init = true,
-                        CredentialsProvider = options.FetchOptions.CredentialsProvider,
                         OnCheckoutProgress = options.OnCheckoutProgress,
-                        OnProgress = options.FetchOptions.OnProgress,
-                        OnTransferProgress = options.FetchOptions.OnTransferProgress,
-                        OnUpdateTips = options.FetchOptions.OnUpdateTips,
+                        FetchOptions = options.FetchOptions
                     };
 
                     string parentRepoWorkDir = repo.Info.WorkingDirectory;
