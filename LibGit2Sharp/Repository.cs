@@ -659,6 +659,12 @@ namespace LibGit2Sharp
             return ListRemoteReferences(url, null, new ProxyOptions());
         }
 
+        /// <summary>
+        /// Lists the Remote Repository References.
+        /// </summary>
+        /// <param name="url">The url to list from.</param>
+        /// <param name="proxyOptions">Options for connecting through a proxy.</param>
+        /// <returns>The references in the remote repository.</returns>
         public static IEnumerable<Reference> ListRemoteReferences(string url, ProxyOptions proxyOptions)
         {
             return ListRemoteReferences(url, null, proxyOptions);
@@ -680,6 +686,18 @@ namespace LibGit2Sharp
             return ListRemoteReferences(url, credentialsProvider, new ProxyOptions());
         }
 
+        /// <summary>
+        /// Lists the Remote Repository References.
+        /// </summary>
+        /// <para>
+        /// Does not require a local Repository. The retrieved
+        /// <see cref="IBelongToARepository.Repository"/>
+        /// throws <see cref="InvalidOperationException"/> in this case.
+        /// </para>
+        /// <param name="url">The url to list from.</param>
+        /// <param name="credentialsProvider">The <see cref="Func{Credentials}"/> used to connect to remote repository.</param>
+        /// <param name="proxyOptions">Options for connecting through a proxy.</param>
+        /// <returns>The references in the remote repository.</returns>
         public static IEnumerable<Reference> ListRemoteReferences(string url, CredentialsHandler credentialsProvider, ProxyOptions proxyOptions)
         {
             Ensure.ArgumentNotNull(url, "url");

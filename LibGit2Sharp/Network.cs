@@ -55,6 +55,18 @@ namespace LibGit2Sharp
             return ListReferencesInternal(remote.Url, null, new ProxyOptions());
         }
 
+        /// <summary>
+        /// List references in a <see cref="Remote"/> repository.
+        /// <para>
+        /// When the remote tips are ahead of the local ones, the retrieved
+        /// <see cref="DirectReference"/>s may point to non existing
+        /// <see cref="GitObject"/>s in the local repository. In that
+        /// case, <see cref="DirectReference.Target"/> will return <c>null</c>.
+        /// </para>
+        /// </summary>
+        /// <param name="remote">The <see cref="Remote"/> to list from.</param>
+        /// <param name="proxyOptions">Options for connecting through a proxy.</param>
+        /// <returns>The references in the <see cref="Remote"/> repository.</returns>
         public virtual IEnumerable<Reference> ListReferences(Remote remote, ProxyOptions proxyOptions)
         {
             Ensure.ArgumentNotNull(remote, "remote");
@@ -82,6 +94,19 @@ namespace LibGit2Sharp
             return ListReferencesInternal(remote.Url, credentialsProvider, new ProxyOptions());
         }
 
+        /// <summary>
+        /// List references in a <see cref="Remote"/> repository.
+        /// <para>
+        /// When the remote tips are ahead of the local ones, the retrieved
+        /// <see cref="DirectReference"/>s may point to non existing
+        /// <see cref="GitObject"/>s in the local repository. In that
+        /// case, <see cref="DirectReference.Target"/> will return <c>null</c>.
+        /// </para>
+        /// </summary>
+        /// <param name="remote">The <see cref="Remote"/> to list from.</param>
+        /// <param name="credentialsProvider">The <see cref="Func{Credentials}"/> used to connect to remote repository.</param>
+        /// <param name="proxyOptions">Options for connecting through a proxy.</param>
+        /// <returns>The references in the <see cref="Remote"/> repository.</returns>
         public virtual IEnumerable<Reference> ListReferences(Remote remote, CredentialsHandler credentialsProvider, ProxyOptions proxyOptions)
         {
             Ensure.ArgumentNotNull(remote, "remote");
@@ -108,6 +133,18 @@ namespace LibGit2Sharp
             return ListReferencesInternal(url, null, new ProxyOptions());
         }
 
+        /// <summary>
+        /// List references in a remote repository.
+        /// <para>
+        /// When the remote tips are ahead of the local ones, the retrieved
+        /// <see cref="DirectReference"/>s may point to non existing
+        /// <see cref="GitObject"/>s in the local repository. In that
+        /// case, <see cref="DirectReference.Target"/> will return <c>null</c>.
+        /// </para>
+        /// </summary>
+        /// <param name="url">The url to list from.</param>
+        /// <param name="proxyOptions">Options for connecting through a proxy.</param>
+        /// <returns>The references in the remote repository.</returns>
         public virtual IEnumerable<Reference> ListReferences(string url, ProxyOptions proxyOptions)
         {
             Ensure.ArgumentNotNull(url, "url");
@@ -135,6 +172,19 @@ namespace LibGit2Sharp
             return ListReferencesInternal(url, credentialsProvider, new ProxyOptions());
         }
 
+        /// <summary>
+        /// List references in a remote repository.
+        /// <para>
+        /// When the remote tips are ahead of the local ones, the retrieved
+        /// <see cref="DirectReference"/>s may point to non existing
+        /// <see cref="GitObject"/>s in the local repository. In that
+        /// case, <see cref="DirectReference.Target"/> will return <c>null</c>.
+        /// </para>
+        /// </summary>
+        /// <param name="url">The url to list from.</param>
+        /// <param name="credentialsProvider">The <see cref="Func{Credentials}"/> used to connect to remote repository.</param>
+        /// <param name="proxyOptions">Options for connecting through a proxy.</param>
+        /// <returns>The references in the remote repository.</returns>
         public virtual IEnumerable<Reference> ListReferences(string url, CredentialsHandler credentialsProvider, ProxyOptions proxyOptions)
         {
             Ensure.ArgumentNotNull(url, "url");

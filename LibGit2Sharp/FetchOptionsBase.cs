@@ -35,7 +35,7 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// This handler will be called to let the user make a decision on whether to allow
-        /// the connection to preoceed based on the certificate presented by the server.
+        /// the connection to proceed based on the certificate presented by the server.
         /// </summary>
         public CertificateCheckHandler CertificateCheck { get; set; }
 
@@ -49,6 +49,9 @@ namespace LibGit2Sharp
         /// </summary>
         public RepositoryOperationCompleted RepositoryOperationCompleted { get; set; }
 
+        /// <summary>
+        /// Options for connecting through a proxy.
+        /// </summary>
         public ProxyOptions ProxyOptions { get; } = new();
     }
 }
