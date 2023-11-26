@@ -760,7 +760,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(sourceUrl, "sourceUrl");
             Ensure.ArgumentNotNull(workdirPath, "workdirPath");
 
-            options = options ?? new CloneOptions();
+            options ??= new CloneOptions();
 
             // context variable that contains information on the repository that
             // we are cloning.
