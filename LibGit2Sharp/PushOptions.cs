@@ -71,5 +71,7 @@ namespace LibGit2Sharp
         /// </example>
         /// <value>The custom headers string array</value>
         public string[] CustomHeaders { get; set; }
+
+        public ProxyOptions ProxyOptions { get; set; } = new();
     }
 }

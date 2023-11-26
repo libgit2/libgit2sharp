@@ -52,7 +52,14 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(remote, "remote");
 
-            return ListReferencesInternal(remote.Url, null);
+            return ListReferencesInternal(remote.Url, null, new ProxyOptions());
+        }
+
+        public virtual IEnumerable<Reference> ListReferences(Remote remote, ProxyOptions proxyOptions)
+        {
+            Ensure.ArgumentNotNull(remote, "remote");
+
+            return ListReferencesInternal(remote.Url, null, proxyOptions);
         }
 
         /// <summary>
@@ -72,7 +79,15 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(remote, "remote");
             Ensure.ArgumentNotNull(credentialsProvider, "credentialsProvider");
 
-            return ListReferencesInternal(remote.Url, credentialsProvider);
+            return ListReferencesInternal(remote.Url, credentialsProvider, new ProxyOptions());
+        }
+
+        public virtual IEnumerable<Reference> ListReferences(Remote remote, CredentialsHandler credentialsProvider, ProxyOptions proxyOptions)
+        {
+            Ensure.ArgumentNotNull(remote, "remote");
+            Ensure.ArgumentNotNull(credentialsProvider, "credentialsProvider");
+
+            return ListReferencesInternal(remote.Url, credentialsProvider, proxyOptions);
         }
 
         /// <summary>
@@ -90,7 +105,14 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(url, "url");
 
-            return ListReferencesInternal(url, null);
+            return ListReferencesInternal(url, null, new ProxyOptions());
+        }
+
+        public virtual IEnumerable<Reference> ListReferences(string url, ProxyOptions proxyOptions)
+        {
+            Ensure.ArgumentNotNull(url, "url");
+
+            return ListReferencesInternal(url, null, proxyOptions);
         }
 
         /// <summary>
@@ -110,25 +132,36 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(url, "url");
             Ensure.ArgumentNotNull(credentialsProvider, "credentialsProvider");
 
-            return ListReferencesInternal(url, credentialsProvider);
+            return ListReferencesInternal(url, credentialsProvider, new ProxyOptions());
         }
 
-        private IEnumerable<Reference> ListReferencesInternal(string url, CredentialsHandler credentialsProvider)
+        public virtual IEnumerable<Reference> ListReferences(string url, CredentialsHandler credentialsProvider, ProxyOptions proxyOptions)
         {
-            using (RemoteHandle remoteHandle = BuildRemoteHandle(repository.Handle, url))
+            Ensure.ArgumentNotNull(url, "url");
+            Ensure.ArgumentNotNull(credentialsProvider, "credentialsProvider");
+
+            return ListReferencesInternal(url, credentialsProvider, new ProxyOptions());
+        }
+
+        private IEnumerable<Reference> ListReferencesInternal(string url, CredentialsHandler credentialsProvider, ProxyOptions proxyOptions)
+        {
+            proxyOptions ??= new();
+
+            using RemoteHandle remoteHandle = BuildRemoteHandle(repository.Handle, url);
+            using var proxyOptionsWrapper = new GitProxyOptionsWrapper(proxyOptions.CreateGitProxyOptions());
+
+            GitRemoteCallbacks gitCallbacks = new GitRemoteCallbacks { version = 1 };
+
+            if (credentialsProvider != null)
             {
-                GitRemoteCallbacks gitCallbacks = new GitRemoteCallbacks { version = 1 };
-                GitProxyOptions proxyOptions = new GitProxyOptions { Version = 1 };
-
-                if (credentialsProvider != null)
-                {
-                    var callbacks = new RemoteCallbacks(credentialsProvider);
-                    gitCallbacks = callbacks.GenerateCallbacks();
-                }
-
-                Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch, ref gitCallbacks, ref proxyOptions);
-                return Proxy.git_remote_ls(repository, remoteHandle);
+                var callbacks = new RemoteCallbacks(credentialsProvider);
+                gitCallbacks = callbacks.GenerateCallbacks();
             }
+
+            var gitProxyOptions = proxyOptionsWrapper.Options;
+
+            Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch, ref gitCallbacks, ref gitProxyOptions);
+            return Proxy.git_remote_ls(repository, remoteHandle);
         }
 
         static RemoteHandle BuildRemoteHandle(RepositoryHandle repoHandle, string url)
@@ -375,7 +408,7 @@ namespace LibGit2Sharp
                 var gitPushOptions = pushOptionsWrapper.Options;
                 gitPushOptions.PackbuilderDegreeOfParallelism = pushOptions.PackbuilderDegreeOfParallelism;
                 gitPushOptions.RemoteCallbacks = gitCallbacks;
-                gitPushOptions.ProxyOptions = new GitProxyOptions { Version = 1 };
+                gitPushOptions.ProxyOptions = pushOptions.ProxyOptions.CreateGitProxyOptions();
 
                 // If there are custom headers, create a managed string array.
                 if (pushOptions.CustomHeaders != null && pushOptions.CustomHeaders.Length > 0)
