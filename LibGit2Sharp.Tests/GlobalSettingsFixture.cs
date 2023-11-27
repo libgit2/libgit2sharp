@@ -100,7 +100,7 @@ namespace LibGit2Sharp.Tests
             // Enable two new extensions (it will reset the configuration and "noop" will be enabled)
             GlobalSettings.SetExtensions("partialclone", "newext");
             extensions = GlobalSettings.GetExtensions();
-            Assert.Equal(new[] { "noop", "objectformat", "partialclone", "newext" }, extensions);
+            Assert.Equal(new[] { "newext", "noop", "objectformat", "partialclone" }, extensions);
         }
     }
 }
