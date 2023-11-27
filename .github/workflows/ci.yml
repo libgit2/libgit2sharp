@@ -62,7 +62,7 @@ jobs:
       matrix:
         arch: [ amd64 ]
         # arch: [ amd64, arm64 ]
-        distro: [ alpine.3.13, alpine.3.14, alpine.3.15, alpine.3.16, alpine.3.17, centos.7, centos.stream.8, debian.10, debian.11, fedora.36, ubuntu.18.04, ubuntu.20.04, ubuntu.22.04 ]
+        distro: [ alpine.3.13, alpine.3.14, alpine.3.15, alpine.3.16, alpine.3.17, centos.stream.8, debian.10, debian.11, fedora.36, ubuntu.18.04, ubuntu.20.04, ubuntu.22.04 ]
         sdk:  [ '6.0', '7.0' ]
         exclude:
           - distro: alpine.3.13
