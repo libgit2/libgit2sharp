@@ -28,14 +28,14 @@
 
         /// <summary>
         /// Get/Set the custom headers.
-        /// 
-        /// <para> 
-        /// This allows you to set custom headers (e.g. X-Forwarded-For, 
+        ///
+        /// <para>
+        /// This allows you to set custom headers (e.g. X-Forwarded-For,
         /// X-Request-Id, etc),
         /// </para>
         /// </summary>
         /// <remarks>
-        /// Libgit2 sets some headers for HTTP requests (User-Agent, Host, 
+        /// Libgit2 sets some headers for HTTP requests (User-Agent, Host,
         /// Accept, Content-Type, Transfer-Encoding, Content-Length, Accept) that
         /// cannot be overriden.
         /// </remarks>

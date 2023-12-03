@@ -2,8 +2,8 @@
 
 namespace LibGit2Sharp.Core
 {
-    /// <summary> 
-    /// Git fetch options wrapper. Disposable wrapper for GitFetchOptions 
+    /// <summary>
+    /// Git fetch options wrapper. Disposable wrapper for GitFetchOptions
     /// </summary>
     internal class GitFetchOptionsWrapper : IDisposable
     {
@@ -11,7 +11,7 @@ namespace LibGit2Sharp.Core
 
         public GitFetchOptionsWrapper(GitFetchOptions fetchOptions)
         {
-            this.Options = fetchOptions;
+            Options = fetchOptions;
         }
 
         public GitFetchOptions Options { get; private set; }
@@ -23,7 +23,8 @@ namespace LibGit2Sharp.Core
             if (disposedValue)
                 return;
 
-            this.Options.CustomHeaders.Dispose();
+            Options.CustomHeaders.Dispose();
+            EncodingMarshaler.Cleanup(Options.ProxyOptions.Url);
             disposedValue = true;
         }
 

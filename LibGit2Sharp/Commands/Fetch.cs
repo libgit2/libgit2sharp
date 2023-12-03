@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using LibGit2Sharp;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -75,7 +74,7 @@ namespace LibGit2Sharp
                     fetchOptions.CustomHeaders = GitStrArrayManaged.BuildFrom(options.CustomHeaders);
                 }
 
-                fetchOptions.ProxyOptions = new GitProxyOptions { Version = 1 };
+                fetchOptions.ProxyOptions = options.ProxyOptions.CreateGitProxyOptions();
 
                 Proxy.git_remote_fetch(remoteHandle, refspecs, fetchOptions, logMessage);
             }
