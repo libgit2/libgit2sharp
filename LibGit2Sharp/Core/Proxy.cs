@@ -17,6 +17,21 @@ namespace LibGit2Sharp.Core
         internal static readonly bool isOSXArm64 = RuntimeInformation.ProcessArchitecture == Architecture.Arm64
                                                    && RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
 
+        #region git_apply_
+
+        public static unsafe void git_apply(
+            RepositoryHandle repo,
+            DiffHandle diff,
+            PatchApplyLocation location,
+            GitDiffApplyOpts options)
+        {
+            int res = NativeMethods.git_apply(repo, diff, location, options ?? new GitDiffApplyOpts());
+
+            Ensure.ZeroResult(res);
+        }
+
+        #endregion
+
         #region git_blame_
 
         public static unsafe BlameHandle git_blame_file(
@@ -852,6 +867,13 @@ namespace LibGit2Sharp.Core
         public static unsafe git_diff_delta* git_diff_get_delta(DiffHandle diff, int idx)
         {
             return NativeMethods.git_diff_get_delta(diff, (UIntPtr)idx);
+        }
+
+        public static unsafe DiffHandle git_diff_from_buffer(string content, UIntPtr len)
+        {
+            int res = NativeMethods.git_diff_from_buffer(out var diff, content, len);
+            Ensure.ZeroResult(res);
+            return new DiffHandle(diff, true);
         }
 
         #endregion

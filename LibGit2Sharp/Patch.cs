@@ -47,6 +47,16 @@ namespace LibGit2Sharp
             }
         }
 
+        /// <summary>
+        /// Instantiate a patch from its content.
+        /// </summary>
+        /// <param name="content">The patch content</param>
+        /// <returns>The Patch instance</returns>
+        public static Patch FromPatchContent(string content)
+        {
+            return new Patch(Proxy.git_diff_from_buffer(content, (UIntPtr)content.Length));
+        }
+
         private unsafe void AddFileChange(git_diff_delta* delta)
         {
             var treeEntryChanges = new TreeEntryChanges(delta);

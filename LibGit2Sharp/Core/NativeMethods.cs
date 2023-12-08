@@ -177,6 +177,13 @@ namespace LibGit2Sharp.Core
         internal static extern void git_error_set_oom();
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern unsafe int git_apply(
+            git_repository* repo,
+            git_diff* diff,
+            PatchApplyLocation location,
+            GitDiffApplyOpts options);
+
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe UInt32 git_blame_get_hunk_count(git_blame* blame);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
@@ -709,6 +716,12 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe git_diff_delta* git_diff_get_delta(git_diff* diff, UIntPtr idx);
+
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern unsafe int git_diff_from_buffer(out git_diff* diff,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))]
+            string content,
+            UIntPtr len);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int git_filter_register(
