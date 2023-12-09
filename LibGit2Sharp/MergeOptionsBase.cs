@@ -1,4 +1,6 @@
-﻿namespace LibGit2Sharp
+﻿using System;
+
+namespace LibGit2Sharp
 {
     /// <summary>
     /// Options controlling the behavior of actions that use merge (merge
@@ -92,5 +94,57 @@
         /// record a conflict.
         /// </summary>
         Union = 3,
+    }
+
+    /// <summary>
+    /// File merging flags.
+    /// </summary>
+    [Flags]
+    public enum MergeFileFlag
+    {
+        /// <summary>
+        /// Defaults
+        /// </summary>
+        Default = 0,
+
+        /// <summary>
+        /// Create standard conflicted merge files
+        /// </summary>
+        StyleMerge = (1 << 0),
+
+        /// <summary>
+        /// Create diff3-style files
+        /// </summary>
+        Diff3 = (1 << 1),
+
+        /// <summary>
+        /// Condense non-alphanumeric regions for simplified diff file
+        /// </summary>
+        SimplifyAlnum = (1 << 2),
+
+        /// <summary>
+        /// Ignore all whitespace
+        /// </summary>
+        IgnoreWhitespace = (1 << 3),
+
+        /// <summary>
+        /// Ignore changes in amount of whitespace
+        /// </summary>
+        IgnoreWhitespaceChange = (1 << 4),
+
+        /// <summary>
+        /// Ignore whitespace at end of line
+        /// </summary>
+        IgnoreWhitespace_Eol = (1 << 5),
+
+        /// <summary>
+        /// Use the "patience diff" algorithm
+        /// </summary>
+        DiffPatience = (1 << 6),
+
+        /// <summary>
+        /// Take extra time to find minimal diff
+        /// </summary>
+        DiffMinimal = (1 << 7),
     }
 }

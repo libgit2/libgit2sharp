@@ -1251,6 +1251,45 @@ namespace LibGit2Sharp.Core
             return ret;
         }
 
+        public static unsafe GitMergeFileResultWrapper git_merge_file(GitMergeFileInputWrapper ancestor, GitMergeFileInputWrapper ours, GitMergeFileInputWrapper theirs, GitMergeFileOptionsWrapper options)
+        {
+            try
+            {
+                int result = NativeMethods.git_merge_file(out git_merge_file_result git_merge_file_result, ancestor, ours, theirs, options);
+                Ensure.Int32Result(result);
+
+                return new GitMergeFileResultWrapper(git_merge_file_result);
+            }
+            finally
+            {
+                ancestor?.Dispose();
+                ours?.Dispose();
+                theirs?.Dispose();
+                options?.Dispose();
+            }
+        }
+
+        public unsafe static git_merge_file_input git_merge_file_input_init()
+        {
+            const uint version = 1;
+            int result = NativeMethods.git_merge_file_input_init(out git_merge_file_input git_merge_file_input, version);
+            Ensure.Int32Result(result);
+            return git_merge_file_input;
+        }
+
+        public static git_merge_file_options git_merge_file_options_init()
+        {
+            const uint version = 1;
+            int result = NativeMethods.git_merge_file_options_init(out git_merge_file_options git_merge_file_options, version);
+            Ensure.Int32Result(result);
+            return git_merge_file_options;
+        }
+
+        public static unsafe void git_merge_file_result_free(git_merge_file_result* git_merge_file_result)
+        {
+            NativeMethods.git_merge_file_result_free(git_merge_file_result);
+        }
+
         public static unsafe AnnotatedCommitHandle git_annotated_commit_from_fetchhead(RepositoryHandle repo, string branchName, string remoteUrl, GitOid oid)
         {
             git_annotated_commit* commit;

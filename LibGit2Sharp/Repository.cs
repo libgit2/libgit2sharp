@@ -1564,8 +1564,8 @@ namespace LibGit2Sharp
             }
 
             var fileFlags = options.IgnoreWhitespaceChange
-                ? GitMergeFileFlag.GIT_MERGE_FILE_IGNORE_WHITESPACE_CHANGE
-                : GitMergeFileFlag.GIT_MERGE_FILE_DEFAULT;
+                ? MergeFileFlag.IgnoreWhitespaceChange
+                : MergeFileFlag.Default;
 
             var mergeOptions = new GitMergeOpts
             {
@@ -1783,6 +1783,60 @@ namespace LibGit2Sharp
             {
                 reference = refH.IsNull ? null : Reference.BuildFromPtr<Reference>(refH, this);
                 obj = GitObject.BuildFrom(this, Proxy.git_object_id(objH), Proxy.git_object_type(objH), PathFromRevparseSpec(revision));
+            }
+        }
+
+        /// <summary>
+        /// Run a three-way file merge.
+        /// Merge two files using the common ancestor as the baseline, producing a merge result.
+        /// </summary>
+        /// <param name="basePath">Path to a common ancestor.</param>
+        /// <param name="currentPath">Path to the current file.</param>
+        /// <param name="otherPath">Path to the file to merge in.</param>
+        /// <param name="resultPath">Path specifying where to write the merged file.</param>
+        /// <param name="options">The merge file options or null for defaults</param>
+        /// <returns>Returns true if the merge was successful and no conflicts occurred, false otherwise.</returns>
+        public static bool MergeFile(string currentPath, string basePath, string otherPath, string resultPath, MergeFileOptions options)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(basePath, "basePath");
+            Ensure.ArgumentNotNullOrEmptyString(currentPath, "currentPath");
+            Ensure.ArgumentNotNullOrEmptyString(otherPath, "otherPath");
+
+            using (var resultWrapper = Proxy.git_merge_file(new MergeFileInput().Read(basePath),
+                                                            new MergeFileInput().Read(currentPath),
+                                                            new MergeFileInput().Read(otherPath),
+                                                            options.ToNative()))
+            {
+                MergeFileResult result = new MergeFileResult(resultWrapper);
+                result.Write(resultPath);
+                return result.Automergeable;
+            }
+        }
+
+        /// <summary>
+        /// Run a three-way file merge.
+        /// Merge two file's bytes using the common ancestor as the baseline, producing the bytes of the merge result.
+        /// </summary>
+        /// <param name="baseBytes">Bytes of a common ancestor.</param>
+        /// <param name="currentBytes">Bytes of the current file.</param>
+        /// <param name="otherBytes">Bytes of the file to merge in.</param>
+        /// <param name="resultBytes">The merged file bytes.</param>
+        /// <param name="options">The merge file options or null for defaults</param>
+        /// <returns>Returns true if the merge was successful and no conflicts occurred, false otherwise.</returns>
+        public static bool MergeFile(byte[] currentBytes, byte[] baseBytes, byte[] otherBytes, out byte[] resultBytes, MergeFileOptions options)
+        {
+            Ensure.ArgumentNotNull(baseBytes, "baseBytes");
+            Ensure.ArgumentNotNull(currentBytes, "currentBytes");
+            Ensure.ArgumentNotNull(otherBytes, "otherBytes");
+
+            using (var resultWrapper = Proxy.git_merge_file(new MergeFileInput() { Bytes = baseBytes },
+                                                            new MergeFileInput() { Bytes = currentBytes },
+                                                            new MergeFileInput() { Bytes = otherBytes },
+                                                            options.ToNative()))
+            {
+                MergeFileResult result = new MergeFileResult(resultWrapper);
+                resultBytes = result.Bytes;
+                return result.Automergeable;
             }
         }
 
