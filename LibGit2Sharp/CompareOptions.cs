@@ -50,5 +50,11 @@ namespace LibGit2Sharp
         /// By default, this option will be false.
         /// </summary>
         public bool IndentHeuristic { get; set; }
+
+        /// <summary>
+        /// Include the necessary deflate / delta information so that `git-apply`
+        /// can apply given diff information to binary files.
+        /// </summary>
+        public bool ShowBinary { get; set; }
     }
 }

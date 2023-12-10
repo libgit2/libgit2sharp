@@ -63,6 +63,11 @@ namespace LibGit2Sharp
                 options.Flags |= GitDiffOptionFlags.GIT_DIFF_DISABLE_PATHSPEC_MATCH;
             }
 
+            if (compareOptions.ShowBinary)
+            {
+                options.Flags |= GitDiffOptionFlags.GIT_DIFF_SHOW_BINARY;
+            }
+
             if (compareOptions.IndentHeuristic)
             {
                 options.Flags |= GitDiffOptionFlags.GIT_DIFF_INDENT_HEURISTIC;
