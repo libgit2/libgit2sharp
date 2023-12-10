@@ -903,6 +903,100 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanTreeMergeTreeIntoSameTree()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var master = repo.Branches["master"].Tip;
+
+                var result = repo.ObjectDatabase.MergeTrees(master.Tree, master.Tree, master.Tree, null);
+                Assert.Equal(MergeTreeStatus.Succeeded, result.Status);
+                Assert.Empty(result.Conflicts);
+            }
+        }
+
+        [Fact]
+        public void CanTreeMergeFastForwardTreeWithoutConflicts()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var master = repo.Lookup<Commit>("master");
+                var branch = repo.Lookup<Commit>("fast_forward");
+                var ancestor = repo.ObjectDatabase.FindMergeBase(master, branch);
+
+                var result = repo.ObjectDatabase.MergeTrees(ancestor.Tree, master.Tree, branch.Tree, null);
+                Assert.Equal(MergeTreeStatus.Succeeded, result.Status);
+                Assert.NotNull(result.Tree);
+                Assert.Empty(result.Conflicts);
+            }
+        }
+
+        [Fact]
+        public void CanIdentifyConflictsInMergeTrees()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var master = repo.Lookup<Commit>("master");
+                var branch = repo.Lookup<Commit>("conflicts");
+                var ancestor = repo.ObjectDatabase.FindMergeBase(master, branch);
+
+                var result = repo.ObjectDatabase.MergeTrees(ancestor.Tree, master.Tree, branch.Tree, null);
+
+                Assert.Equal(MergeTreeStatus.Conflicts, result.Status);
+
+                Assert.Null(result.Tree);
+                Assert.Single(result.Conflicts);
+
+                var conflict = result.Conflicts.First();
+                Assert.Equal(new ObjectId("8e9daea300fbfef6c0da9744c6214f546d55b279"), conflict.Ancestor.Id);
+                Assert.Equal(new ObjectId("610b16886ca829cebd2767d9196f3c4378fe60b5"), conflict.Ours.Id);
+                Assert.Equal(new ObjectId("3dd9738af654bbf1c363f6c3bbc323bacdefa179"), conflict.Theirs.Id);
+            }
+        }
+
+        [Theory]
+        [InlineData("conflicts_spaces")]
+        [InlineData("conflicts_tabs")]
+        public void CanConflictOnWhitespaceChangeMergeTreesConflict(string branchName)
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var mergeResult = repo.Merge(branchName, Constants.Signature, new MergeOptions());
+                Assert.Equal(MergeStatus.Conflicts, mergeResult.Status);
+
+                var master = repo.Branches["master"].Tip;
+                var branch = repo.Branches[branchName].Tip;
+                var ancestor = repo.ObjectDatabase.FindMergeBase(master, branch);
+                var mergeTreeResult = repo.ObjectDatabase.MergeTrees(ancestor.Tree, master.Tree, branch.Tree, new MergeTreeOptions());
+                Assert.Equal(MergeTreeStatus.Conflicts, mergeTreeResult.Status);
+            }
+        }
+
+        [Theory]
+        [InlineData("conflicts_spaces")]
+        [InlineData("conflicts_tabs")]
+        public void CanIgnoreWhitespaceChangeMergeTreesConflict(string branchName)
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var mergeResult = repo.Merge(branchName, Constants.Signature, new MergeOptions() { IgnoreWhitespaceChange = true });
+                Assert.NotEqual(MergeStatus.Conflicts, mergeResult.Status);
+
+                var master = repo.Branches["master"].Tip;
+                var branch = repo.Branches[branchName].Tip;
+                var ancestor = repo.ObjectDatabase.FindMergeBase(master, branch);
+                var mergeTreeResult = repo.ObjectDatabase.MergeTrees(ancestor.Tree, master.Tree, branch.Tree, new MergeTreeOptions() { IgnoreWhitespaceChange = true });
+                Assert.NotEqual(MergeTreeStatus.Conflicts, mergeTreeResult.Status);
+                Assert.Empty(mergeTreeResult.Conflicts);
+            }
+        }
+
+        [Fact]
         public void CanMergeIntoIndex()
         {
             string path = SandboxMergeTestRepo();

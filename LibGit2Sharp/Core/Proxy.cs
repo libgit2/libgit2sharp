@@ -3249,6 +3249,24 @@ namespace LibGit2Sharp.Core
 
 #region git_tree_
 
+        public static unsafe IndexHandle git_merge_trees(RepositoryHandle repo, ObjectHandle ancestorTree,
+            ObjectHandle ourTree, ObjectHandle theirTree, GitMergeOpts opts, out bool earlyStop)
+        {
+            git_index* index;
+            int res = NativeMethods.git_merge_trees(out index, repo, ancestorTree, ourTree, theirTree, ref opts);
+            if (res == (int)GitErrorCode.MergeConflict)
+            {
+                earlyStop = true;
+            }
+            else
+            {
+                earlyStop = false;
+                Ensure.ZeroResult(res);
+            }
+
+            return new IndexHandle(index, true);
+        }
+
         public static unsafe Mode git_tree_entry_attributes(git_tree_entry* entry)
         {
             return (Mode)NativeMethods.git_tree_entry_filemode(entry);
