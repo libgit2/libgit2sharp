@@ -16,6 +16,7 @@ namespace LibGit2Sharp
     public class ReferenceCollection : IEnumerable<Reference>
     {
         internal readonly Repository repo;
+        internal readonly ReferenceDatabaseHandle refdbHandle;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -30,6 +31,8 @@ namespace LibGit2Sharp
         internal ReferenceCollection(Repository repo)
         {
             this.repo = repo;
+            refdbHandle = Proxy.git_repository_refdb(repo.Handle);
+            repo.RegisterForCleanup(refdbHandle);
         }
 
         /// <summary>
@@ -840,6 +843,18 @@ namespace LibGit2Sharp
             var historyRewriter = new HistoryRewriter(repo, commitsToRewrite, options);
 
             historyRewriter.Execute();
+        }
+
+        /// <summary>
+        /// Replaces the Refdb backend with a custom backend. 
+        /// </summary>
+        /// <param name="backend">Custom backend to use.</param>
+        public virtual void SetBackend(RefdbBackend backend)
+        {
+            Ensure.ArgumentNotNull(backend, "backend");
+
+            // Refdb takes ownership of the backend pointer, so don't free it!
+            Proxy.git_refdb_set_backend(refdbHandle, backend.RefdbBackendPointer);
         }
 
         /// <summary>
