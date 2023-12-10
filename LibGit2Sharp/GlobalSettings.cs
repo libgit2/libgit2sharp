@@ -347,6 +347,15 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Enable or disable dubious owner validation
+        /// </summary>
+        /// <param name="enabled">true to enable owner validation; false otherwise.</param>
+        public static void SetOwnerValidation(bool enabled)
+        {
+            Proxy.git_libgit2_opts_set_owner_validation(enabled);
+        }
+
+        /// <summary>
         /// Enable or disable the libgit2 cache
         /// </summary>
         /// <param name="enabled">true to enable the cache, false otherwise</param>
