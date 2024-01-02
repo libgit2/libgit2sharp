@@ -36,6 +36,34 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
+        [InlineData("https://github.com/libgit2/TestGitRepository",1)]
+        [InlineData("https://github.com/libgit2/TestGitRepository",5)]
+        [InlineData("https://github.com/libgit2/TestGitRepository",7)]
+        public void CanCloneShallow(string url, int depth)
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            var clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, new CloneOptions
+            {
+                FetchOptions =
+                {
+                    Depth = depth,
+                },
+            });
+
+            using (var repo = new Repository(clonedRepoPath))
+            {
+                var commitsFirstParentOnly = repo.Commits.QueryBy(new CommitFilter
+                {
+                    FirstParentOnly = true,
+                });
+
+                Assert.Equal(depth, commitsFirstParentOnly.Count());
+                Assert.Equal("49322bb17d3acc9146f98c97d078513228bbf3c0", repo.Head.Tip.Id.ToString());
+            }
+        }
+
+        [Theory]
         [InlineData("br2", "a4a7dce85cf63874e984719f4fdd239f5145052f")]
         [InlineData("packed", "41bc8c69075bbdb46c5c6f0566cc8cc5b46e8bd9")]
         [InlineData("test", "e90810b8df3e80c413d903f631643c716887138d")]
