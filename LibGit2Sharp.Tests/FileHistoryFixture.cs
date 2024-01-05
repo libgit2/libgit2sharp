@@ -104,11 +104,11 @@ namespace LibGit2Sharp.Tests
                 var timeCommits = new List<Commit>
                 {
                     master10, // master
-
+                    master9, // merge to master
                     master8, // master
                     nextfix7, // next-fix
                     master6, // master
-
+                    master5, // merge to master
                     master4, // master
                     fix3, // fix
                     master2, // master
@@ -123,11 +123,11 @@ namespace LibGit2Sharp.Tests
                 var topoCommits = new List<Commit>
                 {
                     master10, // master
-
+                    master9, // merge to master
                     nextfix7, // next-fix
                     master8, // master
                     master6, // master
-
+                    master5, // merge to master
                     fix3, // fix
                     fix1, // fix
                     master4, // master
