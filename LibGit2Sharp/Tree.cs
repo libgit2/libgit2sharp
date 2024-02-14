@@ -43,6 +43,8 @@ namespace LibGit2Sharp
         /// <exception cref="NotFoundException">Throws if tree is missing</exception>
         public virtual int Count => lazyCount.Value;
 
+        private Dictionary<string, TreeEntry> _treeCache;
+
         /// <summary>
         /// Gets the <see cref="TreeEntry"/> pointed at by the <paramref name="relativePath"/> in this <see cref="Tree"/> instance.
         /// </summary>
@@ -51,8 +53,18 @@ namespace LibGit2Sharp
         /// <exception cref="NotFoundException">Throws if tree is missing</exception>
         public virtual TreeEntry this[string relativePath]
         {
-            get { return RetrieveFromPath(relativePath); }
+            get
+            {
+                TreeEntry ret;
+                if (_treeCache == null) _treeCache = new Dictionary<string, TreeEntry>();
+                else if (_treeCache.TryGetValue(relativePath, out ret)) return ret;
+
+                ret = RetrieveFromPath(relativePath);
+                _treeCache[relativePath] = ret;
+                return ret;
+            }
         }
+
 
         private unsafe TreeEntry RetrieveFromPath(string relativePath)
         {
