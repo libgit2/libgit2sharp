@@ -315,7 +315,7 @@ namespace LibGit2Sharp
                     throw new EndOfStreamException("The stream ended unexpectedly");
                 }
             }
-            catch(Exception)
+            catch (Exception)
             {
                 writestream.free(writestream_ptr);
                 throw;

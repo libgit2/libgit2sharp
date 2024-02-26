@@ -1,20 +1,20 @@
-﻿using System;
+using System;
 
 namespace LibGit2Sharp.Core
 {
     /// <summary>
-    /// Git fetch options wrapper. Disposable wrapper for GitFetchOptions
+    /// Git push options wrapper. Disposable wrapper for <see cref="GitPushOptions"/>.
     /// </summary>
-    internal class GitFetchOptionsWrapper : IDisposable
+    internal class GitPushOptionsWrapper : IDisposable
     {
-        public GitFetchOptionsWrapper() : this(new GitFetchOptions()) { }
+        public GitPushOptionsWrapper() : this(new GitPushOptions()) { }
 
-        public GitFetchOptionsWrapper(GitFetchOptions fetchOptions)
+        public GitPushOptionsWrapper(GitPushOptions pushOptions)
         {
-            Options = fetchOptions;
+            this.Options = pushOptions;
         }
 
-        public GitFetchOptions Options { get; private set; }
+        public GitPushOptions Options { get; private set; }
 
         #region IDisposable
         private bool disposedValue = false; // To detect redundant calls
@@ -23,7 +23,7 @@ namespace LibGit2Sharp.Core
             if (disposedValue)
                 return;
 
-            Options.CustomHeaders.Dispose();
+            this.Options.CustomHeaders.Dispose();
             EncodingMarshaler.Cleanup(Options.ProxyOptions.Url);
             disposedValue = true;
         }

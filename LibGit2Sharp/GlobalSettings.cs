@@ -20,7 +20,7 @@ namespace LibGit2Sharp
 
         private static string nativeLibraryPath;
         private static bool nativeLibraryPathLocked;
-        private static string nativeLibraryDefaultPath;
+        private static readonly string nativeLibraryDefaultPath = null;
 
         static GlobalSettings()
         {
@@ -29,19 +29,18 @@ namespace LibGit2Sharp
 
             nativeLibraryPathAllowed = netFX || netCore;
 
+#if NETFRAMEWORK
             if (netFX)
             {
                 // For .NET Framework apps the dependencies are deployed to lib/win32/{architecture} directory
                 nativeLibraryDefaultPath = Path.Combine(GetExecutingAssemblyDirectory(), "lib", "win32", Platform.ProcessorArchitecture);
             }
-            else
-            {
-                nativeLibraryDefaultPath = null;
-            }
+#endif
 
             registeredFilters = new Dictionary<Filter, FilterRegistration>();
         }
 
+#if NETFRAMEWORK
         private static string GetExecutingAssemblyDirectory()
         {
             // Assembly.CodeBase is not actually a correctly formatted
@@ -66,6 +65,7 @@ namespace LibGit2Sharp
             managedPath = Path.GetDirectoryName(managedPath);
             return managedPath;
         }
+#endif
 
         /// <summary>
         /// Returns information related to the current LibGit2Sharp
@@ -381,6 +381,30 @@ namespace LibGit2Sharp
         public static void SetUserAgent(string userAgent)
         {
             Proxy.git_libgit2_opts_set_user_agent(userAgent);
+        }
+
+        /// <summary>
+        /// Set that the given git extensions are supported by the caller.
+        /// </summary>
+        /// <remarks>
+        /// Extensions supported by libgit2 may be negated by prefixing them with a `!`.  For example: setting extensions to { "!noop", "newext" } indicates that the caller does not want
+        /// to support repositories with the `noop` extension but does want to support repositories with the `newext` extension.
+        /// </remarks>
+        /// <param name="extensions">Supported extensions</param>
+        public static void SetExtensions(params string[] extensions)
+        {
+            Proxy.git_libgit2_opts_set_extensions(extensions);
+        }
+
+        /// <summary>
+        /// Returns the list of git extensions that are supported.
+        /// </summary>
+        /// <remarks>
+        /// This is the list of built-in extensions supported by libgit2 and custom extensions that have been added with `SetExtensions`. Extensions that have been negated will not be returned.
+        /// </remarks>
+        public static string[] GetExtensions()
+        {
+            return Proxy.git_libgit2_opts_get_extensions();
         }
 
         /// <summary>

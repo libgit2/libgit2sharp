@@ -196,6 +196,33 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanPushWithCustomHeaders()
+        {
+            const string knownHeader = "X-Hello: mygit-201";
+            var options = new PushOptions { CustomHeaders = new string[] { knownHeader } };
+            AssertPush(repo =>
+                repo.Network.Push(repo.Network.Remotes["origin"], "HEAD", @"refs/heads/master", options));
+        }
+
+        [Fact]
+        public void CannotPushWithForbiddenCustomHeaders()
+        {
+            const string knownHeader = "User-Agent: mygit-201";
+            var options = new PushOptions { CustomHeaders = new string[] { knownHeader } };
+            Assert.Throws<LibGit2SharpException>(
+                () => AssertPush(repo => repo.Network.Push(repo.Network.Remotes["origin"], "HEAD", @"refs/heads/master", options)));
+        }
+
+        [Fact]
+        public void CannotPushWithMalformedCustomHeaders()
+        {
+            const string knownHeader = "Hello world";
+            var options = new PushOptions { CustomHeaders = new string[] { knownHeader } };
+            Assert.Throws<LibGit2SharpException>(
+                () => AssertPush(repo => repo.Network.Push(repo.Network.Remotes["origin"], "HEAD", @"refs/heads/master", options)));
+        }
+
         private static void AssertRemoteHeadTipEquals(IRepository localRepo, string sha)
         {
             var remoteReferences = localRepo.Network.ListReferences(localRepo.Network.Remotes.Single());

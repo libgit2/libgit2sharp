@@ -13,8 +13,6 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData("http://github.com/libgit2/TestGitRepository")]
         [InlineData("https://github.com/libgit2/TestGitRepository")]
-        [InlineData("git://github.com/libgit2/TestGitRepository")]
-        //[InlineData("git@github.com:libgit2/TestGitRepository")]
         public void CanClone(string url)
         {
             var scd = BuildSelfCleaningDirectory();
@@ -102,8 +100,6 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData("http://github.com/libgit2/TestGitRepository")]
         [InlineData("https://github.com/libgit2/TestGitRepository")]
-        [InlineData("git://github.com/libgit2/TestGitRepository")]
-        //[InlineData("git@github.com:libgit2/TestGitRepository")]
         public void CanCloneBarely(string url)
         {
             var scd = BuildSelfCleaningDirectory();
@@ -126,7 +122,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("git://github.com/libgit2/TestGitRepository")]
+        [InlineData("https://github.com/libgit2/TestGitRepository")]
         public void WontCheckoutIfAskedNotTo(string url)
         {
             var scd = BuildSelfCleaningDirectory();
@@ -143,7 +139,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("git://github.com/libgit2/TestGitRepository")]
+        [InlineData("https://github.com/libgit2/TestGitRepository")]
         public void CallsProgressCallbacks(string url)
         {
             bool transferWasCalled = false;
@@ -155,10 +151,14 @@ namespace LibGit2Sharp.Tests
 
             Repository.Clone(url, scd.DirectoryPath, new CloneOptions()
             {
-                OnTransferProgress = _ => { transferWasCalled = true; return true; },
-                OnProgress = progress => { progressWasCalled = true; return true; },
-                OnUpdateTips = (name, oldId, newId) => { updateTipsWasCalled = true; return true; },
+                FetchOptions =
+                {
+                    OnTransferProgress = _ => { transferWasCalled = true; return true; },
+                    OnProgress = progress => { progressWasCalled = true; return true; },
+                    OnUpdateTips = (name, oldId, newId) => { updateTipsWasCalled = true; return true; }
+                },
                 OnCheckoutProgress = (a, b, c) => checkoutWasCalled = true
+
             });
 
             Assert.True(transferWasCalled);
@@ -178,7 +178,7 @@ namespace LibGit2Sharp.Tests
             string clonedRepoPath = Repository.Clone(Constants.PrivateRepoUrl, scd.DirectoryPath,
                 new CloneOptions()
                 {
-                    CredentialsProvider = Constants.PrivateRepoCredentials
+                    FetchOptions = { CredentialsProvider = Constants.PrivateRepoCredentials }
                 });
 
 
@@ -212,29 +212,29 @@ namespace LibGit2Sharp.Tests
             };
         }
 
-        [Theory]
-        [InlineData("https://libgit2@bitbucket.org/libgit2/testgitrepository.git", "libgit3", "libgit3", true)]
-        [InlineData("https://libgit2@bitbucket.org/libgit2/testgitrepository.git", "libgit3", "libgit3", false)]
-        public void CanCloneFromBBWithCredentials(string url, string user, string pass, bool secure)
-        {
-            var scd = BuildSelfCleaningDirectory();
+        //[Theory]
+        //[InlineData("https://libgit2@bitbucket.org/libgit2/testgitrepository.git", "libgit3", "libgit3", true)]
+        //[InlineData("https://libgit2@bitbucket.org/libgit2/testgitrepository.git", "libgit3", "libgit3", false)]
+        //public void CanCloneFromBBWithCredentials(string url, string user, string pass, bool secure)
+        //{
+        //    var scd = BuildSelfCleaningDirectory();
 
-            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, new CloneOptions()
-            {
-                CredentialsProvider = (_url, _user, _cred) => CreateUsernamePasswordCredentials(user, pass, secure)
-            });
+        //    string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, new CloneOptions()
+        //    {
+        //        CredentialsProvider = (_url, _user, _cred) => CreateUsernamePasswordCredentials(user, pass, secure)
+        //    });
 
-            using (var repo = new Repository(clonedRepoPath))
-            {
-                string dir = repo.Info.Path;
-                Assert.True(Path.IsPathRooted(dir));
-                Assert.True(Directory.Exists(dir));
+        //    using (var repo = new Repository(clonedRepoPath))
+        //    {
+        //        string dir = repo.Info.Path;
+        //        Assert.True(Path.IsPathRooted(dir));
+        //        Assert.True(Directory.Exists(dir));
 
-                Assert.NotNull(repo.Info.WorkingDirectory);
-                Assert.Equal(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar), repo.Info.Path);
-                Assert.False(repo.Info.IsBare);
-            }
-        }
+        //        Assert.NotNull(repo.Info.WorkingDirectory);
+        //        Assert.Equal(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar), repo.Info.Path);
+        //        Assert.False(repo.Info.IsBare);
+        //    }
+        //}
 
         [SkippableTheory]
         [InlineData("https://github.com/libgit2/TestGitRepository.git", "github.com", typeof(CertificateX509))]
@@ -253,43 +253,46 @@ namespace LibGit2Sharp.Tests
 
             var options = new CloneOptions
             {
-                CertificateCheck = (cert, valid, host) =>
+                FetchOptions =
                 {
-                    wasCalled = true;
-
-                    Assert.Equal(hostname, host);
-                    Assert.Equal(certType, cert.GetType());
-
-                    if (certType == typeof(CertificateX509))
+                    CertificateCheck = (cert, valid, host) =>
                     {
-                        Assert.True(valid);
-                        var x509 = ((CertificateX509)cert).Certificate;
-                        // we get a string with the different fields instead of a structure, so...
-                        Assert.Contains("CN=github.com,", x509.Subject);
-                        checksHappy = true;
+                        wasCalled = true;
+
+                        Assert.Equal(hostname, host);
+                        Assert.Equal(certType, cert.GetType());
+
+                        if (certType == typeof(CertificateX509))
+                        {
+                            Assert.True(valid);
+                            var x509 = ((CertificateX509)cert).Certificate;
+                            // we get a string with the different fields instead of a structure, so...
+                            Assert.Contains("CN=github.com,", x509.Subject);
+                            checksHappy = true;
+                            return false;
+                        }
+
+                        if (certType == typeof(CertificateSsh))
+                        {
+                            var hostkey = (CertificateSsh)cert;
+                            Assert.True(hostkey.HasMD5);
+                            /*
+                             * Once you've connected and thus your ssh has stored the hostkey,
+                             * you can get the hostkey for a host with
+                             *
+                             *     ssh-keygen -F github.com -l | tail -n 1 | cut -d ' ' -f 2 | tr -d ':'
+                             *
+                             * though GitHub's hostkey won't change anytime soon.
+                             */
+                            Assert.Equal("1627aca576282d36631b564debdfa648",
+                                BitConverter.ToString(hostkey.HashMD5).ToLower().Replace("-", ""));
+                            checksHappy = true;
+                            return false;
+                        }
+
                         return false;
                     }
-
-                    if (certType == typeof(CertificateSsh))
-                    {
-                        var hostkey = (CertificateSsh)cert;
-                        Assert.True(hostkey.HasMD5);
-                        /*
-                         * Once you've connected and thus your ssh has stored the hostkey,
-                         * you can get the hostkey for a host with
-                         *
-                         *     ssh-keygen -F github.com -l | tail -n 1 | cut -d ' ' -f 2 | tr -d ':'
-                         *
-                         * though GitHub's hostkey won't change anytime soon.
-                         */
-                        Assert.Equal("1627aca576282d36631b564debdfa648",
-                            BitConverter.ToString(hostkey.HashMD5).ToLower().Replace("-", ""));
-                        checksHappy = true;
-                        return false;
-                    }
-
-                    return false;
-                },
+                }
             };
 
             Assert.Throws<UserCancelledException>(() =>
@@ -301,7 +304,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("git://github.com/libgit2/TestGitRepository")]
+        [InlineData("https://github.com/libgit2/TestGitRepository")]
         public void CloningWithoutWorkdirPathThrows(string url)
         {
             Assert.Throws<ArgumentNullException>(() => Repository.Clone(url, null));
@@ -436,9 +439,12 @@ namespace LibGit2Sharp.Tests
             {
                 RecurseSubmodules = true,
                 OnCheckoutProgress = checkoutProgressHandler,
-                OnUpdateTips = remoteRefUpdated,
-                RepositoryOperationStarting = repositoryOperationStarting,
-                RepositoryOperationCompleted = repositoryOperationCompleted,
+                FetchOptions =
+                {
+                    OnUpdateTips = remoteRefUpdated,
+                    RepositoryOperationStarting = repositoryOperationStarting,
+                    RepositoryOperationCompleted = repositoryOperationCompleted
+                }
             };
 
             string clonedRepoPath = Repository.Clone(uri.AbsolutePath, scd.DirectoryPath, options);
@@ -521,7 +527,7 @@ namespace LibGit2Sharp.Tests
             CloneOptions options = new CloneOptions()
             {
                 RecurseSubmodules = true,
-                RepositoryOperationStarting = repositoryOperationStarting,
+                FetchOptions = { RepositoryOperationStarting = repositoryOperationStarting }
             };
 
             Assert.Throws<UserCancelledException>(() =>
@@ -561,10 +567,8 @@ namespace LibGit2Sharp.Tests
             const string url = "https://github.com/libgit2/TestGitRepository";
 
             const string knownHeader = "User-Agent: mygit-201";
-            var cloneOptions = new CloneOptions()
-            {
-                FetchOptions = new FetchOptions { CustomHeaders = new String[] { knownHeader } }
-            };
+            var cloneOptions = new CloneOptions();
+            cloneOptions.FetchOptions.CustomHeaders = new string[] { knownHeader };
 
             Assert.Throws<LibGit2SharpException>(() => Repository.Clone(url, scd.DirectoryPath, cloneOptions));
         }
@@ -577,10 +581,8 @@ namespace LibGit2Sharp.Tests
             const string url = "https://github.com/libgit2/TestGitRepository";
 
             const string knownHeader = "hello world";
-            var cloneOptions = new CloneOptions()
-            {
-                FetchOptions = new FetchOptions { CustomHeaders = new String[] { knownHeader } }
-            };
+            var cloneOptions = new CloneOptions();
+            cloneOptions.FetchOptions.CustomHeaders = new string[] { knownHeader };
 
             Assert.Throws<LibGit2SharpException>(() => Repository.Clone(url, scd.DirectoryPath, cloneOptions));
         }
@@ -593,10 +595,8 @@ namespace LibGit2Sharp.Tests
             const string url = "https://github.com/libgit2/TestGitRepository";
 
             const string knownHeader = "X-Hello: world";
-            var cloneOptions = new CloneOptions()
-            {
-                FetchOptions = new FetchOptions { CustomHeaders = new String[] { knownHeader } }
-            };
+            var cloneOptions = new CloneOptions();
+            cloneOptions.FetchOptions.CustomHeaders = new string[] { knownHeader };
 
             var clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, cloneOptions);
             Assert.True(Directory.Exists(clonedRepoPath));

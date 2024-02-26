@@ -66,7 +66,7 @@ namespace LibGit2Sharp.Core
             return Path.Combine(nativeLibraryDir, libgit2 + Platform.GetNativeLibraryExtension());
         }
 
-#if NETSTANDARD
+#if NETFRAMEWORK
         private static bool TryUseNativeLibrary() => false;
 #else
         private static bool TryUseNativeLibrary()
@@ -754,6 +754,50 @@ namespace LibGit2Sharp.Core
         // git_libgit2_opts(GIT_OPT_GET_USER_AGENT, git_buf *buf)
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int git_libgit2_opts(int option, GitBuf buf);
+
+        // git_libgit2_opts(GIT_OPT_SET_EXTENSIONS, const char **extensions, size_t len)
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int git_libgit2_opts(int option, IntPtr extensions, UIntPtr len);
+
+        // git_libgit2_opts(GIT_OPT_GET_EXTENSIONS, git_strarray *out)
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int git_libgit2_opts(int option, out GitStrArray extensions);
+        #endregion
+
+        #region git_libgit2_opts_osxarm64
+
+        // For RID osx-arm64 the calling convention is different: we need to pad out to 8 arguments before varargs
+        // (see discussion at https://github.com/dotnet/runtime/issues/48796)
+
+        // git_libgit2_opts(GIT_OPT_GET_SEARCH_PATH, int level, git_buf *buf)
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl, EntryPoint = "git_libgit2_opts")]
+        internal static extern int git_libgit2_opts_osxarm64(int option, IntPtr nop2, IntPtr nop3, IntPtr nop4, IntPtr nop5, IntPtr nop6, IntPtr nop7, IntPtr nop8, uint level, GitBuf buf);
+
+        // git_libgit2_opts(GIT_OPT_SET_SEARCH_PATH, int level, const char *path)
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl, EntryPoint = "git_libgit2_opts")]
+        internal static extern int git_libgit2_opts_osxarm64(int option, IntPtr nop2, IntPtr nop3, IntPtr nop4, IntPtr nop5, IntPtr nop6, IntPtr nop7, IntPtr nop8, uint level,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string path);
+
+        // git_libgit2_opts(GIT_OPT_ENABLE_*, int enabled)
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl, EntryPoint = "git_libgit2_opts")]
+        internal static extern int git_libgit2_opts_osxarm64(int option, IntPtr nop2, IntPtr nop3, IntPtr nop4, IntPtr nop5, IntPtr nop6, IntPtr nop7, IntPtr nop8, int enabled);
+
+        // git_libgit2_opts(GIT_OPT_SET_USER_AGENT, const char *path)
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl, EntryPoint = "git_libgit2_opts")]
+        internal static extern int git_libgit2_opts_osxarm64(int option, IntPtr nop2, IntPtr nop3, IntPtr nop4, IntPtr nop5, IntPtr nop6, IntPtr nop7, IntPtr nop8,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string path);
+
+        // git_libgit2_opts(GIT_OPT_GET_USER_AGENT, git_buf *buf)
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl, EntryPoint = "git_libgit2_opts")]
+        internal static extern int git_libgit2_opts_osxarm64(int option, IntPtr nop2, IntPtr nop3, IntPtr nop4, IntPtr nop5, IntPtr nop6, IntPtr nop7, IntPtr nop8, GitBuf buf);
+
+        // git_libgit2_opts(GIT_OPT_SET_EXTENSIONS, const char **extensions, size_t len)
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl, EntryPoint = "git_libgit2_opts")]
+        internal static extern int git_libgit2_opts_osxarm64(int option, IntPtr nop2, IntPtr nop3, IntPtr nop4, IntPtr nop5, IntPtr nop6, IntPtr nop7, IntPtr nop8, IntPtr extensions, UIntPtr len);
+
+        // git_libgit2_opts(GIT_OPT_GET_EXTENSIONS, git_strarray *out)
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl, EntryPoint = "git_libgit2_opts")]
+        internal static extern int git_libgit2_opts_osxarm64(int option, IntPtr nop2, IntPtr nop3, IntPtr nop4, IntPtr nop5, IntPtr nop6, IntPtr nop7, IntPtr nop8, out GitStrArray extensions);
         #endregion
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]

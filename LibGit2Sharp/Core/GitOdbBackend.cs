@@ -33,10 +33,8 @@ namespace LibGit2Sharp.Core
         public exists_prefix_callback ExistsPrefix;
         public IntPtr Refresh;
         public foreach_callback Foreach;
-
-        private IntPtr Padding; // TODO: add writemidx
-
-        public IntPtr Writepack;
+        public IntPtr WritePack;
+        public IntPtr WriteMidx;
         public IntPtr Freshen;
         public free_callback Free;
 

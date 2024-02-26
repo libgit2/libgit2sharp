@@ -1,6 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <PackageId>Apiiro.LibGit2Sharp</PackageId>
+    <Authors>Apiiro</Authors>
+    <Company>Apiiro</Company>
+    <RepositoryUrl>https://github.com/apiiro/libgit2sharp</RepositoryUrl>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>10.0</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageDescription>LibGit2Sharp brings all the might and speed of libgit2, a native Git implementation, to the managed world of .NET</PackageDescription>
     <Copyright>Copyright © LibGit2Sharp contributors</Copyright>
@@ -11,13 +17,11 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\libgit2sharp.snk</AssemblyOriginatorKeyFile>
     <PackageIcon>square-logo.png</PackageIcon>
+    <PackageReadmeFile>App_Readme/README.md</PackageReadmeFile>
     <PackageLicenseFile>App_Readme/LICENSE.md</PackageLicenseFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageId>Apiiro.LibGit2Sharp</PackageId>
-    <Authors>Apiiro</Authors>
-    <Company>Apiiro</Company>
-    <RepositoryUrl>https://github.com/apiiro/libgit2sharp</RepositoryUrl>
-    <TargetFramework>net6.0</TargetFramework>
+    <MinVerDefaultPreReleaseIdentifiers>preview.0</MinVerDefaultPreReleaseIdentifiers>
+    <MinVerBuildMetadata Condition="'$(libgit2_hash)' != ''">libgit2-$(libgit2_hash.Substring(0,7))</MinVerBuildMetadata>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,17 +35,23 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="[2.0.315-alpha.0.9]" PrivateAssets="none" />
+    <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="[2.0.321]" PrivateAssets="none" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.244" PrivateAssets="all" />
+    <PackageReference Include="MinVer" Version="5.0.0-beta.1" PrivateAssets="all" />
   </ItemGroup>
 
   <Import Project="..\Targets\CodeGenerator.targets" />
   <Import Project="..\Targets\GenerateNativeDllName.targets" />
 
-  <Target Name="SetNuSpecProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="GetBuildVersion">
+  <Target Name="SetNuspecProperties" BeforeTargets="GenerateNuspec">
     <PropertyGroup>
-      <PackageReleaseNotes>https://github.com/libgit2/libgit2sharp/blob/$(GitCommitIdShort)/CHANGES.md#libgit2sharp-changes</PackageReleaseNotes>
+      <PackageReleaseNotes>https://github.com/libgit2/libgit2sharp/blob/$(SourceRevisionId)/CHANGES.md</PackageReleaseNotes>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="AdjustVersions" AfterTargets="MinVer">
+    <PropertyGroup>
+      <AssemblyVersion>$(MinVerMajor).$(MinVerMinor).0.0</AssemblyVersion>
     </PropertyGroup>
   </Target>
 
