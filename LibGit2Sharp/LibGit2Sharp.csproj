@@ -5,6 +5,7 @@
     <Authors>Apiiro</Authors>
     <Company>Apiiro</Company>
     <RepositoryUrl>https://github.com/apiiro/libgit2sharp</RepositoryUrl>
+    <Version>0.29.0-apiiro-1</Version>
     <TargetFramework>net6.0</TargetFramework>
     <LangVersion>10.0</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
