@@ -315,10 +315,10 @@ namespace LibGit2Sharp
                     throw new EndOfStreamException("The stream ended unexpectedly");
                 }
             }
-            catch(Exception e)
+            catch(Exception)
             {
                 writestream.free(writestream_ptr);
-                throw e;
+                throw;
             }
 
             ObjectId id = Proxy.git_blob_create_fromstream_commit(writestream_ptr);

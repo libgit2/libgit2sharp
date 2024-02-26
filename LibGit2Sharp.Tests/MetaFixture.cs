@@ -164,7 +164,10 @@ namespace LibGit2Sharp.Tests
                 }
                 catch
                 {
-                    nonTestableTypes.Add(type, new List<string>());
+                    if (!nonTestableTypes.TryGetValue(type, out _))
+                    {
+                        nonTestableTypes.Add(type, new List<string>());
+                    }
                 }
             }
 
