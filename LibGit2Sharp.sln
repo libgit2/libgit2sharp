@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Targets\CodeGenerator.targets = Targets\CodeGenerator.targets
 		Directory.Build.props = Directory.Build.props
 		Targets\GenerateNativeDllName.targets = Targets\GenerateNativeDllName.targets
-		nuget.config = nuget.config
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NativeLibraryLoadTestApp.x86", "NativeLibraryLoadTestApp\x86\NativeLibraryLoadTestApp.x86.csproj", "{86453D2C-4953-4DF4-B12A-ADE579608BAA}"
