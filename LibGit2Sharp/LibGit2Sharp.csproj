@@ -51,7 +51,7 @@
   <Target Name="AdjustVersions" AfterTargets="MinVer">
     <PropertyGroup>
       <AssemblyVersion>$(MinVerMajor).$(MinVerMinor).0.0</AssemblyVersion>
-      <PackageVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch)</PackageVersion>
+      <PackageVersion>0.27.2</PackageVersion>
       <PackageVersion Condition="'$(MinVerPreRelease)' != ''">$(PackageVersion)-$(MinVerPreRelease)</PackageVersion>
     </PropertyGroup>
   </Target>
