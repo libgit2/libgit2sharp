@@ -30,6 +30,8 @@ jobs:
           name: NuGet packages
           path: bin/Packages/
           retention-days: 7
+      - name: Verify trimming compatibility
+        run: dotnet publish TrimmingTestApp
   test:
     name: Test / ${{ matrix.os }} / ${{ matrix.arch }} / ${{ matrix.tfm }}
     runs-on: ${{ matrix.os }}
