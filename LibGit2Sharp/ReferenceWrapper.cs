@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using LibGit2Sharp.Core;
 
@@ -10,7 +11,11 @@ namespace LibGit2Sharp
     /// </summary>
     /// <typeparam name="TObject">The type of the referenced Git object.</typeparam>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
+#if NET
+    public abstract class ReferenceWrapper<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] TObject> : IEquatable<ReferenceWrapper<TObject>>, IBelongToARepository where TObject : GitObject
+#else
     public abstract class ReferenceWrapper<TObject> : IEquatable<ReferenceWrapper<TObject>>, IBelongToARepository where TObject : GitObject
+#endif
     {
         /// <summary>
         /// The repository.

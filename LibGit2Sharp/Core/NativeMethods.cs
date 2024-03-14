@@ -102,7 +102,7 @@ namespace LibGit2Sharp.Core
                 {
                     // The libraries are located at 'runtimes/<rid>/native/lib{libraryName}.so'
                     // The <rid> ends with the processor architecture. e.g. fedora-x64.
-                    string assemblyDirectory = Path.GetDirectoryName(typeof(NativeMethods).Assembly.Location);
+                    string assemblyDirectory = Path.GetDirectoryName(AppContext.BaseDirectory);
                     string processorArchitecture = RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant();
                     string runtimesDirectory = Path.Combine(assemblyDirectory, "runtimes");
 

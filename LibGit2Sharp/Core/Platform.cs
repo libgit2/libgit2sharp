@@ -58,7 +58,11 @@ namespace LibGit2Sharp.Core
         /// Returns true if the runtime is Mono.
         /// </summary>
         public static bool IsRunningOnMono()
+#if NETFRAMEWORK
             => Type.GetType("Mono.Runtime") != null;
+#else
+            => false;
+#endif
 
         /// <summary>
         /// Returns true if the runtime is .NET Framework.
