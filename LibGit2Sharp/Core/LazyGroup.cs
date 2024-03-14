@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace LibGit2Sharp.Core
 {
@@ -44,7 +45,11 @@ namespace LibGit2Sharp.Core
 
         protected abstract void EvaluateInternal(Action<T> evaluator);
 
+#if NET
+        protected static ILazy<TResult> Singleton<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] TResult>(Func<TResult> resultSelector)
+#else
         protected static ILazy<TResult> Singleton<TResult>(Func<TResult> resultSelector)
+#endif
         {
             return new LazyWrapper<TResult>(resultSelector);
         }
@@ -90,7 +95,11 @@ namespace LibGit2Sharp.Core
             }
         }
 
+#if NET
+        protected class LazyWrapper<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] TType> : Lazy<TType>, ILazy<TType>
+#else
         protected class LazyWrapper<TType> : Lazy<TType>, ILazy<TType>
+#endif
         {
             public LazyWrapper(Func<TType> evaluator)
                 : base(evaluator)
