@@ -28,7 +28,7 @@ jobs:
         uses: actions/upload-artifact@v3.1.2
         with:
           name: NuGet packages
-          path: bin/Packages/
+          path: artifacts/package/
           retention-days: 7
       - name: Verify trimming compatibility
         run: dotnet publish TrimmingTestApp
