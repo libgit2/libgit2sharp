@@ -182,7 +182,7 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Throws<ArgumentException>(() => Commands.Remove(repo, string.Empty));
                 Assert.Throws<ArgumentNullException>(() => Commands.Remove(repo, (string)null));
-                Assert.Throws<ArgumentException>(() => Commands.Remove(repo, new string[] { }));
+                Assert.Throws<ArgumentException>(() => Commands.Remove(repo, Array.Empty<string>()));
                 Assert.Throws<ArgumentNullException>(() => Commands.Remove(repo, new string[] { null }));
             }
         }

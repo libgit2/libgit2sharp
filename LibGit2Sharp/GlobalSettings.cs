@@ -247,9 +247,9 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(filter, "filter");
             if (priority < FilterRegistration.FilterPriorityMin || priority > FilterRegistration.FilterPriorityMax)
             {
-                throw new ArgumentOutOfRangeException("priority",
+                throw new ArgumentOutOfRangeException(nameof(priority),
                                                       priority,
-                                                      String.Format(System.Globalization.CultureInfo.InvariantCulture,
+                                                      string.Format(System.Globalization.CultureInfo.InvariantCulture,
                                                                     "Filter priorities must be within the inclusive range of [{0}, {1}].",
                                                                     FilterRegistration.FilterPriorityMin,
                                                                     FilterRegistration.FilterPriorityMax));

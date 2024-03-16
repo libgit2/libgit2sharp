@@ -29,9 +29,9 @@ namespace LibGit2Sharp
         protected PushUpdate()
         {
             DestinationObjectId = ObjectId.Zero;
-            DestinationRefName = String.Empty;
+            DestinationRefName = string.Empty;
             SourceObjectId = ObjectId.Zero;
-            SourceRefName = String.Empty;
+            SourceRefName = string.Empty;
         }
 
         /// <summary>

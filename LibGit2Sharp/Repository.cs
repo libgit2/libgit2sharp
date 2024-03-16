@@ -1456,7 +1456,7 @@ namespace LibGit2Sharp
                 case GitMergePreference.GIT_MERGE_PREFERENCE_NO_FASTFORWARD:
                     return FastForwardStrategy.NoFastForward;
                 default:
-                    throw new InvalidOperationException(String.Format("Unknown merge preference: {0}", preference));
+                    throw new InvalidOperationException(string.Format("Unknown merge preference: {0}", preference));
             }
         }
 
@@ -1674,7 +1674,7 @@ namespace LibGit2Sharp
             {
                 if (string.IsNullOrEmpty(path))
                 {
-                    throw new ArgumentException("At least one provided path is either null or empty.", "paths");
+                    throw new ArgumentException("At least one provided path is either null or empty.", nameof(paths));
                 }
 
                 filePaths.Add(this.BuildRelativePathFrom(path));
@@ -1682,7 +1682,7 @@ namespace LibGit2Sharp
 
             if (filePaths.Count == 0)
             {
-                throw new ArgumentException("No path has been provided.", "paths");
+                throw new ArgumentException("No path has been provided.", nameof(paths));
             }
 
             return filePaths.ToArray();

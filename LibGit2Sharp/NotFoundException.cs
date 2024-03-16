@@ -31,7 +31,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2Sharp.NotFoundException"/> class with a specified error message.
         /// </summary>
-        /// <param name="format">A composite format string for use in <see cref="String.Format(IFormatProvider, string, object[])"/>.</param>
+        /// <param name="format">A composite format string for use in <see cref="string.Format(IFormatProvider, string, object[])"/>.</param>
         /// <param name="args">An object array that contains zero or more objects to format.</param>
         public NotFoundException(string format, params object[] args)
             : base(format, args)

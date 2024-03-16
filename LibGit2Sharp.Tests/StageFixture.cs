@@ -265,7 +265,7 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Throws<ArgumentException>(() => Commands.Stage(repo, string.Empty));
                 Assert.Throws<ArgumentNullException>(() => Commands.Stage(repo, (string)null));
-                Assert.Throws<ArgumentException>(() => Commands.Stage(repo, new string[] { }));
+                Assert.Throws<ArgumentException>(() => Commands.Stage(repo, Array.Empty<string>()));
                 Assert.Throws<ArgumentException>(() => Commands.Stage(repo, new string[] { null }));
             }
         }
@@ -362,7 +362,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, ".gitignore"),
-                    String.Format("{0}\n", filename));
+                    string.Format("{0}\n", filename));
 
                 Commands.Stage(repo, filename);
                 Assert.Equal(expected, repo.RetrieveStatus(filename));
@@ -384,7 +384,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, ".gitignore"),
-                    String.Format("{0}\n", filename));
+                    string.Format("{0}\n", filename));
 
                 Commands.Stage(repo, filename);
                 Assert.Equal(expected, repo.RetrieveStatus(filename));

@@ -67,7 +67,7 @@ namespace LibGit2Sharp
             {
                 if (index < 0)
                 {
-                    throw new ArgumentOutOfRangeException("index", "The passed index must be a positive integer.");
+                    throw new ArgumentOutOfRangeException(nameof(index), "The passed index must be a positive integer.");
                 }
 
                 GitObject stashCommit = repo.Lookup(string.Format(CultureInfo.InvariantCulture,
@@ -146,7 +146,7 @@ namespace LibGit2Sharp
         {
             if (index < 0)
             {
-                throw new ArgumentException("The passed index must be a positive integer.", "index");
+                throw new ArgumentException("The passed index must be a positive integer.", nameof(index));
             }
 
             if (options == null)
@@ -189,7 +189,7 @@ namespace LibGit2Sharp
         {
             if (index < 0)
             {
-                throw new ArgumentException("The passed index must be a positive integer.", "index");
+                throw new ArgumentException("The passed index must be a positive integer.", nameof(index));
             }
 
             if (options == null)
@@ -231,7 +231,7 @@ namespace LibGit2Sharp
         {
             if (index < 0)
             {
-                throw new ArgumentException("The passed index must be a positive integer.", "index");
+                throw new ArgumentException("The passed index must be a positive integer.", nameof(index));
             }
 
             Proxy.git_stash_drop(repo.Handle, index);

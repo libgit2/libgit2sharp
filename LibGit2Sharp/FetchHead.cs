@@ -61,7 +61,7 @@ namespace LibGit2Sharp
         /// The URL of the remote repository this <see cref="FetchHead"/>
         /// has been built from.
         /// </summary>
-        public virtual String Url { get; private set; }
+        public virtual string Url { get; private set; }
 
         /// <summary>
         /// Determines if this fetch head entry has been explicitly fetched.

@@ -63,7 +63,7 @@ namespace LibGit2Sharp
         {
             if (size < 0 || (UIntPtr.Size == sizeof(int) && size > int.MaxValue))
             {
-                throw new ArgumentOutOfRangeException("size");
+                throw new ArgumentOutOfRangeException(nameof(size));
             }
 
             IntPtr buffer = Proxy.git_odb_backend_malloc(this.GitOdbBackendPointer, new UIntPtr((ulong)size));
