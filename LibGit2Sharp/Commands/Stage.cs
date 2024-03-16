@@ -237,7 +237,7 @@ namespace LibGit2Sharp
 
             if (batch.Count == 0)
             {
-                throw new ArgumentNullException("sourcePaths");
+                throw new ArgumentNullException(nameof(sourcePaths));
             }
 
             foreach (KeyValuePair<Tuple<string, FileStatus>, Tuple<string, FileStatus>> keyValuePair in batch)

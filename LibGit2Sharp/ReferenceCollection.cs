@@ -539,7 +539,7 @@ namespace LibGit2Sharp
 
                 if (refState == RefState.DoesNotLookValid)
                 {
-                    throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is a Symbolic reference, you must provide a reference canonical name as the target.", name), "canonicalRefNameOrObjectish");
+                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is a Symbolic reference, you must provide a reference canonical name as the target.", name), nameof(canonicalRefNameOrObjectish));
                 }
 
                 return UpdateTarget(symbolicReference, targetRef, logMessage);

@@ -1,5 +1,7 @@
 using System;
+#if NETFRAMEWORK
 using System.Runtime.Serialization;
+#endif
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -10,7 +12,9 @@ namespace LibGit2Sharp
     /// if the spec refers to an object of an incorrect type (e.g. asking to
     /// create a branch from a blob, or peeling a blob to a commit).
     /// </summary>
+#if NETFRAMEWORK
     [Serializable]
+#endif
     public class InvalidSpecificationException : NativeException
     {
         /// <summary>
@@ -30,7 +34,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Initializes a new instance of the <see cref="InvalidSpecificationException"/> class with a specified error message.
         /// </summary>
-        /// <param name="format">A composite format string for use in <see cref="String.Format(IFormatProvider, string, object[])"/>.</param>
+        /// <param name="format">A composite format string for use in <see cref="string.Format(IFormatProvider, string, object[])"/>.</param>
         /// <param name="args">An object array that contains zero or more objects to format.</param>
         public InvalidSpecificationException(string format, params object[] args)
             : base(format, args)
@@ -45,6 +49,7 @@ namespace LibGit2Sharp
             : base(message, innerException)
         { }
 
+#if NETFRAMEWORK
         /// <summary>
         /// Initializes a new instance of the <see cref="InvalidSpecificationException"/> class with a serialized data.
         /// </summary>
@@ -53,6 +58,7 @@ namespace LibGit2Sharp
         protected InvalidSpecificationException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
+#endif
 
         internal InvalidSpecificationException(string message, GitErrorCategory category)
             : base(message, category)

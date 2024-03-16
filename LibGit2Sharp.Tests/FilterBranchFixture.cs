@@ -234,7 +234,7 @@ namespace LibGit2Sharp.Tests
 
             AssertSucceedingButNotError();
 
-            Assert.Equal(new Commit[0],
+            Assert.Equal(Array.Empty<Commit>(),
                          repo.Commits
                              .QueryBy(new CommitFilter {IncludeReachableFrom = repo.Branches})
                              .Where(c => c["README"] != null

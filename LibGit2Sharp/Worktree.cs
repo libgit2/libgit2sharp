@@ -65,10 +65,10 @@ namespace LibGit2Sharp
         public virtual string LockReason { get { return worktreeLock == null ? null : worktreeLock.Reason; } }
 
         /// <summary>
-        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="Worktree"/>.
+        /// Determines whether the specified <see cref="object"/> is equal to the current <see cref="Worktree"/>.
         /// </summary>
-        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="Worktree"/>.</param>
-        /// <returns>True if the specified <see cref="Object"/> is equal to the current <see cref="Worktree"/>; otherwise, false.</returns>
+        /// <param name="obj">The <see cref="object"/> to compare with the current <see cref="Worktree"/>.</param>
+        /// <returns>True if the specified <see cref="object"/> is equal to the current <see cref="Worktree"/>; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as Worktree);
@@ -118,7 +118,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Returns the <see cref="Name"/>, a <see cref="String"/> representation of the current <see cref="Worktree"/>.
+        /// Returns the <see cref="Name"/>, a <see cref="string"/> representation of the current <see cref="Worktree"/>.
         /// </summary>
         /// <returns>The <see cref="Name"/> that represents the current <see cref="Worktree"/>.</returns>
         public override string ToString()

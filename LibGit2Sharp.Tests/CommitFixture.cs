@@ -406,7 +406,7 @@ namespace LibGit2Sharp.Tests
         {
             AssertEnumerationOfCommits(
                 repo => new CommitFilter { IncludeReachableFrom = repo.Tags["point_to_blob"] },
-                new string[] { });
+                Array.Empty<string>());
         }
 
         [Fact]
@@ -421,7 +421,7 @@ namespace LibGit2Sharp.Tests
 
                 AssertEnumerationOfCommitsInRepo(repo,
                     r => new CommitFilter { IncludeReachableFrom = tag },
-                    new string[] { });
+                    Array.Empty<string>());
             }
         }
 

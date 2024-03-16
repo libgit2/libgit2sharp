@@ -13,7 +13,7 @@ namespace LibGit2Sharp
     /// </remarks>
     public class Blob : GitObject
     {
-        private readonly ILazy<Int64> lazySize;
+        private readonly ILazy<long> lazySize;
         private readonly ILazy<bool> lazyIsBinary;
 
         /// <summary>

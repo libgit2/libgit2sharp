@@ -1,5 +1,7 @@
 ﻿using System;
+#if NETFRAMEWORK
 using System.Runtime.Serialization;
+#endif
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -8,7 +10,9 @@ namespace LibGit2Sharp
     /// The exception that is thrown when push cannot be performed
     /// against the remote without losing commits.
     /// </summary>
+#if NETFRAMEWORK
     [Serializable]
+#endif
     public class NonFastForwardException : NativeException
     {
         /// <summary>
@@ -28,7 +32,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2Sharp.NonFastForwardException"/> class with a specified error message.
         /// </summary>
-        /// <param name="format">A composite format string for use in <see cref="String.Format(IFormatProvider, string, object[])"/>.</param>
+        /// <param name="format">A composite format string for use in <see cref="string.Format(IFormatProvider, string, object[])"/>.</param>
         /// <param name="args">An object array that contains zero or more objects to format.</param>
         public NonFastForwardException(string format, params object[] args)
             : base(format, args)
@@ -43,6 +47,7 @@ namespace LibGit2Sharp
             : base(message, innerException)
         { }
 
+#if NETFRAMEWORK
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2Sharp.NonFastForwardException"/> class with a serialized data.
         /// </summary>
@@ -51,6 +56,7 @@ namespace LibGit2Sharp
         protected NonFastForwardException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
+#endif
 
         internal NonFastForwardException(string message, GitErrorCategory category)
             : base(message, category)

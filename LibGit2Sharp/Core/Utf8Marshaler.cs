@@ -67,7 +67,7 @@ namespace LibGit2Sharp.Core
 
         #region ICustomMarshaler
 
-        public override Object MarshalNativeToManaged(IntPtr pNativeData)
+        public override object MarshalNativeToManaged(IntPtr pNativeData)
         {
             throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
                                                               "{0} cannot be used to retrieve data from libgit2.",
@@ -76,7 +76,7 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
-        public static IntPtr FromManaged(String value)
+        public static IntPtr FromManaged(string value)
         {
             return FromManaged(encoding, value);
         }

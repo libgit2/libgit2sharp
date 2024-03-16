@@ -61,7 +61,7 @@ namespace LibGit2Sharp.Tests
                     }
 
                     // Perform the actual fetch
-                    Commands.Fetch(repo, remoteName, new string[0],
+                    Commands.Fetch(repo, remoteName, Array.Empty<string>(),
                         new FetchOptions { OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler, TagFetchMode = TagFetchMode.Auto },
                     null);
 
@@ -161,29 +161,29 @@ namespace LibGit2Sharp.Tests
 
         private class MockSmartSubtransport : RpcSmartSubtransport
         {
-            protected override SmartSubtransportStream Action(String url, GitSmartSubtransportAction action)
+            protected override SmartSubtransportStream Action(string url, GitSmartSubtransportAction action)
             {
-                String endpointUrl, contentType = null;
+                string endpointUrl, contentType = null;
                 bool isPost = false;
 
                 switch (action)
                 {
                     case GitSmartSubtransportAction.UploadPackList:
-                        endpointUrl = String.Concat(url, "/info/refs?service=git-upload-pack");
+                        endpointUrl = string.Concat(url, "/info/refs?service=git-upload-pack");
                         break;
 
                     case GitSmartSubtransportAction.UploadPack:
-                        endpointUrl = String.Concat(url, "/git-upload-pack");
+                        endpointUrl = string.Concat(url, "/git-upload-pack");
                         contentType = "application/x-git-upload-pack-request";
                         isPost = true;
                         break;
 
                     case GitSmartSubtransportAction.ReceivePackList:
-                        endpointUrl = String.Concat(url, "/info/refs?service=git-receive-pack");
+                        endpointUrl = string.Concat(url, "/info/refs?service=git-receive-pack");
                         break;
 
                     case GitSmartSubtransportAction.ReceivePack:
-                        endpointUrl = String.Concat(url, "/git-receive-pack");
+                        endpointUrl = string.Concat(url, "/git-receive-pack");
                         contentType = "application/x-git-receive-pack-request";
                         isPost = true;
                         break;
@@ -313,7 +313,7 @@ namespace LibGit2Sharp.Tests
                             }
 
                             // rethrow if it's not 401
-                            throw ex;
+                            throw;
                         }
 
                         if (response.StatusCode == HttpStatusCode.Moved || response.StatusCode == HttpStatusCode.Redirect)

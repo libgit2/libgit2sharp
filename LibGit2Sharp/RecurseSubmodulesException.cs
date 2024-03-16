@@ -1,5 +1,7 @@
 ﻿using System;
+#if NETFRAMEWORK
 using System.Runtime.Serialization;
+#endif
 
 namespace LibGit2Sharp
 {
@@ -8,7 +10,9 @@ namespace LibGit2Sharp
     /// through submodules. The inner exception contains the exception that was
     /// initially thrown while operating on the submodule.
     /// </summary>
+#if NETFRAMEWORK
     [Serializable]
+#endif
     public class RecurseSubmodulesException : LibGit2SharpException
     {
         /// <summary>
@@ -34,6 +38,7 @@ namespace LibGit2Sharp
             InitialRepositoryPath = initialRepositoryPath;
         }
 
+#if NETFRAMEWORK
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2Sharp.RecurseSubmodulesException"/> class with a serialized data.
         /// </summary>
@@ -42,5 +47,6 @@ namespace LibGit2Sharp
         protected RecurseSubmodulesException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
+#endif
     }
 }

@@ -61,12 +61,12 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Determines whether the specified <see cref="Object"/> is
+        /// Determines whether the specified <see cref="object"/> is
         /// equal to the current <see cref="Conflict"/>.
         /// </summary>
-        /// <param name="obj">The <see cref="Object"/> to compare with
+        /// <param name="obj">The <see cref="object"/> to compare with
         /// the current <see cref="Conflict"/>.</param>
-        /// <returns>true if the specified <see cref="Object"/> is equal
+        /// <returns>true if the specified <see cref="object"/> is equal
         /// to the current <see cref="Conflict"/>; otherwise,
         /// false.</returns>
         public override bool Equals(object obj)

@@ -189,7 +189,7 @@ namespace LibGit2Sharp
             {
                 if (value < 0)
                 {
-                    throw new ArgumentException("Argument can not be negative", "value");
+                    throw new ArgumentException("Argument can not be negative", nameof(value));
                 }
 
                 nThreads = value;

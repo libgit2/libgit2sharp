@@ -894,7 +894,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<ArgumentNullException>(() => repo.Refs.ReachableFrom(null));
                 Assert.Throws<ArgumentNullException>(() => repo.Refs.ReachableFrom(null, repo.Commits.Take(2)));
                 Assert.Throws<ArgumentNullException>(() => repo.Refs.ReachableFrom(repo.Refs, null));
-                Assert.Empty(repo.Refs.ReachableFrom(new Commit[] { }));
+                Assert.Empty(repo.Refs.ReachableFrom(Array.Empty<Commit>()));
             }
         }
     }

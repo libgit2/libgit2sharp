@@ -1,12 +1,16 @@
 ﻿using System;
+#if NETFRAMEWORK
 using System.Runtime.Serialization;
+#endif
 
 namespace LibGit2Sharp
 {
     /// <summary>
     /// The exception that is thrown when an explicit path or a list of explicit paths could not be matched.
     /// </summary>
+#if NETFRAMEWORK
     [Serializable]
+#endif
     public class UnmatchedPathException : LibGit2SharpException
     {
         /// <summary>
@@ -26,7 +30,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Initializes a new instance of the <see cref="UnmatchedPathException"/> class with a specified error message.
         /// </summary>
-        /// <param name="format">A composite format string for use in <see cref="String.Format(IFormatProvider, string, object[])"/>.</param>
+        /// <param name="format">A composite format string for use in <see cref="string.Format(IFormatProvider, string, object[])"/>.</param>
         /// <param name="args">An object array that contains zero or more objects to format.</param>
         public UnmatchedPathException(string format, params object[] args)
             : base(format, args)
@@ -41,6 +45,7 @@ namespace LibGit2Sharp
             : base(message, innerException)
         { }
 
+#if NETFRAMEWORK
         /// <summary>
         /// Initializes a new instance of the <see cref="UnmatchedPathException"/> class with a serialized data.
         /// </summary>
@@ -49,5 +54,6 @@ namespace LibGit2Sharp
         protected UnmatchedPathException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
+#endif
     }
 }

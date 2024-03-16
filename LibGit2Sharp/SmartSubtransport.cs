@@ -158,7 +158,7 @@ namespace LibGit2Sharp
         /// <param name="url">The endpoint to connect to</param>
         /// <param name="action">The type of connection to create</param>
         /// <returns>A SmartSubtransportStream representing the connection</returns>
-        protected abstract SmartSubtransportStream Action(String url, GitSmartSubtransportAction action);
+        protected abstract SmartSubtransportStream Action(string url, GitSmartSubtransportAction action);
 
         /// <summary>
         /// Invoked by libgit2 when this subtransport is no longer needed, but may be re-used in the future.
@@ -225,7 +225,7 @@ namespace LibGit2Sharp
                 stream = IntPtr.Zero;
 
                 SmartSubtransport t = GCHandle.FromIntPtr(Marshal.ReadIntPtr(subtransport, GitSmartSubtransport.GCHandleOffset)).Target as SmartSubtransport;
-                String urlAsString = LaxUtf8Marshaler.FromNative(url);
+                string urlAsString = LaxUtf8Marshaler.FromNative(url);
 
                 if (t == null)
                 {
@@ -233,12 +233,12 @@ namespace LibGit2Sharp
                     return (int)GitErrorCode.Error;
                 }
 
-                if (String.IsNullOrEmpty(urlAsString))
+                if (string.IsNullOrEmpty(urlAsString))
                 {
                     urlAsString = t.LastActionUrl;
                 }
 
-                if (String.IsNullOrEmpty(urlAsString))
+                if (string.IsNullOrEmpty(urlAsString))
                 {
                     Proxy.git_error_set_str(GitErrorCategory.Net, "no url provided");
                     return (int)GitErrorCode.Error;

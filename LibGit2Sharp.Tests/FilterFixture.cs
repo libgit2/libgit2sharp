@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
+using System.Threading.Tasks;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
-using System.Threading.Tasks;
 
 namespace LibGit2Sharp.Tests
 {
@@ -174,7 +173,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanHandleMultipleSmudgesConcurrently()
+        public async Task CanHandleMultipleSmudgesConcurrently()
         {
             const string decodedInput = "This is a substitution cipher";
             const string encodedInput = "Guvf vf n fhofgvghgvba pvcure";
@@ -193,20 +192,18 @@ namespace LibGit2Sharp.Tests
 
                 for (int i = 0; i < count; i++)
                 {
-                    tasks[i] = Task.Factory.StartNew(() =>
+                    tasks[i] = Task.Run(() =>
                     {
                         string repoPath = InitNewRepository();
                         return CheckoutFileForSmudge(repoPath, branchName, encodedInput);
                     });
                 }
 
-                Task.WaitAll(tasks);
+                var files = await Task.WhenAll(tasks);
 
-                foreach(var task in tasks)
+                foreach (var file in files)
                 {
-                    FileInfo expectedFile = task.Result;
-
-                    string readAllText = File.ReadAllText(expectedFile.FullName);
+                    string readAllText = File.ReadAllText(file.FullName);
                     Assert.Equal(decodedInput, readAllText);
                 }
             }
@@ -399,7 +396,7 @@ namespace LibGit2Sharp.Tests
             return expectedPath;
         }
 
-        private static FileInfo CommitFileOnBranch(Repository repo, string branchName, String content)
+        private static FileInfo CommitFileOnBranch(Repository repo, string branchName, string content)
         {
             var branch = repo.CreateBranch(branchName);
             Commands.Checkout(repo, branch.FriendlyName);

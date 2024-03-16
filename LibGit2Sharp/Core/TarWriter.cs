@@ -301,31 +301,31 @@ namespace LibGit2Sharp.Core
 
                 if (userName.Length > 32)
                 {
-                    throw new ArgumentException("ustar userName cannot be longer than 32 characters.", "userName");
+                    throw new ArgumentException("ustar userName cannot be longer than 32 characters.", nameof(userName));
                 }
                 if (groupName.Length > 32)
                 {
-                    throw new ArgumentException("ustar groupName cannot be longer than 32 characters.", "groupName");
+                    throw new ArgumentException("ustar groupName cannot be longer than 32 characters.", nameof(groupName));
                 }
                 if (userId.Length > 7)
                 {
-                    throw new ArgumentException("ustar userId cannot be longer than 7 characters.", "userId");
+                    throw new ArgumentException("ustar userId cannot be longer than 7 characters.", nameof(userId));
                 }
                 if (groupId.Length > 7)
                 {
-                    throw new ArgumentException("ustar groupId cannot be longer than 7 characters.", "groupId");
+                    throw new ArgumentException("ustar groupId cannot be longer than 7 characters.", nameof(groupId));
                 }
                 if (deviceMajorNumber.Length > 7)
                 {
-                    throw new ArgumentException("ustar deviceMajorNumber cannot be longer than 7 characters.", "deviceMajorNumber");
+                    throw new ArgumentException("ustar deviceMajorNumber cannot be longer than 7 characters.", nameof(deviceMajorNumber));
                 }
                 if (deviceMinorNumber.Length > 7)
                 {
-                    throw new ArgumentException("ustar deviceMinorNumber cannot be longer than 7 characters.", "deviceMinorNumber");
+                    throw new ArgumentException("ustar deviceMinorNumber cannot be longer than 7 characters.", nameof(deviceMinorNumber));
                 }
                 if (link.Length > 100)
                 {
-                    throw new ArgumentException("ustar link cannot be longer than 100 characters.", "link");
+                    throw new ArgumentException("ustar link cannot be longer than 100 characters.", nameof(link));
                 }
 
                 #endregion

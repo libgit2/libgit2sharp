@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
-using Xunit.Extensions;
-using Moq;
 
 namespace LibGit2Sharp.Tests
 {
@@ -86,7 +83,7 @@ namespace LibGit2Sharp.Tests
             var typesWithDebuggerDisplayAndInvalidImplPattern = new List<Type>();
 
             IEnumerable<Type> libGit2SharpTypes = typeof(IRepository).GetTypeInfo().Assembly.GetExportedTypes()
-                .Where(t => t.GetTypeInfo().GetCustomAttributes(typeof(DebuggerDisplayAttribute), false).Any());
+                .Where(t => t.GetTypeInfo().GetCustomAttributes(typeof(DebuggerDisplayAttribute), false).Length != 0);
 
             foreach (Type type in libGit2SharpTypes)
             {
@@ -113,9 +110,9 @@ namespace LibGit2Sharp.Tests
                 }
             }
 
-            if (typesWithDebuggerDisplayAndInvalidImplPattern.Any())
+            if (typesWithDebuggerDisplayAndInvalidImplPattern.Count != 0)
             {
-                Assert.True(false, Environment.NewLine + BuildMissingDebuggerDisplayPropertyMessage(typesWithDebuggerDisplayAndInvalidImplPattern));
+                Assert.Fail(Environment.NewLine + BuildMissingDebuggerDisplayPropertyMessage(typesWithDebuggerDisplayAndInvalidImplPattern));
             }
         }
 
@@ -134,7 +131,7 @@ namespace LibGit2Sharp.Tests
                     continue;
 
                 var nonVirtualMethodNamesForType = GetNonVirtualPublicMethodsNames(type).ToList();
-                if (nonVirtualMethodNamesForType.Any())
+                if (nonVirtualMethodNamesForType.Count != 0)
                 {
                     nonTestableTypes.Add(type, nonVirtualMethodNamesForType);
                     continue;
@@ -168,9 +165,9 @@ namespace LibGit2Sharp.Tests
                 }
             }
 
-            if (nonTestableTypes.Any())
+            if (nonTestableTypes.Count != 0)
             {
-                Assert.True(false, Environment.NewLine + BuildNonTestableTypesMessage(nonTestableTypes));
+                Assert.Fail(Environment.NewLine + BuildNonTestableTypesMessage(nonTestableTypes));
             }
         }
 
@@ -196,7 +193,7 @@ namespace LibGit2Sharp.Tests
         public void EnumsWithFlagsHaveMutuallyExclusiveValues()
         {
             var flagsEnums = typeof(IRepository).GetTypeInfo().Assembly.GetExportedTypes()
-                .Where(t => t.GetTypeInfo().IsEnum && t.GetTypeInfo().GetCustomAttributes(typeof(FlagsAttribute), false).Any());
+                .Where(t => t.GetTypeInfo().IsEnum && t.GetTypeInfo().GetCustomAttributes(typeof(FlagsAttribute), false).Length != 0);
 
             var overlaps = from t in flagsEnums
                            from int x in Enum.GetValues(t)
@@ -280,7 +277,7 @@ namespace LibGit2Sharp.Tests
                     (!m.IsVirtual || m.IsFinal))
                 .ToList();
 
-            if (nonVirtualGetEnumeratorMethods.Any())
+            if (nonVirtualGetEnumeratorMethods.Count != 0)
             {
                 var sb = new StringBuilder();
 
@@ -290,7 +287,7 @@ namespace LibGit2Sharp.Tests
                         method.DeclaringType, Environment.NewLine);
                 }
 
-                Assert.True(false, Environment.NewLine + sb.ToString());
+                Assert.Fail(Environment.NewLine + sb.ToString());
             }
         }
 
@@ -309,7 +306,7 @@ namespace LibGit2Sharp.Tests
                 .Where(t => t.FullName != "LibGit2Sharp.Core.LeaksContainer")
                 .ToList();
 
-            if (types.Any())
+            if (types.Count != 0)
             {
                 var sb = new StringBuilder();
 
@@ -319,7 +316,7 @@ namespace LibGit2Sharp.Tests
                         type.FullName, coreNamespace, Environment.NewLine);
                 }
 
-                Assert.True(false, Environment.NewLine + sb.ToString());
+                Assert.Fail(Environment.NewLine + sb.ToString());
             }
         }
 
