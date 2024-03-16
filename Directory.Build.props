@@ -1,6 +1,7 @@
 <Project>
 
   <PropertyGroup>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <UseArtifactsOutput>true</UseArtifactsOutput>
     <DefineConstants Condition=" '$(ExtraDefine)' != '' ">$(DefineConstants);$(ExtraDefine)</DefineConstants>

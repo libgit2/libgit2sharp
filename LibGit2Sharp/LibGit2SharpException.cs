@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Globalization;
+#if NETFRAMEWORK
 using System.Runtime.Serialization;
-using LibGit2Sharp.Core;
+#endif
 
 namespace LibGit2Sharp
 {
     /// <summary>
     /// The exception that is thrown when an error occurs during application execution.
     /// </summary>
+#if NETFRAMEWORK
     [Serializable]
+#endif
     public class LibGit2SharpException : Exception
     {
         /// <summary>
@@ -40,10 +43,11 @@ namespace LibGit2Sharp
         /// <param name="format">A composite format string for use in <see cref="String.Format(IFormatProvider, string, object[])"/>.</param>
         /// <param name="args">An object array that contains zero or more objects to format.</param>
         public LibGit2SharpException(string format, params object[] args)
-            : base(String.Format(CultureInfo.InvariantCulture, format, args))
+            : base(string.Format(CultureInfo.InvariantCulture, format, args))
         {
         }
 
+#if NETFRAMEWORK
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2SharpException"/> class with a serialized data.
         /// </summary>
@@ -52,5 +56,6 @@ namespace LibGit2Sharp
         protected LibGit2SharpException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
+#endif
     }
 }

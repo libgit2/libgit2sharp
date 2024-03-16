@@ -313,7 +313,7 @@ namespace LibGit2Sharp.Tests
                             }
 
                             // rethrow if it's not 401
-                            throw ex;
+                            throw;
                         }
 
                         if (response.StatusCode == HttpStatusCode.Moved || response.StatusCode == HttpStatusCode.Redirect)
