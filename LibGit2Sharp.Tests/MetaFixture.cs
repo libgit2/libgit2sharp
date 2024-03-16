@@ -112,7 +112,7 @@ namespace LibGit2Sharp.Tests
 
             if (typesWithDebuggerDisplayAndInvalidImplPattern.Any())
             {
-                Assert.True(false, Environment.NewLine + BuildMissingDebuggerDisplayPropertyMessage(typesWithDebuggerDisplayAndInvalidImplPattern));
+                Assert.Fail(Environment.NewLine + BuildMissingDebuggerDisplayPropertyMessage(typesWithDebuggerDisplayAndInvalidImplPattern));
             }
         }
 
@@ -167,7 +167,7 @@ namespace LibGit2Sharp.Tests
 
             if (nonTestableTypes.Any())
             {
-                Assert.True(false, Environment.NewLine + BuildNonTestableTypesMessage(nonTestableTypes));
+                Assert.Fail(Environment.NewLine + BuildNonTestableTypesMessage(nonTestableTypes));
             }
         }
 
@@ -287,7 +287,7 @@ namespace LibGit2Sharp.Tests
                         method.DeclaringType, Environment.NewLine);
                 }
 
-                Assert.True(false, Environment.NewLine + sb.ToString());
+                Assert.Fail(Environment.NewLine + sb.ToString());
             }
         }
 
@@ -316,7 +316,7 @@ namespace LibGit2Sharp.Tests
                         type.FullName, coreNamespace, Environment.NewLine);
                 }
 
-                Assert.True(false, Environment.NewLine + sb.ToString());
+                Assert.Fail(Environment.NewLine + sb.ToString());
             }
         }
 
