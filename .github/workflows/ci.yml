@@ -15,17 +15,17 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v4.1.2
         with:
           fetch-depth: 0
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v3.0.3
+        uses: actions/setup-dotnet@v4.0.0
         with:
           dotnet-version: 8.0.x
       - name: Build
         run: dotnet build LibGit2Sharp.sln --configuration Release
       - name: Upload packages
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v4.3.1
         with:
           name: NuGet packages
           path: artifacts/package/
@@ -46,11 +46,11 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v4.1.2
         with:
           fetch-depth: 0
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v3.0.3
+        uses: actions/setup-dotnet@v4.0.0
         with:
           dotnet-version: |
             8.0.x
@@ -86,7 +86,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v4.1.2
         with:
           fetch-depth: 0
       - name: Setup QEMU
