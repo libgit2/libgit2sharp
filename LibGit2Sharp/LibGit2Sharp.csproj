@@ -39,7 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="[2.0.321]" PrivateAssets="none" />
+    <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="[2.0.322]" PrivateAssets="none" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="all" />
     <PackageReference Include="MinVer" Version="5.0.0" PrivateAssets="all" />
   </ItemGroup>
