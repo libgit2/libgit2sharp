@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp.Core
@@ -21,7 +22,12 @@ namespace LibGit2Sharp.Core
             }
         }
 
+#if NET
+        public static ILazy<TResult> Singleton<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] TResult>(Repository repo, ObjectId id, Func<ObjectHandle, TResult> resultSelector, bool throwIfMissing = false)
+#else
         public static ILazy<TResult> Singleton<TResult>(Repository repo, ObjectId id, Func<ObjectHandle, TResult> resultSelector, bool throwIfMissing = false)
+#endif
+
         {
             return Singleton(() =>
             {

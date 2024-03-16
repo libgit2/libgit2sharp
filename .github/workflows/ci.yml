@@ -21,7 +21,7 @@ jobs:
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v3.0.3
         with:
-          dotnet-version: 7.0.x
+          dotnet-version: 8.0.x
       - name: Build
         run: dotnet build LibGit2Sharp.sln --configuration Release
       - name: Upload packages
@@ -30,6 +30,8 @@ jobs:
           name: NuGet packages
           path: bin/Packages/
           retention-days: 7
+      - name: Verify trimming compatibility
+        run: dotnet publish TrimmingTestApp
   test:
     name: Test / ${{ matrix.os }} / ${{ matrix.arch }} / ${{ matrix.tfm }}
     runs-on: ${{ matrix.os }}
@@ -51,6 +53,7 @@ jobs:
         uses: actions/setup-dotnet@v3.0.3
         with:
           dotnet-version: |
+            8.0.x
             7.0.x
             6.0.x
       - name: Run ${{ matrix.tfm }} tests
