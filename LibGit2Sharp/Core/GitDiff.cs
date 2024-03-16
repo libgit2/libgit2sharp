@@ -231,7 +231,7 @@ namespace LibGit2Sharp.Core
         public uint ContextLines;
         public uint InterhunkLines;
         public ushort IdAbbrev;
-        public Int64 MaxSize;
+        public long MaxSize;
         public IntPtr OldPrefixString;
         public IntPtr NewPrefixString;
 
@@ -255,10 +255,10 @@ namespace LibGit2Sharp.Core
     {
         public git_oid Id;
         public char* Path;
-        public Int64 Size;
+        public long Size;
         public GitDiffFlags Flags;
-        public UInt16 Mode;
-        public UInt16 IdAbbrev;
+        public ushort Mode;
+        public ushort IdAbbrev;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -266,8 +266,8 @@ namespace LibGit2Sharp.Core
     {
         public ChangeKind status;
         public GitDiffFlags flags;
-        public UInt16 similarity;
-        public UInt16 nfiles;
+        public ushort similarity;
+        public ushort nfiles;
         public git_diff_file old_file;
         public git_diff_file new_file;
     }
@@ -293,7 +293,7 @@ namespace LibGit2Sharp.Core
         public int NewLineNo;
         public int NumLines;
         public UIntPtr contentLen;
-        public Int64 contentOffset;
+        public long contentOffset;
         public IntPtr content;
     }
 
@@ -371,10 +371,10 @@ namespace LibGit2Sharp.Core
     {
         public uint Version = 1;
         public GitDiffFindFlags Flags;
-        public UInt16 RenameThreshold;
-        public UInt16 RenameFromRewriteThreshold;
-        public UInt16 CopyThreshold;
-        public UInt16 BreakRewriteThreshold;
+        public ushort RenameThreshold;
+        public ushort RenameFromRewriteThreshold;
+        public ushort CopyThreshold;
+        public ushort BreakRewriteThreshold;
         public UIntPtr RenameLimit;
 
         // TODO

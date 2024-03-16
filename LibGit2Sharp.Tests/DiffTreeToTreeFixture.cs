@@ -9,7 +9,7 @@ namespace LibGit2Sharp.Tests
 {
     public class DiffTreeToTreeFixture : BaseFixture
     {
-        private static readonly string subBranchFilePath = String.Join("/", "1", "branch_file.txt");
+        private static readonly string subBranchFilePath = string.Join("/", "1", "branch_file.txt");
 
         [Fact]
         public void ComparingATreeAgainstItselfReturnsNoDifference()
@@ -27,7 +27,7 @@ namespace LibGit2Sharp.Tests
                 using (var patch = repo.Diff.Compare<Patch>(tree, tree))
                 {
                     Assert.Empty(patch);
-                    Assert.Equal(String.Empty, patch);
+                    Assert.Equal(string.Empty, patch);
                 }
             }
         }

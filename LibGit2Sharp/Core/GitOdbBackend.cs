@@ -137,7 +137,7 @@ namespace LibGit2Sharp.Core
         public delegate int writestream_callback(
             out IntPtr stream_out,
             IntPtr backend,
-            Int64 length,
+            long length,
             GitObjectType type);
 
         /// <summary>

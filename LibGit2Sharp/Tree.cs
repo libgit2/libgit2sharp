@@ -90,7 +90,7 @@ namespace LibGit2Sharp
         {
             var bld = new StringBuilder();
             bld.Append(a);
-            if (!String.IsNullOrEmpty(a) &&
+            if (!string.IsNullOrEmpty(a) &&
                 !a.EndsWith("/", StringComparison.Ordinal) &&
                 !b.StartsWith("/", StringComparison.Ordinal))
             {

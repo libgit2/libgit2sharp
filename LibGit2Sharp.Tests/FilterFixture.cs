@@ -396,7 +396,7 @@ namespace LibGit2Sharp.Tests
             return expectedPath;
         }
 
-        private static FileInfo CommitFileOnBranch(Repository repo, string branchName, String content)
+        private static FileInfo CommitFileOnBranch(Repository repo, string branchName, string content)
         {
             var branch = repo.CreateBranch(branchName);
             Commands.Checkout(repo, branch.FriendlyName);

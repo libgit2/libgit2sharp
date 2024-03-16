@@ -39,7 +39,7 @@ namespace LibGit2Sharp
         {
             if (oid.Id == null || oid.Id.Length != rawSize)
             {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "A non null array of {0} bytes is expected.", rawSize), "oid");
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "A non null array of {0} bytes is expected.", rawSize), nameof(oid));
             }
 
             this.oid = oid;
@@ -145,10 +145,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="ObjectId"/>.
+        /// Determines whether the specified <see cref="object"/> is equal to the current <see cref="ObjectId"/>.
         /// </summary>
-        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="ObjectId"/>.</param>
-        /// <returns>True if the specified <see cref="Object"/> is equal to the current <see cref="ObjectId"/>; otherwise, false.</returns>
+        /// <param name="obj">The <see cref="object"/> to compare with the current <see cref="ObjectId"/>.</param>
+        /// <returns>True if the specified <see cref="object"/> is equal to the current <see cref="ObjectId"/>; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as ObjectId);
@@ -174,7 +174,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Returns the <see cref="Sha"/>, a <see cref="String"/> representation of the current <see cref="ObjectId"/>.
+        /// Returns the <see cref="Sha"/>, a <see cref="string"/> representation of the current <see cref="ObjectId"/>.
         /// </summary>
         /// <returns>The <see cref="Sha"/> that represents the current <see cref="ObjectId"/>.</returns>
         public override string ToString()
@@ -183,7 +183,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Returns the <see cref="Sha"/>, a <see cref="String"/> representation of the current <see cref="ObjectId"/>.
+        /// Returns the <see cref="Sha"/>, a <see cref="string"/> representation of the current <see cref="ObjectId"/>.
         /// </summary>
         /// <param name="prefixLength">The number of chars the <see cref="Sha"/> should be truncated to.</param>
         /// <returns>The <see cref="Sha"/> that represents the current <see cref="ObjectId"/>.</returns>
@@ -327,7 +327,7 @@ namespace LibGit2Sharp
                                                           "'{0}' is not a valid object identifier. Its length should be {1}.",
                                                           objectId,
                                                           HexSize),
-                                            "objectId");
+                                            nameof(objectId));
             }
 
             return objectId.All(c => hexDigits.IndexOf(c) >= 0);
