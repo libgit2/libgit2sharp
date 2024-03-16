@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
-using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -103,7 +102,7 @@ namespace LibGit2Sharp.Tests
         public void CanCreateBranchUsingAbbreviatedSha()
         {
             string path = SandboxBareTestRepo();
-            using (var repo = new Repository(path, new RepositoryOptions{ Identity = Constants.Identity }))
+            using (var repo = new Repository(path, new RepositoryOptions { Identity = Constants.Identity }))
             {
                 EnableRefLog(repo);
 
@@ -1001,7 +1000,7 @@ namespace LibGit2Sharp.Tests
                         continue;
                     }
 
-                    Assert.True(false, string.Format("Both '{0}' and '{1}' appear to be Head.", head.CanonicalName, branch.CanonicalName));
+                    Assert.Fail(string.Format("Both '{0}' and '{1}' appear to be Head.", head.CanonicalName, branch.CanonicalName));
                 }
 
                 Assert.NotNull(head);

@@ -12,8 +12,7 @@ namespace LibGit2Sharp.Tests
     {
         private void OnPushStatusError(PushStatusError pushStatusErrors)
         {
-            Assert.True(false, string.Format("Failed to update reference '{0}': {1}",
-                pushStatusErrors.Reference, pushStatusErrors.Message));
+            Assert.Fail(string.Format("Failed to update reference '{0}': {1}", pushStatusErrors.Reference, pushStatusErrors.Message));
         }
 
         private void AssertPush(Action<IRepository> push)
