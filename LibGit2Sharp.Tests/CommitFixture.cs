@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using LibGit2Sharp.Core;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
-using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -150,10 +148,10 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 foreach (Commit commit in repo.Commits.QueryBy(new CommitFilter
-                                                                    {
-                                                                        IncludeReachableFrom = "a4a7dce85cf63874e984719f4fdd239f5145052f",
-                                                                        SortBy = CommitSortStrategies.Time | CommitSortStrategies.Reverse
-                                                                    }))
+                {
+                    IncludeReachableFrom = "a4a7dce85cf63874e984719f4fdd239f5145052f",
+                    SortBy = CommitSortStrategies.Time | CommitSortStrategies.Reverse
+                }))
                 {
                     Assert.NotNull(commit);
                     Assert.StartsWith(reversedShas[count], commit.Sha);
@@ -170,10 +168,10 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 List<Commit> commits = repo.Commits.QueryBy(new CommitFilter
-                                                                {
-                                                                    IncludeReachableFrom = "a4a7dce85cf63874e984719f4fdd239f5145052f",
-                                                                    SortBy = CommitSortStrategies.Time | CommitSortStrategies.Reverse
-                                                                }).ToList();
+                {
+                    IncludeReachableFrom = "a4a7dce85cf63874e984719f4fdd239f5145052f",
+                    SortBy = CommitSortStrategies.Time | CommitSortStrategies.Reverse
+                }).ToList();
                 foreach (Commit commit in commits)
                 {
                     Assert.NotNull(commit);
@@ -216,10 +214,10 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 foreach (Commit commit in repo.Commits.QueryBy(new CommitFilter
-                                                                    {
-                                                                        IncludeReachableFrom = "a4a7dce85cf63874e984719f4fdd239f5145052f",
-                                                                        SortBy = CommitSortStrategies.Time
-                                                                    }))
+                {
+                    IncludeReachableFrom = "a4a7dce85cf63874e984719f4fdd239f5145052f",
+                    SortBy = CommitSortStrategies.Time
+                }))
                 {
                     Assert.NotNull(commit);
                     Assert.StartsWith(expectedShas[count], commit.Sha);
@@ -236,10 +234,10 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 List<Commit> commits = repo.Commits.QueryBy(new CommitFilter
-                                                                {
-                                                                    IncludeReachableFrom = "a4a7dce85cf63874e984719f4fdd239f5145052f",
-                                                                    SortBy = CommitSortStrategies.Topological
-                                                                }).ToList();
+                {
+                    IncludeReachableFrom = "a4a7dce85cf63874e984719f4fdd239f5145052f",
+                    SortBy = CommitSortStrategies.Topological
+                }).ToList();
                 foreach (Commit commit in commits)
                 {
                     Assert.NotNull(commit);
@@ -331,9 +329,12 @@ namespace LibGit2Sharp.Tests
         public void CanEnumerateCommitsFromMixedStartingPoints()
         {
             AssertEnumerationOfCommits(
-                repo => new CommitFilter { IncludeReachableFrom = new object[] { repo.Branches["br2"],
+                repo => new CommitFilter
+                {
+                    IncludeReachableFrom = new object[] { repo.Branches["br2"],
                                                             "refs/heads/master",
-                                                            new ObjectId("e90810b8df3e80c413d903f631643c716887138d") } },
+                                                            new ObjectId("e90810b8df3e80c413d903f631643c716887138d") }
+                },
                 new[]
                     {
                         "4c062a6", "e90810b", "6dcf9bf", "a4a7dce",
@@ -389,9 +390,9 @@ namespace LibGit2Sharp.Tests
         {
             AssertEnumerationOfCommits(
                 repo => new CommitFilter
-                    {
-                        IncludeReachableFrom = repo.Refs.OrderBy(r => r.CanonicalName, StringComparer.Ordinal),
-                    },
+                {
+                    IncludeReachableFrom = repo.Refs.OrderBy(r => r.CanonicalName, StringComparer.Ordinal),
+                },
                 new[]
                     {
                         "44d5d18", "bb65291", "532740a", "503a16f", "3dfd6fd",
@@ -680,8 +681,12 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(identity.Name, reflogEntry.Committer.Name);
                 Assert.Equal(identity.Email, reflogEntry.Committer.Email);
 
-                var now = DateTimeOffset.Now;
-                Assert.InRange(reflogEntry.Committer.When, before, now);
+                // When verifying the timestamp range, give a little more room on the range.
+                // Git or file system datetime truncation seems to cause these stamps to jump up to a second earlier
+                // than we expect. See https://github.com/libgit2/libgit2sharp/issues/1764
+                var low = before - TimeSpan.FromSeconds(1);
+                var high = DateTimeOffset.Now.TruncateMilliseconds() + TimeSpan.FromSeconds(1);
+                Assert.InRange(reflogEntry.Committer.When, low, high);
 
                 Assert.Equal(commit.Id, reflogEntry.To);
                 Assert.Equal(ObjectId.Zero, reflogEntry.From);
@@ -859,21 +864,21 @@ namespace LibGit2Sharp.Tests
                 const string parentSha = "5b5b025afb0b4c913b4c338a42934a3863bf3644";
 
                 var filter = new CommitFilter
-                                 {
-                                     /* Revwalk from all the refs (git log --all) ... */
-                                     IncludeReachableFrom = repo.Refs,
+                {
+                    /* Revwalk from all the refs (git log --all) ... */
+                    IncludeReachableFrom = repo.Refs,
 
-                                     /* ... and stop when the parent is reached */
-                                     ExcludeReachableFrom = parentSha
-                                 };
+                    /* ... and stop when the parent is reached */
+                    ExcludeReachableFrom = parentSha
+                };
 
                 var commits = repo.Commits.QueryBy(filter);
 
                 var children = from c in commits
-                            from p in c.Parents
-                            let pId = p.Id
-                            where pId.Sha == parentSha
-                            select c;
+                               from p in c.Parents
+                               let pId = p.Id
+                               where pId.Sha == parentSha
+                               select c;
 
                 var expectedChildren = new[] { "c47800c7266a2be04c571c04d5a6614691ea99bd",
                                                 "4a202b346bb0fb0db7eff3cffeb3c70babbd2045" };
