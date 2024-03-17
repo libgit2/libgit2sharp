@@ -471,10 +471,12 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
             Assert.Equal(committer.Email, reflogEntry.Committer.Email);
 
-            // When verifying the timestamp range, give a little more room on the 'before' side.
+            // When verifying the timestamp range, give a little more room on the range.
             // Git or file system datetime truncation seems to cause these stamps to jump up to a second earlier
             // than we expect. See https://github.com/libgit2/libgit2sharp/issues/1764
-            Assert.InRange(reflogEntry.Committer.When, before - TimeSpan.FromSeconds(1), DateTimeOffset.Now);
+            var low = before - TimeSpan.FromSeconds(1);
+            var high = DateTimeOffset.Now.TruncateMilliseconds() + TimeSpan.FromSeconds(1);
+            Assert.InRange(reflogEntry.Committer.When, low, high);
         }
 
         protected static void EnableRefLog(IRepository repository, bool enable = true)
