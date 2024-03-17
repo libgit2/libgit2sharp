@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
-using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -59,7 +58,7 @@ namespace LibGit2Sharp.Tests
 
             var identity = Constants.Identity;
 
-            using (var repo = new Repository(repoPath, new RepositoryOptions{ Identity = identity }))
+            using (var repo = new Repository(repoPath, new RepositoryOptions { Identity = identity }))
             {
                 // setup refs as HEAD => unit_test => master
                 var newRef = repo.Refs.Add("refs/heads/unit_test", "refs/heads/master");
@@ -84,8 +83,12 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(identity.Name, reflogEntry.Committer.Name);
                 Assert.Equal(identity.Email, reflogEntry.Committer.Email);
 
-                var now = DateTimeOffset.Now;
-                Assert.InRange(reflogEntry.Committer.When, before, now);
+                // When verifying the timestamp range, give a little more room on the range.
+                // Git or file system datetime truncation seems to cause these stamps to jump up to a second earlier
+                // than we expect. See https://github.com/libgit2/libgit2sharp/issues/1764
+                var low = before - TimeSpan.FromSeconds(1);
+                var high = DateTimeOffset.Now.TruncateMilliseconds() + TimeSpan.FromSeconds(1);
+                Assert.InRange(reflogEntry.Committer.When, low, high);
 
                 Assert.Equal(commit.Id, reflogEntry.To);
                 Assert.Equal(ObjectId.Zero, reflogEntry.From);
@@ -97,7 +100,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(identity.Name, reflogEntry.Committer.Name);
                 Assert.Equal(identity.Email, reflogEntry.Committer.Email);
 
-                Assert.InRange(reflogEntry.Committer.When, before, now);
+                Assert.InRange(reflogEntry.Committer.When, low, high);
 
                 Assert.Equal(commit.Id, reflogEntry.To);
                 Assert.Equal(ObjectId.Zero, reflogEntry.From);
@@ -160,8 +163,12 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(identity.Name, reflogEntry.Committer.Name);
                 Assert.Equal(identity.Email, reflogEntry.Committer.Email);
 
-                var now = DateTimeOffset.Now;
-                Assert.InRange(reflogEntry.Committer.When, before, now);
+                // When verifying the timestamp range, give a little more room on the range.
+                // Git or file system datetime truncation seems to cause these stamps to jump up to a second earlier
+                // than we expect. See https://github.com/libgit2/libgit2sharp/issues/1764
+                var low = before - TimeSpan.FromSeconds(1);
+                var high = DateTimeOffset.Now.TruncateMilliseconds() + TimeSpan.FromSeconds(1);
+                Assert.InRange(reflogEntry.Committer.When, low, high);
 
                 Assert.Equal(commit.Id, reflogEntry.To);
                 Assert.Equal(string.Format("commit: {0}", commitMessage), repo.Refs.Log("HEAD").First().Message);
@@ -202,7 +209,7 @@ namespace LibGit2Sharp.Tests
         public void UnsignedMethodsWriteCorrectlyToTheReflog()
         {
             var repoPath = InitNewRepository(true);
-            using (var repo = new Repository(repoPath, new RepositoryOptions{ Identity = Constants.Identity }))
+            using (var repo = new Repository(repoPath, new RepositoryOptions { Identity = Constants.Identity }))
             {
                 EnableRefLog(repo);
 
