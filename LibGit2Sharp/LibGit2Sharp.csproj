@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net472;net6.0</TargetFrameworks>
-    <LangVersion>10.0</LangVersion>
+    <TargetFrameworks>net8.0</TargetFrameworks>
+    <LangVersion>12.0</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Description>LibGit2Sharp brings all the might and speed of libgit2, a native Git implementation, to the managed world of .NET</Description>
     <Company>LibGit2Sharp contributors</Company>
@@ -24,7 +24,7 @@
     <MinVerBuildMetadata Condition="'$(libgit2_hash)' != ''">libgit2-$(libgit2_hash.Substring(0,7))</MinVerBuildMetadata>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <IsTrimmable>true</IsTrimmable>
   </PropertyGroup>
 

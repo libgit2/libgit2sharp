@@ -16,3 +16,6 @@ insert_final_newline = false
 
 [*.{props,targets,csproj,config}]
 indent_size = 2
+
+[*.cs]
+dotnet_diagnostic.SYSLIB1054.severity = warning
