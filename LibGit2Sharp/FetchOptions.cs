@@ -27,6 +27,14 @@
         public bool? Prune { get; set; }
 
         /// <summary>
+        /// Specifies the depth of the fetch to perform.
+        /// <para>
+        /// Default value is 0 (full) fetch.
+        /// </para>
+        /// </summary>
+        public int Depth { get; set; } = 0;
+
+        /// <summary>
         /// Get/Set the custom headers.
         ///
         /// <para>

@@ -780,6 +780,13 @@ namespace LibGit2Sharp
 
             options ??= new CloneOptions();
 
+            // As default behaviour for GitFetchOptionsWrapper ctor is to create
+            // a new instance of GitFetchOptions we only populate the Depth field.
+            var fetchOptions = new GitFetchOptions
+            {
+                Depth =  options.FetchOptions.Depth,
+            };
+
             // context variable that contains information on the repository that
             // we are cloning.
             var context = new RepositoryOperationContext(Path.GetFullPath(workdirPath), sourceUrl);
@@ -794,7 +801,7 @@ namespace LibGit2Sharp
             }
 
             using (var checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
-            using (var fetchOptionsWrapper = new GitFetchOptionsWrapper())
+            using (var fetchOptionsWrapper = new GitFetchOptionsWrapper(fetchOptions))
             {
                 var gitCheckoutOptions = checkoutOptionsWrapper.Options;
 
