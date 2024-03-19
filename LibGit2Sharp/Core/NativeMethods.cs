@@ -10,6 +10,7 @@ using LibGit2Sharp.Core.Marshallers;
 
 // Restrict the set of directories where the native library is loaded from to safe directories.
 [assembly: DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory | DllImportSearchPath.ApplicationDirectory | DllImportSearchPath.SafeDirectories)]
+[assembly: DisableRuntimeMarshalling]
 
 namespace LibGit2Sharp.Core
 {
@@ -1095,14 +1096,17 @@ namespace LibGit2Sharp.Core
 
         [LibraryImport(libgit2)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        [return: MarshalAs(UnmanagedType.Bool)]
         internal static partial bool git_refspec_force(IntPtr refSpec);
 
         [LibraryImport(libgit2, StringMarshalling = StringMarshalling.Utf8)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        [return: MarshalAs(UnmanagedType.Bool)]
         internal static partial bool git_refspec_src_matches(IntPtr refspec, string reference);
 
         [LibraryImport(libgit2, StringMarshalling = StringMarshalling.Utf8)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        [return: MarshalAs(UnmanagedType.Bool)]
         internal static partial bool git_refspec_dst_matches(IntPtr refspec, string reference);
 
         [LibraryImport(libgit2)]

@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp.Core.Handles
 {
-    [StructLayout(LayoutKind.Sequential)]
-    internal class GitBuf : IDisposable
+    internal struct GitBuf : IDisposable
     {
         public IntPtr ptr;
         public UIntPtr asize;
