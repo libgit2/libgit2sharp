@@ -1687,6 +1687,14 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe int git_revwalk_hide(git_revwalk* walker, ref GitOid commit_id);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern unsafe int git_revwalk_hide_glob(git_revwalk* walker,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string glob);
+
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern unsafe int git_revwalk_hide_ref(git_revwalk* walker,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string refname);
+
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_revwalk_new(out git_revwalk* walker, git_repository* repo);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
@@ -1694,6 +1702,14 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_revwalk_push(git_revwalk* walker, ref GitOid id);
+
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern unsafe int git_revwalk_push_glob(git_revwalk* walker,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string glob);
+
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern unsafe int git_revwalk_push_ref(git_revwalk* walker,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string refname);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_revwalk_reset(git_revwalk* walker);

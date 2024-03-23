@@ -2752,6 +2752,18 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
+        public static unsafe void git_revwalk_hide_glob(RevWalkerHandle walker, string glob)
+        {
+            int res = NativeMethods.git_revwalk_hide_glob(walker, glob);
+            Ensure.ZeroResult(res);
+        }
+
+        public static unsafe void git_revwalk_hide_ref(RevWalkerHandle walker, string refName)
+        {
+            int res = NativeMethods.git_revwalk_hide_ref(walker, refName);
+            Ensure.ZeroResult(res);
+        }
+
         public static unsafe RevWalkerHandle git_revwalk_new(RepositoryHandle repo)
         {
             git_revwalk* handle;
@@ -2783,19 +2795,34 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
+        public static unsafe void git_revwalk_push_glob(RevWalkerHandle walker, string glob)
+        {
+            int res = NativeMethods.git_revwalk_push_glob(walker, glob);
+            Ensure.ZeroResult(res);
+        }
+
+        public static unsafe void git_revwalk_push_ref(RevWalkerHandle walker, string refName)
+        {
+            int res = NativeMethods.git_revwalk_push_ref(walker, refName);
+            Ensure.ZeroResult(res);
+        }
+
         public static unsafe void git_revwalk_reset(RevWalkerHandle walker)
         {
-            NativeMethods.git_revwalk_reset(walker);
+            int res = NativeMethods.git_revwalk_reset(walker);
+            Ensure.ZeroResult(res);
         }
 
-        public static unsafe int git_revwalk_sorting(RevWalkerHandle walker, CommitSortStrategies options)
+        public static unsafe void git_revwalk_sorting(RevWalkerHandle walker, CommitSortStrategies options)
         {
-            return NativeMethods.git_revwalk_sorting(walker, options);
+            int res = NativeMethods.git_revwalk_sorting(walker, options);
+            Ensure.ZeroResult(res);
         }
 
-        public static unsafe int git_revwalk_simplify_first_parent(RevWalkerHandle walker)
+        public static unsafe void git_revwalk_simplify_first_parent(RevWalkerHandle walker)
         {
-            return NativeMethods.git_revwalk_simplify_first_parent(walker);
+            int res =  NativeMethods.git_revwalk_simplify_first_parent(walker);
+            Ensure.ZeroResult(res);
         }
 
 #endregion
