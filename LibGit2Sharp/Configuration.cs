@@ -15,12 +15,6 @@ namespace LibGit2Sharp
     public class Configuration : IDisposable,
         IEnumerable<ConfigurationEntry<string>>
     {
-        private readonly FilePath repoConfigPath;
-        private readonly FilePath globalConfigPath;
-        private readonly FilePath xdgConfigPath;
-        private readonly FilePath systemConfigPath;
-        private readonly FilePath programDataConfigPath;
-
         private ConfigurationHandle configHandle;
 
         /// <summary>
@@ -29,69 +23,49 @@ namespace LibGit2Sharp
         protected Configuration()
         { }
 
-        internal Configuration(
-            Repository repository,
-            string repositoryConfigurationFileLocation,
-            string globalConfigurationFileLocation,
-            string xdgConfigurationFileLocation,
-            string systemConfigurationFileLocation)
+        internal Configuration(Repository repository)
         {
-            if (repositoryConfigurationFileLocation != null)
-            {
-                repoConfigPath = NormalizeConfigPath(repositoryConfigurationFileLocation);
-            }
-
-            globalConfigPath = globalConfigurationFileLocation ?? Proxy.git_config_find_global();
-            xdgConfigPath = xdgConfigurationFileLocation ?? Proxy.git_config_find_xdg();
-            systemConfigPath = systemConfigurationFileLocation ?? Proxy.git_config_find_system();
-            programDataConfigPath = Proxy.git_config_find_programdata();
-
-            Init(repository);
+            configHandle = Proxy.git_repository_config(repository.Handle);
         }
 
-        private void Init(Repository repository)
+        private Configuration(ConfigurationHandle cfgHandle)
         {
-            configHandle = Proxy.git_config_new();
-            RepositoryHandle repoHandle = (repository != null) ? repository.Handle : null;
+            configHandle = cfgHandle;
+        }
 
-            if (repoHandle != null)
-            {
-                //TODO: push back this logic into libgit2.
-                // As stated by @carlosmn "having a helper function to load the defaults and then allowing you
-                // to modify it before giving it to git_repository_open_ext() would be a good addition, I think."
-                //  -- Agreed :)
-                string repoConfigLocation = Path.Combine(repository.Info.Path, "config");
-                Proxy.git_config_add_file_ondisk(configHandle, repoConfigLocation, ConfigurationLevel.Local, repoHandle);
+        private static ConfigurationHandle BuildConfigFromFiles(FilePath repoConfigPath, FilePath globalConfigPath, FilePath xdgConfigPath, FilePath systemConfigPath, FilePath programDataConfigPath)
+        {
+            var configHandle = Proxy.git_config_new();
 
-                Proxy.git_repository_set_config(repoHandle, configHandle);
-            }
-            else if (repoConfigPath != null)
+            if (repoConfigPath != null)
             {
-                Proxy.git_config_add_file_ondisk(configHandle, repoConfigPath, ConfigurationLevel.Local, repoHandle);
+                Proxy.git_config_add_file_ondisk(configHandle, repoConfigPath, ConfigurationLevel.Local, repo: null);
             }
 
             if (globalConfigPath != null)
             {
-                Proxy.git_config_add_file_ondisk(configHandle, globalConfigPath, ConfigurationLevel.Global, repoHandle);
+                Proxy.git_config_add_file_ondisk(configHandle, globalConfigPath, ConfigurationLevel.Global, repo: null);
             }
 
             if (xdgConfigPath != null)
             {
-                Proxy.git_config_add_file_ondisk(configHandle, xdgConfigPath, ConfigurationLevel.Xdg, repoHandle);
+                Proxy.git_config_add_file_ondisk(configHandle, xdgConfigPath, ConfigurationLevel.Xdg, repo: null);
             }
 
             if (systemConfigPath != null)
             {
-                Proxy.git_config_add_file_ondisk(configHandle, systemConfigPath, ConfigurationLevel.System, repoHandle);
+                Proxy.git_config_add_file_ondisk(configHandle, systemConfigPath, ConfigurationLevel.System, repo: null);
             }
 
             if (programDataConfigPath != null)
             {
-                Proxy.git_config_add_file_ondisk(configHandle, programDataConfigPath, ConfigurationLevel.ProgramData, repoHandle);
+                Proxy.git_config_add_file_ondisk(configHandle, programDataConfigPath, ConfigurationLevel.ProgramData, repo: null);
             }
+
+            return configHandle;
         }
 
-        private FilePath NormalizeConfigPath(FilePath path)
+        private static FilePath NormalizeConfigPath(FilePath path)
         {
             if (File.Exists(path.Native))
             {
@@ -200,7 +174,20 @@ namespace LibGit2Sharp
             string xdgConfigurationFileLocation,
             string systemConfigurationFileLocation)
         {
-            return new Configuration(null, repositoryConfigurationFileLocation, globalConfigurationFileLocation, xdgConfigurationFileLocation, systemConfigurationFileLocation);
+            FilePath repoConfigPath = null;
+            if (repositoryConfigurationFileLocation != null)
+            {
+                repoConfigPath = NormalizeConfigPath(repositoryConfigurationFileLocation);
+            }
+
+            FilePath globalConfigPath = globalConfigurationFileLocation ?? Proxy.git_config_find_global();
+            FilePath xdgConfigPath = xdgConfigurationFileLocation ?? Proxy.git_config_find_xdg();
+            FilePath systemConfigPath = systemConfigurationFileLocation ?? Proxy.git_config_find_system();
+            FilePath programDataConfigPath = Proxy.git_config_find_programdata();
+
+            var configHandle = BuildConfigFromFiles(repoConfigPath, globalConfigPath, xdgConfigPath, systemConfigPath, programDataConfigPath);
+
+            return new Configuration(configHandle);
         }
 
         /// <summary>
