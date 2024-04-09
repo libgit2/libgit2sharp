@@ -96,6 +96,7 @@ namespace LibGit2Sharp.Core
                 {
                     Trace.TraceInformation("Using git with schannel");
                     libraryName = libraryName + "_schannel";
+                    GlobalSettings.SetHttpBackend(HttpsBackend.Schannel);
                 }
 
                 // Use GlobalSettings.NativeLibraryPath when set.
