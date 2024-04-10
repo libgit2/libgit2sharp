@@ -21,6 +21,7 @@ namespace LibGit2Sharp
         private static string nativeLibraryPath;
         private static bool nativeLibraryPathLocked;
         private static readonly string nativeLibraryDefaultPath = null;
+        private static HttpsBackend httpsBackend = HttpsBackend.WinHttp;
 
         static GlobalSettings()
         {
@@ -420,5 +421,43 @@ namespace LibGit2Sharp
         {
             return Proxy.git_libgit2_opts_get_user_agent();
         }
+
+        /// <summary>
+        /// Check libgit supported features
+        /// </summary>
+        public static bool HasFeature(LibGitFeature feature)
+        {
+            return feature switch
+            {
+                LibGitFeature.DefaultCredentials => httpsBackend == HttpsBackend.WinHttp,
+                _ => false
+            };
+        }
+
+        internal static void SetHttpBackend(HttpsBackend backend)
+        {
+            httpsBackend = backend;
+        }
+    }
+
+    /// <summary>
+    /// List of supported libgit features
+    /// </summary>
+    public enum LibGitFeature
+    {
+        /// <summary>
+        /// Not used
+        /// </summary>
+        None,
+        /// <summary>
+        /// When supported, returning 'null' from the credentials manager acts as fallback attempt like using Windows authentication for WinHttp transport
+        /// </summary>
+        DefaultCredentials
+    }
+
+    internal enum HttpsBackend
+    {
+        WinHttp,
+        Schannel
     }
 }
