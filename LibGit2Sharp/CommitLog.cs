@@ -108,19 +108,34 @@ namespace LibGit2Sharp
         private class CommitEnumerator : IEnumerator<Commit>
         {
             private readonly Repository repo;
-            private readonly RevWalkerHandle handle;
+            private readonly RevWalker walker;
             private ObjectId currentOid;
 
             public CommitEnumerator(Repository repo, CommitFilter filter)
             {
                 this.repo = repo;
-                handle = Proxy.git_revwalk_new(repo.Handle);
-                repo.RegisterForCleanup(handle);
 
-                Sort(filter.SortBy);
-                Push(filter.SinceList);
-                Hide(filter.UntilList);
-                FirstParentOnly(filter.FirstParentOnly);
+                walker = new RevWalker(repo);
+
+                walker.Sorting(filter.SortBy);
+
+                foreach (ObjectId actedOn in repo.Committishes(filter.SinceList).TakeWhile(o => o != null))
+                {
+                    walker.Push(actedOn);
+                }
+
+                if(filter.UntilList != null)
+                {
+                    foreach (ObjectId actedOn in repo.Committishes(filter.UntilList).TakeWhile(o => o != null))
+                    {
+                        walker.Hide(actedOn);
+                    }
+                }
+
+                if (filter.FirstParentOnly)
+                {
+                    walker.SimplifyFirstParent();
+                }
             }
 
             #region IEnumerator<Commit> Members
@@ -137,21 +152,19 @@ namespace LibGit2Sharp
 
             public bool MoveNext()
             {
-                ObjectId id = Proxy.git_revwalk_next(handle);
-
+                ObjectId id = walker.Next();
                 if (id == null)
                 {
                     return false;
                 }
 
                 currentOid = id;
-
                 return true;
             }
 
             public void Reset()
             {
-                Proxy.git_revwalk_reset(handle);
+                walker.Reset();
             }
 
             #endregion
@@ -164,47 +177,7 @@ namespace LibGit2Sharp
 
             private void Dispose(bool disposing)
             {
-                handle.SafeDispose();
-            }
-
-            private delegate void HidePushSignature(RevWalkerHandle handle, ObjectId id);
-
-            private void InternalHidePush(IList<object> identifier, HidePushSignature hidePush)
-            {
-                IEnumerable<ObjectId> oids = repo.Committishes(identifier).TakeWhile(o => o != null);
-
-                foreach (ObjectId actedOn in oids)
-                {
-                    hidePush(handle, actedOn);
-                }
-            }
-
-            private void Push(IList<object> identifier)
-            {
-                InternalHidePush(identifier, Proxy.git_revwalk_push);
-            }
-
-            private void Hide(IList<object> identifier)
-            {
-                if (identifier == null)
-                {
-                    return;
-                }
-
-                InternalHidePush(identifier, Proxy.git_revwalk_hide);
-            }
-
-            private void Sort(CommitSortStrategies options)
-            {
-                Proxy.git_revwalk_sorting(handle, options);
-            }
-
-            private void FirstParentOnly(bool firstParent)
-            {
-                if (firstParent)
-                {
-                    Proxy.git_revwalk_simplify_first_parent(handle);
-                }
+                walker.SafeDispose();
             }
         }
     }

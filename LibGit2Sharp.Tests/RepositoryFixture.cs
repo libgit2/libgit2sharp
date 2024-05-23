@@ -775,5 +775,46 @@ namespace LibGit2Sharp.Tests
                 });
             }
         }
+
+        [Fact]
+        public void RevWalkRepository()
+        {
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
+            using (var walker = new RevWalker(repo))
+            {
+                walker.Sorting(CommitSortStrategies.Topological);
+
+                Assert.Empty(GetCommits().ToList());
+
+                walker.PushRef("HEAD");
+                Assert.Equal(7,  GetCommits().Count());
+
+                walker.HideRef("HEAD");
+                Assert.Empty(GetCommits());
+
+                walker.Reset();
+
+                walker.PushGlob("refs/heads/*");
+                Assert.Equal(12, GetCommits().Count());
+
+                walker.HideGlob("refs/*");
+                Assert.Empty(GetCommits());
+
+                IEnumerable<Commit> GetCommits()
+                {
+                    while (true)
+                    {
+                        var objectId = walker.Next();
+                        if (objectId == null)
+                            break;
+
+                        var commit = repo.Lookup<Commit>(objectId);
+                        yield return commit;
+                    }
+                }
+            }
+
+        }
     }
 }
