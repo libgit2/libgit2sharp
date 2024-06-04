@@ -48,11 +48,10 @@ namespace LibGit2Sharp
         /// <summary>
         ///
         /// </summary>
-        /// <param name="committishOrBranchSpec"></param>
-        /// <param name="name"></param>
-        /// <param name="path"></param>
+        /// <param name="committishOrBranchSpec">A committish or branch name./param>
+        /// <param name="name">Name of the worktree.</param>
+        /// <param name="path">Location of the worktree.</param>
         /// <param name="isLocked"></param>
-        /// <returns></returns>
         public virtual Worktree Add(string committishOrBranchSpec, string name, string path, bool isLocked)
         {
             if (string.Equals(committishOrBranchSpec, name))
@@ -61,7 +60,7 @@ namespace LibGit2Sharp
                 return null;
             }
 
-            git_worktree_add_options options = new git_worktree_add_options
+            var options = new git_worktree_add_options
             {
                 version = 1,
                 locked = Convert.ToInt32(isLocked)
@@ -81,20 +80,18 @@ namespace LibGit2Sharp
                 }
             }
 
-
-
             return this[name];
         }
 
         /// <summary>
         ///
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="path"></param>
-        /// <param name="isLocked"></param>
+        /// <param name="committishOrBranchSpec">A committish or branch name./param>
+        /// <param name="name">Name of the worktree.</param>
+        /// <param name="path">Location of the worktree.</param>
         public virtual Worktree Add(string name, string path, bool isLocked)
         {
-            git_worktree_add_options options = new git_worktree_add_options
+            var options = new git_worktree_add_options
             {
                 version = 1,
                 locked = Convert.ToInt32(isLocked)

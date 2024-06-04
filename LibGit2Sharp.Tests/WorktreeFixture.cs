@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace LibGit2Sharp.Tests
@@ -238,7 +236,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanAddWorktree()
+        public void CanAddWorktree_WithUncommitedChanges()
         {
             var repoPath = SandboxWorktreeTestRepo();
             using (var repo = new Repository(repoPath))
@@ -252,11 +250,55 @@ namespace LibGit2Sharp.Tests
                 Assert.False(worktree.IsLocked);
 
                 Assert.Equal(3, repo.Worktrees.Count());
+
+                // Check that branch contains same number of files and folders
+                // NOTE: There is an open bug - [Repository.Worktrees.Add leaves now worktree empty](https://github.com/libgit2/libgit2sharp/issues/2037)
+                Assert.True(repo.RetrieveStatus().IsDirty);
+                var filesInMain = GetFilesOfRepo(repoPath);
+                var filesInBranch = GetFilesOfRepo(path);
+                Assert.NotEqual(filesInMain, filesInBranch);
+
+                repo.Reset(ResetMode.Hard);
+                repo.RemoveUntrackedFiles();
+
+                Assert.False(repo.RetrieveStatus().IsDirty);
+                filesInMain = GetFilesOfRepo(repoPath);
+                filesInBranch = GetFilesOfRepo(path);
+                Assert.Equal(filesInMain, filesInBranch);
             }
         }
 
         [Fact]
-        public void CanAddLockedWorktree()
+        public void CanAddWorktree_WithCommitedChanges()
+        {
+            var repoPath = SandboxWorktreeTestRepo();
+            using (var repo = new Repository(repoPath))
+            {
+                // stage all changes
+                Commands.Stage(repo, "*");
+                repo.Commit("Apply all changes", Constants.Signature, Constants.Signature);
+
+                Assert.Equal(2, repo.Worktrees.Count());
+
+                var name = "blah";
+                var path = Path.Combine(repo.Info.WorkingDirectory, "..", "worktrees", name);
+                var worktree = repo.Worktrees.Add(name, path, false);
+                Assert.Equal(name, worktree.Name);
+                Assert.False(worktree.IsLocked);
+
+                Assert.Equal(3, repo.Worktrees.Count());
+
+                // Check that branch contains same number of files and folders
+                // NOTE: There is an open bug - [Repository.Worktrees.Add leaves now worktree empty](https://github.com/libgit2/libgit2sharp/issues/2037)
+                Assert.False(repo.RetrieveStatus().IsDirty);
+                var filesInMain = GetFilesOfRepo(repoPath);
+                var filesInBranch = GetFilesOfRepo(path);
+                Assert.Equal(filesInMain, filesInBranch);
+            }
+        }
+
+        [Fact]
+        public void CanAddLockedWorktree_WithUncommitedChanges()
         {
             var repoPath = SandboxWorktreeTestRepo();
             using (var repo = new Repository(repoPath))
@@ -270,6 +312,50 @@ namespace LibGit2Sharp.Tests
                 Assert.True(worktree.IsLocked);
 
                 Assert.Equal(3, repo.Worktrees.Count());
+
+                // Check that branch contains same number of files and folders
+                // NOTE: There is an open bug - [Repository.Worktrees.Add leaves now worktree empty](https://github.com/libgit2/libgit2sharp/issues/2037)
+                Assert.True(repo.RetrieveStatus().IsDirty);
+                var filesInMain = GetFilesOfRepo(repoPath);
+                var filesInBranch = GetFilesOfRepo(path);
+                Assert.NotEqual(filesInMain, filesInBranch);
+
+                repo.Reset(ResetMode.Hard);
+                repo.RemoveUntrackedFiles();
+
+                Assert.False(repo.RetrieveStatus().IsDirty);
+                filesInMain = GetFilesOfRepo(repoPath);
+                filesInBranch = GetFilesOfRepo(path);
+                Assert.Equal(filesInMain, filesInBranch);
+            }
+        }
+
+        [Fact]
+        public void CanAddLockedWorktree_WithCommitedChanges()
+        {
+            var repoPath = SandboxWorktreeTestRepo();
+            using (var repo = new Repository(repoPath))
+            {
+                // stage all changes
+                Commands.Stage(repo, "*");
+                repo.Commit("Apply all changes", Constants.Signature, Constants.Signature);
+
+                Assert.Equal(2, repo.Worktrees.Count());
+
+                var name = "blah";
+                var path = Path.Combine(repo.Info.WorkingDirectory, "..", "worktrees", name);
+                var worktree = repo.Worktrees.Add(name, path, true);
+                Assert.Equal(name, worktree.Name);
+                Assert.True(worktree.IsLocked);
+
+                Assert.Equal(3, repo.Worktrees.Count());
+
+                // Check that branch contains same number of files and folders
+                // NOTE: There is an open bug - [Repository.Worktrees.Add leaves now worktree empty](https://github.com/libgit2/libgit2sharp/issues/2037)
+                Assert.False(repo.RetrieveStatus().IsDirty);
+                var filesInMain = GetFilesOfRepo(repoPath);
+                var filesInBranch = GetFilesOfRepo(path);
+                Assert.Equal(filesInMain, filesInBranch);
             }
         }
 
@@ -292,7 +378,22 @@ namespace LibGit2Sharp.Tests
                     Assert.Equal(committish, repository.Head.FriendlyName);
                 }
                 Assert.Equal(3, repo.Worktrees.Count());
+
+                // Check that branch contains same number of files and folders
+                // NOTE: There is an open bug - [Repository.Worktrees.Add leaves now worktree empty](https://github.com/libgit2/libgit2sharp/issues/2037)
+                var filesInCommittish = new string[] { "numbers.txt", "super-file.txt" };
+                var filesInBranch = GetFilesOfRepo(path);
+                Assert.Equal(filesInCommittish, filesInBranch);
             }
+        }
+
+        private static IEnumerable<string> GetFilesOfRepo(string repoPath)
+        {
+            return Directory.GetFiles(repoPath, "*", SearchOption.AllDirectories)
+                .Where(fileName => !fileName.StartsWith($"{repoPath}\\.git", StringComparison.InvariantCultureIgnoreCase))
+                .Select(fileName => fileName.Replace($"{repoPath}\\", "", StringComparison.InvariantCultureIgnoreCase))
+                .OrderBy(fileName => fileName, StringComparer.InvariantCultureIgnoreCase)
+                .ToList();
         }
     }
 }

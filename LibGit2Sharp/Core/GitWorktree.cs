@@ -38,7 +38,11 @@ namespace LibGit2Sharp.Core
 
         public IntPtr @ref = IntPtr.Zero;
 
-        public GitCheckoutOpts checkoutOpts = new GitCheckoutOpts { version = 1 };
+        public GitCheckoutOpts checkoutOpts = new GitCheckoutOpts
+        {
+            version = 1,
+            checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_FORCE
+        };
     }
 
     [StructLayout(LayoutKind.Sequential)]
