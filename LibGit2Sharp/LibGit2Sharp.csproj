@@ -20,6 +20,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <MinVerDefaultPreReleaseIdentifiers>preview.0</MinVerDefaultPreReleaseIdentifiers>
     <MinVerBuildMetadata Condition="'$(libgit2_hash)' != ''">libgit2-$(libgit2_hash.Substring(0,7))</MinVerBuildMetadata>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
