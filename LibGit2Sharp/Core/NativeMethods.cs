@@ -92,7 +92,7 @@ namespace LibGit2Sharp.Core
 
             if (libraryName == libgit2)
             {
-                if (Environment.GetEnvironmentVariable("UIPATH_STUDIO_GIT_USE_SCHANNEL") == "1")
+                if (Environment.GetEnvironmentVariable("UIPATH_STUDIO_GIT_USE_SCHANNEL") == "1" || IsSchannelSelectedInGitConfig())
                 {
                     Trace.TraceInformation("Using git with schannel");
                     libraryName = libraryName + "_schannel";
@@ -139,6 +139,33 @@ namespace LibGit2Sharp.Core
             }
 
             return handle;
+        }
+
+        private static bool IsSchannelSelectedInGitConfig()
+        {
+            string globalConfigPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".gitconfig");
+            string systemConfigPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "gitconfig");
+            string[] probingPaths = [globalConfigPath, systemConfigPath];
+            foreach(var path in probingPaths)
+            {
+                try
+                {
+                    if (File.Exists(path))
+                    {
+                        var value = new ConfigurationFileReader(path).Read("http", "sslBackend");
+                        if (!string.IsNullOrEmpty(value))
+                        {
+                            return value == "schannel";
+                        }
+                    }
+                }
+                catch(Exception ex)
+                {
+                    Trace.TraceError("Error when reading " + path + " " + ex);
+                }
+            }
+
+            return false;
         }
 #endif
 
