@@ -66,7 +66,7 @@ namespace LibGit2Sharp.Core
             return Path.Combine(nativeLibraryDir, libgit2 + Platform.GetNativeLibraryExtension());
         }
 
-#if NETFRAMEWORK
+#if NETSTANDARD
         private static bool TryUseNativeLibrary() => false;
 #else
         private static bool TryUseNativeLibrary()

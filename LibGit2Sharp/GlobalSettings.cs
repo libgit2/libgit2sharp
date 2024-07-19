@@ -29,7 +29,7 @@ namespace LibGit2Sharp
 
             nativeLibraryPathAllowed = netFX || netCore;
 
-#if NETFRAMEWORK
+#if NETSTANDARD
             if (netFX)
             {
                 // For .NET Framework apps the dependencies are deployed to lib/win32/{architecture} directory
@@ -40,7 +40,7 @@ namespace LibGit2Sharp
             registeredFilters = new Dictionary<Filter, FilterRegistration>();
         }
 
-#if NETFRAMEWORK
+#if NETSTANDARD
         private static string GetExecutingAssemblyDirectory()
         {
             // Assembly.CodeBase is not actually a correctly formatted
