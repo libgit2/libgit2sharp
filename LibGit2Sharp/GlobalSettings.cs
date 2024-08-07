@@ -356,6 +356,15 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Enable or disable the libgit2 owner validation
+        /// </summary>
+        /// <param name="enabled">true to enable the owner validation, false otherwise</param>
+        public static void SetOwnerValidation(bool enabled)
+        {
+            Proxy.git_libgit2_opts_set_owner_validation(enabled);
+        }
+
+        /// <summary>
         /// Enable or disable the ofs_delta capability
         /// </summary>
         /// <param name="enabled">true to enable the ofs_delta capability, false otherwise</param>
