@@ -105,6 +105,11 @@ namespace LibGit2Sharp.Core
         /// </summary>
         GIT_CHECKOUT_DONT_WRITE_INDEX = (1 << 23),
 
+        /// <summary>
+        /// Support for long file paths.
+        /// </summary>
+        GIT_CHECKOUT_LONGPATHS = (1 << 24),
+
         // THE FOLLOWING OPTIONS ARE NOT YET IMPLEMENTED
 
         /// <summary>
@@ -183,6 +188,11 @@ namespace LibGit2Sharp.Core
         CheckoutStrategy CheckoutStrategy { get; }
 
         CheckoutNotifyFlags CheckoutNotifyFlags { get; }
+
+        /// <summary>
+        /// True will enable support for long paths, allowing the repository to handle paths longer than 260 characters.
+        /// </summary>
+        bool LongPaths { get; }
     }
 
     /// <summary>
@@ -229,5 +239,8 @@ namespace LibGit2Sharp.Core
         {
             get { return internalOptions.CheckoutNotifyFlags; }
         }
+
+        /// <inheritdoc />
+        public bool LongPaths { get; set; }
     }
 }

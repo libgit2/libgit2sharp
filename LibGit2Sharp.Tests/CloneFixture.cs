@@ -629,5 +629,30 @@ namespace LibGit2Sharp.Tests
             var clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, cloneOptions);
             Assert.True(Directory.Exists(clonedRepoPath));
         }
+
+        [Fact]
+        public void CanCloneWithLongPaths()
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            var cloneOptions = new CloneOptions
+            {
+                LongPaths = true
+            };
+
+            string clonedRepoPath = Repository.Clone("https://github.com/luiswolff/test-long-file-path.git", scd.DirectoryPath, cloneOptions);
+
+            using (var repo = new Repository(clonedRepoPath))
+            {
+                string dir = repo.Info.Path;
+                Assert.True(Path.IsPathRooted(dir));
+                Assert.True(Directory.Exists(dir));
+                Assert.NotNull(repo.Info.WorkingDirectory);
+                Assert.Equal(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar), repo.Info.Path);
+                Assert.False(repo.Info.IsBare);
+
+                // Add additional assertions if necessary to verify long path support
+            }
+        }
     }
 }

@@ -30,6 +30,9 @@ namespace LibGit2Sharp
         /// controlled with the CheckoutNotifyFlags property.
         public CheckoutProgressHandler OnCheckoutProgress { get; set; }
 
+        /// <inheritdoc />
+        public bool LongPaths { get; set; }
+
         CheckoutStrategy IConvertableToGitCheckoutOpts.CheckoutStrategy
         {
             get

@@ -54,5 +54,8 @@ namespace LibGit2Sharp
                        GitCheckoutOptsWrapper.CheckoutStrategyFromFileConflictStrategy(FileConflictStrategy);
             }
         }
+
+        /// <inheritdoc />
+        public bool LongPaths { get; set; }
     }
 }

@@ -49,5 +49,8 @@ namespace LibGit2Sharp
         {
             get { return CheckoutNotifyFlags; }
         }
+
+        /// <inheritdoc />
+        public bool LongPaths { get; set; }
     }
 }

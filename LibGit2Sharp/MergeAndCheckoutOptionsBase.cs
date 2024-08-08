@@ -46,6 +46,9 @@ namespace LibGit2Sharp
         /// </summary>
         public CheckoutProgressHandler OnCheckoutProgress { get; set; }
 
+        /// <inheritdoc />
+        public bool LongPaths { get; set; }
+
         /// <summary>
         /// Delegate that checkout will notify callers of
         /// certain conditions. The conditions that are reported is
@@ -68,6 +71,8 @@ namespace LibGit2Sharp
                        GitCheckoutOptsWrapper.CheckoutStrategyFromFileConflictStrategy(FileConflictStrategy);
             }
         }
+
+
 
         #endregion
     }

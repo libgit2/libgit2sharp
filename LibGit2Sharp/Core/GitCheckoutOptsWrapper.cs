@@ -22,10 +22,17 @@ namespace LibGit2Sharp.Core
                 PathArray = GitStrArrayManaged.BuildFrom(paths);
             }
 
+            var checkout_strategy = options.CheckoutStrategy;
+
+            if (options.LongPaths)
+            {
+                checkout_strategy |= CheckoutStrategy.GIT_CHECKOUT_LONGPATHS;
+            }
+
             Options = new GitCheckoutOpts
             {
                 version = 1,
-                checkout_strategy = options.CheckoutStrategy,
+                checkout_strategy = checkout_strategy,
                 progress_cb = Callbacks.CheckoutProgressCallback,
                 notify_cb = Callbacks.CheckoutNotifyCallback,
                 notify_flags = options.CheckoutNotifyFlags,

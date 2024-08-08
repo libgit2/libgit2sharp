@@ -21,6 +21,9 @@ namespace LibGit2Sharp
         /// </summary>
         public bool IsBare { get; set; }
 
+        /// <inheritdoc />
+        public bool LongPaths { get; set; }
+
         /// <summary>
         /// If true, the origin's HEAD will be checked out. This only applies
         /// to non-bare repositories.
