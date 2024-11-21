@@ -216,11 +216,11 @@ namespace LibGit2Sharp
 
         static RemoteHandle BuildRemoteHandle(RepositoryHandle repoHandle, string url)
         {
-            Debug.Assert(repoHandle != null && !repoHandle.IsNull);
+            Debug.Assert(repoHandle != null && !repoHandle.IsInvalid);
             Debug.Assert(url != null);
 
             RemoteHandle remoteHandle = Proxy.git_remote_create_anonymous(repoHandle, url);
-            Debug.Assert(remoteHandle != null && !(remoteHandle.IsNull));
+            Debug.Assert(remoteHandle != null && !remoteHandle.IsInvalid);
 
             return remoteHandle;
         }

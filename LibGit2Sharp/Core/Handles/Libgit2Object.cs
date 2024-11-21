@@ -1,13 +1,13 @@
 ﻿// This activates a lightweight mode which will help put under the light
-// incorrectly released handles by outputing a warning message in the console.
+// incorrectly released handles by outputting a warning message in the console.
 //
 // This should be activated when tests are being run on the CI server.
 //
 // Uncomment the line below or add a conditional symbol to activate this mode
 
-// #define LEAKS_IDENTIFYING
+//#define LEAKS_IDENTIFYING
 
-// This activates a more throrough mode which will show the stack trace of the
+// This activates a more thorough mode which will show the stack trace of the
 // allocation code path for each handle that has been improperly released.
 //
 // This should be manually activated when some warnings have been raised as
@@ -15,17 +15,17 @@
 //
 // Uncomment the line below or add a conditional symbol to activate this mode
 
-// #define LEAKS_TRACKING
+//#define LEAKS_TRACKING
 
 using System;
-using System.Linq;
-using System.Diagnostics;
-using System.Globalization;
-using System.Collections.Generic;
+using Microsoft.Win32.SafeHandles;
 
 #if LEAKS_IDENTIFYING
 namespace LibGit2Sharp.Core
 {
+    using System.Collections.Generic;
+    using System.Linq;
+
     /// <summary>
     /// Holds leaked handle type names reported by <see cref="Core.Handles.Libgit2Object"/>
     /// </summary>
@@ -78,30 +78,27 @@ namespace LibGit2Sharp.Core
 
 namespace LibGit2Sharp.Core.Handles
 {
-    internal unsafe abstract class Libgit2Object : IDisposable
+#if LEAKS_TRACKING
+    using System.Diagnostics;
+    using System.Globalization;
+#endif
+
+    internal unsafe abstract class Libgit2Object : SafeHandleZeroOrMinusOneIsInvalid
     {
 #if LEAKS_TRACKING
         private readonly string trace;
         private readonly Guid id;
 #endif
 
-        protected void* ptr;
-
-        internal void* Handle
+        internal unsafe Libgit2Object(void* ptr, bool owned)
+            : this(new IntPtr(ptr), owned)
         {
-            get
-            {
-                return ptr;
-            }
         }
 
-        bool owned;
-        bool disposed;
-
-        internal unsafe Libgit2Object(void* handle, bool owned)
+        internal unsafe Libgit2Object(IntPtr ptr, bool owned)
+            : base(owned)
         {
-            this.ptr = handle;
-            this.owned = owned;
+            SetHandle(ptr);
 
 #if LEAKS_TRACKING
             id = Guid.NewGuid();
@@ -111,35 +108,12 @@ namespace LibGit2Sharp.Core.Handles
 #endif
         }
 
-        internal unsafe Libgit2Object(IntPtr ptr, bool owned)
-            : this(ptr.ToPointer(), owned)
-        {
-        }
+        internal IntPtr AsIntPtr() => DangerousGetHandle();
 
-        ~Libgit2Object()
-        {
-            Dispose(false);
-        }
-
-        internal bool IsNull
-        {
-            get
-            {
-                return ptr == null;
-            }
-        }
-
-        internal IntPtr AsIntPtr()
-        {
-            return new IntPtr(ptr);
-        }
-
-        public abstract void Free();
-
-        void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
 #if LEAKS_IDENTIFYING
-            bool leaked = !disposing && ptr != null;
+            bool leaked = !disposing && DangerousGetHandle() != IntPtr.Zero;
 
             if (leaked)
             {
@@ -147,17 +121,7 @@ namespace LibGit2Sharp.Core.Handles
             }
 #endif
 
-            if (!disposed)
-            {
-                if (owned)
-                {
-                    Free();
-                }
-
-                ptr = null;
-            }
-
-            disposed = true;
+            base.Dispose(disposing);
 
 #if LEAKS_TRACKING
             if (!leaked)
@@ -171,11 +135,6 @@ namespace LibGit2Sharp.Core.Handles
                 Trace.WriteLine("");
             }
 #endif
-        }
-
-            public void Dispose()
-        {
-            Dispose(true);
         }
     }
 }
