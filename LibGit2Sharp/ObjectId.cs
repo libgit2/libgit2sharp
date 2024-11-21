@@ -59,7 +59,7 @@ namespace LibGit2Sharp
 
         internal static unsafe ObjectId BuildFromPtr(IntPtr ptr)
         {
-            return BuildFromPtr((git_oid*) ptr.ToPointer());
+            return BuildFromPtr((git_oid*)ptr.ToPointer());
         }
 
         internal static unsafe ObjectId BuildFromPtr(git_oid* id)
@@ -71,7 +71,7 @@ namespace LibGit2Sharp
         {
             byte[] id = new byte[GitOid.Size];
 
-            fixed(byte* p = id)
+            fixed (byte* p = id)
             {
                 for (int i = 0; i < rawSize; i++)
                 {

@@ -250,10 +250,9 @@ namespace LibGit2Sharp.Core
         GIT_DIFF_FLAG_EXISTS = (1 << 3),
     }
 
-    [StructLayout(LayoutKind.Sequential)]
     internal unsafe struct git_diff_file
     {
-        public git_oid Id;
+        public GitOid Id;
         public char* Path;
         public long Size;
         public GitDiffFlags Flags;
@@ -261,7 +260,6 @@ namespace LibGit2Sharp.Core
         public ushort IdAbbrev;
     }
 
-    [StructLayout(LayoutKind.Sequential)]
     internal unsafe struct git_diff_delta
     {
         public ChangeKind status;

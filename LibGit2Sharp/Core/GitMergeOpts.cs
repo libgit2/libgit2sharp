@@ -39,7 +39,7 @@ namespace LibGit2Sharp.Core
         /// Default merge driver to be used when both sides of a merge have
         /// changed.  The default is the `text` driver.
         /// </summary>
-        public string DefaultDriver;
+        public nint DefaultDriver;
 
         /// <summary>
         /// Flags for automerging content.

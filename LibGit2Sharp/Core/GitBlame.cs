@@ -40,17 +40,18 @@ namespace LibGit2Sharp.Core
         GIT_BLAME_FIRST_PARENT = (1 << 4),
     }
 
-    [StructLayout(LayoutKind.Sequential)]
-    internal class git_blame_options
+    internal struct git_blame_options
     {
+        public git_blame_options() { }
+
         public uint version = 1;
         public GitBlameOptionFlags flags;
 
         public ushort min_match_characters;
-        public git_oid newest_commit;
-        public git_oid oldest_commit;
-        public UIntPtr min_line;
-        public UIntPtr max_line;
+        public GitOid newest_commit;
+        public GitOid oldest_commit;
+        public nuint min_line;
+        public nuint max_line;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -58,11 +59,11 @@ namespace LibGit2Sharp.Core
     {
         public UIntPtr lines_in_hunk;
 
-        public git_oid final_commit_id;
+        public GitOid final_commit_id;
         public UIntPtr final_start_line_number;
         public git_signature* final_signature;
-        
-        public git_oid orig_commit_id;
+
+        public GitOid orig_commit_id;
         public char* orig_path;
         public UIntPtr orig_start_line_number;
         public git_signature* orig_signature;

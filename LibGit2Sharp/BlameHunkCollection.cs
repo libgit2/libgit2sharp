@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -35,18 +34,12 @@ namespace LibGit2Sharp
 
             if (options.StartingAt != null)
             {
-                fixed (byte* p = rawopts.newest_commit.Id)
-                {
-                    Marshal.Copy(repo.Committish(options.StartingAt).Oid.Id, 0, new IntPtr(p), git_oid.Size);
-                }
+                rawopts.newest_commit = repo.Committish(options.StartingAt).Oid;
             }
 
             if (options.StoppingAt != null)
             {
-                fixed (byte* p = rawopts.oldest_commit.Id)
-                {
-                    Marshal.Copy(repo.Committish(options.StoppingAt).Oid.Id, 0, new IntPtr(p), git_oid.Size);
-                }
+                rawopts.oldest_commit = repo.Committish(options.StoppingAt).Oid;
             }
 
             using (var blameHandle = Proxy.git_blame_file(repoHandle, path, rawopts))

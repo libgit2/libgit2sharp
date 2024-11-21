@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp.Core
 {
-    [StructLayout(LayoutKind.Sequential)]
-    internal class GitRebaseOptions
+    internal struct GitRebaseOptions
     {
+        public GitRebaseOptions() { }
+
         public uint version = 1;
 
         public int quiet;

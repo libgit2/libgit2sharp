@@ -290,7 +290,7 @@ namespace LibGit2Sharp.Core
 
         [LibraryImport(libgit2, StringMarshalling = StringMarshalling.Utf8)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        internal static unsafe partial int git_commit_create_from_ids(out GitOid id, git_repository* repo, string updateRef, git_signature* author, git_signature* committer, string encoding, string message, ref GitOid tree, UIntPtr parentCount, [MarshalAs(UnmanagedType.LPArray)][In] IntPtr[] parents);
+        internal static unsafe partial int git_commit_create_from_ids(out GitOid id, git_repository* repo, string updateRef, git_signature* author, git_signature* committer, string encoding, string message, ref GitOid tree, UIntPtr parentCount, [In] IntPtr[] parents);
 
         [LibraryImport(libgit2, StringMarshalling = StringMarshalling.Utf8)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -317,7 +317,7 @@ namespace LibGit2Sharp.Core
 
         [LibraryImport(libgit2)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        internal static unsafe partial git_oid* git_commit_parent_id(git_object* commit, uint n);
+        internal static unsafe partial GitOid* git_commit_parent_id(git_object* commit, uint n);
 
         [LibraryImport(libgit2)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -325,7 +325,7 @@ namespace LibGit2Sharp.Core
 
         [LibraryImport(libgit2)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        internal static unsafe partial git_oid* git_commit_tree_id(git_object* commit);
+        internal static unsafe partial GitOid* git_commit_tree_id(git_object* commit);
 
         [LibraryImport(libgit2, StringMarshalling = StringMarshalling.Utf8)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -773,7 +773,7 @@ namespace LibGit2Sharp.Core
 
         [LibraryImport(libgit2)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        internal static unsafe partial git_oid* git_annotated_commit_id(git_annotated_commit* annotatedCommit);
+        internal static unsafe partial GitOid* git_annotated_commit_id(git_annotated_commit* annotatedCommit);
 
         [LibraryImport(libgit2)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -810,7 +810,7 @@ namespace LibGit2Sharp.Core
 
         [LibraryImport(libgit2)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        internal static unsafe partial git_oid* git_note_id(git_note* note);
+        internal static unsafe partial GitOid* git_note_id(git_note* note);
 
         [LibraryImport(libgit2, StringMarshalling = StringMarshalling.Utf8)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -884,7 +884,7 @@ namespace LibGit2Sharp.Core
 
         [LibraryImport(libgit2)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        internal static unsafe partial git_oid* git_object_id(git_object* obj);
+        internal static unsafe partial GitOid* git_object_id(git_object* obj);
 
         [LibraryImport(libgit2)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -1007,7 +1007,7 @@ namespace LibGit2Sharp.Core
 
         [LibraryImport(libgit2)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        internal static unsafe partial git_oid* git_reference_target(git_reference* reference);
+        internal static unsafe partial GitOid* git_reference_target(git_reference* reference);
 
         [LibraryImport(libgit2, StringMarshalling = StringMarshalling.Utf8)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -1052,11 +1052,11 @@ namespace LibGit2Sharp.Core
 
         [LibraryImport(libgit2)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        internal static unsafe partial git_oid* git_reflog_entry_id_old(git_reflog_entry* entry);
+        internal static unsafe partial GitOid* git_reflog_entry_id_old(git_reflog_entry* entry);
 
         [LibraryImport(libgit2)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        internal static unsafe partial git_oid* git_reflog_entry_id_new(git_reflog_entry* entry);
+        internal static unsafe partial GitOid* git_reflog_entry_id_new(git_reflog_entry* entry);
 
         [LibraryImport(libgit2)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -1350,7 +1350,7 @@ namespace LibGit2Sharp.Core
 
         [LibraryImport(libgit2)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        internal static unsafe partial int git_reset(git_repository* repo, git_object* target, ResetMode reset_type, ref GitCheckoutOpts opts);
+        internal static unsafe partial int git_reset(git_repository* repo, git_object* target, ResetMode reset_type, GitCheckoutOpts* opts);
 
         [LibraryImport(libgit2)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -1498,15 +1498,15 @@ namespace LibGit2Sharp.Core
 
         [LibraryImport(libgit2)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        internal static unsafe partial git_oid* git_submodule_index_id(git_submodule* submodule);
+        internal static unsafe partial GitOid* git_submodule_index_id(git_submodule* submodule);
 
         [LibraryImport(libgit2)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        internal static unsafe partial git_oid* git_submodule_head_id(git_submodule* submodule);
+        internal static unsafe partial GitOid* git_submodule_head_id(git_submodule* submodule);
 
         [LibraryImport(libgit2)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        internal static unsafe partial git_oid* git_submodule_wd_id(git_submodule* submodule);
+        internal static unsafe partial GitOid* git_submodule_wd_id(git_submodule* submodule);
 
         [LibraryImport(libgit2)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -1568,7 +1568,7 @@ namespace LibGit2Sharp.Core
 
         [LibraryImport(libgit2)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        internal static unsafe partial git_oid* git_tag_target_id(git_object* tag);
+        internal static unsafe partial GitOid* git_tag_target_id(git_object* tag);
 
         [LibraryImport(libgit2)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -1640,7 +1640,7 @@ namespace LibGit2Sharp.Core
 
         [LibraryImport(libgit2)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        internal static unsafe partial git_oid* git_tree_entry_id(git_tree_entry* entry);
+        internal static unsafe partial GitOid* git_tree_entry_id(git_tree_entry* entry);
 
         [LibraryImport(libgit2)]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]

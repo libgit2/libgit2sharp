@@ -1011,7 +1011,7 @@ namespace LibGit2Sharp
             using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(opts))
             {
                 var options = checkoutOptionsWrapper.Options;
-                Proxy.git_reset(handle, commit.Id, resetMode, ref options);
+                Proxy.git_reset(handle, commit.Id, resetMode, options);
             }
         }
 

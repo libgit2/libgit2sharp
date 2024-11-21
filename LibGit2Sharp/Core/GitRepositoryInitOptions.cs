@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp.Core
 {
-    [StructLayout(LayoutKind.Sequential)]
-    internal class GitRepositoryInitOptions : IDisposable
+    internal struct GitRepositoryInitOptions : IDisposable
     {
         public uint Version = 1;
         public GitRepositoryInitFlags Flags;
@@ -15,6 +13,8 @@ namespace LibGit2Sharp.Core
         public IntPtr TemplatePath;
         public IntPtr InitialHead;
         public IntPtr OriginUrl;
+
+        public GitRepositoryInitOptions() { }
 
         public static GitRepositoryInitOptions BuildFrom(FilePath workdirPath, bool isBare)
         {

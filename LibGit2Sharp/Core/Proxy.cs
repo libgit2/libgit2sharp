@@ -2656,11 +2656,11 @@ namespace LibGit2Sharp.Core
             RepositoryHandle repo,
             ObjectId committishId,
             ResetMode resetKind,
-            ref GitCheckoutOpts checkoutOptions)
+            GitCheckoutOpts checkoutOptions)
         {
             using (var osw = new ObjectSafeWrapper(committishId, repo))
             {
-                int res = NativeMethods.git_reset(repo, osw.ObjectPtr, resetKind, ref checkoutOptions);
+                int res = NativeMethods.git_reset(repo, osw.ObjectPtr, resetKind, &checkoutOptions);
                 Ensure.ZeroResult(res);
             }
         }

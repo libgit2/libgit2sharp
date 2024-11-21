@@ -122,6 +122,6 @@ namespace LibGit2Sharp.Core
 
         public char* path;
 
-        public git_oid oid;
+        public GitOid oid;
     }
 }

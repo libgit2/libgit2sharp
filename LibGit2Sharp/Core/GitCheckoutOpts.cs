@@ -140,7 +140,7 @@ namespace LibGit2Sharp.Core
             IntPtr payload);
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct GitCheckoutOpts
+    internal unsafe struct GitCheckoutOpts
     {
         public uint version;
 
@@ -152,7 +152,7 @@ namespace LibGit2Sharp.Core
         public int FileOpenFlags;
 
         public CheckoutNotifyFlags notify_flags;
-        public checkout_notify_cb notify_cb;
+        public delegate* unmanaged[Cdecl]<CheckoutNotifyFlags, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int> notify_cb;
         public IntPtr notify_payload;
 
         public progress_cb progress_cb;
