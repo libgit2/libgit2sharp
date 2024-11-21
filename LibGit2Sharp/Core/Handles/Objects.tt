@@ -82,14 +82,16 @@ for (var i = 0; i < cNames.Length; i++)
         {
         }
 
-        public override void Free()
+        protected override bool ReleaseHandle()
         {
-            NativeMethods.<#= cNames[i] #>_free((<#= cNames[i] #>*) ptr);
+            NativeMethods.<#= cNames[i] #>_free((<#= cNames[i] #>*)AsIntPtr());
+
+            return true;
         }
 
         public static implicit operator <#= cNames[i] #>*(<#= csNames[i] #> handle)
         {
-            return (<#= cNames[i] #>*) handle.Handle;
+            return (<#= cNames[i] #>*)handle.AsIntPtr();
         }
     }
 

@@ -575,7 +575,7 @@ namespace LibGit2Sharp
 
             using (ObjectHandle obj = Proxy.git_object_lookup(handle, id, type))
             {
-                if (obj == null || obj.IsNull)
+                if (obj == null || obj.IsInvalid)
                 {
                     return null;
                 }
@@ -1781,7 +1781,7 @@ namespace LibGit2Sharp
             using (var objH = handles.Item1)
             using (var refH = handles.Item2)
             {
-                reference = refH.IsNull ? null : Reference.BuildFromPtr<Reference>(refH, this);
+                reference = refH.IsInvalid ? null : Reference.BuildFromPtr<Reference>(refH, this);
                 obj = GitObject.BuildFrom(this, Proxy.git_object_id(objH), Proxy.git_object_type(objH), PathFromRevparseSpec(revision));
             }
         }
