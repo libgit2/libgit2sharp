@@ -25,11 +25,7 @@ namespace LibGit2Sharp
         protected Reference()
         { }
 
-        /// <remarks>
-        /// This would be protected+internal, were that supported by C#.
-        /// Do not use except in subclasses.
-        /// </remarks>
-        internal Reference(IRepository repo, string canonicalName, string targetIdentifier)
+        private protected Reference(IRepository repo, string canonicalName, string targetIdentifier)
         {
             this.repo = repo;
             this.canonicalName = canonicalName;
