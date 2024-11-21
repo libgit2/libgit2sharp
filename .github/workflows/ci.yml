@@ -38,13 +38,9 @@ jobs:
     strategy:
       matrix:
         arch: [ x64 ]
-        os: [ windows-2019, windows-2022, macos-11, macos-12, macos-13 ]
+        os: [ windows-2019, windows-2022, macos-12, macos-13 ]
         tfm: [ net472, net6.0, net8.0 ]
         exclude:
-          - os: macos-11
-            tfm: net472
-          - os: macos-11
-            tfm: net8.0
           - os: macos-12
             tfm: net472
           - os: macos-13
