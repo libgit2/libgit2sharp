@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net472;net6.0</TargetFrameworks>
-    <LangVersion>10.0</LangVersion>
+    <TargetFrameworks>net472;net8.0</TargetFrameworks>
+    <LangVersion>12.0</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Description>LibGit2Sharp brings all the might and speed of libgit2, a native Git implementation, to the managed world of .NET</Description>
     <Company>LibGit2Sharp contributors</Company>
@@ -24,9 +24,14 @@
     <MinVerBuildMetadata Condition="'$(libgit2_hash)' != ''">libgit2-$(libgit2_hash.Substring(0,7))</MinVerBuildMetadata>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <IsTrimmable>true</IsTrimmable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="[2.0.322]" PrivateAssets="none" />
+    <PackageReference Include="MinVer" Version="6.0.0" PrivateAssets="all" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\square-logo.png" Pack="true" PackagePath="" Visible="false" />
@@ -36,12 +41,6 @@
     <None Update="Core\Handles\Objects.tt" Generator="TextTemplatingFileGenerator" LastGenOutput="Objects.cs" />
     <Compile Update="Core\Handles\Objects.cs" DependentUpon="Objects.tt" DesignTime="True" AutoGen="True" />
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" /> <!-- Needed for T4 generation -->
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="[2.0.322]" PrivateAssets="none" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="all" />
-    <PackageReference Include="MinVer" Version="5.0.0" PrivateAssets="all" />
   </ItemGroup>
 
   <Import Project="..\Targets\CodeGenerator.targets" />
