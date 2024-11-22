@@ -629,4 +629,27 @@ namespace LibGit2Sharp.Core.Handles
         }
     }
 
+    internal unsafe class ReferenceDatabaseHandle : Libgit2Object
+    {
+        internal ReferenceDatabaseHandle(git_refdb *ptr, bool owned)
+            : base((void *) ptr, owned)
+        {
+        }
+
+        internal ReferenceDatabaseHandle(IntPtr ptr, bool owned)
+            : base(ptr, owned)
+        {
+        }
+
+        public override void Free()
+        {
+            NativeMethods.git_refdb_free((git_refdb*) ptr);
+        }
+
+        public static implicit operator git_refdb*(ReferenceDatabaseHandle handle)
+        {
+            return (git_refdb*) handle.Handle;
+        }
+    }
+
 }
