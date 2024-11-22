@@ -256,7 +256,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int git_branch_iterator_new(
             out IntPtr iter_out,
-            IntPtr repo,
+            RepositoryHandle repo,
             GitBranchType branch_type);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
@@ -562,7 +562,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int git_config_iterator_glob_new(
             out IntPtr iter,
-            IntPtr cfg,
+            ConfigurationHandle cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string regexp);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
@@ -1248,7 +1248,7 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]
-        internal static extern unsafe string git_reference_name(git_reference* reference);
+        internal static extern unsafe string git_reference_name(ReferenceHandle reference);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_reference_remove(
@@ -1285,7 +1285,7 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe string git_reference_symbolic_target(git_reference* reference);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe GitReferenceType git_reference_type(git_reference* reference);
+        internal static extern unsafe GitReferenceType git_reference_type(ReferenceHandle reference);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_reference_ensure_log(
@@ -1545,10 +1545,10 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe void git_repository_free(git_repository* repo);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int git_repository_head_detached(IntPtr repo);
+        internal static extern int git_repository_head_detached(RepositoryHandle repo);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int git_repository_head_unborn(IntPtr repo);
+        internal static extern int git_repository_head_unborn(RepositoryHandle repo);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_repository_ident(
@@ -1566,10 +1566,10 @@ namespace LibGit2Sharp.Core
             GitRepositoryInitOptions options);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int git_repository_is_bare(IntPtr handle);
+        internal static extern int git_repository_is_bare(RepositoryHandle handle);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int git_repository_is_shallow(IntPtr repo);
+        internal static extern int git_repository_is_shallow(RepositoryHandle repo);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_repository_state_cleanup(git_repository* repo);

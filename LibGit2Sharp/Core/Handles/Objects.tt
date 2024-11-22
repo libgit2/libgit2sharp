@@ -91,7 +91,7 @@ for (var i = 0; i < cNames.Length; i++)
 
         public static implicit operator <#= cNames[i] #>*(<#= csNames[i] #> handle)
         {
-            return (<#= cNames[i] #>*)handle.AsIntPtr();
+            return (<#= cNames[i] #>*)handle.DangerousGetHandle();
         }
     }
 

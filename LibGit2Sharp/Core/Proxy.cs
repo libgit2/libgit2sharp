@@ -131,7 +131,7 @@ namespace LibGit2Sharp.Core
         public static IEnumerable<Branch> git_branch_iterator(Repository repo, GitBranchType branchType)
         {
             IntPtr iter;
-            var res = NativeMethods.git_branch_iterator_new(out iter, repo.Handle.AsIntPtr(), branchType);
+            var res = NativeMethods.git_branch_iterator_new(out iter, repo.Handle, branchType);
             Ensure.ZeroResult(res);
 
             try
@@ -345,7 +345,7 @@ namespace LibGit2Sharp.Core
                 try
                 {
                     handles = parents.Select(c => Proxy.git_object_lookup(c.repo.Handle, c.Id, GitObjectType.Commit)).ToArray();
-                    var ptrs = handles.Select(p => p.AsIntPtr()).ToArray();
+                    var ptrs = handles.Select(p => p.DangerousGetHandle()).ToArray();
                     int res;
                     fixed (IntPtr* objs = ptrs)
                     {
@@ -624,7 +624,7 @@ namespace LibGit2Sharp.Core
             string regexp)
         {
             IntPtr iter;
-            var res = NativeMethods.git_config_iterator_glob_new(out iter, config.AsIntPtr(), regexp);
+            var res = NativeMethods.git_config_iterator_glob_new(out iter, config, regexp);
             Ensure.ZeroResult(res);
             try
             {
@@ -1302,7 +1302,7 @@ namespace LibGit2Sharp.Core
 
         public static unsafe void git_merge(RepositoryHandle repo, AnnotatedCommitHandle[] heads, GitMergeOpts mergeOptions, GitCheckoutOpts checkoutOptions, out bool earlyStop)
         {
-            IntPtr[] their_heads = heads.Select(head => head.AsIntPtr()).ToArray();
+            IntPtr[] their_heads = heads.Select(head => head.DangerousGetHandle()).ToArray();
 
             int res = NativeMethods.git_merge(repo,
                                               their_heads,
@@ -1327,7 +1327,7 @@ namespace LibGit2Sharp.Core
             out GitMergeAnalysis analysis_out,
             out GitMergePreference preference_out)
         {
-            IntPtr[] their_heads = heads.Select(head => head.AsIntPtr()).ToArray();
+            IntPtr[] their_heads = heads.Select(head => head.DangerousGetHandle()).ToArray();
 
             int res = NativeMethods.git_merge_analysis(out analysis_out,
                                                        out preference_out,
@@ -1955,7 +1955,7 @@ namespace LibGit2Sharp.Core
             return new ReferenceHandle(handle, true);
         }
 
-        public static unsafe string git_reference_name(git_reference* reference)
+        public static unsafe string git_reference_name(ReferenceHandle reference)
         {
             return NativeMethods.git_reference_name(reference);
         }
@@ -2011,7 +2011,7 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_reference_symbolic_target(reference);
         }
 
-        public static unsafe GitReferenceType git_reference_type(git_reference* reference)
+        public static unsafe GitReferenceType git_reference_type(ReferenceHandle reference)
         {
             return NativeMethods.git_reference_type(reference);
         }
@@ -3822,9 +3822,9 @@ namespace LibGit2Sharp.Core
             return result;
         }
 
-        private static unsafe bool RepositoryStateChecker(RepositoryHandle repo, Func<IntPtr, int> checker)
+        private static unsafe bool RepositoryStateChecker(RepositoryHandle repo, Func<RepositoryHandle, int> checker)
         {
-            int res = checker(repo.AsIntPtr());
+            int res = checker(repo);
             Ensure.BooleanResult(res);
 
             return (res == 1);
