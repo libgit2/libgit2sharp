@@ -18,7 +18,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_tree_entry_free((git_tree_entry*)AsIntPtr());
+            NativeMethods.git_tree_entry_free((git_tree_entry*)handle);
 
             return true;
         }
@@ -43,7 +43,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_reference_free((git_reference*)AsIntPtr());
+            NativeMethods.git_reference_free((git_reference*)handle);
 
             return true;
         }
@@ -68,7 +68,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_repository_free((git_repository*)AsIntPtr());
+            NativeMethods.git_repository_free((git_repository*)handle);
 
             return true;
         }
@@ -93,7 +93,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_signature_free((git_signature*)AsIntPtr());
+            NativeMethods.git_signature_free((git_signature*)handle);
 
             return true;
         }
@@ -118,7 +118,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_status_list_free((git_status_list*)AsIntPtr());
+            NativeMethods.git_status_list_free((git_status_list*)handle);
 
             return true;
         }
@@ -143,7 +143,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_blame_free((git_blame*)AsIntPtr());
+            NativeMethods.git_blame_free((git_blame*)handle);
 
             return true;
         }
@@ -168,7 +168,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_diff_free((git_diff*)AsIntPtr());
+            NativeMethods.git_diff_free((git_diff*)handle);
 
             return true;
         }
@@ -193,7 +193,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_patch_free((git_patch*)AsIntPtr());
+            NativeMethods.git_patch_free((git_patch*)handle);
 
             return true;
         }
@@ -218,7 +218,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_config_free((git_config*)AsIntPtr());
+            NativeMethods.git_config_free((git_config*)handle);
 
             return true;
         }
@@ -243,7 +243,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_index_conflict_iterator_free((git_index_conflict_iterator*)AsIntPtr());
+            NativeMethods.git_index_conflict_iterator_free((git_index_conflict_iterator*)handle);
 
             return true;
         }
@@ -268,7 +268,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_index_free((git_index*)AsIntPtr());
+            NativeMethods.git_index_free((git_index*)handle);
 
             return true;
         }
@@ -293,7 +293,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_reflog_free((git_reflog*)AsIntPtr());
+            NativeMethods.git_reflog_free((git_reflog*)handle);
 
             return true;
         }
@@ -318,7 +318,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_treebuilder_free((git_treebuilder*)AsIntPtr());
+            NativeMethods.git_treebuilder_free((git_treebuilder*)handle);
 
             return true;
         }
@@ -343,7 +343,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_packbuilder_free((git_packbuilder*)AsIntPtr());
+            NativeMethods.git_packbuilder_free((git_packbuilder*)handle);
 
             return true;
         }
@@ -368,7 +368,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_note_free((git_note*)AsIntPtr());
+            NativeMethods.git_note_free((git_note*)handle);
 
             return true;
         }
@@ -393,7 +393,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_describe_result_free((git_describe_result*)AsIntPtr());
+            NativeMethods.git_describe_result_free((git_describe_result*)handle);
 
             return true;
         }
@@ -418,7 +418,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_submodule_free((git_submodule*)AsIntPtr());
+            NativeMethods.git_submodule_free((git_submodule*)handle);
 
             return true;
         }
@@ -443,7 +443,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_annotated_commit_free((git_annotated_commit*)AsIntPtr());
+            NativeMethods.git_annotated_commit_free((git_annotated_commit*)handle);
 
             return true;
         }
@@ -468,7 +468,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_odb_free((git_odb*)AsIntPtr());
+            NativeMethods.git_odb_free((git_odb*)handle);
 
             return true;
         }
@@ -493,7 +493,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_revwalk_free((git_revwalk*)AsIntPtr());
+            NativeMethods.git_revwalk_free((git_revwalk*)handle);
 
             return true;
         }
@@ -518,7 +518,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_remote_free((git_remote*)AsIntPtr());
+            NativeMethods.git_remote_free((git_remote*)handle);
 
             return true;
         }
@@ -543,7 +543,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_object_free((git_object*)AsIntPtr());
+            NativeMethods.git_object_free((git_object*)handle);
 
             return true;
         }
@@ -568,7 +568,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_rebase_free((git_rebase*)AsIntPtr());
+            NativeMethods.git_rebase_free((git_rebase*)handle);
 
             return true;
         }
@@ -593,7 +593,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_odb_stream_free((git_odb_stream*)AsIntPtr());
+            NativeMethods.git_odb_stream_free((git_odb_stream*)handle);
 
             return true;
         }
@@ -618,7 +618,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_worktree_free((git_worktree*)AsIntPtr());
+            NativeMethods.git_worktree_free((git_worktree*)handle);
 
             return true;
         }
