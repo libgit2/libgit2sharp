@@ -110,8 +110,6 @@ namespace LibGit2Sharp.Core.Handles
 
         public override bool IsInvalid => handle == IntPtr.Zero;
 
-        internal IntPtr AsIntPtr() => DangerousGetHandle();
-
         protected override void Dispose(bool disposing)
         {
 #if LEAKS_IDENTIFYING
