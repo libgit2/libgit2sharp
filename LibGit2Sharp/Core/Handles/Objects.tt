@@ -84,7 +84,7 @@ for (var i = 0; i < cNames.Length; i++)
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.<#= cNames[i] #>_free((<#= cNames[i] #>*)AsIntPtr());
+            NativeMethods.<#= cNames[i] #>_free((<#= cNames[i] #>*)handle);
 
             return true;
         }
