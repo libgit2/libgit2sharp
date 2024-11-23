@@ -1,6 +1,5 @@
 using System;
 using System.Runtime.InteropServices;
-using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp.Core
 {
@@ -119,7 +118,7 @@ namespace LibGit2Sharp.Core
     [StructLayout(LayoutKind.Sequential)]
     internal unsafe struct git_filter_source
     {
-        public RepositoryHandle repository;
+        public IntPtr repository;
 
         public char* path;
 

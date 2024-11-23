@@ -90,8 +90,8 @@ namespace LibGit2Sharp.Core.Handles
         private readonly Guid id;
 #endif
 
-        internal unsafe Libgit2Object(void* ptr, bool owned)
-            : this(new IntPtr(ptr), owned)
+        internal unsafe Libgit2Object()
+            : base(IntPtr.Zero, true)
         {
         }
 

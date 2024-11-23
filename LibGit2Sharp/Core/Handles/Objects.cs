@@ -6,6 +6,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class TreeEntryHandle : Libgit2Object
     {
+        internal TreeEntryHandle()
+            : base()
+        {
+        }
+
         internal TreeEntryHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -21,6 +26,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class ReferenceHandle : Libgit2Object
     {
+        internal ReferenceHandle()
+            : base()
+        {
+        }
+
         internal ReferenceHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -36,6 +46,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class RepositoryHandle : Libgit2Object
     {
+        internal RepositoryHandle()
+            : base()
+        {
+        }
+
         internal RepositoryHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -51,6 +66,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class SignatureHandle : Libgit2Object
     {
+        internal SignatureHandle()
+            : base()
+        {
+        }
+
         internal SignatureHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -66,6 +86,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class StatusListHandle : Libgit2Object
     {
+        internal StatusListHandle()
+            : base()
+        {
+        }
+
         internal StatusListHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -81,6 +106,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class BlameHandle : Libgit2Object
     {
+        internal BlameHandle()
+            : base()
+        {
+        }
+
         internal BlameHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -96,6 +126,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class DiffHandle : Libgit2Object
     {
+        internal DiffHandle()
+            : base()
+        {
+        }
+
         internal DiffHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -111,6 +146,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class PatchHandle : Libgit2Object
     {
+        internal PatchHandle()
+            : base()
+        {
+        }
+
         internal PatchHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -126,6 +166,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class ConfigurationHandle : Libgit2Object
     {
+        internal ConfigurationHandle()
+            : base()
+        {
+        }
+
         internal ConfigurationHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -141,6 +186,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class ConflictIteratorHandle : Libgit2Object
     {
+        internal ConflictIteratorHandle()
+            : base()
+        {
+        }
+
         internal ConflictIteratorHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -156,6 +206,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class IndexHandle : Libgit2Object
     {
+        internal IndexHandle()
+            : base()
+        {
+        }
+
         internal IndexHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -171,6 +226,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class ReflogHandle : Libgit2Object
     {
+        internal ReflogHandle()
+            : base()
+        {
+        }
+
         internal ReflogHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -186,6 +246,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class TreeBuilderHandle : Libgit2Object
     {
+        internal TreeBuilderHandle()
+            : base()
+        {
+        }
+
         internal TreeBuilderHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -201,6 +266,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class PackBuilderHandle : Libgit2Object
     {
+        internal PackBuilderHandle()
+            : base()
+        {
+        }
+
         internal PackBuilderHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -216,6 +286,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class NoteHandle : Libgit2Object
     {
+        internal NoteHandle()
+            : base()
+        {
+        }
+
         internal NoteHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -231,6 +306,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class DescribeResultHandle : Libgit2Object
     {
+        internal DescribeResultHandle()
+            : base()
+        {
+        }
+
         internal DescribeResultHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -246,6 +326,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class SubmoduleHandle : Libgit2Object
     {
+        internal SubmoduleHandle()
+            : base()
+        {
+        }
+
         internal SubmoduleHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -261,6 +346,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class AnnotatedCommitHandle : Libgit2Object
     {
+        internal AnnotatedCommitHandle()
+            : base()
+        {
+        }
+
         internal AnnotatedCommitHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -276,6 +366,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class ObjectDatabaseHandle : Libgit2Object
     {
+        internal ObjectDatabaseHandle()
+            : base()
+        {
+        }
+
         internal ObjectDatabaseHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -291,6 +386,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class RevWalkerHandle : Libgit2Object
     {
+        internal RevWalkerHandle()
+            : base()
+        {
+        }
+
         internal RevWalkerHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -306,6 +406,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class RemoteHandle : Libgit2Object
     {
+        internal RemoteHandle()
+            : base()
+        {
+        }
+
         internal RemoteHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -321,6 +426,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class ObjectHandle : Libgit2Object
     {
+        internal ObjectHandle()
+            : base()
+        {
+        }
+
         internal ObjectHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -336,6 +446,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class RebaseHandle : Libgit2Object
     {
+        internal RebaseHandle()
+            : base()
+        {
+        }
+
         internal RebaseHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -351,6 +466,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class OdbStreamHandle : Libgit2Object
     {
+        internal OdbStreamHandle()
+            : base()
+        {
+        }
+
         internal OdbStreamHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -366,6 +486,11 @@ namespace LibGit2Sharp.Core.Handles
 
     internal unsafe class WorktreeHandle : Libgit2Object
     {
+        internal WorktreeHandle()
+            : base()
+        {
+        }
+
         internal WorktreeHandle(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {

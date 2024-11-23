@@ -72,6 +72,11 @@ for (var i = 0; i < cNames.Length; i++)
 #>
     internal unsafe class <#= csNames[i] #> : Libgit2Object
     {
+        internal <#= csNames[i] #>()
+            : base()
+        {
+        }
+
         internal <#= csNames[i] #>(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
