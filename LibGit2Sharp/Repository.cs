@@ -772,28 +772,19 @@ namespace LibGit2Sharp
         /// <param name="workdirPath">Local path to clone into</param>
         /// <param name="options"><see cref="CloneOptions"/> controlling clone behavior</param>
         /// <returns>The path to the created repository.</returns>
-        public static string Clone(string sourceUrl, string workdirPath,
-            CloneOptions options)
+        public static string Clone(string sourceUrl, string workdirPath, CloneOptions options)
         {
             Ensure.ArgumentNotNull(sourceUrl, "sourceUrl");
             Ensure.ArgumentNotNull(workdirPath, "workdirPath");
 
             options ??= new CloneOptions();
 
-            // As default behaviour for GitFetchOptionsWrapper ctor is to create
-            // a new instance of GitFetchOptions we only populate the Depth field.
-            var fetchOptions = new GitFetchOptions
-            {
-                Depth =  options.FetchOptions.Depth,
-            };
-
             // context variable that contains information on the repository that
             // we are cloning.
             var context = new RepositoryOperationContext(Path.GetFullPath(workdirPath), sourceUrl);
 
             // Notify caller that we are starting to work with the current repository.
-            bool continueOperation = OnRepositoryOperationStarting(options.FetchOptions.RepositoryOperationStarting,
-                                                                   context);
+            bool continueOperation = OnRepositoryOperationStarting(options.FetchOptions.RepositoryOperationStarting, context);
 
             if (!continueOperation)
             {
@@ -801,17 +792,18 @@ namespace LibGit2Sharp
             }
 
             using (var checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
-            using (var fetchOptionsWrapper = new GitFetchOptionsWrapper(fetchOptions))
+            using (var fetchOptionsWrapper = new GitFetchOptionsWrapper())
             {
                 var gitCheckoutOptions = checkoutOptionsWrapper.Options;
 
                 var gitFetchOptions = fetchOptionsWrapper.Options;
+                gitFetchOptions.Depth = options.FetchOptions.Depth;
                 gitFetchOptions.ProxyOptions = options.FetchOptions.ProxyOptions.CreateGitProxyOptions();
                 gitFetchOptions.RemoteCallbacks = new RemoteCallbacks(options.FetchOptions).GenerateCallbacks();
+
                 if (options.FetchOptions != null && options.FetchOptions.CustomHeaders != null)
                 {
-                    gitFetchOptions.CustomHeaders =
-                        GitStrArrayManaged.BuildFrom(options.FetchOptions.CustomHeaders);
+                    gitFetchOptions.CustomHeaders = GitStrArrayManaged.BuildFrom(options.FetchOptions.CustomHeaders);
                 }
 
                 var cloneOpts = new GitCloneOptions
@@ -839,8 +831,7 @@ namespace LibGit2Sharp
                 }
 
                 // Notify caller that we are done with the current repository.
-                OnRepositoryOperationCompleted(options.FetchOptions.RepositoryOperationCompleted,
-                                               context);
+                OnRepositoryOperationCompleted(options.FetchOptions.RepositoryOperationCompleted, context);
 
                 // Recursively clone submodules if requested.
                 try
@@ -849,9 +840,7 @@ namespace LibGit2Sharp
                 }
                 catch (Exception ex)
                 {
-                    throw new RecurseSubmodulesException("The top level repository was cloned, but there was an error cloning its submodules.",
-                                                         ex,
-                                                         clonedRepoPath);
+                    throw new RecurseSubmodulesException("The top level repository was cloned, but there was an error cloning its submodules.", ex, clonedRepoPath);
                 }
 
                 return clonedRepoPath;
