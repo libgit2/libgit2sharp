@@ -400,7 +400,7 @@ namespace LibGit2Sharp.Tests
 
             AssertSucceedingButNotError();
 
-            Assert.DoesNotContain(repo.Refs, x => x.CanonicalName.StartsWith("refs/original"));
+            Assert.Contains(repo.Refs, x => x.CanonicalName.StartsWith("refs/original"));
 
             Assert.DoesNotContain(repo.Refs, x => x.CanonicalName.StartsWith("refs/rewritten"));
 
@@ -415,7 +415,7 @@ namespace LibGit2Sharp.Tests
 
             AssertSucceedingButNotError();
 
-            Assert.DoesNotContain(repo.Refs, x => x.CanonicalName.StartsWith("refs/rewritten"));
+            Assert.Contains(repo.Refs, x => x.CanonicalName.StartsWith("refs/rewritten"));
         }
 
         [Fact]
@@ -491,7 +491,7 @@ namespace LibGit2Sharp.Tests
             // Ensure br2 is still a merge commit
             var parents = repo.Branches["br2"].Tip.Parents.ToList();
             Assert.Equal(2, parents.Count());
-            Assert.DoesNotContain(parents, c => c.Sha.StartsWith("9fd738e"));
+            Assert.Contains(parents, c => c.Sha.StartsWith("9fd738e"));
             Assert.Equal("abc", parents.Single(c => !c.Sha.StartsWith("9fd738e")).Message);
         }
 
