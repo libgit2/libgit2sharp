@@ -72,11 +72,6 @@ for (var i = 0; i < cNames.Length; i++)
 #>
     internal unsafe class <#= csNames[i] #> : Libgit2Object
     {
-        internal <#= csNames[i] #>(<#= cNames[i] #>* ptr, bool owned)
-            : base(ptr, owned)
-        {
-        }
-
         internal <#= csNames[i] #>(IntPtr ptr, bool owned)
             : base(ptr, owned)
         {
@@ -84,7 +79,7 @@ for (var i = 0; i < cNames.Length; i++)
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.<#= cNames[i] #>_free((<#= cNames[i] #>*)handle);
+            NativeMethods.<#= cNames[i] #>_free(this);
 
             return true;
         }
