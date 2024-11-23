@@ -105,10 +105,6 @@ namespace LibGit2Sharp
 
                 Func<Index> indexBuilder = () => new Index(this);
 
-                string configurationGlobalFilePath = null;
-                string configurationXDGFilePath = null;
-                string configurationSystemFilePath = null;
-
                 if (!isBare)
                 {
                     index = new Lazy<Index>(() => indexBuilder());
@@ -120,11 +116,7 @@ namespace LibGit2Sharp
                 tags = new TagCollection(this);
                 stashes = new StashCollection(this);
                 info = new Lazy<RepositoryInformation>(() => new RepositoryInformation(this, isBare));
-                config = new Lazy<Configuration>(() => RegisterForCleanup(new Configuration(this,
-                                                                                            null,
-                                                                                            configurationGlobalFilePath,
-                                                                                            configurationXDGFilePath,
-                                                                                            configurationSystemFilePath)));
+                config = new Lazy<Configuration>(() => RegisterForCleanup(new Configuration(this)));
                 odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
                 diff = new Diff(this);
                 notes = new NoteCollection(this);
@@ -171,10 +163,6 @@ namespace LibGit2Sharp
 
                 Func<Index> indexBuilder = () => new Index(this);
 
-                string configurationGlobalFilePath = null;
-                string configurationXDGFilePath = null;
-                string configurationSystemFilePath = null;
-
                 if (options != null)
                 {
                     bool isWorkDirNull = string.IsNullOrEmpty(options.WorkingDirectoryPath);
@@ -217,11 +205,7 @@ namespace LibGit2Sharp
                 tags = new TagCollection(this);
                 stashes = new StashCollection(this);
                 info = new Lazy<RepositoryInformation>(() => new RepositoryInformation(this, isBare));
-                config = new Lazy<Configuration>(() => RegisterForCleanup(new Configuration(this,
-                                                                                            null,
-                                                                                            configurationGlobalFilePath,
-                                                                                            configurationXDGFilePath,
-                                                                                            configurationSystemFilePath)));
+                config = new Lazy<Configuration>(() => RegisterForCleanup(new Configuration(this)));
                 odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
                 diff = new Diff(this);
                 notes = new NoteCollection(this);
