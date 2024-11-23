@@ -67,10 +67,10 @@ namespace LibGit2Sharp.Tests
 
         [Theory]
         [InlineData("1/branch_file.txt", "100755", TreeEntryTargetType.Blob, "45b983be36b73c0788dc9cbcb76cbb80fc7bb057")]
-        [InlineData("README",            "100644", TreeEntryTargetType.Blob, "a8233120f6ad708f843d861ce2b7228ec4e3dec6")]
-        [InlineData("branch_file.txt",   "100644", TreeEntryTargetType.Blob, "45b983be36b73c0788dc9cbcb76cbb80fc7bb057")]
-        [InlineData("new.txt",           "100644", TreeEntryTargetType.Blob, "a71586c1dfe8a71c6cbf6c129f404c5642ff31bd")]
-        [InlineData("1",                 "040000", TreeEntryTargetType.Tree, "7f76480d939dc401415927ea7ef25c676b8ddb8f")]
+        [InlineData("README", "100644", TreeEntryTargetType.Blob, "a8233120f6ad708f843d861ce2b7228ec4e3dec6")]
+        [InlineData("branch_file.txt", "100644", TreeEntryTargetType.Blob, "45b983be36b73c0788dc9cbcb76cbb80fc7bb057")]
+        [InlineData("new.txt", "100644", TreeEntryTargetType.Blob, "a71586c1dfe8a71c6cbf6c129f404c5642ff31bd")]
+        [InlineData("1", "040000", TreeEntryTargetType.Tree, "7f76480d939dc401415927ea7ef25c676b8ddb8f")]
         public void CanRetrieveEntries(string path, string expectedAttributes, TreeEntryTargetType expectedType, string expectedSha)
         {
             string repoPath = SandboxBareTestRepo();

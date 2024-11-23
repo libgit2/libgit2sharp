@@ -40,7 +40,7 @@ namespace LibGit2Sharp
             }
         }
 
-        private  unsafe IndexReucEntry this[int idx]
+        private unsafe IndexReucEntry this[int idx]
         {
             get
             {

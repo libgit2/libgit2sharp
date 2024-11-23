@@ -48,7 +48,7 @@ namespace LibGit2Sharp.Tests
 
         [Theory]
         [InlineData(true, "ancestor-and-ours.txt", true, false, FileStatus.DeletedFromIndex, 2)]
-        [InlineData(false, "ancestor-and-ours.txt", true, true, FileStatus.DeletedFromIndex |FileStatus.NewInWorkdir, 2)]
+        [InlineData(false, "ancestor-and-ours.txt", true, true, FileStatus.DeletedFromIndex | FileStatus.NewInWorkdir, 2)]
         [InlineData(true, "ancestor-and-theirs.txt", true, false, FileStatus.Nonexistent, 2)]
         [InlineData(false, "ancestor-and-theirs.txt", true, true, FileStatus.NewInWorkdir, 2)]
         [InlineData(true, "ancestor-only.txt", false, false, FileStatus.Nonexistent, 1)]
@@ -101,7 +101,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(expected.Count, actual.Count());
 
                 int i = 0;
-                foreach(var name in actual)
+                foreach (var name in actual)
                 {
                     Assert.Equal(expected[i][0], name.Ancestor);
                     Assert.Equal(expected[i][1], name.Ours);

@@ -13,9 +13,9 @@ namespace LibGit2Sharp
     public class RefSpec
     {
         // This is here to keep the pointer alive
-        #pragma warning disable 0414
+#pragma warning disable 0414
         readonly Remote remote;
-        #pragma warning restore 0414
+#pragma warning restore 0414
         readonly IntPtr handle;
 
         internal unsafe RefSpec(Remote remote, git_refspec* handle)

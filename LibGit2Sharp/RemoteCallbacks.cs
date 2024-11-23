@@ -310,10 +310,10 @@ namespace LibGit2Sharp
             switch (certPtr->type)
             {
                 case GitCertificateType.X509:
-                    cert = new CertificateX509((git_certificate_x509*) certPtr);
+                    cert = new CertificateX509((git_certificate_x509*)certPtr);
                     break;
                 case GitCertificateType.Hostkey:
-                    cert = new CertificateSsh((git_certificate_ssh*) certPtr);
+                    cert = new CertificateSsh((git_certificate_ssh*)certPtr);
                     break;
             }
 
@@ -355,7 +355,7 @@ namespace LibGit2Sharp
                             throw new NullReferenceException("Unexpected null git_push_update pointer was encountered");
                         }
 
-                        PushUpdate pushUpdate = new PushUpdate((git_push_update*) ptr[i].ToPointer());
+                        PushUpdate pushUpdate = new PushUpdate((git_push_update*)ptr[i].ToPointer());
                         pushUpdates[i] = pushUpdate;
                     }
 

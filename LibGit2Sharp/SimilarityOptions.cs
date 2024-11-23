@@ -81,7 +81,7 @@ namespace LibGit2Sharp
         /// </summary>
         public static SimilarityOptions None
         {
-            get { return new SimilarityOptions {RenameDetectionMode = RenameDetectionMode.None}; }
+            get { return new SimilarityOptions { RenameDetectionMode = RenameDetectionMode.None }; }
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace LibGit2Sharp
         /// </summary>
         public static SimilarityOptions Renames
         {
-            get { return new SimilarityOptions {RenameDetectionMode = RenameDetectionMode.Renames}; }
+            get { return new SimilarityOptions { RenameDetectionMode = RenameDetectionMode.Renames }; }
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace LibGit2Sharp
         /// </summary>
         public static SimilarityOptions Exact
         {
-            get { return new SimilarityOptions {RenameDetectionMode = RenameDetectionMode.Exact}; }
+            get { return new SimilarityOptions { RenameDetectionMode = RenameDetectionMode.Exact }; }
         }
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace LibGit2Sharp
         /// </summary>
         public static SimilarityOptions Copies
         {
-            get { return new SimilarityOptions {RenameDetectionMode = RenameDetectionMode.Copies}; }
+            get { return new SimilarityOptions { RenameDetectionMode = RenameDetectionMode.Copies }; }
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace LibGit2Sharp
         /// </summary>
         public static SimilarityOptions CopiesHarder
         {
-            get { return new SimilarityOptions {RenameDetectionMode = RenameDetectionMode.CopiesHarder}; }
+            get { return new SimilarityOptions { RenameDetectionMode = RenameDetectionMode.CopiesHarder }; }
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace LibGit2Sharp
         /// </summary>
         public static SimilarityOptions Default
         {
-            get { return new SimilarityOptions {RenameDetectionMode = RenameDetectionMode.Default}; }
+            get { return new SimilarityOptions { RenameDetectionMode = RenameDetectionMode.Default }; }
         }
 
         /// <summary>

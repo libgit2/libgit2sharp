@@ -23,7 +23,7 @@ namespace LibGit2Sharp
 
         internal unsafe CertificateX509(git_certificate_x509* cert)
         {
-            int len = checked((int) cert->len.ToUInt32());
+            int len = checked((int)cert->len.ToUInt32());
             byte[] data = new byte[len];
             Marshal.Copy(new IntPtr(cert->data), data, 0, len);
             Certificate = new X509Certificate(data);
@@ -42,7 +42,7 @@ namespace LibGit2Sharp
             var gitCert = new git_certificate_x509()
             {
                 cert_type = GitCertificateType.X509,
-                data = (byte*) dataPtr.ToPointer(),
+                data = (byte*)dataPtr.ToPointer(),
                 len = (UIntPtr)certData.Length,
             };
 

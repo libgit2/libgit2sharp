@@ -110,7 +110,8 @@ namespace LibGit2Sharp
         {
             using (var obj = new ObjectSafeWrapper(Id, repo.Handle, throwIfMissing: true))
             {
-                for (uint i = 0; i < Count; i++) {
+                for (uint i = 0; i < Count; i++)
+                {
                     yield return byIndex(obj, i, Id, repo, path);
                 }
             }

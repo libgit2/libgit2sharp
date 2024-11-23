@@ -269,7 +269,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<CheckoutConflictException>(() => Commands.Checkout(repo, master.CanonicalName));
 
                 // Checkout with force option should succeed.
-                Commands.Checkout(repo, master.CanonicalName, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force});
+                Commands.Checkout(repo, master.CanonicalName, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
 
                 // Assert that master branch is checked out.
                 Assert.True(repo.Branches["master"].IsCurrentRepositoryHead);
@@ -411,7 +411,7 @@ namespace LibGit2Sharp.Tests
 
                 Branch branch = repo.Branches[otherBranchName];
                 Commands.Checkout(repo, branch,
-                    new CheckoutOptions { OnCheckoutProgress = (path, completed, total) => wasCalled = true});
+                    new CheckoutOptions { OnCheckoutProgress = (path, completed, total) => wasCalled = true });
 
                 Assert.True(wasCalled);
             }
@@ -427,7 +427,7 @@ namespace LibGit2Sharp.Tests
                 PopulateBasicRepository(repo);
                 bool wasCalled = false;
 
-                Commands.Checkout(repo, otherBranchName, new CheckoutOptions() { OnCheckoutProgress = (path, completed, total) => wasCalled = true});
+                Commands.Checkout(repo, otherBranchName, new CheckoutOptions() { OnCheckoutProgress = (path, completed, total) => wasCalled = true });
 
                 Assert.True(wasCalled);
             }
@@ -779,7 +779,7 @@ namespace LibGit2Sharp.Tests
         public void CheckoutBranchFromDetachedHead()
         {
             string path = SandboxStandardTestRepo();
-            using (var repo = new Repository(path, new RepositoryOptions{ Identity = Constants.Identity }))
+            using (var repo = new Repository(path, new RepositoryOptions { Identity = Constants.Identity }))
             {
                 // Set the working directory to the current head
                 ResetAndCleanWorkingDirectory(repo);

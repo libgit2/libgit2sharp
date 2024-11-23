@@ -94,7 +94,7 @@ namespace LibGit2Sharp.Tests
         {
             string repoPath = InitNewRepository();
 
-            using (var repo = new Repository(repoPath, new RepositoryOptions{ Identity = Constants.Identity }))
+            using (var repo = new Repository(repoPath, new RepositoryOptions { Identity = Constants.Identity }))
             {
                 FeedTheRepository(repo);
 

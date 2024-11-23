@@ -323,7 +323,7 @@ namespace LibGit2Sharp.Tests
             string path = SandboxMergeTestRepo();
             using (var repo = new Repository(path))
             {
-                if(fromDetachedHead)
+                if (fromDetachedHead)
                 {
                     Commands.Checkout(repo, repo.Head.Tip.Id.Sha);
                 }
@@ -512,7 +512,7 @@ namespace LibGit2Sharp.Tests
             {
                 Commit commitToMerge = repo.Branches["normal_merge"].Tip;
 
-                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, new MergeOptions() { CommitOnSuccess = false});
+                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, new MergeOptions() { CommitOnSuccess = false });
 
                 Assert.Equal(MergeStatus.NonFastForward, result.Status);
                 Assert.Null(result.Commit);
@@ -649,7 +649,7 @@ namespace LibGit2Sharp.Tests
 
                 // Get the blob containing the expected content.
                 Blob expectedBlob = null;
-                switch(conflictStrategy)
+                switch (conflictStrategy)
                 {
                     case CheckoutFileConflictStrategy.Theirs:
                         expectedBlob = repo.Lookup<Blob>(conflict.Theirs.Id);
@@ -731,7 +731,7 @@ namespace LibGit2Sharp.Tests
             string path = SandboxMergeTestRepo();
             using (var repo = new Repository(path))
             {
-                Branch branch = repo. Branches[branchName];
+                Branch branch = repo.Branches[branchName];
                 MergeResult result = repo.Merge(branch, Constants.Signature, new MergeOptions() { FastForwardStrategy = strategy });
 
                 Assert.Equal(expectedMergeStatus, result.Status);
@@ -748,7 +748,7 @@ namespace LibGit2Sharp.Tests
                 repo.Refs.Add("HEAD", "refs/heads/orphan", true);
 
                 // Remove entries from the working directory
-                foreach(var entry in repo.RetrieveStatus())
+                foreach (var entry in repo.RetrieveStatus())
                 {
                     Commands.Unstage(repo, entry.FilePath);
                     Commands.Remove(repo, entry.FilePath, true);

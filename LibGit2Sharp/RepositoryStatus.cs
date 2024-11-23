@@ -64,7 +64,7 @@ namespace LibGit2Sharp
 
                 for (int i = 0; i < count; i++)
                 {
-                    git_status_entry *entry = Proxy.git_status_byindex(list, i);
+                    git_status_entry* entry = Proxy.git_status_byindex(list, i);
                     AddStatusEntryForDelta(entry->status, entry->head_to_index, entry->index_to_workdir);
                 }
 

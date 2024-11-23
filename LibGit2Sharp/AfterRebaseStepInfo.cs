@@ -27,7 +27,7 @@
         /// <param name="completedStepIndex"/>
         /// <param name="totalStepCount"></param>
         internal AfterRebaseStepInfo(RebaseStepInfo stepInfo, long completedStepIndex, long totalStepCount)
-            : this (stepInfo, null, completedStepIndex, totalStepCount)
+            : this(stepInfo, null, completedStepIndex, totalStepCount)
         {
             WasPatchAlreadyApplied = true;
         }

@@ -164,7 +164,7 @@ namespace LibGit2Sharp.Tests
             {
                 GitObject obj = repo.Lookup(tagTestSha);
 
-                Tag newTag = repo.Tags.Add("unit_test",obj, signatureTim, "a new tag");
+                Tag newTag = repo.Tags.Add("unit_test", obj, signatureTim, "a new tag");
                 Assert.NotNull(newTag);
                 Assert.True(newTag.IsAnnotated);
                 Assert.Equal(tagTestSha, newTag.Target.Sha);

@@ -28,7 +28,7 @@ namespace LibGit2Sharp
         /// <returns></returns>
         internal static unsafe FilterSource FromNativePtr(IntPtr ptr)
         {
-            return FromNativePtr((git_filter_source*) ptr.ToPointer());
+            return FromNativePtr((git_filter_source*)ptr.ToPointer());
         }
 
         /// <summary>

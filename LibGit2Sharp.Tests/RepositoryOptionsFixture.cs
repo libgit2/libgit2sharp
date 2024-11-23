@@ -110,8 +110,8 @@ namespace LibGit2Sharp.Tests
         public void OpeningABareRepoWithoutProvidingBothWorkDirAndIndexThrows()
         {
             string path = SandboxBareTestRepo();
-            Assert.Throws<ArgumentException>(() => new Repository(path, new RepositoryOptions {IndexPath = newIndex}));
-            Assert.Throws<ArgumentException>(() => new Repository(path, new RepositoryOptions {WorkingDirectoryPath = newWorkdir}));
+            Assert.Throws<ArgumentException>(() => new Repository(path, new RepositoryOptions { IndexPath = newIndex }));
+            Assert.Throws<ArgumentException>(() => new Repository(path, new RepositoryOptions { WorkingDirectoryPath = newWorkdir }));
         }
 
         [Fact]

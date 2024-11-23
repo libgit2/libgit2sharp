@@ -83,7 +83,8 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual string Url
         {
-            get { return Proxy.git_remote_url(handle); } }
+            get { return Proxy.git_remote_url(handle); }
+        }
 
         /// <summary>
         /// Gets the distinct push url for this remote repository, if set.

@@ -62,7 +62,7 @@ namespace LibGit2Sharp.Tests
 
                 RebaseOptions options = new RebaseOptions()
                 {
-                    RebaseStepStarting =  x =>
+                    RebaseStepStarting = x =>
                     {
                         beforeRebaseStepCountCorrect &= beforeStepCallCount == x.StepIndex;
                         totalStepCountCorrect &= (x.TotalStepCount == stepCount);
@@ -276,7 +276,7 @@ namespace LibGit2Sharp.Tests
                 List<Commit> rebasedCommits = repo.Commits.QueryBy(commitFilter).ToList();
 
                 Assert.Equal(3, rebasedCommits.Count);
-                for(int i = 0; i < 3; i++)
+                for (int i = 0; i < 3; i++)
                 {
                     Assert.Equal(expectedTreeIds[i], rebasedCommits[i].Tree.Id);
                     Assert.Equal(Constants.Signature.Name, rebasedCommits[i].Author.Name);

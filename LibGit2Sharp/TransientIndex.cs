@@ -7,7 +7,7 @@ namespace LibGit2Sharp
     /// An implementation of <see cref="Index"/> with disposal managed by the caller
     /// (instead of automatically disposing when the repository is disposed)
     /// </summary>
-    public class TransientIndex: Index, IDisposable
+    public class TransientIndex : Index, IDisposable
     {
         /// <summary>
         /// Needed for mocking purposes.

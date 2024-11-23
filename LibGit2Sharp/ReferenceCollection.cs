@@ -404,7 +404,7 @@ namespace LibGit2Sharp
 
             if (reference == null)
             {
-                throw new LibGit2SharpException("Reference '{0}' doesn't exist. One cannot move a non existing reference.", 
+                throw new LibGit2SharpException("Reference '{0}' doesn't exist. One cannot move a non existing reference.",
                     currentName);
             }
 

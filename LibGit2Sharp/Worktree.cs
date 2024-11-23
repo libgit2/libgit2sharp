@@ -95,7 +95,7 @@ namespace LibGit2Sharp
                 this.worktreeLock = Proxy.git_worktree_is_locked(handle);
             }
         }
-        
+
         /// <summary>
         ///  Lock the worktree
         /// </summary>

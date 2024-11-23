@@ -114,8 +114,8 @@ namespace LibGit2Sharp
                 return string.Format(CultureInfo.InvariantCulture,
                                      "{0}-{1} ({2})",
                                      FinalStartLineNumber,
-                                     FinalStartLineNumber+LineCount-1,
-                                     FinalCommit.ToString().Substring(0,7));
+                                     FinalStartLineNumber + LineCount - 1,
+                                     FinalCommit.ToString().Substring(0, 7));
             }
         }
 

@@ -304,7 +304,7 @@ namespace LibGit2Sharp
             {
                 Ensure.ArgumentNotZeroIntPtr(stream, "stream");
 
-                if(!activeStreams.TryGetValue(stream, out state))
+                if (!activeStreams.TryGetValue(stream, out state))
                 {
                     throw new ArgumentException("Unknown stream pointer", nameof(stream));
                 }

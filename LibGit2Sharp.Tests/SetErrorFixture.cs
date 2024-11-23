@@ -108,7 +108,7 @@ namespace LibGit2Sharp.Tests
             return new string(' ', level * 4);
         }
 
-#region ThrowingOdbBackend
+        #region ThrowingOdbBackend
 
         private class ThrowingOdbBackend : OdbBackend
         {
@@ -180,7 +180,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-#endregion
+        #endregion
 
     }
 }

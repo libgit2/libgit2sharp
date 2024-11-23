@@ -73,7 +73,9 @@ namespace LibGit2Sharp
                 var certPtr = sshCert.ToPointer();
                 ret = NativeMethods.git_transport_smart_certificate_check(Transport, certPtr, valid ? 1 : 0, hostname);
                 Marshal.FreeHGlobal(certPtr);
-            } else {
+            }
+            else
+            {
                 IntPtr certPtr, dataPtr;
                 certPtr = x509Cert.ToPointers(out dataPtr);
                 ret = NativeMethods.git_transport_smart_certificate_check(Transport, certPtr, valid ? 1 : 0, hostname);
@@ -131,11 +133,11 @@ namespace LibGit2Sharp
 
             unsafe
             {
-                var baseCred = (GitCredential*) credHandle;
+                var baseCred = (GitCredential*)credHandle;
                 switch (baseCred->credtype)
                 {
                     case GitCredentialType.UserPassPlaintext:
-                        cred = UsernamePasswordCredentials.FromNative((GitCredentialUserpass*) credHandle);
+                        cred = UsernamePasswordCredentials.FromNative((GitCredentialUserpass*)credHandle);
                         return 0;
                     case GitCredentialType.Default:
                         cred = new DefaultCredentials();

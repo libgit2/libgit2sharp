@@ -247,7 +247,7 @@ namespace LibGit2Sharp
             var indexEntry = new git_index_entry
             {
                 mode = (uint)mode,
-                path = (char*) pathPtr,
+                path = (char*)pathPtr,
             };
             Marshal.Copy(id.RawId, 0, new IntPtr(indexEntry.id.Id), GitOid.Size);
 

@@ -57,7 +57,7 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public virtual Worktree Add(string committishOrBranchSpec, string name, string path, bool isLocked)
         {
-            if(string.Equals(committishOrBranchSpec, name))
+            if (string.Equals(committishOrBranchSpec, name))
             {
                 // Proxy.git_worktree_add() creates a new branch of name = name, so if we want to checkout a given branch then the 'name' cannot be the same as the target branch
                 return null;
@@ -83,9 +83,9 @@ namespace LibGit2Sharp
                 }
             }
 
-            
 
-            return this[name]; 
+
+            return this[name];
         }
 
         /// <summary>

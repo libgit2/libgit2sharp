@@ -56,7 +56,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRetrieveNotesFromAGitObject()
         {
-            var expectedMessages = new [] { "Just Note, don't you understand?\n", "Nope\n", "Not Nope, Note!\n" };
+            var expectedMessages = new[] { "Just Note, don't you understand?\n", "Nope\n", "Not Nope, Note!\n" };
 
             string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))

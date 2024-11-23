@@ -58,7 +58,8 @@ namespace LibGit2Sharp
         {
             var updater = new RemoteUpdater(repository, remote);
 
-            repository.Config.WithinTransaction(() => {
+            repository.Config.WithinTransaction(() =>
+            {
                 foreach (Action<RemoteUpdater> action in actions)
                 {
                     action(updater);
