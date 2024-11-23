@@ -179,7 +179,7 @@ namespace LibGit2Sharp.Core
         internal static extern void git_error_set_oom();
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe uint git_blame_get_hunk_count(git_blame* blame);
+        internal static extern unsafe uint git_blame_get_hunk_count(BlameHandle blame);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe git_blame_hunk* git_blame_get_hunk_byindex(
@@ -453,7 +453,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe int git_config_lock(out IntPtr txn, git_config* config);
+        internal static extern unsafe int git_config_lock(out IntPtr txn, ConfigurationHandle config);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_config_delete_multivar(
@@ -1256,7 +1256,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe git_oid* git_reference_target(git_reference* reference);
+        internal static extern unsafe git_oid* git_reference_target(ReferenceHandle reference);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_reference_rename(
@@ -1282,7 +1282,7 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]
-        internal static extern unsafe string git_reference_symbolic_target(git_reference* reference);
+        internal static extern unsafe string git_reference_symbolic_target(ReferenceHandle reference);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe GitReferenceType git_reference_type(ReferenceHandle reference);
@@ -2000,7 +2000,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string prefix);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe uint git_tree_entry_filemode(git_tree_entry* entry);
+        internal static extern unsafe uint git_tree_entry_filemode(TreeEntryHandle entry);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe git_tree_entry* git_tree_entry_byindex(git_object* tree, UIntPtr idx);
@@ -2015,17 +2015,17 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe void git_tree_entry_free(git_tree_entry* treeEntry);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe git_oid* git_tree_entry_id(git_tree_entry* entry);
+        internal static extern unsafe git_oid* git_tree_entry_id(TreeEntryHandle entry);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]
-        internal static extern unsafe string git_tree_entry_name(git_tree_entry* entry);
+        internal static extern unsafe string git_tree_entry_name(TreeEntryHandle entry);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe GitObjectType git_tree_entry_type(git_tree_entry* entry);
+        internal static extern unsafe GitObjectType git_tree_entry_type(TreeEntryHandle entry);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe UIntPtr git_tree_entrycount(git_object* tree);
+        internal static extern unsafe UIntPtr git_tree_entrycount(ObjectHandle tree);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_treebuilder_new(out git_treebuilder* builder, git_repository* repo, IntPtr src);

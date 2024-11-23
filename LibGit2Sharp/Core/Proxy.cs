@@ -656,7 +656,7 @@ namespace LibGit2Sharp.Core
             return new ConfigurationHandle(handle, true);
         }
 
-        public static unsafe IntPtr git_config_lock(git_config* config)
+        public static unsafe IntPtr git_config_lock(ConfigurationHandle config)
         {
             IntPtr txn;
             int res = NativeMethods.git_config_lock(out txn, config);
@@ -1966,7 +1966,7 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
-        public static unsafe ObjectId git_reference_target(git_reference* reference)
+        public static unsafe ObjectId git_reference_target(ReferenceHandle reference)
         {
             return ObjectId.BuildFromPtr(NativeMethods.git_reference_target(reference));
         }
@@ -2006,7 +2006,7 @@ namespace LibGit2Sharp.Core
             return new ReferenceHandle(ref_out, true);
         }
 
-        public static unsafe string git_reference_symbolic_target(git_reference* reference)
+        public static unsafe string git_reference_symbolic_target(ReferenceHandle reference)
         {
             return NativeMethods.git_reference_symbolic_target(reference);
         }
@@ -3249,7 +3249,7 @@ namespace LibGit2Sharp.Core
 
         #region git_tree_
 
-        public static unsafe Mode git_tree_entry_attributes(git_tree_entry* entry)
+        public static unsafe Mode git_tree_entry_attributes(TreeEntryHandle entry)
         {
             return (Mode)NativeMethods.git_tree_entry_filemode(entry);
         }
@@ -3283,17 +3283,17 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static unsafe ObjectId git_tree_entry_id(git_tree_entry* entry)
+        public static unsafe ObjectId git_tree_entry_id(TreeEntryHandle entry)
         {
             return ObjectId.BuildFromPtr(NativeMethods.git_tree_entry_id(entry));
         }
 
-        public static unsafe string git_tree_entry_name(git_tree_entry* entry)
+        public static unsafe string git_tree_entry_name(TreeEntryHandle entry)
         {
             return NativeMethods.git_tree_entry_name(entry);
         }
 
-        public static unsafe GitObjectType git_tree_entry_type(git_tree_entry* entry)
+        public static unsafe GitObjectType git_tree_entry_type(TreeEntryHandle entry)
         {
             return NativeMethods.git_tree_entry_type(entry);
         }

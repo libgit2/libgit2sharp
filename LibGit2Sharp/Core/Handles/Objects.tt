@@ -88,11 +88,6 @@ for (var i = 0; i < cNames.Length; i++)
 
             return true;
         }
-
-        public static implicit operator <#= cNames[i] #>*(<#= csNames[i] #> handle)
-        {
-            return (<#= cNames[i] #>*)handle.DangerousGetHandle();
-        }
     }
 
 <#

@@ -22,11 +22,6 @@ namespace LibGit2Sharp.Core.Handles
 
             return true;
         }
-
-        public static implicit operator git_tree_entry*(TreeEntryHandle handle)
-        {
-            return (git_tree_entry*)handle.DangerousGetHandle();
-        }
     }
 
     internal unsafe class ReferenceHandle : Libgit2Object
@@ -46,11 +41,6 @@ namespace LibGit2Sharp.Core.Handles
             NativeMethods.git_reference_free((git_reference*)handle);
 
             return true;
-        }
-
-        public static implicit operator git_reference*(ReferenceHandle handle)
-        {
-            return (git_reference*)handle.DangerousGetHandle();
         }
     }
 
@@ -72,11 +62,6 @@ namespace LibGit2Sharp.Core.Handles
 
             return true;
         }
-
-        public static implicit operator git_repository*(RepositoryHandle handle)
-        {
-            return (git_repository*)handle.DangerousGetHandle();
-        }
     }
 
     internal unsafe class SignatureHandle : Libgit2Object
@@ -96,11 +81,6 @@ namespace LibGit2Sharp.Core.Handles
             NativeMethods.git_signature_free((git_signature*)handle);
 
             return true;
-        }
-
-        public static implicit operator git_signature*(SignatureHandle handle)
-        {
-            return (git_signature*)handle.DangerousGetHandle();
         }
     }
 
@@ -122,11 +102,6 @@ namespace LibGit2Sharp.Core.Handles
 
             return true;
         }
-
-        public static implicit operator git_status_list*(StatusListHandle handle)
-        {
-            return (git_status_list*)handle.DangerousGetHandle();
-        }
     }
 
     internal unsafe class BlameHandle : Libgit2Object
@@ -146,11 +121,6 @@ namespace LibGit2Sharp.Core.Handles
             NativeMethods.git_blame_free((git_blame*)handle);
 
             return true;
-        }
-
-        public static implicit operator git_blame*(BlameHandle handle)
-        {
-            return (git_blame*)handle.DangerousGetHandle();
         }
     }
 
@@ -172,11 +142,6 @@ namespace LibGit2Sharp.Core.Handles
 
             return true;
         }
-
-        public static implicit operator git_diff*(DiffHandle handle)
-        {
-            return (git_diff*)handle.DangerousGetHandle();
-        }
     }
 
     internal unsafe class PatchHandle : Libgit2Object
@@ -196,11 +161,6 @@ namespace LibGit2Sharp.Core.Handles
             NativeMethods.git_patch_free((git_patch*)handle);
 
             return true;
-        }
-
-        public static implicit operator git_patch*(PatchHandle handle)
-        {
-            return (git_patch*)handle.DangerousGetHandle();
         }
     }
 
@@ -222,11 +182,6 @@ namespace LibGit2Sharp.Core.Handles
 
             return true;
         }
-
-        public static implicit operator git_config*(ConfigurationHandle handle)
-        {
-            return (git_config*)handle.DangerousGetHandle();
-        }
     }
 
     internal unsafe class ConflictIteratorHandle : Libgit2Object
@@ -246,11 +201,6 @@ namespace LibGit2Sharp.Core.Handles
             NativeMethods.git_index_conflict_iterator_free((git_index_conflict_iterator*)handle);
 
             return true;
-        }
-
-        public static implicit operator git_index_conflict_iterator*(ConflictIteratorHandle handle)
-        {
-            return (git_index_conflict_iterator*)handle.DangerousGetHandle();
         }
     }
 
@@ -272,11 +222,6 @@ namespace LibGit2Sharp.Core.Handles
 
             return true;
         }
-
-        public static implicit operator git_index*(IndexHandle handle)
-        {
-            return (git_index*)handle.DangerousGetHandle();
-        }
     }
 
     internal unsafe class ReflogHandle : Libgit2Object
@@ -296,11 +241,6 @@ namespace LibGit2Sharp.Core.Handles
             NativeMethods.git_reflog_free((git_reflog*)handle);
 
             return true;
-        }
-
-        public static implicit operator git_reflog*(ReflogHandle handle)
-        {
-            return (git_reflog*)handle.DangerousGetHandle();
         }
     }
 
@@ -322,11 +262,6 @@ namespace LibGit2Sharp.Core.Handles
 
             return true;
         }
-
-        public static implicit operator git_treebuilder*(TreeBuilderHandle handle)
-        {
-            return (git_treebuilder*)handle.DangerousGetHandle();
-        }
     }
 
     internal unsafe class PackBuilderHandle : Libgit2Object
@@ -346,11 +281,6 @@ namespace LibGit2Sharp.Core.Handles
             NativeMethods.git_packbuilder_free((git_packbuilder*)handle);
 
             return true;
-        }
-
-        public static implicit operator git_packbuilder*(PackBuilderHandle handle)
-        {
-            return (git_packbuilder*)handle.DangerousGetHandle();
         }
     }
 
@@ -372,11 +302,6 @@ namespace LibGit2Sharp.Core.Handles
 
             return true;
         }
-
-        public static implicit operator git_note*(NoteHandle handle)
-        {
-            return (git_note*)handle.DangerousGetHandle();
-        }
     }
 
     internal unsafe class DescribeResultHandle : Libgit2Object
@@ -396,11 +321,6 @@ namespace LibGit2Sharp.Core.Handles
             NativeMethods.git_describe_result_free((git_describe_result*)handle);
 
             return true;
-        }
-
-        public static implicit operator git_describe_result*(DescribeResultHandle handle)
-        {
-            return (git_describe_result*)handle.DangerousGetHandle();
         }
     }
 
@@ -422,11 +342,6 @@ namespace LibGit2Sharp.Core.Handles
 
             return true;
         }
-
-        public static implicit operator git_submodule*(SubmoduleHandle handle)
-        {
-            return (git_submodule*)handle.DangerousGetHandle();
-        }
     }
 
     internal unsafe class AnnotatedCommitHandle : Libgit2Object
@@ -446,11 +361,6 @@ namespace LibGit2Sharp.Core.Handles
             NativeMethods.git_annotated_commit_free((git_annotated_commit*)handle);
 
             return true;
-        }
-
-        public static implicit operator git_annotated_commit*(AnnotatedCommitHandle handle)
-        {
-            return (git_annotated_commit*)handle.DangerousGetHandle();
         }
     }
 
@@ -472,11 +382,6 @@ namespace LibGit2Sharp.Core.Handles
 
             return true;
         }
-
-        public static implicit operator git_odb*(ObjectDatabaseHandle handle)
-        {
-            return (git_odb*)handle.DangerousGetHandle();
-        }
     }
 
     internal unsafe class RevWalkerHandle : Libgit2Object
@@ -496,11 +401,6 @@ namespace LibGit2Sharp.Core.Handles
             NativeMethods.git_revwalk_free((git_revwalk*)handle);
 
             return true;
-        }
-
-        public static implicit operator git_revwalk*(RevWalkerHandle handle)
-        {
-            return (git_revwalk*)handle.DangerousGetHandle();
         }
     }
 
@@ -522,11 +422,6 @@ namespace LibGit2Sharp.Core.Handles
 
             return true;
         }
-
-        public static implicit operator git_remote*(RemoteHandle handle)
-        {
-            return (git_remote*)handle.DangerousGetHandle();
-        }
     }
 
     internal unsafe class ObjectHandle : Libgit2Object
@@ -546,11 +441,6 @@ namespace LibGit2Sharp.Core.Handles
             NativeMethods.git_object_free((git_object*)handle);
 
             return true;
-        }
-
-        public static implicit operator git_object*(ObjectHandle handle)
-        {
-            return (git_object*)handle.DangerousGetHandle();
         }
     }
 
@@ -572,11 +462,6 @@ namespace LibGit2Sharp.Core.Handles
 
             return true;
         }
-
-        public static implicit operator git_rebase*(RebaseHandle handle)
-        {
-            return (git_rebase*)handle.DangerousGetHandle();
-        }
     }
 
     internal unsafe class OdbStreamHandle : Libgit2Object
@@ -597,11 +482,6 @@ namespace LibGit2Sharp.Core.Handles
 
             return true;
         }
-
-        public static implicit operator git_odb_stream*(OdbStreamHandle handle)
-        {
-            return (git_odb_stream*)handle.DangerousGetHandle();
-        }
     }
 
     internal unsafe class WorktreeHandle : Libgit2Object
@@ -621,11 +501,6 @@ namespace LibGit2Sharp.Core.Handles
             NativeMethods.git_worktree_free((git_worktree*)handle);
 
             return true;
-        }
-
-        public static implicit operator git_worktree*(WorktreeHandle handle)
-        {
-            return (git_worktree*)handle.DangerousGetHandle();
         }
     }
 
