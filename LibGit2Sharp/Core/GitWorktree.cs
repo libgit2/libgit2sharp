@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace LibGit2Sharp.Core
 {
@@ -35,6 +33,8 @@ namespace LibGit2Sharp.Core
         public uint version = 1;
 
         public int locked;
+
+        public int checkout_existing;
 
         public IntPtr @ref = IntPtr.Zero;
 

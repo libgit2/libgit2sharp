@@ -1,12 +1,10 @@
-﻿using LibGit2Sharp.Core;
-using LibGit2Sharp.Core.Handles;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Text;
+using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -48,7 +46,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="committishOrBranchSpec"></param>
         /// <param name="name"></param>
@@ -89,7 +87,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="name"></param>
         /// <param name="path"></param>
@@ -112,7 +110,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="worktree"></param>
         /// <returns></returns>
@@ -122,7 +120,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="worktree"></param>
         /// <param name="ifLocked"></param>

@@ -6,6 +6,11 @@
     public enum ConfigurationLevel
     {
         /// <summary>
+        /// Worktree specific configuration file; $GIT_DIR/config.worktree
+        /// </summary>
+        Worktree = 6,
+
+        /// <summary>
         /// The local .git/config of the current repository.
         /// </summary>
         Local = 5,
