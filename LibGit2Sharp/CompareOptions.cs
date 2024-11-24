@@ -3,6 +3,25 @@ using System;
 namespace LibGit2Sharp
 {
     /// <summary>
+    /// Represents a mode for handling whitespace while making diff.
+    /// </summary>
+    public enum DiffWhitespaceMode
+    {
+        /// <summary>
+        /// Ignore all whitespace
+        /// </summary>
+        IgnoreAllWhitespaces,
+        /// <summary>
+        /// Ignore changes in amount of whitespace
+        /// </summary>
+        IgnoreWhitespaceChange,
+        /// <summary>
+        /// Ignore whitespace at end of line
+        /// </summary>
+        IgnoreWhitespaceEol
+    }
+
+    /// <summary>
     /// Options to define file comparison behavior.
     /// </summary>
     public sealed class CompareOptions
@@ -33,6 +52,12 @@ namespace LibGit2Sharp
         /// Options for rename detection. If null, the `diff.renames` configuration setting is used.
         /// </summary>
         public SimilarityOptions Similarity { get; set; }
+
+        /// <summary>
+        /// Represents a mode for handling whitespace while making diff.
+        /// By default is null - it means no extra flag is passed
+        /// </summary>
+        public DiffWhitespaceMode? WhitespaceMode { get; set; }
 
         /// <summary>
         /// Include "unmodified" entries in the results.
