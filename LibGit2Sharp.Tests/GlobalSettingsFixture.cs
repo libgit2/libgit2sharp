@@ -102,5 +102,20 @@ namespace LibGit2Sharp.Tests
             extensions = GlobalSettings.GetExtensions();
             Assert.Equal(new[] { "newext", "noop", "objectformat", "partialclone", "worktreeconfig" }, extensions);
         }
+
+        [Fact]
+        public void OwnerValidation()
+        {
+            // Assert that owner validation is enabled by default
+            Assert.True(GlobalSettings.OwnerValidation);
+
+            // Disable owner validation
+            GlobalSettings.OwnerValidation = false;
+            Assert.False(GlobalSettings.OwnerValidation);
+
+            // Enable it again
+            GlobalSettings.OwnerValidation = true;
+            Assert.True(GlobalSettings.OwnerValidation);
+        }
     }
 }
