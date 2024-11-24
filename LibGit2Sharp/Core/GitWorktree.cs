@@ -41,7 +41,7 @@ namespace LibGit2Sharp.Core
         public GitCheckoutOpts checkoutOpts = new GitCheckoutOpts
         {
             version = 1,
-            checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_FORCE
+            checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_SAFE
         };
     }
 
