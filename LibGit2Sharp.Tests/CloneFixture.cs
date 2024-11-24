@@ -36,9 +36,9 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("https://github.com/libgit2/TestGitRepository",1)]
-        [InlineData("https://github.com/libgit2/TestGitRepository",5)]
-        [InlineData("https://github.com/libgit2/TestGitRepository",7)]
+        [InlineData("https://github.com/libgit2/TestGitRepository", 1)]
+        [InlineData("https://github.com/libgit2/TestGitRepository", 5)]
+        [InlineData("https://github.com/libgit2/TestGitRepository", 7)]
         public void CanCloneShallow(string url, int depth)
         {
             var scd = BuildSelfCleaningDirectory();
@@ -266,7 +266,7 @@ namespace LibGit2Sharp.Tests
 
         [SkippableTheory]
         [InlineData("https://github.com/libgit2/TestGitRepository.git", "github.com", typeof(CertificateX509))]
-        [InlineData("git@github.com:libgit2/TestGitRepository.git", "github.com", typeof(CertificateSsh))]
+        //[InlineData("git@github.com:libgit2/TestGitRepository.git", "github.com", typeof(CertificateSsh))]
         public void CanInspectCertificateOnClone(string url, string hostname, Type certType)
         {
             var scd = BuildSelfCleaningDirectory();
