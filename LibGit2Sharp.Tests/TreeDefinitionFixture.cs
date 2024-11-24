@@ -587,5 +587,23 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(td["1/branch_file.txt"]);
             }
         }
+
+        [Fact]
+        public void CanRemoveADirectoryWithChildren()
+        {
+            const string blobSha = "a8233120f6ad708f843d861ce2b7228ec4e3dec6";
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
+            {
+                TreeDefinition td = new TreeDefinition();
+                var blob = repo.Lookup<Blob>(blobSha);
+                td.Add("folder/subfolder/file1", blob, Mode.NonExecutableFile);
+                td.Add("folder/file1", blob, Mode.NonExecutableFile);
+                td.Remove("folder");
+                Assert.Null(td["folder"]);
+                Tree t = repo.ObjectDatabase.CreateTree(td);
+                Assert.Null(t["folder"]);
+            }
+        }
     }
 }
