@@ -46,9 +46,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///
+        /// Creates a worktree.
         /// </summary>
-        /// <param name="committishOrBranchSpec">A committish or branch name./param>
+        /// <param name="committishOrBranchSpec">The committish to checkout into the new worktree.</param>
         /// <param name="name">Name of the worktree.</param>
         /// <param name="path">Location of the worktree.</param>
         /// <param name="isLocked"></param>
@@ -84,11 +84,11 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///
+        /// Creates a worktree.
         /// </summary>
-        /// <param name="committishOrBranchSpec">A committish or branch name./param>
         /// <param name="name">Name of the worktree.</param>
         /// <param name="path">Location of the worktree.</param>
+        /// <param name="isLocked"></param>
         public virtual Worktree Add(string name, string path, bool isLocked)
         {
             var options = new git_worktree_add_options

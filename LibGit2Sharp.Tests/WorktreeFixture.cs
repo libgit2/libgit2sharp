@@ -1,8 +1,8 @@
-﻿using LibGit2Sharp.Tests.TestHelpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
 namespace LibGit2Sharp.Tests
@@ -252,7 +252,6 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(3, repo.Worktrees.Count());
 
                 // Check that branch contains same number of files and folders
-                // NOTE: There is an open bug - [Repository.Worktrees.Add leaves now worktree empty](https://github.com/libgit2/libgit2sharp/issues/2037)
                 Assert.True(repo.RetrieveStatus().IsDirty);
                 var filesInMain = GetFilesOfRepo(repoPath);
                 var filesInBranch = GetFilesOfRepo(path);
@@ -289,10 +288,10 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(3, repo.Worktrees.Count());
 
                 // Check that branch contains same number of files and folders
-                // NOTE: There is an open bug - [Repository.Worktrees.Add leaves now worktree empty](https://github.com/libgit2/libgit2sharp/issues/2037)
                 Assert.False(repo.RetrieveStatus().IsDirty);
                 var filesInMain = GetFilesOfRepo(repoPath);
                 var filesInBranch = GetFilesOfRepo(path);
+
                 Assert.Equal(filesInMain, filesInBranch);
             }
         }
@@ -314,7 +313,6 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(3, repo.Worktrees.Count());
 
                 // Check that branch contains same number of files and folders
-                // NOTE: There is an open bug - [Repository.Worktrees.Add leaves now worktree empty](https://github.com/libgit2/libgit2sharp/issues/2037)
                 Assert.True(repo.RetrieveStatus().IsDirty);
                 var filesInMain = GetFilesOfRepo(repoPath);
                 var filesInBranch = GetFilesOfRepo(path);
@@ -351,7 +349,6 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(3, repo.Worktrees.Count());
 
                 // Check that branch contains same number of files and folders
-                // NOTE: There is an open bug - [Repository.Worktrees.Add leaves now worktree empty](https://github.com/libgit2/libgit2sharp/issues/2037)
                 Assert.False(repo.RetrieveStatus().IsDirty);
                 var filesInMain = GetFilesOfRepo(repoPath);
                 var filesInBranch = GetFilesOfRepo(path);
@@ -380,7 +377,6 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(3, repo.Worktrees.Count());
 
                 // Check that branch contains same number of files and folders
-                // NOTE: There is an open bug - [Repository.Worktrees.Add leaves now worktree empty](https://github.com/libgit2/libgit2sharp/issues/2037)
                 var filesInCommittish = new string[] { "numbers.txt", "super-file.txt" };
                 var filesInBranch = GetFilesOfRepo(path);
                 Assert.Equal(filesInCommittish, filesInBranch);
@@ -390,9 +386,9 @@ namespace LibGit2Sharp.Tests
         private static IEnumerable<string> GetFilesOfRepo(string repoPath)
         {
             return Directory.GetFiles(repoPath, "*", SearchOption.AllDirectories)
-                .Where(fileName => !fileName.StartsWith($"{repoPath}\\.git", StringComparison.InvariantCultureIgnoreCase))
-                .Select(fileName => fileName.Replace($"{repoPath}\\", "", StringComparison.InvariantCultureIgnoreCase))
-                .OrderBy(fileName => fileName, StringComparer.InvariantCultureIgnoreCase)
+                .Where(fileName => !fileName.StartsWith(Path.Combine(repoPath, ".git")))
+                .Select(fileName => fileName.Replace($"{repoPath}{Path.DirectorySeparatorChar}", ""))
+                .OrderBy(fileName => fileName)
                 .ToList();
         }
     }
