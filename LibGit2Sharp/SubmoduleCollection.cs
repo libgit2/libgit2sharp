@@ -43,7 +43,8 @@ namespace LibGit2Sharp
 
                 return Lookup(name, handle => new Submodule(repo, name,
                                                             Proxy.git_submodule_path(handle),
-                                                            Proxy.git_submodule_url(handle)));
+                                                            Proxy.git_submodule_url(handle),
+                                                            Proxy.git_submodule_branch(handle)));
             }
         }
 
