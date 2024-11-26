@@ -107,15 +107,15 @@ namespace LibGit2Sharp.Tests
         public void OwnerValidation()
         {
             // Assert that owner validation is enabled by default
-            Assert.True(GlobalSettings.OwnerValidation);
+            Assert.True(GlobalSettings.GetOwnerValidation());
 
             // Disable owner validation
-            GlobalSettings.OwnerValidation = false;
-            Assert.False(GlobalSettings.OwnerValidation);
+            GlobalSettings.SetOwnerValidation(false);
+            Assert.False(GlobalSettings.GetOwnerValidation());
 
             // Enable it again
-            GlobalSettings.OwnerValidation = true;
-            Assert.True(GlobalSettings.OwnerValidation);
+            GlobalSettings.SetOwnerValidation(true);
+            Assert.True(GlobalSettings.GetOwnerValidation());
         }
     }
 }

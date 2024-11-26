@@ -3577,13 +3577,20 @@ namespace LibGit2Sharp.Core
         /// </summary>
         public static unsafe bool git_libgit2_opts_get_owner_validation()
         {
-            // libgit2 expects non-zero value for true
-            int res, enabled;
+            int res;
+            int enabled;
+
             if (isOSXArm64)
+            {
                 res = NativeMethods.git_libgit2_opts_osxarm64((int)LibGit2Option.GetOwnerValidation, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, &enabled);
+            }
             else
+            {
                 res = NativeMethods.git_libgit2_opts((int)LibGit2Option.GetOwnerValidation, &enabled);
+            }
+
             Ensure.ZeroResult(res);
+
             return enabled != 0;
         }
 
@@ -3593,15 +3600,19 @@ namespace LibGit2Sharp.Core
         /// <param name="enabled">true to enable owner validation, false otherwise</param>
         public static void git_libgit2_opts_set_owner_validation(bool enabled)
         {
-            // libgit2 expects non-zero value for true
             int res;
+
             if (isOSXArm64)
+            {
                 res = NativeMethods.git_libgit2_opts_osxarm64((int)LibGit2Option.SetOwnerValidation, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, enabled ? 1 : 0);
+            }
             else
+            {
                 res = NativeMethods.git_libgit2_opts((int)LibGit2Option.SetOwnerValidation, enabled ? 1 : 0);
+            }
+
             Ensure.ZeroResult(res);
         }
-
         #endregion
 
         #region git_worktree_

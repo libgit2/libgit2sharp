@@ -1,6 +1,8 @@
 using System;
 using System.IO;
+#if NET
 using System.Reflection;
+#endif
 using System.Runtime.CompilerServices;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
@@ -743,12 +745,9 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string path);
 
         // git_libgit2_opts(GIT_OPT_ENABLE_*, int enabled)
+        // git_libgit2_opts(GIT_OPT_SET_OWNER_VALIDATION, int enabled)
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int git_libgit2_opts(int option, int enabled);
-
-        // git_libgit2_opts(GIT_OPT_GET_*, int *enabled)
-        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe int git_libgit2_opts(int option, int* enabled);
 
         // git_libgit2_opts(GIT_OPT_SET_USER_AGENT, const char *path)
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
@@ -766,6 +765,10 @@ namespace LibGit2Sharp.Core
         // git_libgit2_opts(GIT_OPT_GET_EXTENSIONS, git_strarray *out)
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int git_libgit2_opts(int option, out GitStrArray extensions);
+
+        // git_libgit2_opts(GIT_OPT_GET_OWNER_VALIDATION, int *enabled)
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern unsafe int git_libgit2_opts(int option, int* enabled);
         #endregion
 
         #region git_libgit2_opts_osxarm64
@@ -783,12 +786,9 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string path);
 
         // git_libgit2_opts(GIT_OPT_ENABLE_*, int enabled)
+        // git_libgit2_opts(GIT_OPT_SET_OWNER_VALIDATION, int enabled)
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl, EntryPoint = "git_libgit2_opts")]
         internal static extern int git_libgit2_opts_osxarm64(int option, IntPtr nop2, IntPtr nop3, IntPtr nop4, IntPtr nop5, IntPtr nop6, IntPtr nop7, IntPtr nop8, int enabled);
-
-        // git_libgit2_opts(GIT_OPT_GET_*, int enabled)
-        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl, EntryPoint = "git_libgit2_opts")]
-        internal static extern unsafe int git_libgit2_opts_osxarm64(int option, IntPtr nop2, IntPtr nop3, IntPtr nop4, IntPtr nop5, IntPtr nop6, IntPtr nop7, IntPtr nop8, int* enabled);
 
         // git_libgit2_opts(GIT_OPT_SET_USER_AGENT, const char *path)
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl, EntryPoint = "git_libgit2_opts")]
@@ -806,6 +806,10 @@ namespace LibGit2Sharp.Core
         // git_libgit2_opts(GIT_OPT_GET_EXTENSIONS, git_strarray *out)
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl, EntryPoint = "git_libgit2_opts")]
         internal static extern int git_libgit2_opts_osxarm64(int option, IntPtr nop2, IntPtr nop3, IntPtr nop4, IntPtr nop5, IntPtr nop6, IntPtr nop7, IntPtr nop8, out GitStrArray extensions);
+
+        // git_libgit2_opts(GIT_OPT_GET_OWNER_VALIDATION, int *enabled)
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl, EntryPoint = "git_libgit2_opts")]
+        internal static extern unsafe int git_libgit2_opts_osxarm64(int option, IntPtr nop2, IntPtr nop3, IntPtr nop4, IntPtr nop5, IntPtr nop6, IntPtr nop7, IntPtr nop8, int* enabled);
         #endregion
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
