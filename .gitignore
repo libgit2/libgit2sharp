@@ -14,7 +14,6 @@ Thumbs.db
 *.ncb
 *.suo
 .vs/
-.idea/
 *.sln.ide/
 *.tlb
 *.tlh
