@@ -3397,6 +3397,8 @@ namespace LibGit2Sharp.Core
             SetOdbLoosePriority,             // GIT_OPT_SET_ODB_LOOSE_PRIORITY,
             GetExtensions,                   // GIT_OPT_GET_EXTENSIONS,
             SetExtensions,                   // GIT_OPT_SET_EXTENSIONS
+            GetOwnerValidation,              // GIT_OPT_GET_OWNER_VALIDATION
+            SetOwnerValidation,              // GIT_OPT_SET_OWNER_VALIDATION
         }
 
         /// <summary>
@@ -3570,6 +3572,47 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        /// <summary>
+        /// Gets the value of owner validation
+        /// </summary>
+        public static unsafe bool git_libgit2_opts_get_owner_validation()
+        {
+            int res;
+            int enabled;
+
+            if (isOSXArm64)
+            {
+                res = NativeMethods.git_libgit2_opts_osxarm64((int)LibGit2Option.GetOwnerValidation, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, &enabled);
+            }
+            else
+            {
+                res = NativeMethods.git_libgit2_opts((int)LibGit2Option.GetOwnerValidation, &enabled);
+            }
+
+            Ensure.ZeroResult(res);
+
+            return enabled != 0;
+        }
+
+        /// <summary>
+        /// Enable or disable owner validation
+        /// </summary>
+        /// <param name="enabled">true to enable owner validation, false otherwise</param>
+        public static void git_libgit2_opts_set_owner_validation(bool enabled)
+        {
+            int res;
+
+            if (isOSXArm64)
+            {
+                res = NativeMethods.git_libgit2_opts_osxarm64((int)LibGit2Option.SetOwnerValidation, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, enabled ? 1 : 0);
+            }
+            else
+            {
+                res = NativeMethods.git_libgit2_opts((int)LibGit2Option.SetOwnerValidation, enabled ? 1 : 0);
+            }
+
+            Ensure.ZeroResult(res);
+        }
         #endregion
 
         #region git_worktree_

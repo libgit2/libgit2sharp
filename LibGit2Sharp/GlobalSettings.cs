@@ -417,5 +417,26 @@ namespace LibGit2Sharp
         {
             return Proxy.git_libgit2_opts_get_user_agent();
         }
+
+        /// <summary>
+        /// Gets the owner validation setting for repository directories.
+        /// </summary>
+        /// <returns></returns>
+        public static bool GetOwnerValidation()
+        {
+            return Proxy.git_libgit2_opts_get_owner_validation();
+        }
+
+        /// <summary>
+        ///  Sets whether repository directories should be owned by the current user. The default is to validate ownership.
+        /// </summary>
+        /// <remarks>
+        ///  Disabling owner validation can lead to security vulnerabilities (see CVE-2022-24765).
+        /// </remarks>
+        /// <param name="enabled">true to enable owner validation; otherwise, false.</param>
+        public static void SetOwnerValidation(bool enabled)
+        {
+            Proxy.git_libgit2_opts_set_owner_validation(enabled);
+        }
     }
 }
