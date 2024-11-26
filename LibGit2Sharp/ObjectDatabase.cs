@@ -202,7 +202,7 @@ namespace LibGit2Sharp
                 throw new ArgumentException("The stream cannot be read from.", nameof(stream));
             }
 
-            using (var odbStream = Proxy.git_odb_open_wstream(handle, numberOfBytesToConsume, GitObjectType.Blob))
+            using (var odbStream = Proxy.git_odb_open_wstream(handle, numberOfBytesToConsume, GitObject.TypeToGitKindMap[typeof(T)]))
             {
                 var buffer = new byte[4 * 1024];
                 long totalRead = 0;
