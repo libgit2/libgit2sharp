@@ -3188,13 +3188,7 @@ namespace LibGit2Sharp.Core
 
         public static unsafe TreeEntryHandle git_tree_entry_byindex(ObjectHandle tree, long idx)
         {
-            var handle = NativeMethods.git_tree_entry_byindex(tree, (UIntPtr)idx);
-            if (handle == null)
-            {
-                return null;
-            }
-
-            return new TreeEntryHandle(handle, false);
+            return NativeMethods.git_tree_entry_byindex(tree, (UIntPtr)idx);
         }
 
         public static unsafe TreeEntryHandle git_tree_entry_bypath(RepositoryHandle repo, ObjectId id, string treeentry_path)

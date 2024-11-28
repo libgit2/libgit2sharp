@@ -1998,7 +1998,7 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe uint git_tree_entry_filemode(TreeEntryHandle entry);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe TreeEntryHandle git_tree_entry_byindex(ObjectHandle tree, UIntPtr idx);
+        internal static extern unsafe UnownedTreeEntryHandle git_tree_entry_byindex(ObjectHandle tree, UIntPtr idx);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_tree_entry_bypath(
