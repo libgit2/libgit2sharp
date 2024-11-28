@@ -1995,27 +1995,27 @@ namespace LibGit2Sharp.Core
             return (int)NativeMethods.git_reflog_entrycount(reflog);
         }
 
-        public static unsafe git_reflog_entry* git_reflog_entry_byindex(ReflogHandle reflog, int idx)
+        public static unsafe nint git_reflog_entry_byindex(ReflogHandle reflog, int idx)
         {
             return NativeMethods.git_reflog_entry_byindex(reflog, (UIntPtr)idx);
         }
 
-        public static unsafe ObjectId git_reflog_entry_id_old(git_reflog_entry* entry)
+        public static unsafe ObjectId git_reflog_entry_id_old(nint entry)
         {
             return ObjectId.BuildFromPtr(NativeMethods.git_reflog_entry_id_old(entry));
         }
 
-        public static unsafe ObjectId git_reflog_entry_id_new(git_reflog_entry* entry)
+        public static unsafe ObjectId git_reflog_entry_id_new(nint entry)
         {
             return ObjectId.BuildFromPtr(NativeMethods.git_reflog_entry_id_new(entry));
         }
 
-        public static unsafe Signature git_reflog_entry_committer(git_reflog_entry* entry)
+        public static unsafe Signature git_reflog_entry_committer(nint entry)
         {
             return new Signature(NativeMethods.git_reflog_entry_committer(entry));
         }
 
-        public static unsafe string git_reflog_entry_message(git_reflog_entry* entry)
+        public static unsafe string git_reflog_entry_message(nint entry)
         {
             return NativeMethods.git_reflog_entry_message(entry);
         }
@@ -2142,7 +2142,7 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
-        public static unsafe git_refspec* git_remote_get_refspec(RemoteHandle remote, int n)
+        public static unsafe nint git_remote_get_refspec(RemoteHandle remote, int n)
         {
             return NativeMethods.git_remote_get_refspec(remote, (UIntPtr)n);
         }
@@ -2742,28 +2742,23 @@ namespace LibGit2Sharp.Core
 
         public static unsafe SignatureHandle git_signature_new(string name, string email, DateTimeOffset when)
         {
-            git_signature* ptr;
-
-            int res = NativeMethods.git_signature_new(out ptr, name, email, when.ToUnixTimeSeconds(),
-                                                      (int)when.Offset.TotalMinutes);
+            int res = NativeMethods.git_signature_new(out var signature, name, email, when.ToUnixTimeSeconds(), (int)when.Offset.TotalMinutes);
             Ensure.ZeroResult(res);
 
-            return new SignatureHandle(ptr, true);
+            return signature;
         }
 
         public static unsafe SignatureHandle git_signature_now(string name, string email)
         {
-            git_signature* ptr;
-            int res = NativeMethods.git_signature_now(out ptr, name, email);
+            int res = NativeMethods.git_signature_now(out var signature, name, email);
             Ensure.ZeroResult(res);
 
-            return new SignatureHandle(ptr, true);
+            return signature;
         }
 
-        public static unsafe git_signature* git_signature_dup(git_signature* sig)
+        public static unsafe SignatureHandle git_signature_dup(SignatureHandle sig)
         {
-            git_signature* handle;
-            int res = NativeMethods.git_signature_dup(out handle, sig);
+            int res = NativeMethods.git_signature_dup(out var handle, sig);
             Ensure.ZeroResult(res);
             return handle;
         }
@@ -3098,14 +3093,15 @@ namespace LibGit2Sharp.Core
 
         public static unsafe Signature git_tag_tagger(ObjectHandle tag)
         {
-            git_signature* taggerHandle = NativeMethods.git_tag_tagger(tag);
+            var taggerSignatureHandle = NativeMethods.git_tag_tagger(tag);
 
             // Not all tags have a tagger signature - we need to handle
             // this case.
             Signature tagger = null;
-            if (taggerHandle != null)
+
+            if (!taggerSignatureHandle.IsInvalid)
             {
-                tagger = new Signature(taggerHandle);
+                tagger = new Signature(taggerSignatureHandle);
             }
 
             return tagger;
