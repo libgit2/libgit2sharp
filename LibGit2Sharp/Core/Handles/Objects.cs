@@ -18,7 +18,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_tree_entry_free(this);
+            NativeMethods.git_tree_entry_free(handle);
 
             return true;
         }
@@ -38,7 +38,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_reference_free(this);
+            NativeMethods.git_reference_free(handle);
 
             return true;
         }
@@ -58,7 +58,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_repository_free(this);
+            NativeMethods.git_repository_free(handle);
 
             return true;
         }
@@ -78,7 +78,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_signature_free(this);
+            NativeMethods.git_signature_free(handle);
 
             return true;
         }
@@ -98,7 +98,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_status_list_free(this);
+            NativeMethods.git_status_list_free(handle);
 
             return true;
         }
@@ -118,7 +118,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_blame_free(this);
+            NativeMethods.git_blame_free(handle);
 
             return true;
         }
@@ -138,7 +138,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_diff_free(this);
+            NativeMethods.git_diff_free(handle);
 
             return true;
         }
@@ -158,7 +158,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_patch_free(this);
+            NativeMethods.git_patch_free(handle);
 
             return true;
         }
@@ -178,7 +178,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_config_free(this);
+            NativeMethods.git_config_free(handle);
 
             return true;
         }
@@ -198,7 +198,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_index_conflict_iterator_free(this);
+            NativeMethods.git_index_conflict_iterator_free(handle);
 
             return true;
         }
@@ -218,7 +218,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_index_free(this);
+            NativeMethods.git_index_free(handle);
 
             return true;
         }
@@ -238,7 +238,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_reflog_free(this);
+            NativeMethods.git_reflog_free(handle);
 
             return true;
         }
@@ -258,7 +258,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_treebuilder_free(this);
+            NativeMethods.git_treebuilder_free(handle);
 
             return true;
         }
@@ -278,7 +278,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_packbuilder_free(this);
+            NativeMethods.git_packbuilder_free(handle);
 
             return true;
         }
@@ -298,7 +298,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_note_free(this);
+            NativeMethods.git_note_free(handle);
 
             return true;
         }
@@ -318,7 +318,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_describe_result_free(this);
+            NativeMethods.git_describe_result_free(handle);
 
             return true;
         }
@@ -338,7 +338,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_submodule_free(this);
+            NativeMethods.git_submodule_free(handle);
 
             return true;
         }
@@ -358,7 +358,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_annotated_commit_free(this);
+            NativeMethods.git_annotated_commit_free(handle);
 
             return true;
         }
@@ -378,7 +378,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_odb_free(this);
+            NativeMethods.git_odb_free(handle);
 
             return true;
         }
@@ -398,7 +398,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_revwalk_free(this);
+            NativeMethods.git_revwalk_free(handle);
 
             return true;
         }
@@ -418,7 +418,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_remote_free(this);
+            NativeMethods.git_remote_free(handle);
 
             return true;
         }
@@ -438,7 +438,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_object_free(this);
+            NativeMethods.git_object_free(handle);
 
             return true;
         }
@@ -458,7 +458,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_rebase_free(this);
+            NativeMethods.git_rebase_free(handle);
 
             return true;
         }
@@ -478,7 +478,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_odb_stream_free(this);
+            NativeMethods.git_odb_stream_free(handle);
 
             return true;
         }
@@ -498,7 +498,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_worktree_free(this);
+            NativeMethods.git_worktree_free(handle);
 
             return true;
         }

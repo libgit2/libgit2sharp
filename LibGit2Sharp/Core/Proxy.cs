@@ -492,11 +492,6 @@ namespace LibGit2Sharp.Core
             return ConvertPath(NativeMethods.git_config_find_programdata);
         }
 
-        public static unsafe void git_config_free(ConfigurationHandle config)
-        {
-            NativeMethods.git_config_free(config);
-        }
-
         public static unsafe ConfigurationEntry<T> git_config_get_entry<T>(ConfigurationHandle config, string key)
         {
             if (!configurationParser.ContainsKey(typeof(T)))
@@ -2518,18 +2513,23 @@ namespace LibGit2Sharp.Core
 
         public static unsafe void git_repository_open_ext(string path, RepositoryOpenFlags flags, string ceilingDirs)
         {
-            int res;
-            RepositoryHandle repo;
+            RepositoryHandle repo = null;
 
-            res = NativeMethods.git_repository_open_ext(out repo, path, flags, ceilingDirs);
-            NativeMethods.git_repository_free(repo);
-
-            if (res == (int)GitErrorCode.NotFound)
+            try
             {
-                throw new RepositoryNotFoundException("Path '{0}' doesn't point at a valid Git repository or workdir.", path);
-            }
+                int res = NativeMethods.git_repository_open_ext(out repo, path, flags, ceilingDirs);
 
-            Ensure.ZeroResult(res);
+                if (res == (int)GitErrorCode.NotFound)
+                {
+                    throw new RepositoryNotFoundException("Path '{0}' doesn't point at a valid Git repository or workdir.", path);
+                }
+
+                Ensure.ZeroResult(res);
+            }
+            finally
+            {
+                repo?.Dispose();
+            }
         }
 
         public static unsafe FilePath git_repository_path(RepositoryHandle repo)

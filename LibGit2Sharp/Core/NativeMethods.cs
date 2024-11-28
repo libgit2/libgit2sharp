@@ -192,7 +192,7 @@ namespace LibGit2Sharp.Core
             git_blame_options options);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_blame_free(BlameHandle blame);
+        internal static extern unsafe void git_blame_free(nint blame);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_blob_create_from_disk(
@@ -336,7 +336,7 @@ namespace LibGit2Sharp.Core
             SignatureHandle signature);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_rebase_free(RebaseHandle rebase);
+        internal static extern unsafe void git_rebase_free(nint rebase);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_remote_rename(
@@ -480,7 +480,7 @@ namespace LibGit2Sharp.Core
         internal static extern int git_config_find_programdata(GitBuf programdata_config_path);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_config_free(ConfigurationHandle cfg);
+        internal static extern unsafe void git_config_free(nint cfg);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe void git_config_entry_free(GitConfigEntry* entry);
@@ -613,10 +613,10 @@ namespace LibGit2Sharp.Core
             ref GitDescribeFormatOptions options);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_describe_result_free(DescribeResultHandle describe);
+        internal static extern unsafe void git_describe_result_free(nint describe);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_diff_free(DiffHandle diff);
+        internal static extern unsafe void git_diff_free(nint diff);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_diff_tree_to_tree(
@@ -865,8 +865,7 @@ namespace LibGit2Sharp.Core
             ConflictIteratorHandle iterator);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_index_conflict_iterator_free(
-            ConflictIteratorHandle iterator);
+        internal static extern unsafe void git_index_conflict_iterator_free(nint iterator);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe UIntPtr git_index_entrycount(IndexHandle index);
@@ -875,7 +874,7 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe int git_index_entry_stage(git_index_entry* indexentry);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_index_free(IndexHandle index);
+        internal static extern unsafe void git_index_free(nint index);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe git_index_entry* git_index_get_byindex(IndexHandle index, UIntPtr n);
@@ -1005,7 +1004,7 @@ namespace LibGit2Sharp.Core
             int their_heads_len);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_annotated_commit_free(AnnotatedCommitHandle commit);
+        internal static extern unsafe void git_annotated_commit_free(nint commit);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int git_message_prettify(
@@ -1026,7 +1025,7 @@ namespace LibGit2Sharp.Core
             int force);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_note_free(NoteHandle note);
+        internal static extern unsafe void git_note_free(nint note);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]
@@ -1092,13 +1091,13 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe int git_odb_open_wstream(out OdbStreamHandle stream, ObjectDatabaseHandle odb, long size, GitObjectType type);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_odb_free(ObjectDatabaseHandle odb);
+        internal static extern unsafe void git_odb_free(nint odb);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_odb_read_header(out UIntPtr len_out, out GitObjectType type, ObjectDatabaseHandle odb, ref GitOid id);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_object_free(ObjectHandle obj);
+        internal static extern unsafe void git_object_free(nint obj);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_odb_stream_write(OdbStreamHandle Stream, IntPtr Buffer, UIntPtr len);
@@ -1107,7 +1106,7 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe int git_odb_stream_finalize_write(out GitOid id, OdbStreamHandle stream);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_odb_stream_free(OdbStreamHandle stream);
+        internal static extern unsafe void git_odb_stream_free(nint stream);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_odb_write(out GitOid id, ObjectDatabaseHandle odb, byte* data, UIntPtr len, GitObjectType type);
@@ -1146,7 +1145,7 @@ namespace LibGit2Sharp.Core
             PatchHandle patch);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_patch_free(PatchHandle patch);
+        internal static extern unsafe void git_patch_free(nint patch);
 
         /* Push network progress notification function */
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -1155,7 +1154,7 @@ namespace LibGit2Sharp.Core
         internal delegate int git_packbuilder_progress(int stage, uint current, uint total, IntPtr payload);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_packbuilder_free(PackBuilderHandle packbuilder);
+        internal static extern unsafe void git_packbuilder_free(nint packbuilder);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_packbuilder_insert(
@@ -1230,7 +1229,7 @@ namespace LibGit2Sharp.Core
             IntPtr payload);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_reference_free(ReferenceHandle reference);
+        internal static extern unsafe void git_reference_free(nint reference);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int git_reference_is_valid_name(
@@ -1292,7 +1291,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string refname);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_reflog_free(ReflogHandle reflog);
+        internal static extern unsafe void git_reflog_free(nint reflog);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_reflog_read(
@@ -1410,7 +1409,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string log_message);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_remote_free(RemoteHandle remote);
+        internal static extern unsafe void git_remote_free(nint remote);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_remote_get_fetch_refspecs(out GitStrArray array, RemoteHandle remote);
@@ -1536,7 +1535,7 @@ namespace LibGit2Sharp.Core
             IntPtr payload);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_repository_free(RepositoryHandle repo);
+        internal static extern unsafe void git_repository_free(nint repo);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int git_repository_head_detached(RepositoryHandle repo);
@@ -1687,7 +1686,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string spec);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_revwalk_free(RevWalkerHandle walker);
+        internal static extern unsafe void git_revwalk_free(nint walker);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_revwalk_hide(RevWalkerHandle walker, ref GitOid commit_id);
@@ -1711,7 +1710,7 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe int git_revwalk_simplify_first_parent(RevWalkerHandle walk);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_signature_free(SignatureHandle signature);
+        internal static extern unsafe void git_signature_free(nint signature);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_signature_new(
@@ -1789,8 +1788,7 @@ namespace LibGit2Sharp.Core
             UIntPtr idx);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_status_list_free(
-            StatusListHandle statusList);
+        internal static extern unsafe void git_status_list_free(nint statusList);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void git_strarray_free(
@@ -1832,7 +1830,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.Bool)] bool write_index);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_submodule_free(SubmoduleHandle submodule);
+        internal static extern unsafe void git_submodule_free(nint submodule);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]
@@ -2006,7 +2004,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string treeentry_path);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_tree_entry_free(TreeEntryHandle treeEntry);
+        internal static extern unsafe void git_tree_entry_free(nint treeEntry);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe git_oid* git_tree_entry_id(TreeEntryHandle entry);
@@ -2036,7 +2034,7 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe int git_treebuilder_write(out GitOid id, TreeBuilderHandle bld);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_treebuilder_free(TreeBuilderHandle bld);
+        internal static extern unsafe void git_treebuilder_free(nint bld);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_blob_is_binary(ObjectHandle blob);
@@ -2066,7 +2064,7 @@ namespace LibGit2Sharp.Core
             IntPtr payload);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void git_worktree_free(WorktreeHandle worktree);
+        internal static extern unsafe void git_worktree_free(nint worktree);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_worktree_lookup(
