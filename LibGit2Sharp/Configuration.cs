@@ -52,9 +52,9 @@ namespace LibGit2Sharp
         private void Init(Repository repository)
         {
             configHandle = Proxy.git_config_new();
-            RepositoryHandle repoHandle = (repository != null) ? repository.Handle : null;
+            RepositoryHandle repoHandle = repository?.Handle ?? new RepositoryHandle();
 
-            if (repoHandle != null)
+            if (!repoHandle.IsInvalid)
             {
                 //TODO: push back this logic into libgit2.
                 // As stated by @carlosmn "having a helper function to load the defaults and then allowing you

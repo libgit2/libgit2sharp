@@ -438,9 +438,7 @@ namespace LibGit2Sharp.Core
 
         public static unsafe void git_config_add_file_ondisk(ConfigurationHandle config, FilePath path, ConfigurationLevel level, RepositoryHandle repo)
         {
-            // RepositoryHandle does implicit cast voodoo that is not null-safe, thus this explicit check
-            RepositoryHandle repoHandle = (repo != null) ? (RepositoryHandle)repo : null;
-            int res = NativeMethods.git_config_add_file_ondisk(config, path, (uint)level, repoHandle, true);
+            int res = NativeMethods.git_config_add_file_ondisk(config, path, (uint)level, repo, true);
             Ensure.ZeroResult(res);
         }
 
