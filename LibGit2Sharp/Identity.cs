@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp.Core;
+﻿using System;
+using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
@@ -52,7 +53,7 @@ namespace LibGit2Sharp
     internal static class IdentityHelpers
     {
         /// <summary>
-        /// Build the handle for the Indentity with the current time, or return a handle
+        /// Build the handle for the Identity with the current time, or return a handle
         /// to an empty signature.
         /// </summary>
         /// <param name="identity"></param>
@@ -61,7 +62,7 @@ namespace LibGit2Sharp
         {
             if (identity == null)
             {
-                return new SignatureHandle(null, false);
+                return new SignatureHandle(IntPtr.Zero, false);
             }
 
             return identity.BuildNowSignatureHandle();

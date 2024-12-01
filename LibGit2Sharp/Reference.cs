@@ -32,13 +32,7 @@ namespace LibGit2Sharp
             this.targetIdentifier = targetIdentifier;
         }
 
-        // This overload lets public-facing methods avoid having to use the pointers directly
         internal static unsafe T BuildFromPtr<T>(ReferenceHandle handle, Repository repo) where T : Reference
-        {
-            return BuildFromPtr<T>((git_reference*)handle.AsIntPtr(), repo);
-        }
-
-        internal static unsafe T BuildFromPtr<T>(git_reference* handle, Repository repo) where T : Reference
         {
             GitReferenceType type = Proxy.git_reference_type(handle);
             string name = Proxy.git_reference_name(handle);

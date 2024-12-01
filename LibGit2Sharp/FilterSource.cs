@@ -18,11 +18,12 @@ namespace LibGit2Sharp
             SourceMode = mode;
             ObjectId = ObjectId.BuildFromPtr(&source->oid);
             Path = path.Native;
-            Root = Proxy.git_repository_workdir(new IntPtr(source->repository)).Native;
+
+            Root = Proxy.git_repository_workdir(source->repository).Native;
         }
 
         /// <summary>
-        /// Take an unmanaged pointer and convert it to filter source callback paramater
+        /// Take an unmanaged pointer and convert it to filter source callback parameter.
         /// </summary>
         /// <param name="ptr"></param>
         /// <returns></returns>
@@ -32,7 +33,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Take an unmanaged pointer and convert it to filter source callback paramater
+        /// Take an unmanaged pointer and convert it to filter source callback parameter.
         /// </summary>
         /// <param name="ptr"></param>
         /// <returns></returns>

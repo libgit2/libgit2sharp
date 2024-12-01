@@ -118,7 +118,7 @@ namespace LibGit2Sharp.Core
     [StructLayout(LayoutKind.Sequential)]
     internal unsafe struct git_filter_source
     {
-        public git_repository* repository;
+        public IntPtr repository;
 
         public char* path;
 
