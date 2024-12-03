@@ -1,5 +1,22 @@
 # LibGit2Sharp Changes
 
+## v0.31 - ([diff](https://github.com/libgit2/libgit2sharp/compare/0.30.0..0.31.0))
+
+### Changes
+- This release includes [libgit2 v1.8.4](https://github.com/libgit2/libgit2/releases/tag/v1.8.4).
+- The ppc64le architecture is now supported on Linux.
+- .NET 6 has reached end of support, so LibGit2Sharp now targets `net472` and `net8.0`.
+
+### Additions
+- Adds Depth to FetchOptions allowing for shallow cloning [#2070](https://github.com/libgit2/libgit2sharp/pull/2070)
+- Make owner validation configurable [#2093](https://github.com/libgit2/libgit2sharp/pull/2093)
+- Add a CloneOptions constructor that takes a FetchOptions [#2132](https://github.com/libgit2/libgit2sharp/pull/2132)
+
+### Fixes
+- TreeDefinition.Remove fails to remove unwrapped trees [#1869](https://github.com/libgit2/libgit2sharp/issues/1869) 
+- ObjectDatabase.Write<T>(Stream stream...) overload does not respect T [#2071](https://github.com/libgit2/libgit2sharp/issues/2071)
+- Repository.Worktrees.Add leaves now worktree empty [#2037](https://github.com/libgit2/libgit2sharp/issues/2037)
+
 ## v0.30 - ([diff](https://github.com/libgit2/libgit2sharp/compare/0.29.0..0.30.0))
 
 ### Changes
