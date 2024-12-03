@@ -4,6 +4,7 @@
 
 ### Changes
 - This release includes [libgit2 v1.8.4](https://github.com/libgit2/libgit2/releases/tag/v1.8.4).
+  - SSH is now supported through [libgit2's support for OpenSSH](https://github.com/libgit2/libgit2/pull/6617).
 - The ppc64le architecture is now supported on Linux.
 - .NET 6 has reached end of support, so LibGit2Sharp now targets `net472` and `net8.0`.
 
