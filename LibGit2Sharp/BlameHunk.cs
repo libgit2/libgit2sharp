@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Globalization;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -42,12 +43,18 @@ namespace LibGit2Sharp
             // Signature objects need to have ownership of their native pointers
             if (rawHunk->final_signature != null)
             {
-                FinalSignature = new Signature(rawHunk->final_signature);
+                var ptr = new IntPtr(rawHunk->final_signature);
+                var signatureHandle = new SignatureHandle(ptr, false);
+
+                FinalSignature = new Signature(signatureHandle);
             }
 
             if (rawHunk->orig_signature != null)
             {
-                InitialSignature = new Signature(rawHunk->orig_signature);
+                var ptr = new IntPtr(rawHunk->orig_signature);
+                var signatureHandle = new SignatureHandle(ptr, false);
+
+                InitialSignature = new Signature(signatureHandle);
             }
         }
 

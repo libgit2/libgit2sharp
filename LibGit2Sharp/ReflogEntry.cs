@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -25,7 +24,7 @@ namespace LibGit2Sharp
         /// Initializes a new instance of the <see cref="ReflogEntry"/> class.
         /// </summary>
         /// <param name="entryHandle">a <see cref="SafeHandle"/> to the reflog entry</param>
-        internal unsafe ReflogEntry(git_reflog_entry* entryHandle)
+        internal unsafe ReflogEntry(nint entryHandle)
         {
             _from = Proxy.git_reflog_entry_id_old(entryHandle);
             _to = Proxy.git_reflog_entry_id_new(entryHandle);
@@ -58,7 +57,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// the message assiocated to this reference update
+        /// the message associated to this reference update
         /// </summary>
         public virtual string Message
         {
