@@ -18,6 +18,7 @@ namespace LibGit2Sharp
         private readonly string name;
         private readonly string path;
         private readonly string url;
+        private string branch;
         private readonly ILazy<ObjectId> headCommitId;
         private readonly ILazy<ObjectId> indexCommitId;
         private readonly ILazy<ObjectId> workdirCommitId;
@@ -31,12 +32,13 @@ namespace LibGit2Sharp
         protected Submodule()
         { }
 
-        internal Submodule(Repository repo, string name, string path, string url)
+        internal Submodule(Repository repo, string name, string path, string url, string branch)
         {
             this.repo = repo;
             this.name = name;
             this.path = path;
             this.url = url;
+            this.branch = branch;
 
             var commitIds = new SubmoduleLazyGroup(repo, name);
             headCommitId = commitIds.AddLazy(Proxy.git_submodule_head_id);
@@ -63,6 +65,11 @@ namespace LibGit2Sharp
         /// The URL of the submodule.
         /// </summary>
         public virtual string Url { get { return url; } }
+
+        /// <summary>
+        /// The name of the remote branch
+        /// </summary>
+        public virtual string Branch { get { return branch; } set { SetRemoteBranch(value); } }
 
         /// <summary>
         /// The commit ID for this submodule in the current HEAD tree.
@@ -150,6 +157,23 @@ namespace LibGit2Sharp
             {
                 return string.Format(CultureInfo.InvariantCulture, "{0} => {1}", Name, Url);
             }
+        }
+
+        private void SetRemoteBranch(string branch)
+        {
+            using (var handle = Proxy.git_submodule_lookup(repo.Handle, name))
+            {
+                if (handle == null)
+                {
+                    throw new NotFoundException("Submodule lookup failed for '{0}'.",
+                                                name);
+                }
+
+                Proxy.git_submodule_set_branch(repo.Handle, name, branch);
+                Proxy.git_submodule_reload(handle);
+                this.branch = Proxy.git_submodule_branch(handle);
+            }
+                
         }
 
         IRepository IBelongToARepository.Repository { get { return repo; } }
