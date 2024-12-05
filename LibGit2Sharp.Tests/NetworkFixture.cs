@@ -11,6 +11,44 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData("http://github.com/libgit2/TestGitRepository")]
         [InlineData("https://github.com/libgit2/TestGitRepository")]
+        public void CanFetchDefaultBranchName(string url)
+        {
+            string remoteName = "testRemote";
+
+            string expectedDefaultBranchName = TestRemoteRefs.ExpectedRemoteRefs
+                .First(remoteRef => remoteRef.Item3).Item1;
+
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                Remote remote = repo.Network.Remotes.Add(remoteName, url);
+
+                string defaultBranchName = repo.Network.DefaultBranchName(remote);
+                Assert.Equal(expectedDefaultBranchName, defaultBranchName);
+            }
+        }
+
+        [Theory]
+        [InlineData("http://github.com/libgit2/TestGitRepository")]
+        [InlineData("https://github.com/libgit2/TestGitRepository")]
+        public void CanFetchDefaultBranchNameFromUrl(string url)
+        {
+            string expectedDefaultBranchName = TestRemoteRefs.ExpectedRemoteRefs
+                .First(remoteRef => remoteRef.Item3).Item1;
+
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                string defaultBranchName = repo.Network.DefaultBranchName(url);
+                Assert.Equal(expectedDefaultBranchName, defaultBranchName);
+            }
+        }
+
+        [Theory]
+        [InlineData("http://github.com/libgit2/TestGitRepository")]
+        [InlineData("https://github.com/libgit2/TestGitRepository")]
         public void CanListRemoteReferences(string url)
         {
             string remoteName = "testRemote";
