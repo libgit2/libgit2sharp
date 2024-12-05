@@ -37,6 +37,11 @@ namespace LibGit2Sharp.Core
         /// </summary>
         private readonly CommitFilter _queryFilter;
 
+        /// <summary>
+        /// Options to define comparison behavior.
+        /// </summary>
+        private readonly CompareOptions _compareOptions;
+
         #endregion
 
         #region Constructors
@@ -49,7 +54,7 @@ namespace LibGit2Sharp.Core
         /// <param name="path">The file's path relative to the repository's root.</param>
         /// <exception cref="ArgumentNullException">If any of the parameters is null.</exception>
         internal FileHistory(Repository repo, string path)
-            : this(repo, path, new CommitFilter())
+            : this(repo, path, new CommitFilter(), new CompareOptions())
         { }
 
         /// <summary>
@@ -62,9 +67,10 @@ namespace LibGit2Sharp.Core
         /// <param name="repo">The repository.</param>
         /// <param name="path">The file's path relative to the repository's root.</param>
         /// <param name="queryFilter">The filter to be used in querying the commit log.</param>
+        /// <param name="compareOptions">Additional options to define comparison behavior.</param>
         /// <exception cref="ArgumentNullException">If any of the parameters is null.</exception>
         /// <exception cref="ArgumentException">When an unsupported commit sort strategy is specified.</exception>
-        internal FileHistory(Repository repo, string path, CommitFilter queryFilter)
+        internal FileHistory(Repository repo, string path, CommitFilter queryFilter, CompareOptions compareOptions)
         {
             Ensure.ArgumentNotNull(repo, "repo");
             Ensure.ArgumentNotNull(path, "path");
@@ -80,6 +86,7 @@ namespace LibGit2Sharp.Core
             _repo = repo;
             _path = path;
             _queryFilter = queryFilter;
+            _compareOptions = compareOptions;
         }
 
         #endregion
@@ -94,7 +101,7 @@ namespace LibGit2Sharp.Core
         /// <returns>A <see cref="IEnumerator{LogEntry}"/>.</returns>
         public IEnumerator<LogEntry> GetEnumerator()
         {
-            return FullHistory(_repo, _path, _queryFilter).GetEnumerator();
+            return FullHistory(_repo, _path, _queryFilter, _compareOptions).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -110,8 +117,9 @@ namespace LibGit2Sharp.Core
         /// <param name="repo">The repository.</param>
         /// <param name="path">The file's path relative to the repository's root.</param>
         /// <param name="filter">The filter to be used in querying the commits log.</param>
+        /// <param name="compareOptions">Additional options to define comparison behavior.</param>
         /// <returns>A collection of <see cref="LogEntry"/> instances.</returns>
-        private static IEnumerable<LogEntry> FullHistory(IRepository repo, string path, CommitFilter filter)
+        private static IEnumerable<LogEntry> FullHistory(IRepository repo, string path, CommitFilter filter, CompareOptions compareOptions)
         {
             var map = new Dictionary<Commit, string>();
 
@@ -132,7 +140,7 @@ namespace LibGit2Sharp.Core
                 }
                 else
                 {
-                    DetermineParentPaths(repo, currentCommit, currentPath, map);
+                    DetermineParentPaths(repo, currentCommit, currentPath, map, compareOptions);
 
                     if (parentCount != 1)
                     {
@@ -153,17 +161,17 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        private static void DetermineParentPaths(IRepository repo, Commit currentCommit, string currentPath, IDictionary<Commit, string> map)
+        private static void DetermineParentPaths(IRepository repo, Commit currentCommit, string currentPath, IDictionary<Commit, string> map, CompareOptions compareOptions)
         {
             foreach (var parentCommit in currentCommit.Parents.Where(parentCommit => !map.ContainsKey(parentCommit)))
             {
-                map.Add(parentCommit, ParentPath(repo, currentCommit, currentPath, parentCommit));
+                map.Add(parentCommit, ParentPath(repo, currentCommit, currentPath, parentCommit, compareOptions));
             }
         }
 
-        private static string ParentPath(IRepository repo, Commit currentCommit, string currentPath, Commit parentCommit)
+        private static string ParentPath(IRepository repo, Commit currentCommit, string currentPath, Commit parentCommit, CompareOptions compareOptions)
         {
-            using (var treeChanges = repo.Diff.Compare<TreeChanges>(parentCommit.Tree, currentCommit.Tree))
+            using (var treeChanges = repo.Diff.Compare<TreeChanges>(parentCommit.Tree, currentCommit.Tree, compareOptions))
             {
                 var treeEntryChanges = treeChanges.FirstOrDefault(c => c.Path == currentPath);
                 return treeEntryChanges != null && treeEntryChanges.Status == ChangeKind.Renamed
