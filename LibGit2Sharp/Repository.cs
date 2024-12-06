@@ -656,7 +656,7 @@ namespace LibGit2Sharp
         /// <returns>The references in the remote repository.</returns>
         public static IEnumerable<Reference> ListRemoteReferences(string url)
         {
-            return ListRemoteReferences(url, null, new ProxyOptions());
+            return ListRemoteReferences(url, null, null, new ProxyOptions());
         }
 
         /// <summary>
@@ -667,7 +667,7 @@ namespace LibGit2Sharp
         /// <returns>The references in the remote repository.</returns>
         public static IEnumerable<Reference> ListRemoteReferences(string url, ProxyOptions proxyOptions)
         {
-            return ListRemoteReferences(url, null, proxyOptions);
+            return ListRemoteReferences(url, null, null, proxyOptions);
         }
 
         /// <summary>
@@ -683,7 +683,7 @@ namespace LibGit2Sharp
         /// <returns>The references in the remote repository.</returns>
         public static IEnumerable<Reference> ListRemoteReferences(string url, CredentialsHandler credentialsProvider)
         {
-            return ListRemoteReferences(url, credentialsProvider, new ProxyOptions());
+            return ListRemoteReferences(url, credentialsProvider, null, new ProxyOptions());
         }
 
         /// <summary>
@@ -696,9 +696,27 @@ namespace LibGit2Sharp
         /// </para>
         /// <param name="url">The url to list from.</param>
         /// <param name="credentialsProvider">The <see cref="Func{Credentials}"/> used to connect to remote repository.</param>
+        /// <param name="certificateCheck">This handler will be called to let the user make a decision on whether to allow the connection to proceed based on the certificate presented by the server..</param>
+        /// <returns>The references in the remote repository.</returns>
+        public static IEnumerable<Reference> ListRemoteReferences(string url, CredentialsHandler credentialsProvider, CertificateCheckHandler certificateCheck)
+        {
+            return ListRemoteReferences(url, credentialsProvider, certificateCheck, new ProxyOptions());
+        }
+
+        /// <summary>
+        /// Lists the Remote Repository References.
+        /// </summary>
+        /// <para>
+        /// Does not require a local Repository. The retrieved
+        /// <see cref="IBelongToARepository.Repository"/>
+        /// throws <see cref="InvalidOperationException"/> in this case.
+        /// </para>
+        /// <param name="url">The url to list from.</param>
+        /// <param name="credentialsProvider">The <see cref="Func{Credentials}"/> used to connect to remote repository.</param>
+        /// <param name="certificateCheck">This handler will be called to let the user make a decision on whether to allow the connection to proceed based on the certificate presented by the server..</param>
         /// <param name="proxyOptions">Options for connecting through a proxy.</param>
         /// <returns>The references in the remote repository.</returns>
-        public static IEnumerable<Reference> ListRemoteReferences(string url, CredentialsHandler credentialsProvider, ProxyOptions proxyOptions)
+        public static IEnumerable<Reference> ListRemoteReferences(string url, CredentialsHandler credentialsProvider, CertificateCheckHandler certificateCheck, ProxyOptions proxyOptions)
         {
             Ensure.ArgumentNotNull(url, "url");
 
@@ -710,9 +728,14 @@ namespace LibGit2Sharp
 
             var gitCallbacks = new GitRemoteCallbacks { version = 1 };
 
-            if (credentialsProvider != null)
+            if (credentialsProvider != null || certificateCheck != null)
             {
-                var callbacks = new RemoteCallbacks(credentialsProvider);
+                var fetchOptions = new FetchOptions()
+                {
+                    CredentialsProvider = credentialsProvider,
+                    CertificateCheck = certificateCheck
+                };
+                var callbacks = new RemoteCallbacks(fetchOptions);
                 gitCallbacks = callbacks.GenerateCallbacks();
             }
 
