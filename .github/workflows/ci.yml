@@ -66,11 +66,10 @@ jobs:
         run: dotnet test LibGit2Sharp.sln --configuration Release --framework ${{ matrix.tfm }} --logger "GitHubActions" /p:ExtraDefine=LEAKS_IDENTIFYING
   test-linux:
     name: Test / ${{ matrix.distro }} / ${{ matrix.arch }} / ${{ matrix.tfm }}
-    runs-on: ubuntu-22.04
+    runs-on: ${{ matrix.runnerImage }}
     strategy:
       matrix:
-        arch: [ amd64 ]
-        # arch: [ amd64, arm64 ]
+        arch: [ amd64, arm64 ]
         distro: [ alpine.3.17, alpine.3.18, alpine.3.19, alpine.3.20, centos.stream.9, debian.12, fedora.40, ubuntu.20.04, ubuntu.22.04, ubuntu.24.04 ]
         sdk:  [ '8.0', '9.0' ]
         exclude:
@@ -85,15 +84,16 @@ jobs:
             tfm: net8.0
           - sdk: '9.0'
             tfm: net9.0
+          - arch: amd64
+            runnerImage: ubuntu-22.04
+          - arch: arm64
+            runnerImage: ubuntu-22.04-arm
       fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.2
         with:
           fetch-depth: 0
-      - name: Setup QEMU
-        if: matrix.arch == 'arm64'
-        run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
       - name: Run ${{ matrix.tfm }} tests
         run: |
             git_command="git config --global --add safe.directory /app"
