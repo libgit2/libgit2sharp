@@ -135,8 +135,16 @@ namespace LibGit2Sharp
         {
             using (RemoteHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, Name, true))
             {
-                git_refspec* fetchSpecPtr = Proxy.git_remote_get_refspec(remoteHandle, 0);
-                return Proxy.git_refspec_rtransform(new IntPtr(fetchSpecPtr), reference);
+                var fetchSpec = IntPtr.Zero;
+                var refspecCount = Proxy.git_remote_refspec_count(remoteHandle);
+                for (int i = 0; i < refspecCount; i++)
+                {
+                    fetchSpec = new IntPtr(Proxy.git_remote_get_refspec(remoteHandle, i));
+                    if (Proxy.git_refspec_dst_matches(fetchSpec, reference))
+                        break;
+                }
+
+                return Proxy.git_refspec_rtransform(fetchSpec, reference);
             }
         }
 
