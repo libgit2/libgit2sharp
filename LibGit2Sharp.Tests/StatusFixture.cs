@@ -120,6 +120,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(status);
                 Assert.Equal(6 + unalteredCount, status.Count());
                 Assert.True(status.IsDirty);
+                Assert.Equal(6, status.Dirty.Count());
 
                 Assert.Equal("new_untracked_file.txt", status.Untracked.Select(s => s.FilePath).Single());
                 Assert.Equal("modified_unstaged_file.txt", status.Modified.Select(s => s.FilePath).Single());
@@ -139,6 +140,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(status2);
                 Assert.Equal(6 + unalteredCount, status2.Count());
                 Assert.True(status2.IsDirty);
+                Assert.Equal(6, status2.Dirty.Count());
 
                 Assert.Equal("new_untracked_file.txt", status2.Untracked.Select(s => s.FilePath).Single());
                 Assert.Equal(new[] { file, "modified_unstaged_file.txt" }, status2.Modified.Select(s => s.FilePath));
@@ -146,6 +148,19 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("new_tracked_file.txt", status2.Added.Select(s => s.FilePath).Single());
                 Assert.Equal(file, status2.Staged.Select(s => s.FilePath).Single());
                 Assert.Equal("deleted_staged_file.txt", status2.Removed.Select(s => s.FilePath).Single());
+            }
+        }
+
+        [Fact]
+        public void CanRetrieveListOfDirtyFilesInWorkDir()
+        {
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                RepositoryStatus status = repo.RetrieveStatus();
+                Assert.True(status.IsDirty);
+                Assert.Equal(6, status.Dirty.Count());
+                Assert.Equal(status.Where(s => s.IsDirty).Select(s => s.FilePath), status.Dirty.Select(s => s.FilePath));
             }
         }
 
@@ -264,6 +279,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Empty(status.Added);
                 Assert.Empty(status.Staged);
                 Assert.Empty(status.Removed);
+                Assert.Empty(status.Dirty);
             }
         }
 
@@ -657,6 +673,7 @@ namespace LibGit2Sharp.Tests
                 RepositoryStatus status = repo.RetrieveStatus(new StatusOptions() { IncludeUnaltered = true });
 
                 Assert.False(status.IsDirty);
+                Assert.Empty(status.Dirty);
                 Assert.Equal(9, status.Count());
             }
         }
