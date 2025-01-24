@@ -148,6 +148,62 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanProvideBinaryDeflateDeltaInfo()
+        {
+            using (var repo = new Repository(SandboxStandardTestRepo()))
+            {
+                const string filename = "newBin.file";
+                var filepath = Path.Combine(repo.Info.WorkingDirectory, filename);
+
+                CreateBinaryFile(filepath);
+
+                var compareOptions = new CompareOptions();
+                compareOptions.ShowBinary = true;                
+                using (Patch patch = repo.Diff.Compare<Patch>(repo.Commits.FirstOrDefault().Tree, DiffTargets.WorkingDirectory, null, null, compareOptions))
+                {
+                    var withBinaryDeltaDiff = new StringBuilder()
+                        .Append("diff --git a/newBin.file b/newBin.file\n")
+                        .Append("new file mode 100644\n")
+                        .Append("index 0000000000000000000000000000000000000000..689732707188cb8aedfe69d84c9536fd5655d814\n")
+                        .Append("GIT binary patch\n")
+                        .Append("literal 4000\n")
+                        .Append("dc%1FSF%19!3<IEc{zX^D9!O{|RaI40Uk|E93%LLQ\n\n")
+                        .Append("literal 0\n")
+                        .Append("Hc$@<O00001");
+
+                    Assert.True(patch[filename].IsBinaryComparison);
+                    Assert.Contains(withBinaryDeltaDiff.ToString(), patch[filename].Patch.Trim());
+                }
+
+            }
+        }
+
+        [Fact]
+        public void DoesNotProvideBinaryDeflateDeltaInfoByDefault()
+        {
+            using (var repo = new Repository(SandboxStandardTestRepo()))
+            {
+                const string filename = "newBin.file";
+                var filepath = Path.Combine(repo.Info.WorkingDirectory, filename);
+
+                CreateBinaryFile(filepath);
+
+                var compareOptions = new CompareOptions();
+                using (Patch patch = repo.Diff.Compare<Patch>(repo.Commits.FirstOrDefault().Tree, DiffTargets.WorkingDirectory, null, null, compareOptions))
+                {
+                    var noBinaryDeltaDiff = new StringBuilder()
+                        .Append("diff --git a/newBin.file b/newBin.file\n")
+                        .Append("new file mode 100644\n")
+                        .Append("index 0000000..6897327\n")
+                        .Append("Binary files /dev/null and b/newBin.file differ");
+
+                    Assert.True(patch[filename].IsBinaryComparison);
+                    Assert.Equal(noBinaryDeltaDiff.ToString(), patch[filename].Patch.Trim());
+                }
+            }
+        }
+
         /*
          * $ git diff 9fd738e..HEAD -- "1" "2/"
          * diff --git a/1/branch_file.txt b/1/branch_file.txt
