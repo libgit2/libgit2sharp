@@ -1258,6 +1258,23 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanGetCorrectPatchIdForAComparison()
+        {
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
+            {
+                Tree tree1 = repo.Lookup<Commit>("32eab9c").Tree;
+                Tree tree2 = repo.Lookup<Commit>("9fd738e").Tree;
+
+                using (var changes = repo.Diff.Compare<TreeChanges>(tree1, tree2))
+                {
+                    Assert.NotNull(changes);
+                    Assert.Equal("10c26aa3d58ca4a44e3b102b93bdc0b6600972a2", changes.PatchId.Sha);
+                }
+            }
+        }
+
+        [Fact]
         public void DiffThrowsANotFoundExceptionIfATreeIsMissing()
         {
             string repoPath = SandboxBareTestRepo();

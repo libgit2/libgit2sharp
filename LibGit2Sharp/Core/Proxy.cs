@@ -854,6 +854,13 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_diff_get_delta(diff, (UIntPtr)idx);
         }
 
+        public static unsafe GitOid git_diff_patchid(DiffHandle diff, GitPatchIdOptions opts)
+        {
+            var oid = new GitOid();
+            Ensure.ZeroResult(NativeMethods.git_diff_patchid(ref oid, diff, opts));
+            return oid;
+        }
+
         #endregion
 
         #region git_error_
