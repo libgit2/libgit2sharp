@@ -14,6 +14,7 @@ namespace LibGit2Sharp
     {
         private static readonly Lazy<Version> version = new Lazy<Version>(Version.Build);
         private static readonly Dictionary<Filter, FilterRegistration> registeredFilters;
+        private static readonly Dictionary<MergeDriver, MergeDriverRegistration> registeredMergeDrivers;
         private static readonly bool nativeLibraryPathAllowed;
 
         private static LogConfiguration logConfiguration = LogConfiguration.None;
@@ -38,6 +39,7 @@ namespace LibGit2Sharp
 #endif
 
             registeredFilters = new Dictionary<Filter, FilterRegistration>();
+            registeredMergeDrivers = new Dictionary<MergeDriver, MergeDriverRegistration>();
         }
 
 #if NETFRAMEWORK
@@ -335,6 +337,81 @@ namespace LibGit2Sharp
         {
             var pathString = (paths == null) ? null : string.Join(Path.PathSeparator.ToString(), paths);
             Proxy.git_libgit2_opts_set_search_path(level, pathString);
+        }
+
+        /// <summary>
+        /// Takes a snapshot of the currently registered merge drivers.
+        /// </summary>
+        /// <returns>An array of <see cref="MergeDriverRegistration"/>.</returns>
+        public static IEnumerable<MergeDriverRegistration> GetRegisteredMergeDrivers()
+        {
+            lock (registeredMergeDrivers)
+            {
+                MergeDriverRegistration[] array = new MergeDriverRegistration[registeredMergeDrivers.Count];
+                registeredMergeDrivers.Values.CopyTo(array, 0);
+                return array;
+            }
+        }
+
+        /// <summary>
+        /// Registers a <see cref="MergeDriver"/> to be invoked when <see cref="MergeDriver.Name"/> matches .gitattributes 'merge=name'
+        /// </summary>
+        /// <param name="mergeDriver">The merge driver to be invoked at run time.</param>
+        /// <returns>A <see cref="MergeDriverRegistration"/> object used to manage the lifetime of the registration.</returns>
+        public static MergeDriverRegistration RegisterMergeDriver(MergeDriver mergeDriver)
+        {
+            Ensure.ArgumentNotNull(mergeDriver, "merge-driver");
+
+            lock (registeredMergeDrivers)
+            {
+                // if the merge driver has already been registered
+                if (registeredMergeDrivers.ContainsKey(mergeDriver))
+                {
+                    throw new EntryExistsException("The merge driver has already been registered.", GitErrorCode.Exists, GitErrorCategory.MergeDriver);
+                }
+
+                // allocate the registration object
+                var registration = new MergeDriverRegistration(mergeDriver);
+                // add the merge driver and registration object to the global tracking list
+                registeredMergeDrivers.Add(mergeDriver, registration);
+                return registration;
+            }
+        }
+
+        /// <summary>
+        /// Unregisters the associated merge driver.
+        /// </summary>
+        /// <param name="registration">Registration object with an associated merge driver.</param>
+        public static void DeregisterMergeDriver(MergeDriverRegistration registration)
+        {
+            Ensure.ArgumentNotNull(registration, "registration");
+
+            lock (registeredMergeDrivers)
+            {
+                var driver = registration.MergeDriver;
+
+                // do nothing if the merge driver isn't registered
+                if (registeredMergeDrivers.ContainsKey(driver))
+                {
+                    // remove the register from the global tracking list
+                    registeredMergeDrivers.Remove(driver);
+                    // clean up native allocations
+                    registration.Free();
+                }
+            }
+        }
+
+        internal static void DeregisterMergeDriver(MergeDriver driver)
+        {
+            System.Diagnostics.Debug.Assert(driver != null);
+
+            // do nothing if the merge driver isn't registered
+            if (registeredMergeDrivers.ContainsKey(driver))
+            {
+                var registration = registeredMergeDrivers[driver];
+                // unregister the merge driver
+                DeregisterMergeDriver(registration);
+            }
         }
 
         /// <summary>
