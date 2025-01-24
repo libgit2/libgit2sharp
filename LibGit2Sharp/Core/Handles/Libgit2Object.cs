@@ -18,7 +18,7 @@
 //#define LEAKS_TRACKING
 
 using System;
-using Microsoft.Win32.SafeHandles;
+using System.Runtime.InteropServices;
 
 #if LEAKS_IDENTIFYING
 namespace LibGit2Sharp.Core
@@ -83,20 +83,20 @@ namespace LibGit2Sharp.Core.Handles
     using System.Globalization;
 #endif
 
-    internal unsafe abstract class Libgit2Object : SafeHandleZeroOrMinusOneIsInvalid
+    internal unsafe abstract class Libgit2Object : SafeHandle
     {
 #if LEAKS_TRACKING
         private readonly string trace;
         private readonly Guid id;
 #endif
 
-        internal unsafe Libgit2Object(void* ptr, bool owned)
-            : this(new IntPtr(ptr), owned)
+        internal unsafe Libgit2Object()
+            : base(IntPtr.Zero, true)
         {
         }
 
         internal unsafe Libgit2Object(IntPtr ptr, bool owned)
-            : base(owned)
+            : base(IntPtr.Zero, owned)
         {
             SetHandle(ptr);
 
@@ -108,12 +108,12 @@ namespace LibGit2Sharp.Core.Handles
 #endif
         }
 
-        internal IntPtr AsIntPtr() => DangerousGetHandle();
+        public override bool IsInvalid => handle == IntPtr.Zero;
 
         protected override void Dispose(bool disposing)
         {
 #if LEAKS_IDENTIFYING
-            bool leaked = !disposing && DangerousGetHandle() != IntPtr.Zero;
+            bool leaked = !disposing && !IsInvalid;
 
             if (leaked)
             {

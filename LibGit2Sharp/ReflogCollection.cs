@@ -63,7 +63,7 @@ namespace LibGit2Sharp
 
                 for (int i = 0; i < entriesCount; i++)
                 {
-                    git_reflog_entry* handle = Proxy.git_reflog_entry_byindex(reflog, i);
+                    var handle = Proxy.git_reflog_entry_byindex(reflog, i);
                     entries.Add(new ReflogEntry(handle));
                 }
             }

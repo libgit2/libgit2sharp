@@ -15,13 +15,30 @@ namespace LibGit2Sharp
         private readonly string email;
 
         private static readonly LambdaEqualityHelper<Signature> equalityHelper =
-            new LambdaEqualityHelper<Signature>(x => x.Name, x => x.Email, x => x.When);
+            new(x => x.Name, x => x.Email, x => x.When);
 
-        internal unsafe Signature(git_signature* sig)
+        internal unsafe Signature(SignatureHandle signatureHandle)
         {
-            name = LaxUtf8Marshaler.FromNative(sig->name);
-            email = LaxUtf8Marshaler.FromNative(sig->email);
-            when = DateTimeOffset.FromUnixTimeSeconds(sig->when.time).ToOffset(TimeSpan.FromMinutes(sig->when.offset));
+            var success = false;
+
+            try
+            {
+                signatureHandle.DangerousAddRef(ref success);
+
+                var handle = signatureHandle.DangerousGetHandle();
+                var sig = (git_signature*)handle;
+
+                name = LaxUtf8Marshaler.FromNative(sig->name);
+                email = LaxUtf8Marshaler.FromNative(sig->email);
+                when = DateTimeOffset.FromUnixTimeSeconds(sig->when.time).ToOffset(TimeSpan.FromMinutes(sig->when.offset));
+            }
+            finally
+            {
+                if (success)
+                {
+                    signatureHandle.DangerousRelease();
+                }
+            }
         }
 
         /// <summary>
@@ -146,22 +163,22 @@ namespace LibGit2Sharp
         }
     }
 
-    internal static class SignatureHelpers
-    {
-        /// <summary>
-        /// Build the handle for the Signature, or return a handle
-        /// to an empty signature.
-        /// </summary>
-        /// <param name="signature"></param>
-        /// <returns></returns>
-        public static unsafe SignatureHandle SafeBuildHandle(this Signature signature)
-        {
-            if (signature == null)
-            {
-                return new SignatureHandle(null, false);
-            }
+    //internal static class SignatureHelpers
+    //{
+    //    /// <summary>
+    //    /// Build the handle for the Signature, or return a handle
+    //    /// to an empty signature.
+    //    /// </summary>
+    //    /// <param name="signature"></param>
+    //    /// <returns></returns>
+    //    public static unsafe SignatureHandle SafeBuildHandle(this Signature signature)
+    //    {
+    //        if (signature == null)
+    //        {
+    //            return new SignatureHandle(null, false);
+    //        }
 
-            return signature.BuildHandle();
-        }
-    }
+    //        return signature.BuildHandle();
+    //    }
+    //}
 }
