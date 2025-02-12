@@ -245,7 +245,7 @@ namespace LibGit2Sharp
         /// <param name="level">The configuration file which should be considered as the target of this operation</param>
         public virtual bool Unset(string key, ConfigurationLevel level)
         {
-            Ensure.ArgumentNotNullOrEmptyString(key, "key");
+            Ensure.ArgumentNotNullOrEmptyString(key, nameof(key));
 
             using (ConfigurationHandle h = RetrieveConfigurationHandle(level, true, configHandle))
             {
@@ -269,7 +269,7 @@ namespace LibGit2Sharp
         /// <param name="level">The configuration file which should be considered as the target of this operation</param>
         public virtual bool UnsetAll(string key, ConfigurationLevel level)
         {
-            Ensure.ArgumentNotNullOrEmptyString(key, "key");
+            Ensure.ArgumentNotNullOrEmptyString(key, nameof(key));
 
             using (ConfigurationHandle h = RetrieveConfigurationHandle(level, true, configHandle))
             {
@@ -307,7 +307,7 @@ namespace LibGit2Sharp
         /// <returns>The <see cref="ConfigurationEntry{T}"/>, or null if not set</returns>
         public virtual ConfigurationEntry<T> Get<T>(string[] keyParts)
         {
-            Ensure.ArgumentNotNull(keyParts, "keyParts");
+            Ensure.ArgumentNotNull(keyParts, nameof(keyParts));
 
             return Get<T>(string.Join(".", keyParts));
         }
@@ -336,9 +336,9 @@ namespace LibGit2Sharp
         /// <returns>The <see cref="ConfigurationEntry{T}"/>, or null if not set</returns>
         public virtual ConfigurationEntry<T> Get<T>(string firstKeyPart, string secondKeyPart, string thirdKeyPart)
         {
-            Ensure.ArgumentNotNullOrEmptyString(firstKeyPart, "firstKeyPart");
-            Ensure.ArgumentNotNullOrEmptyString(secondKeyPart, "secondKeyPart");
-            Ensure.ArgumentNotNullOrEmptyString(thirdKeyPart, "thirdKeyPart");
+            Ensure.ArgumentNotNullOrEmptyString(firstKeyPart, nameof(firstKeyPart));
+            Ensure.ArgumentNotNullOrEmptyString(secondKeyPart, nameof(secondKeyPart));
+            Ensure.ArgumentNotNullOrEmptyString(thirdKeyPart, nameof(thirdKeyPart));
 
             return Get<T>(new[] { firstKeyPart, secondKeyPart, thirdKeyPart });
         }
@@ -374,7 +374,7 @@ namespace LibGit2Sharp
         /// <returns>The <see cref="ConfigurationEntry{T}"/>, or null if not set</returns>
         public virtual ConfigurationEntry<T> Get<T>(string key)
         {
-            Ensure.ArgumentNotNullOrEmptyString(key, "key");
+            Ensure.ArgumentNotNullOrEmptyString(key, nameof(key));
 
             using (ConfigurationHandle snapshot = Snapshot())
             {
@@ -405,7 +405,7 @@ namespace LibGit2Sharp
         /// <returns>The <see cref="ConfigurationEntry{T}"/>, or null if not set</returns>
         public virtual ConfigurationEntry<T> Get<T>(string key, ConfigurationLevel level)
         {
-            Ensure.ArgumentNotNullOrEmptyString(key, "key");
+            Ensure.ArgumentNotNullOrEmptyString(key, nameof(key));
 
             using (ConfigurationHandle snapshot = Snapshot())
             using (ConfigurationHandle handle = RetrieveConfigurationHandle(level, false, snapshot))
@@ -587,7 +587,7 @@ namespace LibGit2Sharp
 
         private static T ValueOrDefault<T>(ConfigurationEntry<T> value, Func<T> defaultValueSelector)
         {
-            Ensure.ArgumentNotNull(defaultValueSelector, "defaultValueSelector");
+            Ensure.ArgumentNotNull(defaultValueSelector, nameof(defaultValueSelector));
 
             return value == null
                        ? defaultValueSelector()
@@ -634,8 +634,8 @@ namespace LibGit2Sharp
         /// <param name="level">The configuration file which should be considered as the target of this operation</param>
         public virtual void Set<T>(string key, T value, ConfigurationLevel level)
         {
-            Ensure.ArgumentNotNull(value, "value");
-            Ensure.ArgumentNotNullOrEmptyString(key, "key");
+            Ensure.ArgumentNotNull(value, nameof(value));
+            Ensure.ArgumentNotNullOrEmptyString(key, nameof(key));
 
             using (ConfigurationHandle h = RetrieveConfigurationHandle(level, true, configHandle))
             {
@@ -686,8 +686,8 @@ namespace LibGit2Sharp
         /// <param name="level">The configuration file which should be considered as the target of this operation</param>
         public virtual void Add(string key, string value, ConfigurationLevel level)
         {
-            Ensure.ArgumentNotNull(value, "value");
-            Ensure.ArgumentNotNullOrEmptyString(key, "key");
+            Ensure.ArgumentNotNull(value, nameof(value));
+            Ensure.ArgumentNotNullOrEmptyString(key, nameof(key));
 
             using (ConfigurationHandle h = RetrieveConfigurationHandle(level, true, configHandle))
             {
@@ -713,7 +713,7 @@ namespace LibGit2Sharp
         /// <returns>Matching entries.</returns>
         public virtual IEnumerable<ConfigurationEntry<string>> Find(string regexp, ConfigurationLevel level)
         {
-            Ensure.ArgumentNotNullOrEmptyString(regexp, "regexp");
+            Ensure.ArgumentNotNullOrEmptyString(regexp, nameof(regexp));
 
             using (ConfigurationHandle snapshot = Snapshot())
             using (ConfigurationHandle h = RetrieveConfigurationHandle(level, true, snapshot))

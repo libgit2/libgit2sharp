@@ -66,7 +66,7 @@ namespace LibGit2Sharp
         /// <returns>True if the object has been found; false otherwise.</returns>
         public virtual bool Contains(ObjectId objectId)
         {
-            Ensure.ArgumentNotNull(objectId, "objectId");
+            Ensure.ArgumentNotNull(objectId, nameof(objectId));
 
             return Proxy.git_odb_exists(handle, objectId);
         }
@@ -80,7 +80,7 @@ namespace LibGit2Sharp
         /// <returns>GitObjectMetadata object instance containg object header information</returns>
         public virtual GitObjectMetadata RetrieveObjectMetadata(ObjectId objectId)
         {
-            Ensure.ArgumentNotNull(objectId, "objectId");
+            Ensure.ArgumentNotNull(objectId, nameof(objectId));
 
             return Proxy.git_odb_read_header(handle, objectId);
         }
@@ -94,7 +94,7 @@ namespace LibGit2Sharp
         /// <returns>The created <see cref="Blob"/>.</returns>
         public virtual Blob CreateBlob(string path)
         {
-            Ensure.ArgumentNotNullOrEmptyString(path, "path");
+            Ensure.ArgumentNotNullOrEmptyString(path, nameof(path));
 
             if (repo.Info.IsBare && !Path.IsPathRooted(path))
             {
@@ -121,8 +121,8 @@ namespace LibGit2Sharp
         /// <param name="priority">The priority at which libgit2 should consult this backend (higher values are consulted first)</param>
         public virtual void AddBackend(OdbBackend backend, int priority)
         {
-            Ensure.ArgumentNotNull(backend, "backend");
-            Ensure.ArgumentConformsTo(priority, s => s > 0, "priority");
+            Ensure.ArgumentNotNull(backend, nameof(backend));
+            Ensure.ArgumentConformsTo(priority, s => s > 0, nameof(priority));
 
             Proxy.git_odb_add_backend(handle, backend.GitOdbBackendPointer, priority);
         }
@@ -195,7 +195,7 @@ namespace LibGit2Sharp
         /// <typeparam name="T">The type of object to write</typeparam>
         public virtual ObjectId Write<T>(Stream stream, long numberOfBytesToConsume) where T : GitObject
         {
-            Ensure.ArgumentNotNull(stream, "stream");
+            Ensure.ArgumentNotNull(stream, nameof(stream));
 
             if (!stream.CanRead)
             {
@@ -264,7 +264,7 @@ namespace LibGit2Sharp
 
         private unsafe Blob CreateBlob(Stream stream, string hintpath, long? numberOfBytesToConsume)
         {
-            Ensure.ArgumentNotNull(stream, "stream");
+            Ensure.ArgumentNotNull(stream, nameof(stream));
 
             // there's no need to buffer the file for filtering, so simply use a stream
             if (hintpath == null && numberOfBytesToConsume.HasValue)
@@ -344,7 +344,7 @@ namespace LibGit2Sharp
         /// <returns>The created <see cref="Tree"/>.</returns>
         public virtual Tree CreateTree(TreeDefinition treeDefinition)
         {
-            Ensure.ArgumentNotNull(treeDefinition, "treeDefinition");
+            Ensure.ArgumentNotNull(treeDefinition, nameof(treeDefinition));
 
             return treeDefinition.Build(repo);
         }
@@ -362,7 +362,7 @@ namespace LibGit2Sharp
         /// <returns>The created <see cref="Tree"/>. This can be used e.g. to create a <see cref="Commit"/>.</returns>
         public virtual Tree CreateTree(Index index)
         {
-            Ensure.ArgumentNotNull(index, "index");
+            Ensure.ArgumentNotNull(index, nameof(index));
 
             var treeId = Proxy.git_index_write_tree(index.Handle);
             return this.repo.Lookup<Tree>(treeId);
@@ -412,12 +412,12 @@ namespace LibGit2Sharp
         /// <returns>The created <see cref="Commit"/>.</returns>
         public virtual Commit CreateCommit(Signature author, Signature committer, string message, Tree tree, IEnumerable<Commit> parents, bool prettifyMessage, char? commentChar)
         {
-            Ensure.ArgumentNotNull(message, "message");
-            Ensure.ArgumentDoesNotContainZeroByte(message, "message");
-            Ensure.ArgumentNotNull(author, "author");
-            Ensure.ArgumentNotNull(committer, "committer");
-            Ensure.ArgumentNotNull(tree, "tree");
-            Ensure.ArgumentNotNull(parents, "parents");
+            Ensure.ArgumentNotNull(message, nameof(message));
+            Ensure.ArgumentDoesNotContainZeroByte(message, nameof(message));
+            Ensure.ArgumentNotNull(author, nameof(author));
+            Ensure.ArgumentNotNull(committer, nameof(committer));
+            Ensure.ArgumentNotNull(tree, nameof(tree));
+            Ensure.ArgumentNotNull(parents, nameof(parents));
 
             if (prettifyMessage)
             {
@@ -468,12 +468,12 @@ namespace LibGit2Sharp
         /// <returns>The created <see cref="TagAnnotation"/>.</returns>
         public virtual TagAnnotation CreateTagAnnotation(string name, GitObject target, Signature tagger, string message)
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNull(message, "message");
-            Ensure.ArgumentNotNull(target, "target");
-            Ensure.ArgumentNotNull(tagger, "tagger");
-            Ensure.ArgumentDoesNotContainZeroByte(name, "name");
-            Ensure.ArgumentDoesNotContainZeroByte(message, "message");
+            Ensure.ArgumentNotNullOrEmptyString(name, nameof(name));
+            Ensure.ArgumentNotNull(message, nameof(message));
+            Ensure.ArgumentNotNull(target, nameof(target));
+            Ensure.ArgumentNotNull(tagger, nameof(tagger));
+            Ensure.ArgumentDoesNotContainZeroByte(name, nameof(name));
+            Ensure.ArgumentDoesNotContainZeroByte(message, nameof(message));
 
             string prettifiedMessage = Proxy.git_message_prettify(message, null);
 
@@ -517,8 +517,8 @@ namespace LibGit2Sharp
         /// <param name="archiver">The archiver to use.</param>
         public virtual void Archive(Commit commit, ArchiverBase archiver)
         {
-            Ensure.ArgumentNotNull(commit, "commit");
-            Ensure.ArgumentNotNull(archiver, "archiver");
+            Ensure.ArgumentNotNull(commit, nameof(commit));
+            Ensure.ArgumentNotNull(archiver, nameof(archiver));
 
             archiver.OrchestrateArchiving(commit.Tree, commit.Id, commit.Committer.When);
         }
@@ -530,8 +530,8 @@ namespace LibGit2Sharp
         /// <param name="archiver">The archiver to use.</param>
         public virtual void Archive(Tree tree, ArchiverBase archiver)
         {
-            Ensure.ArgumentNotNull(tree, "tree");
-            Ensure.ArgumentNotNull(archiver, "archiver");
+            Ensure.ArgumentNotNull(tree, nameof(tree));
+            Ensure.ArgumentNotNull(archiver, nameof(archiver));
 
             archiver.OrchestrateArchiving(tree, null, DateTimeOffset.UtcNow);
         }
@@ -545,8 +545,8 @@ namespace LibGit2Sharp
         /// <returns>A instance of <see cref="HistoryDivergence"/>.</returns>
         public virtual HistoryDivergence CalculateHistoryDivergence(Commit one, Commit another)
         {
-            Ensure.ArgumentNotNull(one, "one");
-            Ensure.ArgumentNotNull(another, "another");
+            Ensure.ArgumentNotNull(one, nameof(one));
+            Ensure.ArgumentNotNull(another, nameof(another));
 
             return new HistoryDivergence(repo, one, another);
         }
@@ -561,8 +561,8 @@ namespace LibGit2Sharp
         /// <returns>A result containing a <see cref="Tree"/> if the cherry-pick was successful and a list of <see cref="Conflict"/>s if it is not.</returns>
         public virtual MergeTreeResult CherryPickCommit(Commit cherryPickCommit, Commit cherryPickOnto, int mainline, MergeTreeOptions options)
         {
-            Ensure.ArgumentNotNull(cherryPickCommit, "cherryPickCommit");
-            Ensure.ArgumentNotNull(cherryPickOnto, "cherryPickOnto");
+            Ensure.ArgumentNotNull(cherryPickCommit, nameof(cherryPickCommit));
+            Ensure.ArgumentNotNull(cherryPickOnto, nameof(cherryPickOnto));
 
             var modifiedOptions = new MergeTreeOptions();
 
@@ -635,7 +635,7 @@ namespace LibGit2Sharp
         /// <returns>A short string representation of the <see cref="ObjectId"/>.</returns>
         public virtual string ShortenObjectId(GitObject gitObject, int minLength)
         {
-            Ensure.ArgumentNotNull(gitObject, "gitObject");
+            Ensure.ArgumentNotNull(gitObject, nameof(gitObject));
 
             if (minLength <= 0 || minLength > ObjectId.HexSize)
             {
@@ -669,8 +669,8 @@ namespace LibGit2Sharp
         /// <returns>True if the merge does not result in a conflict, false otherwise.</returns>
         public virtual bool CanMergeWithoutConflict(Commit one, Commit another)
         {
-            Ensure.ArgumentNotNull(one, "one");
-            Ensure.ArgumentNotNull(another, "another");
+            Ensure.ArgumentNotNull(one, nameof(one));
+            Ensure.ArgumentNotNull(another, nameof(another));
 
             var opts = new MergeTreeOptions()
             {
@@ -690,8 +690,8 @@ namespace LibGit2Sharp
         /// <returns>The merge base or null if none found.</returns>
         public virtual Commit FindMergeBase(Commit first, Commit second)
         {
-            Ensure.ArgumentNotNull(first, "first");
-            Ensure.ArgumentNotNull(second, "second");
+            Ensure.ArgumentNotNull(first, nameof(first));
+            Ensure.ArgumentNotNull(second, nameof(second));
 
             return FindMergeBase(new[] { first, second }, MergeBaseFindingStrategy.Standard);
         }
@@ -704,7 +704,7 @@ namespace LibGit2Sharp
         /// <returns>The merge base or null if none found.</returns>
         public virtual Commit FindMergeBase(IEnumerable<Commit> commits, MergeBaseFindingStrategy strategy)
         {
-            Ensure.ArgumentNotNull(commits, "commits");
+            Ensure.ArgumentNotNull(commits, nameof(commits));
 
             ObjectId id;
             List<GitOid> ids = new List<GitOid>(8);
@@ -753,8 +753,8 @@ namespace LibGit2Sharp
         /// <returns>The <see cref="MergeTreeResult"/> containing the merged trees and any conflicts</returns>
         public virtual MergeTreeResult MergeCommits(Commit ours, Commit theirs, MergeTreeOptions options)
         {
-            Ensure.ArgumentNotNull(ours, "ours");
-            Ensure.ArgumentNotNull(theirs, "theirs");
+            Ensure.ArgumentNotNull(ours, nameof(ours));
+            Ensure.ArgumentNotNull(theirs, nameof(theirs));
 
             var modifiedOptions = new MergeTreeOptions();
 
@@ -849,8 +849,8 @@ namespace LibGit2Sharp
         /// The index must be disposed by the caller.</returns>
         public virtual TransientIndex MergeCommitsIntoIndex(Commit ours, Commit theirs, MergeTreeOptions options)
         {
-            Ensure.ArgumentNotNull(ours, "ours");
-            Ensure.ArgumentNotNull(theirs, "theirs");
+            Ensure.ArgumentNotNull(ours, nameof(ours));
+            Ensure.ArgumentNotNull(theirs, nameof(theirs));
 
             options = options ?? new MergeTreeOptions();
 
@@ -879,8 +879,8 @@ namespace LibGit2Sharp
         /// The index must be disposed by the caller. </returns>
         public virtual TransientIndex CherryPickCommitIntoIndex(Commit cherryPickCommit, Commit cherryPickOnto, int mainline, MergeTreeOptions options)
         {
-            Ensure.ArgumentNotNull(cherryPickCommit, "cherryPickCommit");
-            Ensure.ArgumentNotNull(cherryPickOnto, "cherryPickOnto");
+            Ensure.ArgumentNotNull(cherryPickCommit, nameof(cherryPickCommit));
+            Ensure.ArgumentNotNull(cherryPickOnto, nameof(cherryPickOnto));
 
             options = options ?? new MergeTreeOptions();
 
@@ -992,8 +992,8 @@ namespace LibGit2Sharp
         /// <returns>Packing results</returns>
         private PackBuilderResults InternalPack(PackBuilderOptions options, Action<PackBuilder> packDelegate)
         {
-            Ensure.ArgumentNotNull(options, "options");
-            Ensure.ArgumentNotNull(packDelegate, "packDelegate");
+            Ensure.ArgumentNotNull(options, nameof(options));
+            Ensure.ArgumentNotNull(packDelegate, nameof(packDelegate));
 
             PackBuilderResults results = new PackBuilderResults();
 
@@ -1025,8 +1025,8 @@ namespace LibGit2Sharp
         /// <returns>A result containing a <see cref="Tree"/> if the revert was successful and a list of <see cref="Conflict"/>s if it is not.</returns>
         public virtual MergeTreeResult RevertCommit(Commit revertCommit, Commit revertOnto, int mainline, MergeTreeOptions options)
         {
-            Ensure.ArgumentNotNull(revertCommit, "revertCommit");
-            Ensure.ArgumentNotNull(revertOnto, "revertOnto");
+            Ensure.ArgumentNotNull(revertCommit, nameof(revertCommit));
+            Ensure.ArgumentNotNull(revertOnto, nameof(revertOnto));
 
             options = options ?? new MergeTreeOptions();
 

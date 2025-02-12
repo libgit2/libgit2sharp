@@ -196,7 +196,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                Ensure.ArgumentNotNullOrEmptyString(path, "path");
+                Ensure.ArgumentNotNullOrEmptyString(path, nameof(path));
 
                 var entries = statusEntries.Where(e => string.Equals(e.FilePath, path, StringComparison.Ordinal)).ToList();
 

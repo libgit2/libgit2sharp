@@ -146,12 +146,12 @@ namespace LibGit2Sharp
         {
             if ((requiredParameter & RepositoryRequiredParameter.Path) == RepositoryRequiredParameter.Path)
             {
-                Ensure.ArgumentNotNullOrEmptyString(path, "path");
+                Ensure.ArgumentNotNullOrEmptyString(path, nameof(path));
             }
 
             if ((requiredParameter & RepositoryRequiredParameter.Options) == RepositoryRequiredParameter.Options)
             {
-                Ensure.ArgumentNotNull(options, "options");
+                Ensure.ArgumentNotNull(options, nameof(options));
             }
 
             try
@@ -251,7 +251,7 @@ namespace LibGit2Sharp
         /// <returns>True if a repository can be resolved through this path; false otherwise</returns>
         static public bool IsValid(string path)
         {
-            Ensure.ArgumentNotNull(path, "path");
+            Ensure.ArgumentNotNull(path, nameof(path));
 
             if (string.IsNullOrWhiteSpace(path))
             {
@@ -493,7 +493,7 @@ namespace LibGit2Sharp
         /// <returns>The path to the created repository.</returns>
         public static string Init(string path, bool isBare)
         {
-            Ensure.ArgumentNotNullOrEmptyString(path, "path");
+            Ensure.ArgumentNotNullOrEmptyString(path, nameof(path));
 
             using (RepositoryHandle repo = Proxy.git_repository_init_ext(null, path, isBare))
             {
@@ -510,8 +510,8 @@ namespace LibGit2Sharp
         /// <returns>The path to the created repository.</returns>
         public static string Init(string workingDirectoryPath, string gitDirectoryPath)
         {
-            Ensure.ArgumentNotNullOrEmptyString(workingDirectoryPath, "workingDirectoryPath");
-            Ensure.ArgumentNotNullOrEmptyString(gitDirectoryPath, "gitDirectoryPath");
+            Ensure.ArgumentNotNullOrEmptyString(workingDirectoryPath, nameof(workingDirectoryPath));
+            Ensure.ArgumentNotNullOrEmptyString(gitDirectoryPath, nameof(gitDirectoryPath));
 
             // When being passed a relative workdir path, libgit2 will evaluate it from the
             // path to the repository. We pass a fully rooted path in order for the LibGit2Sharp caller
@@ -571,7 +571,7 @@ namespace LibGit2Sharp
 
         internal GitObject LookupInternal(ObjectId id, GitObjectType type, string knownPath)
         {
-            Ensure.ArgumentNotNull(id, "id");
+            Ensure.ArgumentNotNull(id, nameof(id));
 
             using (ObjectHandle obj = Proxy.git_object_lookup(handle, id, type))
             {
@@ -602,7 +602,7 @@ namespace LibGit2Sharp
 
         internal GitObject Lookup(string objectish, GitObjectType type, LookUpOptions lookUpOptions)
         {
-            Ensure.ArgumentNotNullOrEmptyString(objectish, "objectish");
+            Ensure.ArgumentNotNullOrEmptyString(objectish, nameof(objectish));
 
             GitObject obj;
             using (ObjectHandle sh = Proxy.git_revparse_single(handle, objectish))
@@ -700,7 +700,7 @@ namespace LibGit2Sharp
         /// <returns>The references in the remote repository.</returns>
         public static IEnumerable<Reference> ListRemoteReferences(string url, CredentialsHandler credentialsProvider, ProxyOptions proxyOptions)
         {
-            Ensure.ArgumentNotNull(url, "url");
+            Ensure.ArgumentNotNull(url, nameof(url));
 
             proxyOptions ??= new();
 
@@ -774,8 +774,8 @@ namespace LibGit2Sharp
         /// <returns>The path to the created repository.</returns>
         public static string Clone(string sourceUrl, string workdirPath, CloneOptions options)
         {
-            Ensure.ArgumentNotNull(sourceUrl, "sourceUrl");
-            Ensure.ArgumentNotNull(workdirPath, "workdirPath");
+            Ensure.ArgumentNotNull(sourceUrl, nameof(sourceUrl));
+            Ensure.ArgumentNotNull(workdirPath, nameof(workdirPath));
 
             options ??= new CloneOptions();
 
@@ -1001,8 +1001,8 @@ namespace LibGit2Sharp
         /// <param name="opts">Collection of parameters controlling checkout behavior.</param>
         public void Reset(ResetMode resetMode, Commit commit, CheckoutOptions opts)
         {
-            Ensure.ArgumentNotNull(commit, "commit");
-            Ensure.ArgumentNotNull(opts, "opts");
+            Ensure.ArgumentNotNull(commit, nameof(commit));
+            Ensure.ArgumentNotNull(opts, nameof(opts));
 
             using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(opts))
             {
@@ -1022,8 +1022,8 @@ namespace LibGit2Sharp
         /// <param name="checkoutOptions">Collection of parameters controlling checkout behavior.</param>
         public void CheckoutPaths(string committishOrBranchSpec, IEnumerable<string> paths, CheckoutOptions checkoutOptions)
         {
-            Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
-            Ensure.ArgumentNotNull(paths, "paths");
+            Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, nameof(committishOrBranchSpec));
+            Ensure.ArgumentNotNull(paths, nameof(paths));
 
             var listOfPaths = paths.ToList();
 
@@ -1193,8 +1193,8 @@ namespace LibGit2Sharp
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
         public MergeResult Merge(Commit commit, Signature merger, MergeOptions options)
         {
-            Ensure.ArgumentNotNull(commit, "commit");
-            Ensure.ArgumentNotNull(merger, "merger");
+            Ensure.ArgumentNotNull(commit, nameof(commit));
+            Ensure.ArgumentNotNull(merger, nameof(merger));
 
             options = options ?? new MergeOptions();
 
@@ -1213,8 +1213,8 @@ namespace LibGit2Sharp
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
         public MergeResult Merge(Branch branch, Signature merger, MergeOptions options)
         {
-            Ensure.ArgumentNotNull(branch, "branch");
-            Ensure.ArgumentNotNull(merger, "merger");
+            Ensure.ArgumentNotNull(branch, nameof(branch));
+            Ensure.ArgumentNotNull(merger, nameof(merger));
 
             options = options ?? new MergeOptions();
 
@@ -1234,8 +1234,8 @@ namespace LibGit2Sharp
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
         public MergeResult Merge(string committish, Signature merger, MergeOptions options)
         {
-            Ensure.ArgumentNotNull(committish, "committish");
-            Ensure.ArgumentNotNull(merger, "merger");
+            Ensure.ArgumentNotNull(committish, nameof(committish));
+            Ensure.ArgumentNotNull(merger, nameof(merger));
 
             options = options ?? new MergeOptions();
 
@@ -1255,7 +1255,7 @@ namespace LibGit2Sharp
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
         public MergeResult MergeFetchedRefs(Signature merger, MergeOptions options)
         {
-            Ensure.ArgumentNotNull(merger, "merger");
+            Ensure.ArgumentNotNull(merger, nameof(merger));
 
             options = options ?? new MergeOptions();
 
@@ -1304,8 +1304,8 @@ namespace LibGit2Sharp
         /// <returns>The result of the revert.</returns>
         public RevertResult Revert(Commit commit, Signature reverter, RevertOptions options)
         {
-            Ensure.ArgumentNotNull(commit, "commit");
-            Ensure.ArgumentNotNull(reverter, "reverter");
+            Ensure.ArgumentNotNull(commit, nameof(commit));
+            Ensure.ArgumentNotNull(reverter, nameof(reverter));
 
             if (Info.IsHeadUnborn)
             {
@@ -1393,8 +1393,8 @@ namespace LibGit2Sharp
         /// <returns>The result of the cherry pick.</returns>
         public CherryPickResult CherryPick(Commit commit, Signature committer, CherryPickOptions options)
         {
-            Ensure.ArgumentNotNull(commit, "commit");
-            Ensure.ArgumentNotNull(committer, "committer");
+            Ensure.ArgumentNotNull(commit, nameof(commit));
+            Ensure.ArgumentNotNull(committer, nameof(committer));
 
             options = options ?? new CherryPickOptions();
 
@@ -1691,7 +1691,7 @@ namespace LibGit2Sharp
         /// <returns>A <see cref="FileStatus"/> representing the state of the <paramref name="filePath"/> parameter.</returns>
         public FileStatus RetrieveStatus(string filePath)
         {
-            Ensure.ArgumentNotNullOrEmptyString(filePath, "filePath");
+            Ensure.ArgumentNotNullOrEmptyString(filePath, nameof(filePath));
 
             string relativePath = this.BuildRelativePathFrom(filePath);
 
@@ -1753,8 +1753,8 @@ namespace LibGit2Sharp
         /// <returns>A descriptive identifier for the commit based on the nearest annotated tag.</returns>
         public string Describe(Commit commit, DescribeOptions options)
         {
-            Ensure.ArgumentNotNull(commit, "commit");
-            Ensure.ArgumentNotNull(options, "options");
+            Ensure.ArgumentNotNull(commit, nameof(commit));
+            Ensure.ArgumentNotNull(options, nameof(options));
 
             return Proxy.git_describe_commit(handle, commit.Id, options);
         }

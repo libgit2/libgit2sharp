@@ -122,7 +122,7 @@ namespace LibGit2Sharp
         /// <returns>the newly created <see cref="Stash"/></returns>
         public virtual Stash Add(Signature stasher, string message, StashModifiers options)
         {
-            Ensure.ArgumentNotNull(stasher, "stasher");
+            Ensure.ArgumentNotNull(stasher, nameof(stasher));
 
             string prettifiedMessage = Proxy.git_message_prettify(string.IsNullOrEmpty(message) ? string.Empty : message, null);
 

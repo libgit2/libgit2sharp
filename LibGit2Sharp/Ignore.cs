@@ -31,7 +31,7 @@ namespace LibGit2Sharp
         /// <param name="rules">The content of a .gitignore file that will be applied.</param>
         public virtual void AddTemporaryRules(IEnumerable<string> rules)
         {
-            Ensure.ArgumentNotNull(rules, "rules");
+            Ensure.ArgumentNotNull(rules, nameof(rules));
 
             var allRules = rules.Aggregate(new StringBuilder(), (acc, x) =>
             {
@@ -61,7 +61,7 @@ namespace LibGit2Sharp
         /// <returns>true if the path should be ignored.</returns>
         public virtual bool IsPathIgnored(string relativePath)
         {
-            Ensure.ArgumentNotNullOrEmptyString(relativePath, "relativePath");
+            Ensure.ArgumentNotNullOrEmptyString(relativePath, nameof(relativePath));
 
             return Proxy.git_ignore_path_is_ignored(repo.Handle, relativePath);
         }

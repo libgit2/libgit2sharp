@@ -37,7 +37,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                Ensure.ArgumentNotNullOrEmptyString(name, "name");
+                Ensure.ArgumentNotNullOrEmptyString(name, nameof(name));
                 var canonicalName = NormalizeToCanonicalName(name);
                 var reference = repo.Refs.Resolve<Reference>(canonicalName);
                 return reference == null ? null : new Tag(repo, reference, canonicalName);
@@ -91,7 +91,7 @@ namespace LibGit2Sharp
         /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
         public virtual Tag Add(string name, string objectish, Signature tagger, string message, bool allowOverwrite)
         {
-            Ensure.ArgumentNotNullOrEmptyString(objectish, "target");
+            Ensure.ArgumentNotNullOrEmptyString(objectish, nameof(objectish));
 
             GitObject objectToTag = repo.Lookup(objectish, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound);
 
@@ -116,7 +116,7 @@ namespace LibGit2Sharp
         /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
         public virtual Tag Add(string name, string objectish, bool allowOverwrite)
         {
-            Ensure.ArgumentNotNullOrEmptyString(objectish, "objectish");
+            Ensure.ArgumentNotNullOrEmptyString(objectish, nameof(objectish));
 
             GitObject objectToTag = repo.Lookup(objectish, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound);
 
@@ -147,10 +147,10 @@ namespace LibGit2Sharp
         /// <returns>The added <see cref="Tag"/>.</returns>
         public virtual Tag Add(string name, GitObject target, Signature tagger, string message, bool allowOverwrite)
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNull(target, "target");
-            Ensure.ArgumentNotNull(tagger, "tagger");
-            Ensure.ArgumentNotNull(message, "message");
+            Ensure.ArgumentNotNullOrEmptyString(name, nameof(name));
+            Ensure.ArgumentNotNull(target, nameof(target));
+            Ensure.ArgumentNotNull(tagger, nameof(tagger));
+            Ensure.ArgumentNotNull(message, nameof(message));
 
             string prettifiedMessage = Proxy.git_message_prettify(message, null);
 
@@ -179,8 +179,8 @@ namespace LibGit2Sharp
         /// <returns>The added <see cref="Tag"/>.</returns>
         public virtual Tag Add(string name, GitObject target, bool allowOverwrite)
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNull(target, "target");
+            Ensure.ArgumentNotNullOrEmptyString(name, nameof(name));
+            Ensure.ArgumentNotNull(target, nameof(target));
 
             Proxy.git_tag_create_lightweight(repo.Handle, name, target, allowOverwrite);
 
@@ -193,7 +193,7 @@ namespace LibGit2Sharp
         /// <param name="name">The short or canonical name of the tag to delete.</param>
         public virtual void Remove(string name)
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNullOrEmptyString(name, nameof(name));
 
             Proxy.git_tag_delete(repo.Handle, UnCanonicalizeName(name));
         }
@@ -204,14 +204,14 @@ namespace LibGit2Sharp
         /// <param name="tag">The tag to delete.</param>
         public virtual void Remove(Tag tag)
         {
-            Ensure.ArgumentNotNull(tag, "tag");
+            Ensure.ArgumentNotNull(tag, nameof(tag));
 
             Remove(tag.CanonicalName);
         }
 
         private static string NormalizeToCanonicalName(string name)
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNullOrEmptyString(name, nameof(name));
 
             if (name.LooksLikeTag())
             {
@@ -223,7 +223,7 @@ namespace LibGit2Sharp
 
         private static string UnCanonicalizeName(string name)
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNullOrEmptyString(name, nameof(name));
 
             if (!name.LooksLikeTag())
             {

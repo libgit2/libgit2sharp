@@ -24,8 +24,8 @@ namespace LibGit2Sharp
 
         internal RemoteUpdater(Repository repo, Remote remote)
         {
-            Ensure.ArgumentNotNull(repo, "repo");
-            Ensure.ArgumentNotNull(remote, "remote");
+            Ensure.ArgumentNotNull(repo, nameof(repo));
+            Ensure.ArgumentNotNull(remote, nameof(remote));
 
             this.repo = repo;
             this.remoteName = remote.Name;
@@ -36,8 +36,8 @@ namespace LibGit2Sharp
 
         internal RemoteUpdater(Repository repo, string remote)
         {
-            Ensure.ArgumentNotNull(repo, "repo");
-            Ensure.ArgumentNotNull(remote, "remote");
+            Ensure.ArgumentNotNull(repo, nameof(repo));
+            Ensure.ArgumentNotNull(remote, nameof(remote));
 
             this.repo = repo;
             this.remoteName = remote;
@@ -193,7 +193,7 @@ namespace LibGit2Sharp
 
             public void ReplaceAll(IEnumerable<T> newValues)
             {
-                Ensure.ArgumentNotNull(newValues, "newValues");
+                Ensure.ArgumentNotNull(newValues, nameof(newValues));
                 list.Value.Clear();
                 list.Value.AddRange(newValues);
                 Save();

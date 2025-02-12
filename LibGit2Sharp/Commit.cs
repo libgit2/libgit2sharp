@@ -185,12 +185,12 @@ namespace LibGit2Sharp
         /// <returns>The contents of the commit object.</returns>
         public static string CreateBuffer(Signature author, Signature committer, string message, Tree tree, IEnumerable<Commit> parents, bool prettifyMessage, char? commentChar)
         {
-            Ensure.ArgumentNotNull(message, "message");
-            Ensure.ArgumentDoesNotContainZeroByte(message, "message");
-            Ensure.ArgumentNotNull(author, "author");
-            Ensure.ArgumentNotNull(committer, "committer");
-            Ensure.ArgumentNotNull(tree, "tree");
-            Ensure.ArgumentNotNull(parents, "parents");
+            Ensure.ArgumentNotNull(message, nameof(message));
+            Ensure.ArgumentDoesNotContainZeroByte(message, nameof(message));
+            Ensure.ArgumentNotNull(author, nameof(author));
+            Ensure.ArgumentNotNull(committer, nameof(committer));
+            Ensure.ArgumentNotNull(tree, nameof(tree));
+            Ensure.ArgumentNotNull(parents, nameof(parents));
 
             if (prettifyMessage)
             {

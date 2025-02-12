@@ -53,8 +53,8 @@ namespace LibGit2Sharp
         public ObjectId(byte[] rawId)
             : this(new GitOid { Id = rawId })
         {
-            Ensure.ArgumentNotNull(rawId, "rawId");
-            Ensure.ArgumentConformsTo(rawId, b => b.Length == rawSize, "rawId");
+            Ensure.ArgumentNotNull(rawId, nameof(rawId));
+            Ensure.ArgumentConformsTo(rawId, b => b.Length == rawSize, nameof(rawId));
         }
 
         internal static unsafe ObjectId BuildFromPtr(IntPtr ptr)
@@ -313,7 +313,7 @@ namespace LibGit2Sharp
                     return false;
                 }
 
-                Ensure.ArgumentNotNullOrEmptyString(objectId, "objectId");
+                Ensure.ArgumentNotNullOrEmptyString(objectId, nameof(objectId));
             }
 
             if ((objectId.Length != HexSize))
@@ -344,7 +344,7 @@ namespace LibGit2Sharp
         /// false otherwise.</returns>
         public bool StartsWith(string shortSha)
         {
-            Ensure.ArgumentNotNullOrEmptyString(shortSha, "shortSha");
+            Ensure.ArgumentNotNullOrEmptyString(shortSha, nameof(shortSha));
 
             return Sha.StartsWith(shortSha, StringComparison.OrdinalIgnoreCase);
         }

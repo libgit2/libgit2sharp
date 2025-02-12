@@ -85,7 +85,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                Ensure.ArgumentNotNull(id, "id");
+                Ensure.ArgumentNotNull(id, nameof(id));
 
                 return NamespaceRefs
                     .Select(ns => this[ns, id])
@@ -101,7 +101,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                Ensure.ArgumentNotNull(@namespace, "@namespace");
+                Ensure.ArgumentNotNull(@namespace, nameof(@namespace));
 
                 string canonicalNamespace = NormalizeToCanonicalName(@namespace);
 
@@ -118,8 +118,8 @@ namespace LibGit2Sharp
         {
             get
             {
-                Ensure.ArgumentNotNull(id, "id");
-                Ensure.ArgumentNotNull(@namespace, "@namespace");
+                Ensure.ArgumentNotNull(id, nameof(id));
+                Ensure.ArgumentNotNull(@namespace, nameof(@namespace));
 
                 string canonicalNamespace = NormalizeToCanonicalName(@namespace);
 
@@ -141,7 +141,7 @@ namespace LibGit2Sharp
 
         internal static string NormalizeToCanonicalName(string name)
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNullOrEmptyString(name, nameof(name));
 
             if (name.LooksLikeNote())
             {
@@ -153,7 +153,7 @@ namespace LibGit2Sharp
 
         internal static string UnCanonicalizeName(string name)
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNullOrEmptyString(name, nameof(name));
 
             if (!name.LooksLikeNote())
             {
@@ -174,11 +174,11 @@ namespace LibGit2Sharp
         /// <returns>The note which was just saved.</returns>
         public virtual Note Add(ObjectId targetId, string message, Signature author, Signature committer, string @namespace)
         {
-            Ensure.ArgumentNotNull(targetId, "targetId");
-            Ensure.ArgumentNotNullOrEmptyString(message, "message");
-            Ensure.ArgumentNotNull(author, "author");
-            Ensure.ArgumentNotNull(committer, "committer");
-            Ensure.ArgumentNotNullOrEmptyString(@namespace, "@namespace");
+            Ensure.ArgumentNotNull(targetId, nameof(targetId));
+            Ensure.ArgumentNotNullOrEmptyString(message, nameof(message));
+            Ensure.ArgumentNotNull(author, nameof(author));
+            Ensure.ArgumentNotNull(committer, nameof(committer));
+            Ensure.ArgumentNotNullOrEmptyString(@namespace, nameof(@namespace));
 
             string canonicalNamespace = NormalizeToCanonicalName(@namespace);
 
@@ -198,10 +198,10 @@ namespace LibGit2Sharp
         /// <param name="namespace">The namespace on which the note will be removed. It can be either a canonical namespace or an abbreviated namespace ('refs/notes/myNamespace' or just 'myNamespace').</param>
         public virtual void Remove(ObjectId targetId, Signature author, Signature committer, string @namespace)
         {
-            Ensure.ArgumentNotNull(targetId, "targetId");
-            Ensure.ArgumentNotNull(author, "author");
-            Ensure.ArgumentNotNull(committer, "committer");
-            Ensure.ArgumentNotNullOrEmptyString(@namespace, "@namespace");
+            Ensure.ArgumentNotNull(targetId, nameof(targetId));
+            Ensure.ArgumentNotNull(author, nameof(author));
+            Ensure.ArgumentNotNull(committer, nameof(committer));
+            Ensure.ArgumentNotNullOrEmptyString(@namespace, nameof(@namespace));
 
             string canonicalNamespace = NormalizeToCanonicalName(@namespace);
 

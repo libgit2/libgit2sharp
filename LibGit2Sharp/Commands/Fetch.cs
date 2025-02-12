@@ -33,7 +33,7 @@ namespace LibGit2Sharp
         /// <param name="refspecs">List of refspecs to apply as active.</param>
         public static void Fetch(Repository repository, string remote, IEnumerable<string> refspecs, FetchOptions options, string logMessage)
         {
-            Ensure.ArgumentNotNull(remote, "remote");
+            Ensure.ArgumentNotNull(remote, nameof(remote));
 
             options = options ?? new FetchOptions();
             using (var remoteHandle = RemoteFromNameOrUrl(repository.Handle, remote))

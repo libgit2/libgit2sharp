@@ -41,7 +41,7 @@ namespace LibGit2Sharp
 
         internal Remote RemoteForName(string name, bool shouldThrowIfNotFound = true)
         {
-            Ensure.ArgumentNotNull(name, "name");
+            Ensure.ArgumentNotNull(name, nameof(name));
 
             RemoteHandle handle = Proxy.git_remote_lookup(repository.Handle, name, shouldThrowIfNotFound);
             return handle == null ? null : new Remote(handle, this.repository);
@@ -99,8 +99,8 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref="Remote"/>.</returns>
         public virtual Remote Add(string name, string url)
         {
-            Ensure.ArgumentNotNull(name, "name");
-            Ensure.ArgumentNotNull(url, "url");
+            Ensure.ArgumentNotNull(name, nameof(name));
+            Ensure.ArgumentNotNull(url, nameof(url));
 
             RemoteHandle handle = Proxy.git_remote_create(repository.Handle, name, url);
             return new Remote(handle, this.repository);
@@ -115,9 +115,9 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref="Remote"/>.</returns>
         public virtual Remote Add(string name, string url, string fetchRefSpec)
         {
-            Ensure.ArgumentNotNull(name, "name");
-            Ensure.ArgumentNotNull(url, "url");
-            Ensure.ArgumentNotNull(fetchRefSpec, "fetchRefSpec");
+            Ensure.ArgumentNotNull(name, nameof(name));
+            Ensure.ArgumentNotNull(url, nameof(url));
+            Ensure.ArgumentNotNull(fetchRefSpec, nameof(fetchRefSpec));
 
             RemoteHandle handle = Proxy.git_remote_create_with_fetchspec(repository.Handle, name, url, fetchRefSpec);
             return new Remote(handle, this.repository);
@@ -130,7 +130,7 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref="Remote"/>.</returns>
         public virtual void Remove(string name)
         {
-            Ensure.ArgumentNotNull(name, "name");
+            Ensure.ArgumentNotNull(name, nameof(name));
 
             Proxy.git_remote_delete(repository.Handle, name);
         }
@@ -155,8 +155,8 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref="Remote"/>.</returns>
         public virtual Remote Rename(string name, string newName, RemoteRenameFailureHandler callback)
         {
-            Ensure.ArgumentNotNull(name, "name");
-            Ensure.ArgumentNotNull(newName, "newName");
+            Ensure.ArgumentNotNull(name, nameof(name));
+            Ensure.ArgumentNotNull(newName, nameof(newName));
 
             Proxy.git_remote_rename(repository.Handle, name, newName, callback);
             return this[newName];
