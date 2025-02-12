@@ -32,8 +32,8 @@ namespace LibGit2Sharp
         /// <param name="canonicalName">the canonical name of the <see cref="Reference"/> to retrieve reflog entries on.</param>
         internal ReflogCollection(Repository repo, string canonicalName)
         {
-            Ensure.ArgumentNotNullOrEmptyString(canonicalName, "canonicalName");
-            Ensure.ArgumentNotNull(repo, "repo");
+            Ensure.ArgumentNotNullOrEmptyString(canonicalName, nameof(canonicalName));
+            Ensure.ArgumentNotNull(repo, nameof(repo));
 
             if (!Reference.IsValidName(canonicalName))
             {

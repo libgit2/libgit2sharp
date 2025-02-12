@@ -54,7 +54,7 @@ namespace LibGit2Sharp
 
         internal static TreeEntryDefinition From(Blob blob, Mode mode)
         {
-            Ensure.ArgumentNotNull(blob, "blob");
+            Ensure.ArgumentNotNull(blob, nameof(blob));
 
             return new TreeEntryDefinition
             {
@@ -67,8 +67,8 @@ namespace LibGit2Sharp
 
         internal static TreeEntryDefinition From(ObjectId id, Mode mode)
         {
-            Ensure.ArgumentNotNull(id, "id");
-            Ensure.ArgumentNotNull(mode, "mode");
+            Ensure.ArgumentNotNull(id, nameof(id));
+            Ensure.ArgumentNotNull(mode, nameof(mode));
 
             return new TreeEntryDefinition
             {
@@ -80,7 +80,7 @@ namespace LibGit2Sharp
 
         internal static TreeEntryDefinition TransientBlobFrom(string filePath, Mode mode)
         {
-            Ensure.ArgumentConformsTo(mode, m => m.HasAny(BlobModes), "mode");
+            Ensure.ArgumentConformsTo(mode, m => m.HasAny(BlobModes), nameof(mode));
 
             return new TransientBlobTreeEntryDefinition
             {

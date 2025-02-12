@@ -30,8 +30,8 @@ namespace LibGit2Sharp
         /// </summary>
         protected Filter(string name, IEnumerable<FilterAttributeEntry> attributes)
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNull(attributes, "attributes");
+            Ensure.ArgumentNotNullOrEmptyString(name, nameof(name));
+            Ensure.ArgumentNotNull(attributes, nameof(attributes));
 
             this.name = name;
             this.attributes = attributes;
@@ -249,8 +249,8 @@ namespace LibGit2Sharp
 
             try
             {
-                Ensure.ArgumentNotZeroIntPtr(filterSourcePtr, "filterSourcePtr");
-                Ensure.ArgumentNotZeroIntPtr(git_writestream_next, "git_writestream_next");
+                Ensure.ArgumentNotZeroIntPtr(filterSourcePtr, nameof(filterSourcePtr));
+                Ensure.ArgumentNotZeroIntPtr(git_writestream_next, nameof(git_writestream_next));
 
                 state.thisStream = new GitWriteStream();
                 state.thisStream.close = StreamCloseCallback;
@@ -302,14 +302,14 @@ namespace LibGit2Sharp
 
             try
             {
-                Ensure.ArgumentNotZeroIntPtr(stream, "stream");
+                Ensure.ArgumentNotZeroIntPtr(stream, nameof(stream));
 
                 if (!activeStreams.TryGetValue(stream, out state))
                 {
                     throw new ArgumentException("Unknown stream pointer", nameof(stream));
                 }
 
-                Ensure.ArgumentIsExpectedIntPtr(stream, state.thisPtr, "stream");
+                Ensure.ArgumentIsExpectedIntPtr(stream, state.thisPtr, nameof(stream));
 
                 using (BufferedStream outputBuffer = new BufferedStream(state.output, BufferSize))
                 {
@@ -335,14 +335,14 @@ namespace LibGit2Sharp
 
             try
             {
-                Ensure.ArgumentNotZeroIntPtr(stream, "stream");
+                Ensure.ArgumentNotZeroIntPtr(stream, nameof(stream));
 
                 if (!activeStreams.TryRemove(stream, out state))
                 {
                     throw new ArgumentException("Double free or invalid stream pointer", nameof(stream));
                 }
 
-                Ensure.ArgumentIsExpectedIntPtr(stream, state.thisPtr, "stream");
+                Ensure.ArgumentIsExpectedIntPtr(stream, state.thisPtr, nameof(stream));
 
                 Marshal.FreeHGlobal(state.thisPtr);
             }
@@ -360,15 +360,15 @@ namespace LibGit2Sharp
 
             try
             {
-                Ensure.ArgumentNotZeroIntPtr(stream, "stream");
-                Ensure.ArgumentNotZeroIntPtr(buffer, "buffer");
+                Ensure.ArgumentNotZeroIntPtr(stream, nameof(stream));
+                Ensure.ArgumentNotZeroIntPtr(buffer, nameof(buffer));
 
                 if (!activeStreams.TryGetValue(stream, out state))
                 {
                     throw new ArgumentException("Invalid or already freed stream pointer", nameof(stream));
                 }
 
-                Ensure.ArgumentIsExpectedIntPtr(stream, state.thisPtr, "stream");
+                Ensure.ArgumentIsExpectedIntPtr(stream, state.thisPtr, nameof(stream));
 
                 using (UnmanagedMemoryStream input = new UnmanagedMemoryStream((byte*)buffer.ToPointer(), (long)len))
                 using (BufferedStream outputBuffer = new BufferedStream(state.output, BufferSize))

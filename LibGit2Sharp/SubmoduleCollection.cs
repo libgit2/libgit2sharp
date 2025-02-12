@@ -39,7 +39,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                Ensure.ArgumentNotNullOrEmptyString(name, "name");
+                Ensure.ArgumentNotNullOrEmptyString(name, nameof(name));
 
                 return Lookup(name, handle => new Submodule(repo, name,
                                                             Proxy.git_submodule_path(handle),

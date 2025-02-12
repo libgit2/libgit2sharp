@@ -16,8 +16,8 @@ namespace LibGit2Sharp
         /// <param name="options">The options for fetch and merging.</param>
         public static MergeResult Pull(Repository repository, Signature merger, PullOptions options)
         {
-            Ensure.ArgumentNotNull(repository, "repository");
-            Ensure.ArgumentNotNull(merger, "merger");
+            Ensure.ArgumentNotNull(repository, nameof(repository));
+            Ensure.ArgumentNotNull(merger, nameof(merger));
 
 
             options = options ?? new PullOptions();

@@ -89,7 +89,7 @@ namespace LibGit2Sharp
         public static SmartSubtransportRegistration<T> RegisterSmartSubtransport<T>(string scheme)
             where T : SmartSubtransport, new()
         {
-            Ensure.ArgumentNotNull(scheme, "scheme");
+            Ensure.ArgumentNotNull(scheme, nameof(scheme));
 
             var registration = new SmartSubtransportRegistration<T>(scheme);
 
@@ -117,7 +117,7 @@ namespace LibGit2Sharp
         public static void UnregisterSmartSubtransport<T>(SmartSubtransportRegistration<T> registration)
             where T : SmartSubtransport, new()
         {
-            Ensure.ArgumentNotNull(registration, "registration");
+            Ensure.ArgumentNotNull(registration, nameof(registration));
 
             Proxy.git_transport_unregister(registration.Scheme);
             registration.Free();
@@ -134,7 +134,7 @@ namespace LibGit2Sharp
         {
             set
             {
-                Ensure.ArgumentNotNull(value, "value");
+                Ensure.ArgumentNotNull(value, nameof(value));
 
                 logConfiguration = value;
 
@@ -244,7 +244,7 @@ namespace LibGit2Sharp
         /// <returns>A <see cref="FilterRegistration"/> object used to manage the lifetime of the registration.</returns>
         public static FilterRegistration RegisterFilter(Filter filter, int priority)
         {
-            Ensure.ArgumentNotNull(filter, "filter");
+            Ensure.ArgumentNotNull(filter, nameof(filter));
             if (priority < FilterRegistration.FilterPriorityMin || priority > FilterRegistration.FilterPriorityMax)
             {
                 throw new ArgumentOutOfRangeException(nameof(priority),
@@ -280,7 +280,7 @@ namespace LibGit2Sharp
         /// <param name="registration">Registration object with an associated filter.</param>
         public static void DeregisterFilter(FilterRegistration registration)
         {
-            Ensure.ArgumentNotNull(registration, "registration");
+            Ensure.ArgumentNotNull(registration, nameof(registration));
 
             lock (registeredFilters)
             {

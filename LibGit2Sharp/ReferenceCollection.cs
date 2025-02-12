@@ -109,8 +109,8 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref="Reference"/>.</returns>
         public virtual Reference Add(string name, string canonicalRefNameOrObjectish, string logMessage, bool allowOverwrite)
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNullOrEmptyString(canonicalRefNameOrObjectish, "canonicalRefNameOrObjectish");
+            Ensure.ArgumentNotNullOrEmptyString(name, nameof(name));
+            Ensure.ArgumentNotNullOrEmptyString(canonicalRefNameOrObjectish, nameof(canonicalRefNameOrObjectish));
 
             Reference reference;
             RefState refState = TryResolveReference(out reference, this, canonicalRefNameOrObjectish);
@@ -188,8 +188,8 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref="Reference"/>.</returns>
         public virtual DirectReference Add(string name, ObjectId targetId, string logMessage, bool allowOverwrite)
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNull(targetId, "targetId");
+            Ensure.ArgumentNotNullOrEmptyString(name, nameof(name));
+            Ensure.ArgumentNotNull(targetId, nameof(targetId));
 
             using (ReferenceHandle handle = Proxy.git_reference_create(repo.Handle, name, targetId, allowOverwrite, logMessage))
             {
@@ -242,8 +242,8 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref="Reference"/>.</returns>
         public virtual SymbolicReference Add(string name, Reference targetRef, string logMessage, bool allowOverwrite)
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNull(targetRef, "targetRef");
+            Ensure.ArgumentNotNullOrEmptyString(name, nameof(name));
+            Ensure.ArgumentNotNull(targetRef, nameof(targetRef));
 
             using (ReferenceHandle handle = Proxy.git_reference_symbolic_create(repo.Handle,
                                                                                     name,
@@ -284,7 +284,7 @@ namespace LibGit2Sharp
         /// <param name="name">The canonical name of the reference to delete.</param>
         public virtual void Remove(string name)
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNullOrEmptyString(name, nameof(name));
 
             Reference reference = this[name];
 
@@ -302,7 +302,7 @@ namespace LibGit2Sharp
         /// <param name="reference">The reference to delete.</param>
         public virtual void Remove(Reference reference)
         {
-            Ensure.ArgumentNotNull(reference, "reference");
+            Ensure.ArgumentNotNull(reference, nameof(reference));
 
             Proxy.git_reference_remove(repo.Handle, reference.CanonicalName);
         }
@@ -329,8 +329,8 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref="Reference"/>.</returns>
         public virtual Reference Rename(Reference reference, string newName, string logMessage, bool allowOverwrite)
         {
-            Ensure.ArgumentNotNull(reference, "reference");
-            Ensure.ArgumentNotNullOrEmptyString(newName, "newName");
+            Ensure.ArgumentNotNull(reference, nameof(reference));
+            Ensure.ArgumentNotNullOrEmptyString(newName, nameof(newName));
 
             if (logMessage == null)
             {
@@ -398,7 +398,7 @@ namespace LibGit2Sharp
         public virtual Reference Rename(string currentName, string newName,
             string logMessage, bool allowOverwrite)
         {
-            Ensure.ArgumentNotNullOrEmptyString(currentName, "currentName");
+            Ensure.ArgumentNotNullOrEmptyString(currentName, nameof(currentName));
 
             Reference reference = this[currentName];
 
@@ -436,7 +436,7 @@ namespace LibGit2Sharp
 
         internal T Resolve<T>(string name) where T : Reference
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNullOrEmptyString(name, nameof(name));
 
             using (ReferenceHandle referencePtr = RetrieveReferencePtr(name, false))
             {
@@ -455,8 +455,8 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref="Reference"/>.</returns>
         public virtual Reference UpdateTarget(Reference directRef, ObjectId targetId, string logMessage)
         {
-            Ensure.ArgumentNotNull(directRef, "directRef");
-            Ensure.ArgumentNotNull(targetId, "targetId");
+            Ensure.ArgumentNotNull(directRef, nameof(directRef));
+            Ensure.ArgumentNotNull(targetId, nameof(targetId));
 
             if (directRef.CanonicalName == "HEAD")
             {
@@ -484,8 +484,8 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref="Reference"/>.</returns>
         public virtual Reference UpdateTarget(Reference directRef, string objectish, string logMessage)
         {
-            Ensure.ArgumentNotNull(directRef, "directRef");
-            Ensure.ArgumentNotNull(objectish, "objectish");
+            Ensure.ArgumentNotNull(directRef, nameof(directRef));
+            Ensure.ArgumentNotNull(objectish, nameof(objectish));
 
             GitObject target = repo.Lookup(objectish);
 
@@ -514,8 +514,8 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref="Reference"/>.</returns>
         public virtual Reference UpdateTarget(string name, string canonicalRefNameOrObjectish, string logMessage)
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNullOrEmptyString(canonicalRefNameOrObjectish, "canonicalRefNameOrObjectish");
+            Ensure.ArgumentNotNullOrEmptyString(name, nameof(name));
+            Ensure.ArgumentNotNullOrEmptyString(canonicalRefNameOrObjectish, nameof(canonicalRefNameOrObjectish));
 
             if (name == "HEAD")
             {
@@ -581,8 +581,8 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref="Reference"/>.</returns>
         public virtual Reference UpdateTarget(Reference symbolicRef, Reference targetRef, string logMessage)
         {
-            Ensure.ArgumentNotNull(symbolicRef, "symbolicRef");
-            Ensure.ArgumentNotNull(targetRef, "targetRef");
+            Ensure.ArgumentNotNull(symbolicRef, nameof(symbolicRef));
+            Ensure.ArgumentNotNull(targetRef, nameof(targetRef));
 
             if (symbolicRef.CanonicalName == "HEAD")
             {
@@ -657,7 +657,7 @@ namespace LibGit2Sharp
 
         internal Reference UpdateHeadTarget(Reference target, string logMessage)
         {
-            Ensure.ArgumentConformsTo(target, r => (r is DirectReference || r is SymbolicReference), "target");
+            Ensure.ArgumentConformsTo(target, r => (r is DirectReference || r is SymbolicReference), nameof(target));
 
             Add("HEAD", target, logMessage, true);
 
@@ -685,7 +685,7 @@ namespace LibGit2Sharp
         /// <returns>A list of references, ready to be enumerated.</returns>
         public virtual IEnumerable<Reference> FromGlob(string pattern)
         {
-            Ensure.ArgumentNotNullOrEmptyString(pattern, "pattern");
+            Ensure.ArgumentNotNullOrEmptyString(pattern, nameof(pattern));
 
             return Proxy.git_reference_foreach_glob(repo.Handle, pattern, LaxUtf8Marshaler.FromNative)
                 .Select(n => this[n]);
@@ -715,8 +715,8 @@ namespace LibGit2Sharp
             IEnumerable<Reference> refSubset,
             IEnumerable<Commit> targets)
         {
-            Ensure.ArgumentNotNull(refSubset, "refSubset");
-            Ensure.ArgumentNotNull(targets, "targets");
+            Ensure.ArgumentNotNull(refSubset, nameof(refSubset));
+            Ensure.ArgumentNotNull(targets, nameof(targets));
 
             var refs = new List<Reference>(refSubset);
             if (refs.Count == 0)
@@ -790,7 +790,7 @@ namespace LibGit2Sharp
         /// <returns>a <see cref="ReflogCollection"/>, enumerable of <see cref="ReflogEntry"/></returns>
         public virtual ReflogCollection Log(string canonicalName)
         {
-            Ensure.ArgumentNotNullOrEmptyString(canonicalName, "canonicalName");
+            Ensure.ArgumentNotNullOrEmptyString(canonicalName, nameof(canonicalName));
 
             return new ReflogCollection(repo, canonicalName);
         }
@@ -802,7 +802,7 @@ namespace LibGit2Sharp
         /// <returns>a <see cref="ReflogCollection"/>, enumerable of <see cref="ReflogEntry"/></returns>
         public virtual ReflogCollection Log(Reference reference)
         {
-            Ensure.ArgumentNotNull(reference, "reference");
+            Ensure.ArgumentNotNull(reference, nameof(reference));
 
             return new ReflogCollection(repo, reference.CanonicalName);
         }
@@ -814,7 +814,7 @@ namespace LibGit2Sharp
         /// <param name="commitsToRewrite">The <see cref="Commit"/> objects to rewrite.</param>
         public virtual void RewriteHistory(RewriteHistoryOptions options, params Commit[] commitsToRewrite)
         {
-            Ensure.ArgumentNotNull(commitsToRewrite, "commitsToRewrite");
+            Ensure.ArgumentNotNull(commitsToRewrite, nameof(commitsToRewrite));
 
             RewriteHistory(options, commitsToRewrite.AsEnumerable());
         }
@@ -826,9 +826,9 @@ namespace LibGit2Sharp
         /// <param name="commitsToRewrite">The <see cref="Commit"/> objects to rewrite.</param>
         public virtual void RewriteHistory(RewriteHistoryOptions options, IEnumerable<Commit> commitsToRewrite)
         {
-            Ensure.ArgumentNotNull(commitsToRewrite, "commitsToRewrite");
-            Ensure.ArgumentNotNull(options, "options");
-            Ensure.ArgumentNotNullOrEmptyString(options.BackupRefsNamespace, "options.BackupRefsNamespace");
+            Ensure.ArgumentNotNull(commitsToRewrite, nameof(commitsToRewrite));
+            Ensure.ArgumentNotNull(options, nameof(options));
+            Ensure.ArgumentNotNullOrEmptyString(options.BackupRefsNamespace, nameof(options.BackupRefsNamespace));
 
             IList<Reference> originalRefs = this.ToList();
             if (originalRefs.Count == 0)

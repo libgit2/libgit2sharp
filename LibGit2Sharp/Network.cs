@@ -50,7 +50,7 @@ namespace LibGit2Sharp
         /// <returns>The references in the <see cref="Remote"/> repository.</returns>
         public virtual IEnumerable<Reference> ListReferences(Remote remote)
         {
-            Ensure.ArgumentNotNull(remote, "remote");
+            Ensure.ArgumentNotNull(remote, nameof(remote));
 
             return ListReferencesInternal(remote.Url, null, new ProxyOptions());
         }
@@ -69,7 +69,7 @@ namespace LibGit2Sharp
         /// <returns>The references in the <see cref="Remote"/> repository.</returns>
         public virtual IEnumerable<Reference> ListReferences(Remote remote, ProxyOptions proxyOptions)
         {
-            Ensure.ArgumentNotNull(remote, "remote");
+            Ensure.ArgumentNotNull(remote, nameof(remote));
 
             return ListReferencesInternal(remote.Url, null, proxyOptions);
         }
@@ -88,8 +88,8 @@ namespace LibGit2Sharp
         /// <returns>The references in the <see cref="Remote"/> repository.</returns>
         public virtual IEnumerable<Reference> ListReferences(Remote remote, CredentialsHandler credentialsProvider)
         {
-            Ensure.ArgumentNotNull(remote, "remote");
-            Ensure.ArgumentNotNull(credentialsProvider, "credentialsProvider");
+            Ensure.ArgumentNotNull(remote, nameof(remote));
+            Ensure.ArgumentNotNull(credentialsProvider, nameof(credentialsProvider));
 
             return ListReferencesInternal(remote.Url, credentialsProvider, new ProxyOptions());
         }
@@ -109,8 +109,8 @@ namespace LibGit2Sharp
         /// <returns>The references in the <see cref="Remote"/> repository.</returns>
         public virtual IEnumerable<Reference> ListReferences(Remote remote, CredentialsHandler credentialsProvider, ProxyOptions proxyOptions)
         {
-            Ensure.ArgumentNotNull(remote, "remote");
-            Ensure.ArgumentNotNull(credentialsProvider, "credentialsProvider");
+            Ensure.ArgumentNotNull(remote, nameof(remote));
+            Ensure.ArgumentNotNull(credentialsProvider, nameof(credentialsProvider));
 
             return ListReferencesInternal(remote.Url, credentialsProvider, proxyOptions);
         }
@@ -128,7 +128,7 @@ namespace LibGit2Sharp
         /// <returns>The references in the remote repository.</returns>
         public virtual IEnumerable<Reference> ListReferences(string url)
         {
-            Ensure.ArgumentNotNull(url, "url");
+            Ensure.ArgumentNotNull(url, nameof(url));
 
             return ListReferencesInternal(url, null, new ProxyOptions());
         }
@@ -147,7 +147,7 @@ namespace LibGit2Sharp
         /// <returns>The references in the remote repository.</returns>
         public virtual IEnumerable<Reference> ListReferences(string url, ProxyOptions proxyOptions)
         {
-            Ensure.ArgumentNotNull(url, "url");
+            Ensure.ArgumentNotNull(url, nameof(url));
 
             return ListReferencesInternal(url, null, proxyOptions);
         }
@@ -166,8 +166,8 @@ namespace LibGit2Sharp
         /// <returns>The references in the remote repository.</returns>
         public virtual IEnumerable<Reference> ListReferences(string url, CredentialsHandler credentialsProvider)
         {
-            Ensure.ArgumentNotNull(url, "url");
-            Ensure.ArgumentNotNull(credentialsProvider, "credentialsProvider");
+            Ensure.ArgumentNotNull(url, nameof(url));
+            Ensure.ArgumentNotNull(credentialsProvider, nameof(credentialsProvider));
 
             return ListReferencesInternal(url, credentialsProvider, new ProxyOptions());
         }
@@ -187,8 +187,8 @@ namespace LibGit2Sharp
         /// <returns>The references in the remote repository.</returns>
         public virtual IEnumerable<Reference> ListReferences(string url, CredentialsHandler credentialsProvider, ProxyOptions proxyOptions)
         {
-            Ensure.ArgumentNotNull(url, "url");
-            Ensure.ArgumentNotNull(credentialsProvider, "credentialsProvider");
+            Ensure.ArgumentNotNull(url, nameof(url));
+            Ensure.ArgumentNotNull(credentialsProvider, nameof(credentialsProvider));
 
             return ListReferencesInternal(url, credentialsProvider, new ProxyOptions());
         }
@@ -270,8 +270,8 @@ namespace LibGit2Sharp
             FetchOptions options,
             string logMessage)
         {
-            Ensure.ArgumentNotNull(url, "url");
-            Ensure.ArgumentNotNull(refspecs, "refspecs");
+            Ensure.ArgumentNotNull(url, nameof(url));
+            Ensure.ArgumentNotNull(refspecs, nameof(refspecs));
 
             Commands.Fetch(repository, url, refspecs, options, logMessage);
         }
@@ -353,8 +353,8 @@ namespace LibGit2Sharp
             string objectish,
             string destinationSpec)
         {
-            Ensure.ArgumentNotNull(objectish, "objectish");
-            Ensure.ArgumentNotNullOrEmptyString(destinationSpec, "destinationSpec");
+            Ensure.ArgumentNotNull(objectish, nameof(objectish));
+            Ensure.ArgumentNotNullOrEmptyString(destinationSpec, nameof(destinationSpec));
 
             Push(remote,
                  string.Format(CultureInfo.InvariantCulture,
@@ -376,8 +376,8 @@ namespace LibGit2Sharp
             string destinationSpec,
             PushOptions pushOptions)
         {
-            Ensure.ArgumentNotNull(objectish, "objectish");
-            Ensure.ArgumentNotNullOrEmptyString(destinationSpec, "destinationSpec");
+            Ensure.ArgumentNotNull(objectish, nameof(objectish));
+            Ensure.ArgumentNotNullOrEmptyString(destinationSpec, nameof(destinationSpec));
 
             Push(remote,
                  string.Format(CultureInfo.InvariantCulture,
@@ -394,7 +394,7 @@ namespace LibGit2Sharp
         /// <param name="pushRefSpec">The pushRefSpec to push.</param>
         public virtual void Push(Remote remote, string pushRefSpec)
         {
-            Ensure.ArgumentNotNullOrEmptyString(pushRefSpec, "pushRefSpec");
+            Ensure.ArgumentNotNullOrEmptyString(pushRefSpec, nameof(pushRefSpec));
 
             Push(remote, new[] { pushRefSpec });
         }
@@ -409,7 +409,7 @@ namespace LibGit2Sharp
             string pushRefSpec,
             PushOptions pushOptions)
         {
-            Ensure.ArgumentNotNullOrEmptyString(pushRefSpec, "pushRefSpec");
+            Ensure.ArgumentNotNullOrEmptyString(pushRefSpec, nameof(pushRefSpec));
 
             Push(remote, new[] { pushRefSpec }, pushOptions);
         }
@@ -432,8 +432,8 @@ namespace LibGit2Sharp
         /// <param name="pushOptions"><see cref="PushOptions"/> controlling push behavior</param>
         public virtual void Push(Remote remote, IEnumerable<string> pushRefSpecs, PushOptions pushOptions)
         {
-            Ensure.ArgumentNotNull(remote, "remote");
-            Ensure.ArgumentNotNull(pushRefSpecs, "pushRefSpecs");
+            Ensure.ArgumentNotNull(remote, nameof(remote));
+            Ensure.ArgumentNotNull(pushRefSpecs, nameof(pushRefSpecs));
 
             // Return early if there is nothing to push.
             if (!pushRefSpecs.Any())
