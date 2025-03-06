@@ -32,6 +32,16 @@ namespace LibGit2Sharp
                                  LineCallback);
         }
 
+        internal unsafe ContentChanges(byte[] oldBuffer, byte[] newBuffer, GitDiffOptions options)
+        {
+            Proxy.git_diff_buffers(oldBuffer,
+                                   newBuffer,
+                                   options,
+                                   FileCallback,
+                                   HunkCallback,
+                                   LineCallback);
+        }
+
         internal ContentChanges(bool isBinaryComparison)
         {
             this.IsBinaryComparison = isBinaryComparison;

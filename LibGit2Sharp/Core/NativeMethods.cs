@@ -713,6 +713,23 @@ namespace LibGit2Sharp.Core
         internal static extern unsafe git_diff_delta* git_diff_get_delta(git_diff* diff, UIntPtr idx);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern unsafe int git_diff_buffers(
+            IntPtr oldBuffer,
+            UIntPtr oldBufferLength,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))]
+            string oldAsPath,
+            IntPtr newBuffer,
+            UIntPtr newBufferLength,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))]
+            string newAsPath,
+            GitDiffOptions options,
+            git_diff_file_cb fileCallback,
+            git_diff_binary_cb binaryCallback,
+            git_diff_hunk_cb hunkCallback,
+            git_diff_line_cb lineCallback,
+            IntPtr payload);
+
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int git_filter_register(
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name,
             IntPtr gitFilter, int priority);
