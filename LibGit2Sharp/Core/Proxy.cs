@@ -869,10 +869,10 @@ namespace LibGit2Sharp.Core
                 {
                     res = NativeMethods.git_diff_buffers(
                         (IntPtr)oldP,
-                        new UIntPtr((ulong)oldBuffer.LongLength),
+                        new UIntPtr(oldBuffer != null ? (ulong)oldBuffer.LongLength: 0),
                         null,
                         (IntPtr)newP,
-                        new UIntPtr((ulong)newBuffer.LongLength),
+                        new UIntPtr(newBuffer != null ?(ulong)newBuffer.LongLength : 0),
                         null,
                         options,
                         fileCallback,

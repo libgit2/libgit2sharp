@@ -488,14 +488,6 @@ namespace LibGit2Sharp
             return Compare<T>(includeUntracked ? DiffModifiers.IncludeUntracked : DiffModifiers.None, paths, explicitPathsOptions, compareOptions);
         }
 
-        public static ContentChanges CompareBuffers(byte[] oldBuffer, byte[] newBuffer)
-        {
-            using(var options = BuildOptions(DiffModifiers.None))
-            {
-                return new ContentChanges(oldBuffer, newBuffer, options);
-            }
-        }
-
         internal virtual T Compare<T>(
             DiffModifiers diffOptions,
             IEnumerable<string> paths = null,
