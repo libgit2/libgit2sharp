@@ -466,6 +466,12 @@ namespace LibGit2Sharp
                     gitPushOptions.CustomHeaders = GitStrArrayManaged.BuildFrom(pushOptions.CustomHeaders);
                 }
 
+                // If there are remot-push-options, create a managed string array.
+                if (pushOptions.RemotePushOptions != null && pushOptions.RemotePushOptions.Length > 0)
+                {
+                    gitPushOptions.remote_push_options = GitStrArrayManaged.BuildFrom(pushOptions.RemotePushOptions);
+                }
+
                 Proxy.git_remote_push(remoteHandle,
                                       pushRefSpecs,
                                       gitPushOptions);

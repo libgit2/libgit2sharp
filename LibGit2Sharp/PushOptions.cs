@@ -76,5 +76,11 @@ namespace LibGit2Sharp
         /// Options for connecting through a proxy.
         /// </summary>
         public ProxyOptions ProxyOptions { get; set; } = new();
+
+        /// <summary>
+        /// This string is sent to the server.
+        /// This parameter is equivalent to the value set in the git command line "--push-options".
+        /// </summary>
+        public string[] RemotePushOptions { get; set; }
     }
 }
