@@ -18,5 +18,10 @@ namespace LibGit2Sharp
         /// This will throw away local changes.
         /// </summary>
         Force,
+
+        /// <summary>
+        /// This will try to merge any local changes from source branch into target branch.
+        /// </summary>
+        Merge,
     }
 }

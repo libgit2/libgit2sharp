@@ -34,6 +34,11 @@ namespace LibGit2Sharp
         {
             get
             {
+                if (CheckoutModifiers.HasFlag(CheckoutModifiers.Merge))
+                {
+                    return CheckoutStrategy.GIT_CHECKOUT_CONFLICT_STYLE_MERGE | CheckoutStrategy.GIT_CHECKOUT_ALLOW_CONFLICTS;
+                }
+
                 return CheckoutModifiers.HasFlag(CheckoutModifiers.Force)
                     ? CheckoutStrategy.GIT_CHECKOUT_FORCE
                     : CheckoutStrategy.GIT_CHECKOUT_SAFE;

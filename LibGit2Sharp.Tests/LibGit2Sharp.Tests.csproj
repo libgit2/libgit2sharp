@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

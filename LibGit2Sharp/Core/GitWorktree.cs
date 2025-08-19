@@ -36,6 +36,8 @@ namespace LibGit2Sharp.Core
 
         public int locked;
 
+        public int checkout_existing;	/**allow checkout of existing branch matching worktree name */
+
         public IntPtr @ref = IntPtr.Zero;
 
         public GitCheckoutOpts checkoutOpts = new GitCheckoutOpts { version = 1 };

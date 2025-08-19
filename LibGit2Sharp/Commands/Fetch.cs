@@ -70,6 +70,11 @@ namespace LibGit2Sharp
                     fetchOptions.Prune = FetchPruneStrategy.FromConfigurationOrDefault;
                 }
 
+                if (options.Depth.HasValue)
+                {
+                    fetchOptions.Depth = options.Depth.Value;
+                }
+
                 if (options.CustomHeaders != null && options.CustomHeaders.Length > 0)
                 {
                     fetchOptions.CustomHeaders = GitStrArrayManaged.BuildFrom(options.CustomHeaders);
