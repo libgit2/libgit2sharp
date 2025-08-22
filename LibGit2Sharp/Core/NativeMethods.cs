@@ -92,10 +92,14 @@ namespace LibGit2Sharp.Core
 
             if (libraryName == libgit2)
             {
-                if (Environment.GetEnvironmentVariable("UIPATH_STUDIO_GIT_USE_SCHANNEL") == "1" || IsSchannelSelectedInGitConfig())
+                bool useSchannel = HasEnvironmentVariable("UIPATH_STUDIO_GIT_USE_SCHANNEL") || IsSchannelSelectedInGitConfig();
+                string schannelSufix = useSchannel ? "_schannel" : string.Empty;
+                bool useSshExe = HasEnvironmentVariable("UIPATH_STUDIO_GIT_USE_SSH_EXE");
+                string useSshSufix = useSshExe ? "_ssh" : string.Empty;
+                libraryName = $"{libraryName}{schannelSufix}{useSshSufix}";
+                Trace.TraceInformation($"Using git build {libraryName}");
+                if (useSchannel)
                 {
-                    Trace.TraceInformation("Using git with schannel");
-                    libraryName = libraryName + "_schannel";
                     GlobalSettings.SetHttpBackend(HttpsBackend.Schannel);
                 }
 
@@ -139,6 +143,12 @@ namespace LibGit2Sharp.Core
             }
 
             return handle;
+        }
+
+        private static bool HasEnvironmentVariable(string envVarName)
+        {
+            var envVarValue = Environment.GetEnvironmentVariable(envVarName)?.Trim().ToLowerInvariant();
+            return envVarValue == "1" || envVarValue == "true";
         }
 
         private static bool IsSchannelSelectedInGitConfig()
@@ -2133,6 +2143,14 @@ namespace LibGit2Sharp.Core
             IntPtr url,
             int direction,
             IntPtr payload);
+
+       [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate int remote_update_refs_callback(
+            IntPtr refName,
+            ref GitOid oldId,
+            ref GitOid newId,
+            IntPtr spec,
+            IntPtr data);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe void git_worktree_free(git_worktree* worktree);

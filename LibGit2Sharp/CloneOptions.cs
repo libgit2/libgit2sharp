@@ -61,7 +61,7 @@ namespace LibGit2Sharp
             {
                 return this.Checkout
                     ? CheckoutStrategy.GIT_CHECKOUT_SAFE
-                    : CheckoutStrategy.GIT_CHECKOUT_NONE;
+                    : CheckoutStrategy.GIT_CHECKOUT_DRY_RUN;
             }
         }
 

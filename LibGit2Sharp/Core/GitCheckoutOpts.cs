@@ -6,116 +6,98 @@ namespace LibGit2Sharp.Core
     [Flags]
     internal enum CheckoutStrategy
     {
-        /// <summary>
-        /// Default is a dry run, no actual updates.
-        /// </summary>
-        GIT_CHECKOUT_NONE = 0,
+        /**
+	     * Allow safe updates that cannot overwrite uncommitted data.
+	     * If the uncommitted changes don't conflict with the checked
+	     * out files, the checkout will still proceed, leaving the
+	     * changes intact.
+	     */
+        GIT_CHECKOUT_SAFE = 0,
 
-        /// <summary>
-        /// Allow safe updates that cannot overwrite uncommited data.
-        /// </summary>
-        GIT_CHECKOUT_SAFE = (1 << 0),
-
-        /// <summary>
-        /// Allow update of entries in working dir that are modified from HEAD.
-        /// </summary>
+        /**
+         * Allow all updates to force working directory to look like
+         * the index, potentially losing data in the process.
+         */
         GIT_CHECKOUT_FORCE = (1 << 1),
 
-        /// <summary>
-        /// Allow checkout to recreate missing files.
-        /// </summary>
+        /** Allow checkout to recreate missing files */
         GIT_CHECKOUT_RECREATE_MISSING = (1 << 2),
 
-        /// <summary>
-        /// Allow checkout to make safe updates even if conflicts are found
-        /// </summary>
+        /** Allow checkout to make safe updates even if conflicts are found */
         GIT_CHECKOUT_ALLOW_CONFLICTS = (1 << 4),
 
-        /// <summary>
-        /// Remove untracked files not in index (that are not ignored)
-        /// </summary>
+        /** Remove untracked files not in index (that are not ignored) */
         GIT_CHECKOUT_REMOVE_UNTRACKED = (1 << 5),
 
-        /// <summary>
-        /// Remove ignored files not in index
-        /// </summary>
+        /** Remove ignored files not in index */
         GIT_CHECKOUT_REMOVE_IGNORED = (1 << 6),
 
-        /// <summary>
-        /// Only update existing files, don't create new ones
-        /// </summary>
+        /** Only update existing files, don't create new ones */
         GIT_CHECKOUT_UPDATE_ONLY = (1 << 7),
 
-        /// <summary>
-        /// Normally checkout updates index entries as it goes; this stops that
-        /// Implies `GIT_CHECKOUT_DONT_WRITE_INDEX`.
-        /// </summary>
+        /**
+         * Normally checkout updates index entries as it goes; this stops that.
+         * Implies `GIT_CHECKOUT_DONT_WRITE_INDEX`.
+         */
         GIT_CHECKOUT_DONT_UPDATE_INDEX = (1 << 8),
 
-        /// <summary>
-        /// Don't refresh index/config/etc before doing checkout
-        /// </summary>
+        /** Don't refresh index/config/etc before doing checkout */
         GIT_CHECKOUT_NO_REFRESH = (1 << 9),
 
-        ///Allow checkout to skip unmerged files
+        /** Allow checkout to skip unmerged files */
         GIT_CHECKOUT_SKIP_UNMERGED = (1 << 10),
-
-        /// <summary>
-        /// For unmerged files, checkout stage 2 from index
-        /// </summary>
+        /** For unmerged files, checkout stage 2 from index */
         GIT_CHECKOUT_USE_OURS = (1 << 11),
-
-        /// <summary>
-        /// For unmerged files, checkout stage 3 from index
-        /// </summary>
+        /** For unmerged files, checkout stage 3 from index */
         GIT_CHECKOUT_USE_THEIRS = (1 << 12),
 
-        /// <summary>
-        /// Treat pathspec as simple list of exact match file paths
-        /// </summary>
+        /** Treat pathspec as simple list of exact match file paths */
         GIT_CHECKOUT_DISABLE_PATHSPEC_MATCH = (1 << 13),
 
-        /// <summary>
-        /// Ignore directories in use, they will be left empty
-        /// </summary>
+        /** Ignore directories in use, they will be left empty */
         GIT_CHECKOUT_SKIP_LOCKED_DIRECTORIES = (1 << 18),
 
-        /// <summary>
-        /// Don't overwrite ignored files that exist in the checkout target
-        /// </summary>
+        /** Don't overwrite ignored files that exist in the checkout target */
         GIT_CHECKOUT_DONT_OVERWRITE_IGNORED = (1 << 19),
 
-        /// <summary>
-        /// Write normal merge files for conflicts
-        /// </summary>
+        /** Write normal merge files for conflicts */
         GIT_CHECKOUT_CONFLICT_STYLE_MERGE = (1 << 20),
 
-        /// <summary>
-        /// Include common ancestor data in diff3 format files for conflicts
-        /// </summary>
+        /** Include common ancestor data in diff3 format files for conflicts */
         GIT_CHECKOUT_CONFLICT_STYLE_DIFF3 = (1 << 21),
 
-        /// <summary>
-        /// Don't overwrite existing files or folders
-        /// </summary>
+        /** Don't overwrite existing files or folders */
         GIT_CHECKOUT_DONT_REMOVE_EXISTING = (1 << 22),
 
-        /// <summary>
-        /// Normally checkout writes the index upon completion; this prevents that.
-        /// </summary>
+        /** Normally checkout writes the index upon completion; this prevents that. */
         GIT_CHECKOUT_DONT_WRITE_INDEX = (1 << 23),
 
-        // THE FOLLOWING OPTIONS ARE NOT YET IMPLEMENTED
+        /**
+         * Perform a "dry run", reporting what _would_ be done but
+         * without actually making changes in the working directory
+         * or the index.
+         */
+        GIT_CHECKOUT_DRY_RUN = (1 << 24),
 
-        /// <summary>
-        /// Recursively checkout submodules with same options (NOT IMPLEMENTED)
-        /// </summary>
+        /** Include common ancestor data in zdiff3 format for conflicts */
+        GIT_CHECKOUT_CONFLICT_STYLE_ZDIFF3 = (1 << 25),
+
+        /**
+         * Do not do a checkout and do not fire callbacks; this is primarily
+         * useful only for internal functions that will perform the
+         * checkout themselves but need to pass checkout options into
+         * another function, for example, `git_clone`.
+        */
+        GIT_CHECKOUT_NONE = (1 << 30),
+
+        /*
+         * THE FOLLOWING OPTIONS ARE NOT YET IMPLEMENTED
+         */
+
+        /** Recursively checkout submodules with same options (NOT IMPLEMENTED) */
         GIT_CHECKOUT_UPDATE_SUBMODULES = (1 << 16),
-
-        /// <summary>
-        /// Recursively checkout submodules if HEAD moved in super repo (NOT IMPLEMENTED)
-        /// </summary>
-        GIT_CHECKOUT_UPDATE_SUBMODULES_IF_CHANGED = (1 << 17),
+        /** Recursively checkout submodules if HEAD moved in super repo (NOT IMPLEMENTED) */
+        GIT_CHECKOUT_UPDATE_SUBMODULES_IF_CHANGED = (1 << 17)
     }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]

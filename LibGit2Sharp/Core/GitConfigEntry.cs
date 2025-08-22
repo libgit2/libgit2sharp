@@ -8,9 +8,9 @@ namespace LibGit2Sharp.Core
     {
         public char* namePtr;
         public char* valuePtr;
+        public char* backend_type;
+        public char* origin_path;
         public uint include_depth;
         public uint level;
-        public void* freePtr;
-        public void* payloadPtr;
     }
 }

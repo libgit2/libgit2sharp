@@ -261,7 +261,7 @@ namespace LibGit2Sharp.Tests
                         Assert.True(valid);
                         var x509 = ((CertificateX509)cert).Certificate;
                         // we get a string with the different fields instead of a structure, so...
-                        Assert.Contains("CN=github.com,", x509.Subject);
+                        Assert.Contains("CN=github.com", x509.Subject);
                         checksHappy = true;
                         return false;
                     }
