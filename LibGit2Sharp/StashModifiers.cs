@@ -30,5 +30,10 @@ namespace LibGit2Sharp
         /// cleaned up from the working directory
         /// </summary>
         IncludeIgnored = (1 << 2),
+
+        /// <summary>
+        /// All changes in the index and working directory are left intact
+        /// </summary>
+        KeepAll = (1 << 3),
     }
 }

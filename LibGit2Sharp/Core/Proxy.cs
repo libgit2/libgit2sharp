@@ -2857,6 +2857,35 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static unsafe ObjectId git_stash_save_with_opts(
+            RepositoryHandle repo,
+            Signature stasher,
+            string message,
+            StashModifiers options,
+            string[] paths)
+        {
+            using var sigHandle = stasher.BuildHandle();
+            using var pathStrArray = GitStrArrayManaged.BuildFrom(paths ?? []);
+
+            var stashOpts = new GitStashSaveOpts(
+                options,
+                sigHandle,
+                message,
+                pathStrArray.Array
+            );
+
+            int res = NativeMethods.git_stash_save_with_opts(out var stashOid, repo, ref stashOpts);
+
+            if (res == (int)GitErrorCode.NotFound)
+            {
+                return null;
+            }
+
+            Ensure.Int32Result(res);
+
+            return new ObjectId(stashOid);
+        }
+
         public static unsafe ICollection<TResult> git_stash_foreach<TResult>(
             RepositoryHandle repo,
             Func<int, IntPtr, GitOid, TResult> resultSelector)

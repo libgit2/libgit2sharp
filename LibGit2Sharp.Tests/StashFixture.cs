@@ -238,6 +238,22 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanStashWithFilePaths()
+        {
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var stasher = Constants.Signature;
+
+                const string filename = "modified_unstaged_file.txt";
+
+                var stash = repo.Stashes.Add(stasher, "This stash one file", StashModifiers.Default, new[] { filename });
+
+                Assert.NotNull(stash);
+            }
+        }
+
+        [Fact]
         public void CanStashAndPop()
         {
             string path = SandboxStandardTestRepo();
