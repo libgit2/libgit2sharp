@@ -33,6 +33,11 @@
         /// <summary>
         /// Write diff3 formated files for conflicts.
         /// </summary>
-        Diff3
+        Diff3,
+
+        /// <summary>
+        /// Write zdiff3 formated files for conflicts.
+        /// </summary>
+        ZDiff3
     }
 }

@@ -105,6 +105,11 @@ namespace LibGit2Sharp.Core
         /// </summary>
         GIT_CHECKOUT_DONT_WRITE_INDEX = (1 << 23),
 
+		/// <summary>
+		/// Include common ancestor data in zdiff3 format for conflicts
+		/// </summary>
+		GIT_CHECKOUT_CONFLICT_STYLE_ZDIFF3 = (1 << 25),
+
         // THE FOLLOWING OPTIONS ARE NOT YET IMPLEMENTED
 
         /// <summary>

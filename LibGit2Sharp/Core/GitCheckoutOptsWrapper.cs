@@ -78,6 +78,10 @@ namespace LibGit2Sharp.Core
                 case CheckoutFileConflictStrategy.Diff3:
                     flags = CheckoutStrategy.GIT_CHECKOUT_CONFLICT_STYLE_DIFF3;
                     break;
+
+                case CheckoutFileConflictStrategy.ZDiff3:
+                    flags = CheckoutStrategy.GIT_CHECKOUT_CONFLICT_STYLE_ZDIFF3;
+                    break;
             }
 
             return flags;

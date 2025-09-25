@@ -670,6 +670,54 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
+        [InlineData(CheckoutFileConflictStrategy.Merge)]
+        [InlineData(CheckoutFileConflictStrategy.Diff3)]
+        [InlineData(CheckoutFileConflictStrategy.ZDiff3)]
+        public void CanSpecifyMergeConflictFileStrategy(CheckoutFileConflictStrategy conflictStrategy)
+        {
+            const string conflictFile = "a.txt";
+            const string expectedFileFormat = "a.{0}.txt";
+            const string conflictBranchName = "conflicts";
+            const string resultsBranchName = "results";
+
+            string expectedFileName = string.Format(expectedFileFormat, conflictStrategy.ToString().ToLower());
+            string path = SandboxMergeConflictTestRepo();
+
+            using (var repo = new Repository(path))
+            {
+                Branch branch = repo.Branches[conflictBranchName];
+                Assert.NotNull(branch);
+
+                // Ensure the working directory is clean before merging
+                repo.Reset(ResetMode.Hard);
+                repo.RemoveUntrackedFiles();
+
+                MergeOptions mergeOptions = new MergeOptions()
+                {
+                    FileConflictStrategy = conflictStrategy
+                };
+
+                MergeResult result = repo.Merge(branch, Constants.Signature, mergeOptions);
+                Assert.Equal(MergeStatus.Conflicts, result.Status);
+
+                // Get the information on the conflict.
+                Conflict conflict = repo.Index.Conflicts[conflictFile];
+
+                Assert.NotNull(conflict);
+                Assert.NotNull(conflict.Theirs);
+                Assert.NotNull(conflict.Ours);
+
+                Commit expectedCommit = repo.Branches[resultsBranchName].Tip;
+                Blob expectedBlob = (Blob)expectedCommit[expectedFileName].Target;
+                string expectedContent = expectedBlob.GetContentText(new FilteringOptions(expectedFileName));
+
+                // Verify the content of the file on disk contains conflict markers.
+                string fileContent = File.ReadAllText(Path.Combine(repo.Info.WorkingDirectory, conflictFile));
+                Assert.Equal(expectedContent, fileContent);
+            }
+        }
+
+        [Theory]
         [InlineData(MergeFileFavor.Ours)]
         [InlineData(MergeFileFavor.Theirs)]
         public void MergeCanSpecifyMergeFileFavorOption(MergeFileFavor fileFavorFlag)
