@@ -21,6 +21,7 @@ namespace LibGit2Sharp
         private readonly ILazy<Signature> lazyAuthor;
         private readonly ILazy<Signature> lazyCommitter;
         private readonly ILazy<string> lazyMessage;
+        private readonly ILazy<string> lazyMessageRaw;
         private readonly ILazy<string> lazyMessageShort;
         private readonly ILazy<string> lazyEncoding;
 
@@ -43,6 +44,7 @@ namespace LibGit2Sharp
             lazyCommitter = group1.AddLazy(Proxy.git_commit_committer);
             group2 = new GitObjectLazyGroup(this.repo, id);
             lazyMessage = group2.AddLazy(Proxy.git_commit_message);
+            lazyMessageRaw = group2.AddLazy(Proxy.git_commit_message_raw);
             lazyMessageShort = group2.AddLazy(Proxy.git_commit_summary);
             lazyEncoding = group2.AddLazy(RetrieveEncodingOf);
 
@@ -65,6 +67,11 @@ namespace LibGit2Sharp
         /// Gets the commit message.
         /// </summary>
         public virtual string Message { get { return lazyMessage.Value; } }
+
+        /// <summary>
+        /// Gets the raw, unmodified commit message.
+        /// </summary>
+        public virtual string MessageRaw { get { return lazyMessageRaw.Value; } }
 
         /// <summary>
         /// Gets the short commit message which is usually the first line of the commit.

@@ -388,6 +388,11 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_commit_message(obj);
         }
 
+        public static unsafe string git_commit_message_raw(ObjectHandle obj)
+        {
+            return NativeMethods.git_commit_message_raw(obj);
+        }
+
         public static unsafe string git_commit_summary(ObjectHandle obj)
         {
             return NativeMethods.git_commit_summary(obj);
