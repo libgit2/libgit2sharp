@@ -40,7 +40,7 @@ jobs:
       matrix:
         arch: [ x64 ]
         os: [ windows-2022, macos-13 ]
-        tfm: [ net472, net8.0, net9.0 ]
+        tfm: [ net472, net6.0, net8.0, net9.0 ]
         exclude:
           - os: macos-13
             tfm: net472
@@ -63,6 +63,7 @@ jobs:
           dotnet-version: |
             9.0.x
             8.0.x
+            6.0.x
       - name: Run ${{ matrix.tfm }} tests
         run: dotnet test LibGit2Sharp.sln --configuration Release --framework ${{ matrix.tfm }} --logger "GitHubActions" /p:ExtraDefine=LEAKS_IDENTIFYING
   test-linux:
@@ -81,6 +82,8 @@ jobs:
           - distro: alpine.3.19
             sdk: '9.0'
         include:
+          - sdk: '6.0'
+            tfm: net6.0
           - sdk: '8.0'
             tfm: net8.0
           - sdk: '9.0'
