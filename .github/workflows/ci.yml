@@ -82,8 +82,6 @@ jobs:
           - distro: alpine.3.19
             sdk: '9.0'
         include:
-          - sdk: '6.0'
-            tfm: net6.0
           - sdk: '8.0'
             tfm: net8.0
           - sdk: '9.0'
