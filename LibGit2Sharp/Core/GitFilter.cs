@@ -43,6 +43,7 @@ namespace LibGit2Sharp.Core
         /// before the first use of the filter, so you can defer expensive
         /// initialization operations (in case libgit2 is being used in a way that doesn't need the filter).
         /// </summary>
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int git_filter_init_fn(IntPtr filter);
 
         /// <summary>
@@ -53,6 +54,7 @@ namespace LibGit2Sharp.Core
         /// will be called once at most and should release resources as needed.
         /// Typically this function will free the `git_filter` object itself.
         /// </summary>
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void git_filter_shutdown_fn(IntPtr filter);
 
         /// <summary>
@@ -69,6 +71,7 @@ namespace LibGit2Sharp.Core
         /// away before the `apply` callback can use it.  If a filter allocates and assigns a value to the `payload`, it will need a `cleanup`
         /// callback to free the payload.
         /// </summary>
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int git_filter_check_fn(
             GitFilter gitFilter,
             IntPtr payload,
@@ -85,6 +88,7 @@ namespace LibGit2Sharp.Core
         ///
         /// The `payload` value will refer to any payload that was set by the `check` callback.  It may be read from or written to as needed.
         /// </summary>
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int git_filter_apply_fn(
             GitFilter gitFilter,
             IntPtr payload,
@@ -92,6 +96,7 @@ namespace LibGit2Sharp.Core
             IntPtr gitBufFrom,
             IntPtr filterSource);
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int git_filter_stream_fn(
             out IntPtr git_writestream_out,
             GitFilter self,
@@ -104,6 +109,7 @@ namespace LibGit2Sharp.Core
         /// after the filter has been applied.  If the `check` or `apply` callbacks allocated a `payload`
         /// to keep per-source filter state, use this  callback to free that payload and release resources as required.
         /// </summary>
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void git_filter_cleanup_fn(IntPtr gitFilter, IntPtr payload);
     }
     /// <summary>

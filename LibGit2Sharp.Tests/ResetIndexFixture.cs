@@ -1,4 +1,3 @@
-using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -62,7 +61,7 @@ namespace LibGit2Sharp.Tests
                 repo.Index.Replace(repo.Head.Tip);
 
                 RepositoryStatus newStatus = repo.RetrieveStatus();
-                Assert.Empty(newStatus.Where(IsStaged));
+                Assert.DoesNotContain(newStatus, IsStaged);
 
                 // Assert that no reflog entry is created
                 Assert.Equal(reflogEntriesCount, repo.Refs.Log(repo.Refs.Head).Count());
@@ -120,7 +119,7 @@ namespace LibGit2Sharp.Tests
                 repo.Index.Replace(repo.Lookup<Commit>("32eab9c"));
 
                 RepositoryStatus status = repo.RetrieveStatus();
-                Assert.Empty(status.Where(IsStaged));
+                Assert.DoesNotContain(status, IsStaged);
             }
         }
 

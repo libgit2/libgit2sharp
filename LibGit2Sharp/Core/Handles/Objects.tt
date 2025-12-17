@@ -36,6 +36,7 @@ var cNames = new[] {
     "git_object",
     "git_rebase",
     "git_odb_stream",
+    "git_worktree",
 };
 
 var csNames = new[] {
@@ -63,6 +64,7 @@ var csNames = new[] {
     "ObjectHandle",
     "RebaseHandle",
     "OdbStreamHandle",
+    "WorktreeHandle"
 };
 
 for (var i = 0; i < cNames.Length; i++)
@@ -70,8 +72,8 @@ for (var i = 0; i < cNames.Length; i++)
 #>
     internal unsafe class <#= csNames[i] #> : Libgit2Object
     {
-        internal <#= csNames[i] #>(<#= cNames[i] #> *ptr, bool owned)
-            : base((void *) ptr, owned)
+        internal <#= csNames[i] #>(<#= cNames[i] #>* ptr, bool owned)
+            : base(ptr, owned)
         {
         }
 
@@ -80,14 +82,16 @@ for (var i = 0; i < cNames.Length; i++)
         {
         }
 
-        public override void Free()
+        protected override bool ReleaseHandle()
         {
-            NativeMethods.<#= cNames[i] #>_free((<#= cNames[i] #>*) ptr);
+            NativeMethods.<#= cNames[i] #>_free((<#= cNames[i] #>*)AsIntPtr());
+
+            return true;
         }
 
         public static implicit operator <#= cNames[i] #>*(<#= csNames[i] #> handle)
         {
-            return (<#= cNames[i] #>*) handle.Handle;
+            return (<#= cNames[i] #>*)handle.AsIntPtr();
         }
     }
 

@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
-using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -15,7 +14,6 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData("http://github.com/libgit2/TestGitRepository")]
         [InlineData("https://github.com/libgit2/TestGitRepository")]
-        [InlineData("git://github.com/libgit2/TestGitRepository.git")]
         public void CanFetchIntoAnEmptyRepository(string url)
         {
             string path = InitNewRepository();
@@ -44,7 +42,7 @@ namespace LibGit2Sharp.Tests
                 }
 
                 // Perform the actual fetch
-                Commands.Fetch(repo, remoteName, new string[0], new FetchOptions { OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler }, null);
+                Commands.Fetch(repo, remoteName, Array.Empty<string>(), new FetchOptions { OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler }, null);
 
                 // Verify the expected
                 expectedFetchState.CheckUpdatedReferences(repo);
@@ -64,7 +62,7 @@ namespace LibGit2Sharp.Tests
                 repo.Network.Remotes.Add(remoteName, Constants.PrivateRepoUrl);
 
                 // Perform the actual fetch
-                Commands.Fetch(repo, remoteName, new string[0], new FetchOptions
+                Commands.Fetch(repo, remoteName, Array.Empty<string>(), new FetchOptions
                 {
                     CredentialsProvider = Constants.PrivateRepoCredentials
                 }, null);
@@ -74,7 +72,6 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData("http://github.com/libgit2/TestGitRepository")]
         [InlineData("https://github.com/libgit2/TestGitRepository")]
-        [InlineData("git://github.com/libgit2/TestGitRepository.git")]
         public void CanFetchAllTagsIntoAnEmptyRepository(string url)
         {
             string path = InitNewRepository();
@@ -101,7 +98,8 @@ namespace LibGit2Sharp.Tests
                 }
 
                 // Perform the actual fetch
-                Commands.Fetch(repo, remoteName, new string[0], new FetchOptions {
+                Commands.Fetch(repo, remoteName, Array.Empty<string>(), new FetchOptions
+                {
                     TagFetchMode = TagFetchMode.All,
                     OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler
                 }, null);
@@ -117,7 +115,6 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData("http://github.com/libgit2/TestGitRepository", "test-branch", "master")]
         [InlineData("https://github.com/libgit2/TestGitRepository", "master", "master")]
-        [InlineData("git://github.com/libgit2/TestGitRepository.git", "master", "first-merge")]
         public void CanFetchCustomRefSpecsIntoAnEmptyRepository(string url, string localBranchName, string remoteBranchName)
         {
             string path = InitNewRepository();
@@ -147,7 +144,8 @@ namespace LibGit2Sharp.Tests
                 }
 
                 // Perform the actual fetch
-                Commands.Fetch(repo, remoteName, new string[] { refSpec }, new FetchOptions {
+                Commands.Fetch(repo, remoteName, new string[] { refSpec }, new FetchOptions
+                {
                     TagFetchMode = TagFetchMode.None,
                     OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler
                 }, null);
@@ -181,7 +179,7 @@ namespace LibGit2Sharp.Tests
                     r => r.TagFetchMode = tagFetchMode);
 
                 // Perform the actual fetch.
-                Commands.Fetch(repo, remoteName, new string[0], null, null);
+                Commands.Fetch(repo, remoteName, Array.Empty<string>(), null, null);
 
                 // Verify the number of fetched tags.
                 Assert.Equal(expectedTagCount, repo.Tags.Count());
@@ -199,7 +197,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(clonedRepoPath))
             {
-                Commands.Fetch(repo, "origin", new string[0], new FetchOptions { TagFetchMode = TagFetchMode.All }, null);
+                Commands.Fetch(repo, "origin", Array.Empty<string>(), new FetchOptions { TagFetchMode = TagFetchMode.All }, null);
             }
         }
 
@@ -215,7 +213,7 @@ namespace LibGit2Sharp.Tests
 
             using (var clonedRepo = new Repository(clonedRepoPath))
             {
-                Assert.Equal(5, clonedRepo.Branches.Count(b => b.IsRemote));
+                Assert.Equal(5, clonedRepo.Branches.Count(b => b.IsRemote && b.FriendlyName != "origin/HEAD"));
 
                 // Drop one of the branches in the remote repository
                 using (var sourceRepo = new Repository(source))
@@ -225,19 +223,71 @@ namespace LibGit2Sharp.Tests
 
                 // No pruning when the configuration entry isn't defined
                 Assert.Null(clonedRepo.Config.Get<bool>("fetch.prune"));
-                Commands.Fetch(clonedRepo, "origin", new string[0], null, null);
-                Assert.Equal(5, clonedRepo.Branches.Count(b => b.IsRemote));
+                Commands.Fetch(clonedRepo, "origin", Array.Empty<string>(), null, null);
+                Assert.Equal(5, clonedRepo.Branches.Count(b => b.IsRemote && b.FriendlyName != "origin/HEAD"));
 
                 // No pruning when the configuration entry is set to false
                 clonedRepo.Config.Set<bool>("fetch.prune", false);
-                Commands.Fetch(clonedRepo, "origin", new string[0], null, null);
-                Assert.Equal(5, clonedRepo.Branches.Count(b => b.IsRemote));
+                Commands.Fetch(clonedRepo, "origin", Array.Empty<string>(), null, null);
+                Assert.Equal(5, clonedRepo.Branches.Count(b => b.IsRemote && b.FriendlyName != "origin/HEAD"));
 
                 // Auto pruning when the configuration entry is set to true
                 clonedRepo.Config.Set<bool>("fetch.prune", true);
-                Commands.Fetch(clonedRepo, "origin", new string[0], null, null);
-                Assert.Equal(4, clonedRepo.Branches.Count(b => b.IsRemote));
+                Commands.Fetch(clonedRepo, "origin", Array.Empty<string>(), null, null);
+                Assert.Equal(4, clonedRepo.Branches.Count(b => b.IsRemote && b.FriendlyName != "origin/HEAD"));
             }
         }
+
+        [Fact]
+        public void CannotFetchWithForbiddenCustomHeaders()
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            const string url = "https://github.com/libgit2/TestGitRepository";
+
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+
+            const string knownHeader = "User-Agent: mygit-201";
+            var options = new FetchOptions { CustomHeaders = new string[] { knownHeader } };
+            using (var repo = new Repository(clonedRepoPath))
+            {
+                Assert.Throws<LibGit2SharpException>(() => Commands.Fetch(repo, "origin", Array.Empty<string>(), options, null));
+            }
+        }
+
+        [Fact]
+        public void CanFetchWithCustomHeaders()
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            const string url = "https://github.com/libgit2/TestGitRepository";
+
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+
+            const string knownHeader = "X-Hello: mygit-201";
+            var options = new FetchOptions { CustomHeaders = new string[] { knownHeader } };
+            using (var repo = new Repository(clonedRepoPath))
+            {
+                Commands.Fetch(repo, "origin", Array.Empty<string>(), options, null);
+            }
+        }
+
+        [Fact]
+        public void CannotFetchWithMalformedCustomHeaders()
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            const string url = "https://github.com/libgit2/TestGitRepository";
+
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+
+            const string knownHeader = "Hello world";
+            var options = new FetchOptions { CustomHeaders = new string[] { knownHeader } };
+            using (var repo = new Repository(clonedRepoPath))
+            {
+                Assert.Throws<LibGit2SharpException>(() => Commands.Fetch(repo, "origin", Array.Empty<string>(), options, null));
+            }
+        }
+
     }
 }

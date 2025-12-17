@@ -21,7 +21,7 @@ namespace LibGit2Sharp
         {
             name = LaxUtf8Marshaler.FromNative(sig->name);
             email = LaxUtf8Marshaler.FromNative(sig->email);
-            when = Epoch.ToDateTimeOffset(sig->when.time, sig->when.offset);
+            when = DateTimeOffset.FromUnixTimeSeconds(sig->when.time).ToOffset(TimeSpan.FromMinutes(sig->when.offset));
         }
 
         /// <summary>
@@ -86,10 +86,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="Signature"/>.
+        /// Determines whether the specified <see cref="object"/> is equal to the current <see cref="Signature"/>.
         /// </summary>
-        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="Signature"/>.</param>
-        /// <returns>True if the specified <see cref="Object"/> is equal to the current <see cref="Signature"/>; otherwise, false.</returns>
+        /// <param name="obj">The <see cref="object"/> to compare with the current <see cref="Signature"/>.</param>
+        /// <returns>True if the specified <see cref="object"/> is equal to the current <see cref="Signature"/>; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as Signature);

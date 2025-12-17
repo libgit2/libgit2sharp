@@ -74,43 +74,41 @@ namespace LibGit2Sharp
         /// Update specified submodule.
         /// <para>
         ///   This will:
-        ///   1) Optionally initialize the if it not already initialzed,
+        ///   1) Optionally initialize the if it not already initialized,
         ///   2) clone the sub repository if it has not already been cloned, and
         ///   3) checkout the commit ID for the submodule in the sub repository.
         /// </para>
         /// </summary>
         /// <param name="name">The name of the submodule to update.</param>
-        /// <param name="options">Options controlling submodule udpate behavior and callbacks.</param>
+        /// <param name="options">Options controlling submodule update behavior and callbacks.</param>
         public virtual void Update(string name, SubmoduleUpdateOptions options)
         {
-            options = options ?? new SubmoduleUpdateOptions();
+            options ??= new SubmoduleUpdateOptions();
 
-            using (var handle = Proxy.git_submodule_lookup(repo.Handle, name))
+            using var handle = Proxy.git_submodule_lookup(repo.Handle, name) ?? throw new NotFoundException("Submodule lookup failed for '{0}'.", name);
+            using var checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options);
+            using var fetchOptionsWrapper = new GitFetchOptionsWrapper();
+
+            var gitCheckoutOptions = checkoutOptionsWrapper.Options;
+
+            var gitFetchOptions = fetchOptionsWrapper.Options;
+            gitFetchOptions.ProxyOptions = options.FetchOptions.ProxyOptions.CreateGitProxyOptions();
+            gitFetchOptions.RemoteCallbacks = new RemoteCallbacks(options.FetchOptions).GenerateCallbacks();
+
+            if (options.FetchOptions != null && options.FetchOptions.CustomHeaders != null)
             {
-                if (handle == null)
-                {
-                    throw new NotFoundException("Submodule lookup failed for '{0}'.",
-                                                              name);
-                }
-
-                using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
-                {
-                    var gitCheckoutOptions = checkoutOptionsWrapper.Options;
-
-                    var remoteCallbacks = new RemoteCallbacks(options);
-                    var gitRemoteCallbacks = remoteCallbacks.GenerateCallbacks();
-
-                    var gitSubmoduleUpdateOpts = new GitSubmoduleUpdateOptions
-                    {
-                        Version = 1,
-                        CheckoutOptions = gitCheckoutOptions,
-                        FetchOptions = new GitFetchOptions { ProxyOptions = new GitProxyOptions { Version = 1 }, RemoteCallbacks = gitRemoteCallbacks },
-                        CloneCheckoutStrategy = CheckoutStrategy.GIT_CHECKOUT_SAFE
-                    };
-
-                    Proxy.git_submodule_update(handle, options.Init, ref gitSubmoduleUpdateOpts);
-                }
+                gitFetchOptions.CustomHeaders =
+                    GitStrArrayManaged.BuildFrom(options.FetchOptions.CustomHeaders);
             }
+
+            var gitSubmoduleUpdateOpts = new GitSubmoduleUpdateOptions
+            {
+                Version = 1,
+                CheckoutOptions = gitCheckoutOptions,
+                FetchOptions = gitFetchOptions
+            };
+
+            Proxy.git_submodule_update(handle, options.Init, ref gitSubmoduleUpdateOpts);
         }
 
         /// <summary>

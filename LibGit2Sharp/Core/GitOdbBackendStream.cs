@@ -22,8 +22,8 @@ namespace LibGit2Sharp.Core
         public GitOdbBackendStreamMode Mode;
         public IntPtr HashCtx;
 
-        public Int64 DeclaredSize;
-        public Int64 ReceivedBytes;
+        public long DeclaredSize;
+        public long ReceivedBytes;
 
         public read_callback Read;
         public write_callback Write;
@@ -38,18 +38,22 @@ namespace LibGit2Sharp.Core
 
         public static int GCHandleOffset;
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int read_callback(
             IntPtr stream,
             IntPtr buffer,
             UIntPtr len);
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int write_callback(
             IntPtr stream,
             IntPtr buffer,
             UIntPtr len);
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int finalize_write_callback(IntPtr stream, ref GitOid oid);
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void free_callback(IntPtr stream);
     }
 }

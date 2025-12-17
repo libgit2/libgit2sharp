@@ -8,9 +8,12 @@ namespace LibGit2Sharp
     /// <summary>
     /// Stores the binary content of a tracked file.
     /// </summary>
+    /// <remarks>
+    /// Since the introduction of partially cloned repositories, blobs might be missing on your local repository (see https://git-scm.com/docs/partial-clone)
+    /// </remarks>
     public class Blob : GitObject
     {
-        private readonly ILazy<Int64> lazySize;
+        private readonly ILazy<long> lazySize;
         private readonly ILazy<bool> lazyIsBinary;
 
         /// <summary>
@@ -22,8 +25,8 @@ namespace LibGit2Sharp
         internal Blob(Repository repo, ObjectId id)
             : base(repo, id)
         {
-            lazySize = GitObjectLazyGroup.Singleton(repo, id, Proxy.git_blob_rawsize);
-            lazyIsBinary = GitObjectLazyGroup.Singleton(repo, id, Proxy.git_blob_is_binary);
+            lazySize = GitObjectLazyGroup.Singleton(repo, id, Proxy.git_blob_rawsize, throwIfMissing: true);
+            lazyIsBinary = GitObjectLazyGroup.Singleton(repo, id, Proxy.git_blob_is_binary, throwIfMissing: true);
         }
 
         /// <summary>
@@ -33,16 +36,19 @@ namespace LibGit2Sharp
         /// can be used.
         /// </para>
         /// </summary>
-        public virtual long Size { get { return lazySize.Value; } }
+        /// <exception cref="NotFoundException">Throws if blob is missing</exception>
+        public virtual long Size => lazySize.Value;
 
         /// <summary>
         ///  Determine if the blob content is most certainly binary or not.
         /// </summary>
-        public virtual bool IsBinary { get { return lazyIsBinary.Value; } }
+        /// <exception cref="NotFoundException">Throws if blob is missing</exception>
+        public virtual bool IsBinary => lazyIsBinary.Value;
 
         /// <summary>
         /// Gets the blob content in a <see cref="Stream"/>.
         /// </summary>
+        /// <exception cref="NotFoundException">Throws if blob is missing</exception>
         public virtual Stream GetContentStream()
         {
             return Proxy.git_blob_rawcontent_stream(repo.Handle, Id, Size);
@@ -53,6 +59,7 @@ namespace LibGit2Sharp
         /// checked out to the working directory.
         /// <param name="filteringOptions">Parameter controlling content filtering behavior</param>
         /// </summary>
+        /// <exception cref="NotFoundException">Throws if blob is missing</exception>
         public virtual Stream GetContentStream(FilteringOptions filteringOptions)
         {
             Ensure.ArgumentNotNull(filteringOptions, "filteringOptions");
@@ -64,6 +71,7 @@ namespace LibGit2Sharp
         /// Gets the blob content, decoded with UTF8 encoding if the encoding cannot be detected from the byte order mark
         /// </summary>
         /// <returns>Blob content as text.</returns>
+        /// <exception cref="NotFoundException">Throws if blob is missing</exception>
         public virtual string GetContentText()
         {
             return ReadToEnd(GetContentStream(), null);
@@ -75,6 +83,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="encoding">The encoding of the text to use, if it cannot be detected</param>
         /// <returns>Blob content as text.</returns>
+        /// <exception cref="NotFoundException">Throws if blob is missing</exception>
         public virtual string GetContentText(Encoding encoding)
         {
             Ensure.ArgumentNotNull(encoding, "encoding");
@@ -87,6 +96,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="filteringOptions">Parameter controlling content filtering behavior</param>
         /// <returns>Blob content as text.</returns>
+        /// <exception cref="NotFoundException">Throws if blob is missing</exception>
         public virtual string GetContentText(FilteringOptions filteringOptions)
         {
             return GetContentText(filteringOptions, null);
@@ -101,6 +111,7 @@ namespace LibGit2Sharp
         /// <param name="filteringOptions">Parameter controlling content filtering behavior</param>
         /// <param name="encoding">The encoding of the text. (default: detected or UTF8)</param>
         /// <returns>Blob content as text.</returns>
+        /// <exception cref="NotFoundException">Throws if blob is missing</exception>
         public virtual string GetContentText(FilteringOptions filteringOptions, Encoding encoding)
         {
             Ensure.ArgumentNotNull(filteringOptions, "filteringOptions");

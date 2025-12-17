@@ -3,7 +3,6 @@ using System.Linq;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
-using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -16,6 +15,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
+                Assert.False(blob.IsMissing);
 
                 var text = blob.GetContentText();
 
@@ -37,6 +37,7 @@ namespace LibGit2Sharp.Tests
                 repo.Config.Set("core.autocrlf", autocrlf);
 
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
+                Assert.False(blob.IsMissing);
 
                 var text = blob.GetContentText(new FilteringOptions("foo.txt"));
 
@@ -44,6 +45,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+#if NETFRAMEWORK //UTF-7 is disabled in .NET 5+
         [Theory]
         [InlineData("ascii", 4, "31 32 33 34")]
         [InlineData("utf-7", 4, "31 32 33 34")]
@@ -67,6 +69,7 @@ namespace LibGit2Sharp.Tests
                 var commit = repo.Commit("bom", Constants.Signature, Constants.Signature);
 
                 var blob = (Blob)commit.Tree[bomFile].Target;
+                Assert.False(blob.IsMissing);
                 Assert.Equal(expectedContentBytes, blob.Size);
                 using (var stream = blob.GetContentStream())
                 {
@@ -83,6 +86,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(expectedUtf7Chars, string.Join(" ", utf7Chars));
             }
         }
+#endif
 
         [Fact]
         public void CanGetBlobSize()
@@ -91,6 +95,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
+                Assert.False(blob.IsMissing);
                 Assert.Equal(10, blob.Size);
             }
         }
@@ -103,6 +108,7 @@ namespace LibGit2Sharp.Tests
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
                 Assert.NotNull(blob);
+                Assert.False(blob.IsMissing);
             }
         }
 
@@ -113,6 +119,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
+                Assert.False(blob.IsMissing);
 
                 var contentStream = blob.GetContentStream();
                 Assert.Equal(blob.Size, contentStream.Length);
@@ -139,6 +146,7 @@ namespace LibGit2Sharp.Tests
                 repo.Config.Set("core.autocrlf", autocrlf);
 
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
+                Assert.False(blob.IsMissing);
 
                 var contentStream = blob.GetContentStream(new FilteringOptions("foo.txt"));
                 Assert.Equal(expectedContent.Length, contentStream.Length);
@@ -163,6 +171,7 @@ namespace LibGit2Sharp.Tests
                 using (var stream = new MemoryStream(binaryContent))
                 {
                     Blob blob = repo.ObjectDatabase.CreateBlob(stream);
+                    Assert.False(blob.IsMissing);
 
                     using (var filtered = blob.GetContentStream(new FilteringOptions("foo.txt")))
                     {
@@ -185,7 +194,7 @@ namespace LibGit2Sharp.Tests
                     var sb = new StringBuilder();
                     for (int j = 0; j < 2000; j++)
                     {
-                        sb.Append(((i + 1)*(j + 1)).ToString("X8"));
+                        sb.Append(((i + 1) * (j + 1)).ToString("X8"));
                     }
                     File.AppendAllText(Path.Combine(repo.Info.WorkingDirectory, "small.txt"), sb.ToString());
                 }
@@ -195,6 +204,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("baae1fb3760a73481ced1fa03dc15614142c19ef", entry.Id.Sha);
 
                 var blob = repo.Lookup<Blob>(entry.Id.Sha);
+                Assert.False(blob.IsMissing);
 
                 using (Stream stream = blob.GetContentStream())
                 using (Stream file = File.OpenWrite(Path.Combine(repo.Info.WorkingDirectory, "small.fromblob.txt")))
@@ -216,7 +226,32 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
+                Assert.False(blob.IsMissing);
                 Assert.False(blob.IsBinary);
+            }
+        }
+
+        [Fact]
+        public void CanTellIfABlobIsMissing()
+        {
+            string repoPath = SandboxBareTestRepo();
+
+            // Manually delete the objects directory to simulate a partial clone
+            Directory.Delete(Path.Combine(repoPath, "objects", "a8"), true);
+
+            using (var repo = new Repository(repoPath))
+            {
+                // Look up for the tree that reference the blob which is now missing
+                var tree = repo.Lookup<Tree>("fd093bff70906175335656e6ce6ae05783708765");
+                var blob = (Blob)tree["README"].Target;
+
+                Assert.Equal("a8233120f6ad708f843d861ce2b7228ec4e3dec6", blob.Sha);
+                Assert.NotNull(blob);
+                Assert.True(blob.IsMissing);
+                Assert.Throws<NotFoundException>(() => blob.Size);
+                Assert.Throws<NotFoundException>(() => blob.IsBinary);
+                Assert.Throws<NotFoundException>(() => blob.GetContentText());
+                Assert.Throws<NotFoundException>(() => blob.GetContentText(new FilteringOptions("foo.txt")));
             }
         }
 

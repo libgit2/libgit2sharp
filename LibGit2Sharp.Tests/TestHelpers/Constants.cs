@@ -61,10 +61,10 @@ namespace LibGit2Sharp.Tests.TestHelpers
             if (Environment.GetEnvironmentVariables().Contains(LibGit2TestPath))
             {
                 Trace.TraceInformation("{0} environment variable detected", LibGit2TestPath);
-                tempPath = Environment.GetEnvironmentVariables()[LibGit2TestPath] as String;
+                tempPath = Environment.GetEnvironmentVariables()[LibGit2TestPath] as string;
             }
 
-            if (String.IsNullOrWhiteSpace(tempPath) || !Directory.Exists(tempPath))
+            if (string.IsNullOrWhiteSpace(tempPath) || !Directory.Exists(tempPath))
             {
                 Trace.TraceInformation("Using default test path value");
                 tempPath = Path.GetTempPath();

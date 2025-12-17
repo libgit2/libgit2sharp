@@ -640,7 +640,7 @@ namespace LibGit2Sharp.Tests
                 RepositoryStatus status = repo.RetrieveStatus(new StatusOptions() { IncludeUnaltered = true });
 
                 Assert.Equal(unalteredPaths.Length, status.Unaltered.Count());
-                Assert.Equal(unalteredPaths, status.Unaltered.OrderBy(s => s.FilePath).Select(s => s.FilePath).ToArray());
+                Assert.Equal(unalteredPaths, status.Unaltered.OrderBy(s => s.FilePath, StringComparer.OrdinalIgnoreCase).Select(s => s.FilePath).ToArray());
             }
         }
 

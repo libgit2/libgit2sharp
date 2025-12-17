@@ -52,41 +52,42 @@ namespace LibGit2Sharp
         private void Init(Repository repository)
         {
             configHandle = Proxy.git_config_new();
+            RepositoryHandle repoHandle = (repository != null) ? repository.Handle : null;
 
-            if (repository != null)
+            if (repoHandle != null)
             {
                 //TODO: push back this logic into libgit2.
                 // As stated by @carlosmn "having a helper function to load the defaults and then allowing you
                 // to modify it before giving it to git_repository_open_ext() would be a good addition, I think."
                 //  -- Agreed :)
                 string repoConfigLocation = Path.Combine(repository.Info.Path, "config");
-                Proxy.git_config_add_file_ondisk(configHandle, repoConfigLocation, ConfigurationLevel.Local);
+                Proxy.git_config_add_file_ondisk(configHandle, repoConfigLocation, ConfigurationLevel.Local, repoHandle);
 
-                Proxy.git_repository_set_config(repository.Handle, configHandle);
+                Proxy.git_repository_set_config(repoHandle, configHandle);
             }
             else if (repoConfigPath != null)
             {
-                Proxy.git_config_add_file_ondisk(configHandle, repoConfigPath, ConfigurationLevel.Local);
+                Proxy.git_config_add_file_ondisk(configHandle, repoConfigPath, ConfigurationLevel.Local, repoHandle);
             }
 
             if (globalConfigPath != null)
             {
-                Proxy.git_config_add_file_ondisk(configHandle, globalConfigPath, ConfigurationLevel.Global);
+                Proxy.git_config_add_file_ondisk(configHandle, globalConfigPath, ConfigurationLevel.Global, repoHandle);
             }
 
             if (xdgConfigPath != null)
             {
-                Proxy.git_config_add_file_ondisk(configHandle, xdgConfigPath, ConfigurationLevel.Xdg);
+                Proxy.git_config_add_file_ondisk(configHandle, xdgConfigPath, ConfigurationLevel.Xdg, repoHandle);
             }
 
             if (systemConfigPath != null)
             {
-                Proxy.git_config_add_file_ondisk(configHandle, systemConfigPath, ConfigurationLevel.System);
+                Proxy.git_config_add_file_ondisk(configHandle, systemConfigPath, ConfigurationLevel.System, repoHandle);
             }
 
             if (programDataConfigPath != null)
             {
-                Proxy.git_config_add_file_ondisk(configHandle, programDataConfigPath, ConfigurationLevel.ProgramData);
+                Proxy.git_config_add_file_ondisk(configHandle, programDataConfigPath, ConfigurationLevel.ProgramData, repoHandle);
             }
         }
 
@@ -232,9 +233,9 @@ namespace LibGit2Sharp
         /// Unset a configuration variable (key and value) in the local configuration.
         /// </summary>
         /// <param name="key">The key to unset.</param>
-        public virtual void Unset(string key)
+        public virtual bool Unset(string key)
         {
-            Unset(key, ConfigurationLevel.Local);
+            return Unset(key, ConfigurationLevel.Local);
         }
 
         /// <summary>
@@ -242,23 +243,37 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="key">The key to unset.</param>
         /// <param name="level">The configuration file which should be considered as the target of this operation</param>
-        public virtual void Unset(string key, ConfigurationLevel level)
+        public virtual bool Unset(string key, ConfigurationLevel level)
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
             using (ConfigurationHandle h = RetrieveConfigurationHandle(level, true, configHandle))
             {
-                Proxy.git_config_delete(h, key);
+                return Proxy.git_config_delete(h, key);
             }
         }
 
-        internal void UnsetMultivar(string key, ConfigurationLevel level)
+        /// <summary>
+        /// Unset all configuration values in a multivar variable (key and value) in the local configuration.
+        /// </summary>
+        /// <param name="key">The key to unset.</param>
+        public virtual bool UnsetAll(string key)
+        {
+            return UnsetAll(key, ConfigurationLevel.Local);
+        }
+
+        /// <summary>
+        /// Unset all configuration values in a multivar variable (key and value).
+        /// </summary>
+        /// <param name="key">The key to unset.</param>
+        /// <param name="level">The configuration file which should be considered as the target of this operation</param>
+        public virtual bool UnsetAll(string key, ConfigurationLevel level)
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
             using (ConfigurationHandle h = RetrieveConfigurationHandle(level, true, configHandle))
             {
-                Proxy.git_config_delete_multivar(h, key);
+                return Proxy.git_config_delete_multivar(h, key);
             }
         }
 
@@ -630,6 +645,53 @@ namespace LibGit2Sharp
                 }
 
                 configurationTypedUpdater[typeof(T)](key, value, h);
+            }
+        }
+
+        /// <summary>
+        /// Adds a configuration value for a multivalue key in the local configuration. Keys are in the form 'section.name'.
+        /// <para>
+        ///   For example in order to add the value for this in a .git\config file:
+        ///
+        ///   [test]
+        ///   plugin = first
+        ///
+        ///   You would call:
+        ///
+        ///   repo.Config.Add("test.plugin", "first");
+        /// </para>
+        /// </summary>
+        /// <param name="key">The key parts</param>
+        /// <param name="value">The value</param>
+        public virtual void Add(string key, string value)
+        {
+            Add(key, value, ConfigurationLevel.Local);
+        }
+
+        /// <summary>
+        /// Adds a configuration value for a multivalue key. Keys are in the form 'section.name'.
+        /// <para>
+        ///   For example in order to add the value for this in a .git\config file:
+        ///
+        ///   [test]
+        ///   plugin = first
+        ///
+        ///   You would call:
+        ///
+        ///   repo.Config.Add("test.plugin", "first");
+        /// </para>
+        /// </summary>
+        /// <param name="key">The key parts</param>
+        /// <param name="value">The value</param>
+        /// <param name="level">The configuration file which should be considered as the target of this operation</param>
+        public virtual void Add(string key, string value, ConfigurationLevel level)
+        {
+            Ensure.ArgumentNotNull(value, "value");
+            Ensure.ArgumentNotNullOrEmptyString(key, "key");
+
+            using (ConfigurationHandle h = RetrieveConfigurationHandle(level, true, configHandle))
+            {
+                Proxy.git_config_add_string(h, key, value);
             }
         }
 

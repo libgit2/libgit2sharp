@@ -62,10 +62,10 @@ namespace LibGit2Sharp.Tests
             string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
-                AssertCorrectHeadBlame(repo.Blame("README", new BlameOptions {StartingAt = "HEAD" }));
-                AssertCorrectHeadBlame(repo.Blame("README", new BlameOptions {StartingAt = repo.Head }));
-                AssertCorrectHeadBlame(repo.Blame("README", new BlameOptions {StartingAt = repo.Head.Tip }));
-                AssertCorrectHeadBlame(repo.Blame("README", new BlameOptions {StartingAt = repo.Branches["master"]}));
+                AssertCorrectHeadBlame(repo.Blame("README", new BlameOptions { StartingAt = "HEAD" }));
+                AssertCorrectHeadBlame(repo.Blame("README", new BlameOptions { StartingAt = repo.Head }));
+                AssertCorrectHeadBlame(repo.Blame("README", new BlameOptions { StartingAt = repo.Head.Tip }));
+                AssertCorrectHeadBlame(repo.Blame("README", new BlameOptions { StartingAt = repo.Branches["master"] }));
             }
         }
 
@@ -78,7 +78,7 @@ namespace LibGit2Sharp.Tests
                 // $ git blame .\new.txt
                 // 9fd738e8 (Scott Chacon 2010-05-24 10:19:19 -0700 1) my new file
                 // (be3563a comes after 9fd738e8)
-                var blame = repo.Blame("new.txt", new BlameOptions {StoppingAt = "be3563a"});
+                var blame = repo.Blame("new.txt", new BlameOptions { StoppingAt = "be3563a" });
                 Assert.StartsWith("be3563a", blame[0].FinalCommit.Sha);
             }
         }

@@ -459,7 +459,7 @@ namespace LibGit2Sharp.Tests
                 Reference master = repo.Refs[masterRef];
                 Assert.NotEqual(sha, master.ResolveToDirectReference().Target.Sha);
 
-                Reference updated = repo.Refs.UpdateTarget(masterRef, sha.Substring(0,4));
+                Reference updated = repo.Refs.UpdateTarget(masterRef, sha.Substring(0, 4));
 
                 master = repo.Refs[masterRef];
                 Assert.Equal(updated, master);
@@ -556,7 +556,7 @@ namespace LibGit2Sharp.Tests
 
                 const string name = "refs/heads/master";
 
-                var master = (DirectReference) repo.Refs[name];
+                var master = (DirectReference)repo.Refs[name];
                 var @from = master.Target.Id;
 
                 const string logMessage = "update target message";
@@ -894,7 +894,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<ArgumentNullException>(() => repo.Refs.ReachableFrom(null));
                 Assert.Throws<ArgumentNullException>(() => repo.Refs.ReachableFrom(null, repo.Commits.Take(2)));
                 Assert.Throws<ArgumentNullException>(() => repo.Refs.ReachableFrom(repo.Refs, null));
-                Assert.Empty(repo.Refs.ReachableFrom(new Commit[] { }));
+                Assert.Empty(repo.Refs.ReachableFrom(Array.Empty<Commit>()));
             }
         }
     }

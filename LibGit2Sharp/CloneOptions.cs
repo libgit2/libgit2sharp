@@ -4,12 +4,23 @@ using LibGit2Sharp.Handlers;
 namespace LibGit2Sharp
 {
     /// <summary>
-    /// Options to define clone behaviour
+    /// Options to define clone behavior
     /// </summary>
-    public sealed class CloneOptions : FetchOptionsBase, IConvertableToGitCheckoutOpts
+    public sealed class CloneOptions : IConvertableToGitCheckoutOpts
     {
         /// <summary>
-        /// Creates default <see cref="CloneOptions"/> for a non-bare clone
+        /// Creates <see cref="CloneOptions"/> with specified <see cref="FetchOptions"/> for a non-bare clone.
+        /// </summary>
+        /// <param name="fetchOptions">The fetch options to use.</param>
+        public CloneOptions(FetchOptions fetchOptions) : this()
+        {
+            Ensure.ArgumentNotNull(fetchOptions, "fetchOptions");
+
+            FetchOptions = fetchOptions;
+        }
+
+        /// <summary>
+        /// Creates default <see cref="CloneOptions"/> for a non-bare clone.
         /// </summary>
         public CloneOptions()
         {
@@ -42,6 +53,11 @@ namespace LibGit2Sharp
         /// Handler for checkout progress information.
         /// </summary>
         public CheckoutProgressHandler OnCheckoutProgress { get; set; }
+
+        /// <summary>
+        /// Gets or sets the fetch options.
+        /// </summary>
+        public FetchOptions FetchOptions { get; } = new();
 
         #region IConvertableToGitCheckoutOpts
 

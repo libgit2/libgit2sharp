@@ -323,7 +323,7 @@ namespace LibGit2Sharp.Tests
             string path = SandboxMergeTestRepo();
             using (var repo = new Repository(path))
             {
-                if(fromDetachedHead)
+                if (fromDetachedHead)
                 {
                     Commands.Checkout(repo, repo.Head.Tip.Id.Sha);
                 }
@@ -512,7 +512,7 @@ namespace LibGit2Sharp.Tests
             {
                 Commit commitToMerge = repo.Branches["normal_merge"].Tip;
 
-                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, new MergeOptions() { CommitOnSuccess = false});
+                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, new MergeOptions() { CommitOnSuccess = false });
 
                 Assert.Equal(MergeStatus.NonFastForward, result.Status);
                 Assert.Null(result.Commit);
@@ -649,7 +649,7 @@ namespace LibGit2Sharp.Tests
 
                 // Get the blob containing the expected content.
                 Blob expectedBlob = null;
-                switch(conflictStrategy)
+                switch (conflictStrategy)
                 {
                     case CheckoutFileConflictStrategy.Theirs:
                         expectedBlob = repo.Lookup<Blob>(conflict.Theirs.Id);
@@ -731,7 +731,7 @@ namespace LibGit2Sharp.Tests
             string path = SandboxMergeTestRepo();
             using (var repo = new Repository(path))
             {
-                Branch branch = repo. Branches[branchName];
+                Branch branch = repo.Branches[branchName];
                 MergeResult result = repo.Merge(branch, Constants.Signature, new MergeOptions() { FastForwardStrategy = strategy });
 
                 Assert.Equal(expectedMergeStatus, result.Status);
@@ -748,7 +748,7 @@ namespace LibGit2Sharp.Tests
                 repo.Refs.Add("HEAD", "refs/heads/orphan", true);
 
                 // Remove entries from the working directory
-                foreach(var entry in repo.RetrieveStatus())
+                foreach (var entry in repo.RetrieveStatus())
                 {
                     Commands.Unstage(repo, entry.FilePath);
                     Commands.Remove(repo, entry.FilePath, true);
@@ -899,6 +899,52 @@ namespace LibGit2Sharp.Tests
                 var mergeTreeResult = repo.ObjectDatabase.MergeCommits(master.Tip, branch.Tip, new MergeTreeOptions() { IgnoreWhitespaceChange = true });
                 Assert.NotEqual(MergeTreeStatus.Conflicts, mergeTreeResult.Status);
                 Assert.Empty(mergeTreeResult.Conflicts);
+            }
+        }
+
+        [Fact]
+        public void CanMergeIntoIndex()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var master = repo.Lookup<Commit>("master");
+
+                using (TransientIndex index = repo.ObjectDatabase.MergeCommitsIntoIndex(master, master, null))
+                {
+                    var tree = index.WriteToTree();
+                    Assert.Equal(master.Tree.Id, tree.Id);
+                }
+            }
+        }
+
+        [Fact]
+        public void CanMergeIntoIndexWithConflicts()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var master = repo.Lookup<Commit>("master");
+                var branch = repo.Lookup<Commit>("conflicts");
+
+                using (TransientIndex index = repo.ObjectDatabase.MergeCommitsIntoIndex(branch, master, null))
+                {
+                    Assert.False(index.IsFullyMerged);
+
+                    var conflict = index.Conflicts.First();
+
+                    //Resolve the conflict by taking the blob from branch
+                    var blob = repo.Lookup<Blob>(conflict.Ours.Id);
+                    //Add() does not remove conflict entries for the same path, so they must be explicitly removed first.
+                    index.Remove(conflict.Ours.Path);
+                    index.Add(blob, conflict.Ours.Path, Mode.NonExecutableFile);
+
+                    Assert.True(index.IsFullyMerged);
+                    var tree = index.WriteToTree();
+
+                    //Since we took the conflicted blob from the branch, the merged result should be the same as the branch.
+                    Assert.Equal(branch.Tree.Id, tree.Id);
+                }
             }
         }
 

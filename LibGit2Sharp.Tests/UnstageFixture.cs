@@ -251,7 +251,7 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Throws<ArgumentException>(() => Commands.Unstage(repo, string.Empty));
                 Assert.Throws<ArgumentNullException>(() => Commands.Unstage(repo, (string)null));
-                Assert.Throws<ArgumentException>(() => Commands.Unstage(repo, new string[] { }));
+                Assert.Throws<ArgumentException>(() => Commands.Unstage(repo, Array.Empty<string>()));
                 Assert.Throws<ArgumentException>(() => Commands.Unstage(repo, new string[] { null }));
             }
         }

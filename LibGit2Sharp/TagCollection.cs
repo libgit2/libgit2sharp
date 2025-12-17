@@ -114,7 +114,7 @@ namespace LibGit2Sharp
         /// <param name="name">The name.</param>
         /// <param name="objectish">Revparse spec for the target object.</param>
         /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
-        public virtual Tag Add( string name, string objectish, bool allowOverwrite)
+        public virtual Tag Add(string name, string objectish, bool allowOverwrite)
         {
             Ensure.ArgumentNotNullOrEmptyString(objectish, "objectish");
 

@@ -1,5 +1,7 @@
 ﻿using System;
+#if NETFRAMEWORK
 using System.Runtime.Serialization;
+#endif
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -7,8 +9,10 @@ namespace LibGit2Sharp
     /// <summary>
     /// The exception that is thrown attempting to reference a resource that does not exist.
     /// </summary>
+#if NETFRAMEWORK
     [Serializable]
-    public class NotFoundException : LibGit2SharpException
+#endif
+    public class NotFoundException : NativeException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2Sharp.NotFoundException"/> class.
@@ -27,7 +31,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2Sharp.NotFoundException"/> class with a specified error message.
         /// </summary>
-        /// <param name="format">A composite format string for use in <see cref="String.Format(IFormatProvider, string, object[])"/>.</param>
+        /// <param name="format">A composite format string for use in <see cref="string.Format(IFormatProvider, string, object[])"/>.</param>
         /// <param name="args">An object array that contains zero or more objects to format.</param>
         public NotFoundException(string format, params object[] args)
             : base(format, args)
@@ -42,6 +46,7 @@ namespace LibGit2Sharp
             : base(message, innerException)
         { }
 
+#if NETFRAMEWORK
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2Sharp.NotFoundException"/> class with a serialized data.
         /// </summary>
@@ -50,9 +55,18 @@ namespace LibGit2Sharp
         protected NotFoundException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
+#endif
 
-        internal NotFoundException(string message, GitErrorCode code, GitErrorCategory category)
-            : base(message, code, category)
+        internal NotFoundException(string message, GitErrorCategory category)
+            : base(message, category)
         { }
+
+        internal override GitErrorCode ErrorCode
+        {
+            get
+            {
+                return GitErrorCode.NotFound;
+            }
+        }
     }
 }

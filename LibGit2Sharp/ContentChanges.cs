@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
@@ -52,6 +53,16 @@ namespace LibGit2Sharp
         public virtual int LinesDeleted { get; internal set; }
 
         /// <summary>
+        /// The list of added lines.
+        /// </summary>
+        public virtual List<Line> AddedLines { get; } = new List<Line>();
+
+        /// <summary>
+        /// The list of deleted lines.
+        /// </summary>
+        public virtual List<Line> DeletedLines { get; } = new List<Line>();
+
+        /// <summary>
         /// The patch corresponding to these changes.
         /// </summary>
         public virtual string Patch
@@ -95,11 +106,13 @@ namespace LibGit2Sharp
             switch (line.lineOrigin)
             {
                 case GitDiffLineOrigin.GIT_DIFF_LINE_ADDITION:
+                    AddedLines.Add(new Line(line.NewLineNo, decodedContent));
                     LinesAdded++;
                     prefix = Encoding.ASCII.GetString(new[] { (byte)line.lineOrigin });
                     break;
 
                 case GitDiffLineOrigin.GIT_DIFF_LINE_DELETION:
+                    DeletedLines.Add(new Line(line.OldLineNo, decodedContent));
                     LinesDeleted++;
                     prefix = Encoding.ASCII.GetString(new[] { (byte)line.lineOrigin });
                     break;

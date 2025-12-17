@@ -34,7 +34,7 @@
         public virtual RevertStatus Status { get; private set; }
     }
 
-     /// <summary>
+    /// <summary>
     /// The status of what happened as a result of a revert.
     /// </summary>
     public enum RevertStatus

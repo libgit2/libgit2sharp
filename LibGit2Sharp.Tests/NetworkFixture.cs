@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
-using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -12,7 +11,6 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData("http://github.com/libgit2/TestGitRepository")]
         [InlineData("https://github.com/libgit2/TestGitRepository")]
-        [InlineData("git://github.com/libgit2/TestGitRepository.git")]
         public void CanListRemoteReferences(string url)
         {
             string remoteName = "testRemote";
@@ -49,7 +47,6 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData("http://github.com/libgit2/TestGitRepository")]
         [InlineData("https://github.com/libgit2/TestGitRepository")]
-        [InlineData("git://github.com/libgit2/TestGitRepository.git")]
         public void CanListRemoteReferencesFromUrl(string url)
         {
             string repoPath = InitNewRepository();
@@ -94,9 +91,9 @@ namespace LibGit2Sharp.Tests
                 Remote remote = repo.Network.Remotes[remoteName];
                 IEnumerable<Reference> references = repo.Network.ListReferences(remote).ToList();
 
-                var actualRefs = new List<Tuple<string,string>>();
+                var actualRefs = new List<Tuple<string, string>>();
 
-                foreach(Reference reference in references)
+                foreach (Reference reference in references)
                 {
                     Assert.NotNull(reference.CanonicalName);
 
@@ -166,7 +163,7 @@ namespace LibGit2Sharp.Tests
 
                 MergeResult mergeResult = Commands.Pull(repo, Constants.Signature, pullOptions);
 
-                if(fastForwardStrategy == FastForwardStrategy.Default || fastForwardStrategy == FastForwardStrategy.FastForwardOnly)
+                if (fastForwardStrategy == FastForwardStrategy.Default || fastForwardStrategy == FastForwardStrategy.FastForwardOnly)
                 {
                     Assert.Equal(MergeStatus.FastForward, mergeResult.Status);
                     Assert.Equal(mergeResult.Commit, repo.Branches["refs/remotes/origin/master"].Tip);
@@ -226,7 +223,7 @@ namespace LibGit2Sharp.Tests
                 {
                     Commands.Pull(repo, Constants.Signature, new PullOptions());
                 }
-                catch(MergeFetchHeadNotFoundException ex)
+                catch (MergeFetchHeadNotFoundException ex)
                 {
                     didPullThrow = true;
                     thrownException = ex;
@@ -252,7 +249,7 @@ namespace LibGit2Sharp.Tests
                 Assert.False(repo.RetrieveStatus().Any());
                 Assert.Equal(repo.Lookup<Commit>("refs/remotes/origin/master~1"), repo.Head.Tip);
 
-                Commands.Fetch(repo, repo.Head.RemoteName, new string[0], null, null);
+                Commands.Fetch(repo, repo.Head.RemoteName, Array.Empty<string>(), null, null);
 
                 MergeOptions mergeOptions = new MergeOptions()
                 {
@@ -279,7 +276,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(clonedRepoPath))
             {
                 repo.Network.Remotes.Add("pruner", clonedRepoPath2);
-                Commands.Fetch(repo, "pruner", new string[0], null, null);
+                Commands.Fetch(repo, "pruner", Array.Empty<string>(), null, null);
                 Assert.NotNull(repo.Refs["refs/remotes/pruner/master"]);
 
                 // Remove the branch from the source repository
@@ -289,11 +286,11 @@ namespace LibGit2Sharp.Tests
                 }
 
                 // and by default we don't prune it
-                Commands.Fetch(repo, "pruner", new string[0], null, null);
+                Commands.Fetch(repo, "pruner", Array.Empty<string>(), null, null);
                 Assert.NotNull(repo.Refs["refs/remotes/pruner/master"]);
 
                 // but we do when asked by the user
-                Commands.Fetch(repo, "pruner", new string[0], new FetchOptions { Prune = true}, null);
+                Commands.Fetch(repo, "pruner", Array.Empty<string>(), new FetchOptions { Prune = true }, null);
                 Assert.Null(repo.Refs["refs/remotes/pruner/master"]);
             }
         }

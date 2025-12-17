@@ -63,7 +63,7 @@ namespace LibGit2Sharp
         {
             if (size < 0 || (UIntPtr.Size == sizeof(int) && size > int.MaxValue))
             {
-                throw new ArgumentOutOfRangeException("size");
+                throw new ArgumentOutOfRangeException(nameof(size));
             }
 
             IntPtr buffer = Proxy.git_odb_backend_malloc(this.GitOdbBackendPointer, new UIntPtr((ulong)size));
@@ -238,7 +238,7 @@ namespace LibGit2Sharp
 
                 if (odbBackend == null)
                 {
-                    Proxy.giterr_set_str(GitErrorCategory.Reference, "Cannot retrieve the managed OdbBackend.");
+                    Proxy.git_error_set_str(GitErrorCategory.Reference, "Cannot retrieve the managed OdbBackend.");
                     return null;
                 }
 
@@ -288,7 +288,7 @@ namespace LibGit2Sharp
                 }
                 catch (Exception ex)
                 {
-                    Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                    Proxy.git_error_set_str(GitErrorCategory.Odb, ex);
                     return (int)GitErrorCode.Error;
                 }
                 finally
@@ -352,7 +352,7 @@ namespace LibGit2Sharp
                 }
                 catch (Exception ex)
                 {
-                    Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                    Proxy.git_error_set_str(GitErrorCategory.Odb, ex);
                     return (int)GitErrorCode.Error;
                 }
                 finally
@@ -397,7 +397,7 @@ namespace LibGit2Sharp
                 }
                 catch (Exception ex)
                 {
-                    Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                    Proxy.git_error_set_str(GitErrorCategory.Odb, ex);
                     return (int)GitErrorCode.Error;
                 }
 
@@ -428,7 +428,7 @@ namespace LibGit2Sharp
                 }
                 catch (Exception ex)
                 {
-                    Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                    Proxy.git_error_set_str(GitErrorCategory.Odb, ex);
                     return (int)GitErrorCode.Error;
                 }
             }
@@ -463,7 +463,7 @@ namespace LibGit2Sharp
                 }
                 catch (Exception ex)
                 {
-                    Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                    Proxy.git_error_set_str(GitErrorCategory.Odb, ex);
                     return (int)GitErrorCode.Error;
                 }
             }
@@ -495,7 +495,7 @@ namespace LibGit2Sharp
                 }
                 catch (Exception ex)
                 {
-                    Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                    Proxy.git_error_set_str(GitErrorCategory.Odb, ex);
                     return (int)GitErrorCode.Error;
                 }
             }
@@ -516,7 +516,7 @@ namespace LibGit2Sharp
                 }
                 catch (Exception ex)
                 {
-                    Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                    Proxy.git_error_set_str(GitErrorCategory.Odb, ex);
                     return false;
                 }
             }
@@ -550,7 +550,7 @@ namespace LibGit2Sharp
                 }
                 catch (Exception ex)
                 {
-                    Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                    Proxy.git_error_set_str(GitErrorCategory.Odb, ex);
                     return (int)GitErrorCode.Error;
                 }
             }
@@ -572,7 +572,7 @@ namespace LibGit2Sharp
                 }
                 catch (Exception ex)
                 {
-                    Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                    Proxy.git_error_set_str(GitErrorCategory.Odb, ex);
                     return (int)GitErrorCode.Error;
                 }
             }
@@ -601,7 +601,7 @@ namespace LibGit2Sharp
                 }
                 catch (Exception ex)
                 {
-                    Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                    Proxy.git_error_set_str(GitErrorCategory.Odb, ex);
                 }
             }
 

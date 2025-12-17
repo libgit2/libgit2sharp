@@ -32,7 +32,7 @@ namespace LibGit2Sharp.Core
             return -1;
         }
 
-        public virtual IntPtr MarshalManagedToNative(Object managedObj)
+        public virtual IntPtr MarshalManagedToNative(object managedObj)
         {
             if (managedObj == null)
             {
@@ -51,14 +51,14 @@ namespace LibGit2Sharp.Core
             return FromManaged(encoding, str);
         }
 
-        public virtual Object MarshalNativeToManaged(IntPtr pNativeData)
+        public virtual object MarshalNativeToManaged(IntPtr pNativeData)
         {
             return FromNative(encoding, pNativeData);
         }
 
         #endregion
 
-        public static unsafe IntPtr FromManaged(Encoding encoding, String value)
+        public static unsafe IntPtr FromManaged(Encoding encoding, string value)
         {
             if (encoding == null || value == null)
             {
@@ -114,10 +114,10 @@ namespace LibGit2Sharp.Core
 
             if (walk == start)
             {
-                return String.Empty;
+                return string.Empty;
             }
 
-            return new String((sbyte*)pNativeData, 0, (int)(walk - start), encoding);
+            return new string((sbyte*)pNativeData, 0, (int)(walk - start), encoding);
         }
 
         public static unsafe string FromNative(Encoding encoding, IntPtr pNativeData, int length)
@@ -129,10 +129,10 @@ namespace LibGit2Sharp.Core
 
             if (length == 0)
             {
-                return String.Empty;
+                return string.Empty;
             }
 
-            return new String((sbyte*)pNativeData.ToPointer(), 0, length, encoding);
+            return new string((sbyte*)pNativeData.ToPointer(), 0, length, encoding);
         }
 
         public static string FromBuffer(Encoding encoding, byte[] buffer)
@@ -160,7 +160,7 @@ namespace LibGit2Sharp.Core
 
             if (length == 0)
             {
-                return String.Empty;
+                return string.Empty;
             }
 
             return encoding.GetString(buffer, 0, length);

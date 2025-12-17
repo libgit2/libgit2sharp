@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
-using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -162,10 +161,8 @@ namespace LibGit2Sharp.Tests
 
             AssertSucceedingButNotError();
 
-            var nonBackedUpRefs = repo.Refs.Where(
-                x => !x.CanonicalName.StartsWith("refs/original/") && !x.CanonicalName.StartsWith("refs/notes/"));
-            Assert.Empty(repo.Commits.QueryBy(new CommitFilter { IncludeReachableFrom = nonBackedUpRefs })
-                             .Where(c => c.Author.Name != "Ben Straub"));
+            var nonBackedUpRefs = repo.Refs.Where(x => !x.CanonicalName.StartsWith("refs/original/") && !x.CanonicalName.StartsWith("refs/notes/"));
+            Assert.DoesNotContain(repo.Commits.QueryBy(new CommitFilter { IncludeReachableFrom = nonBackedUpRefs }), c => c.Author.Name != "Ben Straub");
         }
 
         [Fact]
@@ -234,9 +231,9 @@ namespace LibGit2Sharp.Tests
 
             AssertSucceedingButNotError();
 
-            Assert.Equal(new Commit[0],
+            Assert.Equal(Array.Empty<Commit>(),
                          repo.Commits
-                             .QueryBy(new CommitFilter {IncludeReachableFrom = repo.Branches})
+                             .QueryBy(new CommitFilter { IncludeReachableFrom = repo.Branches })
                              .Where(c => c["README"] != null
                                          && c["README"].Target.Id != currentReadme.Target.Id)
                              .ToArray());
@@ -403,9 +400,9 @@ namespace LibGit2Sharp.Tests
 
             AssertSucceedingButNotError();
 
-            Assert.NotEmpty(repo.Refs.Where(x => x.CanonicalName.StartsWith("refs/original")));
+            Assert.Contains(repo.Refs, x => x.CanonicalName.StartsWith("refs/original"));
 
-            Assert.Empty(repo.Refs.Where(x => x.CanonicalName.StartsWith("refs/rewritten")));
+            Assert.DoesNotContain(repo.Refs, x => x.CanonicalName.StartsWith("refs/rewritten"));
 
             repo.Refs.RewriteHistory(new RewriteHistoryOptions
             {
@@ -418,7 +415,7 @@ namespace LibGit2Sharp.Tests
 
             AssertSucceedingButNotError();
 
-            Assert.NotEmpty(repo.Refs.Where(x => x.CanonicalName.StartsWith("refs/rewritten")));
+            Assert.Contains(repo.Refs, x => x.CanonicalName.StartsWith("refs/rewritten"));
         }
 
         [Fact]
@@ -494,7 +491,7 @@ namespace LibGit2Sharp.Tests
             // Ensure br2 is still a merge commit
             var parents = repo.Branches["br2"].Tip.Parents.ToList();
             Assert.Equal(2, parents.Count());
-            Assert.NotEmpty(parents.Where(c => c.Sha.StartsWith("9fd738e")));
+            Assert.Contains(parents, c => c.Sha.StartsWith("9fd738e"));
             Assert.Equal("abc", parents.Single(c => !c.Sha.StartsWith("9fd738e")).Message);
         }
 
@@ -535,7 +532,7 @@ namespace LibGit2Sharp.Tests
             var newOriginalRefs = repo.Refs.FromGlob("refs/original/*").OrderBy(r => r.CanonicalName).ToArray();
             Assert.Equal(originalRefs, newOriginalRefs);
 
-            Assert.Empty(repo.Refs.Where(x => x.CanonicalName.StartsWith("refs/original/original/")));
+            Assert.DoesNotContain(repo.Refs, x => x.CanonicalName.StartsWith("refs/original/original/"));
         }
 
         [Fact]

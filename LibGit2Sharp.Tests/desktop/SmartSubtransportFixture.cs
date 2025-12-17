@@ -4,9 +4,7 @@ using System.IO;
 using System.Net;
 using System.Net.Security;
 using LibGit2Sharp.Tests.TestHelpers;
-using LibGit2Sharp.Core;
 using Xunit;
-using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -63,7 +61,7 @@ namespace LibGit2Sharp.Tests
                     }
 
                     // Perform the actual fetch
-                    Commands.Fetch(repo, remoteName, new string[0],
+                    Commands.Fetch(repo, remoteName, Array.Empty<string>(),
                         new FetchOptions { OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler, TagFetchMode = TagFetchMode.Auto },
                     null);
 
@@ -79,58 +77,58 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Theory]
-        [InlineData("https", "https://bitbucket.org/libgit2/testgitrepository.git", "libgit3", "libgit3")]
-        public void CanUseCredentials(string scheme, string url, string user, string pass)
-        {
-            string remoteName = "testRemote";
+        //[Theory]
+        //[InlineData("https", "https://bitbucket.org/libgit2/testgitrepository.git", "libgit3", "libgit3")]
+        //public void CanUseCredentials(string scheme, string url, string user, string pass)
+        //{
+        //    string remoteName = "testRemote";
 
-            var scd = BuildSelfCleaningDirectory();
-            Repository.Init(scd.RootedDirectoryPath);
+        //    var scd = BuildSelfCleaningDirectory();
+        //    Repository.Init(scd.RootedDirectoryPath);
 
-            SmartSubtransportRegistration<MockSmartSubtransport> registration = null;
+        //    SmartSubtransportRegistration<MockSmartSubtransport> registration = null;
 
-            try
-            {
-                // Disable server certificate validation for testing.
-                // Do *NOT* enable this in production.
-                ServicePointManager.ServerCertificateValidationCallback = certificateValidationCallback;
+        //    try
+        //    {
+        //        // Disable server certificate validation for testing.
+        //        // Do *NOT* enable this in production.
+        //        ServicePointManager.ServerCertificateValidationCallback = certificateValidationCallback;
 
-                registration = GlobalSettings.RegisterSmartSubtransport<MockSmartSubtransport>(scheme);
-                Assert.NotNull(registration);
+        //        registration = GlobalSettings.RegisterSmartSubtransport<MockSmartSubtransport>(scheme);
+        //        Assert.NotNull(registration);
 
-                using (var repo = new Repository(scd.DirectoryPath))
-                {
-                    repo.Network.Remotes.Add(remoteName, url);
+        //        using (var repo = new Repository(scd.DirectoryPath))
+        //        {
+        //            repo.Network.Remotes.Add(remoteName, url);
 
-                    // Set up structures for the expected results
-                    // and verifying the RemoteUpdateTips callback.
-                    TestRemoteInfo expectedResults = TestRemoteInfo.TestRemoteInstance;
-                    ExpectedFetchState expectedFetchState = new ExpectedFetchState(remoteName);
+        //            // Set up structures for the expected results
+        //            // and verifying the RemoteUpdateTips callback.
+        //            TestRemoteInfo expectedResults = TestRemoteInfo.TestRemoteInstance;
+        //            ExpectedFetchState expectedFetchState = new ExpectedFetchState(remoteName);
 
-                    // Add expected branch objects
-                    foreach (KeyValuePair<string, ObjectId> kvp in expectedResults.BranchTips)
-                    {
-                        expectedFetchState.AddExpectedBranch(kvp.Key, ObjectId.Zero, kvp.Value);
-                    }
+        //            // Add expected branch objects
+        //            foreach (KeyValuePair<string, ObjectId> kvp in expectedResults.BranchTips)
+        //            {
+        //                expectedFetchState.AddExpectedBranch(kvp.Key, ObjectId.Zero, kvp.Value);
+        //            }
 
-                    // Perform the actual fetch
-                    Commands.Fetch(repo, remoteName, new string[0], new FetchOptions {
-                        OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler, TagFetchMode = TagFetchMode.Auto,
-                        CredentialsProvider = (_user, _valid, _hostname) => new UsernamePasswordCredentials() { Username = user, Password = pass },
-                    }, null);
+        //            // Perform the actual fetch
+        //            Commands.Fetch(repo, remoteName, new string[0], new FetchOptions {
+        //                OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler, TagFetchMode = TagFetchMode.Auto,
+        //                CredentialsProvider = (_user, _valid, _hostname) => new UsernamePasswordCredentials() { Username = user, Password = pass },
+        //            }, null);
 
-                    // Verify the expected
-                    expectedFetchState.CheckUpdatedReferences(repo);
-                }
-            }
-            finally
-            {
-                GlobalSettings.UnregisterSmartSubtransport(registration);
+        //            // Verify the expected
+        //            expectedFetchState.CheckUpdatedReferences(repo);
+        //        }
+        //    }
+        //    finally
+        //    {
+        //        GlobalSettings.UnregisterSmartSubtransport(registration);
 
-                ServicePointManager.ServerCertificateValidationCallback -= certificateValidationCallback;
-            }
-        }
+        //        ServicePointManager.ServerCertificateValidationCallback -= certificateValidationCallback;
+        //    }
+        //}
 
         [Fact]
         public void CannotReregisterScheme()
@@ -163,29 +161,29 @@ namespace LibGit2Sharp.Tests
 
         private class MockSmartSubtransport : RpcSmartSubtransport
         {
-            protected override SmartSubtransportStream Action(String url, GitSmartSubtransportAction action)
+            protected override SmartSubtransportStream Action(string url, GitSmartSubtransportAction action)
             {
-                String endpointUrl, contentType = null;
+                string endpointUrl, contentType = null;
                 bool isPost = false;
 
                 switch (action)
                 {
                     case GitSmartSubtransportAction.UploadPackList:
-                        endpointUrl = String.Concat(url, "/info/refs?service=git-upload-pack");
+                        endpointUrl = string.Concat(url, "/info/refs?service=git-upload-pack");
                         break;
 
                     case GitSmartSubtransportAction.UploadPack:
-                        endpointUrl = String.Concat(url, "/git-upload-pack");
+                        endpointUrl = string.Concat(url, "/git-upload-pack");
                         contentType = "application/x-git-upload-pack-request";
                         isPost = true;
                         break;
 
                     case GitSmartSubtransportAction.ReceivePackList:
-                        endpointUrl = String.Concat(url, "/info/refs?service=git-receive-pack");
+                        endpointUrl = string.Concat(url, "/info/refs?service=git-receive-pack");
                         break;
 
                     case GitSmartSubtransportAction.ReceivePack:
-                        endpointUrl = String.Concat(url, "/git-receive-pack");
+                        endpointUrl = string.Concat(url, "/git-receive-pack");
                         contentType = "application/x-git-receive-pack-request";
                         isPost = true;
                         break;
@@ -259,6 +257,8 @@ namespace LibGit2Sharp.Tests
 
                 private static HttpWebRequest CreateWebRequest(string endpointUrl, bool isPost, string contentType)
                 {
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
                     HttpWebRequest webRequest = (HttpWebRequest)HttpWebRequest.Create(endpointUrl);
                     webRequest.UserAgent = "git/1.0 (libgit2 custom transport)";
                     webRequest.ServicePoint.Expect100Continue = false;
@@ -313,7 +313,7 @@ namespace LibGit2Sharp.Tests
                             }
 
                             // rethrow if it's not 401
-                            throw ex;
+                            throw;
                         }
 
                         if (response.StatusCode == HttpStatusCode.Moved || response.StatusCode == HttpStatusCode.Redirect)

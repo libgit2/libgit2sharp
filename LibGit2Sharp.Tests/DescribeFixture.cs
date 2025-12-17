@@ -23,7 +23,7 @@ namespace LibGit2Sharp.Tests
 
                 // No lightweight tags can either be used to describe "master"
                 Assert.Throws<NotFoundException>(() => repo.Describe(masterTip,
-                    new DescribeOptions{ Strategy = DescribeStrategy.Tags }));
+                    new DescribeOptions { Strategy = DescribeStrategy.Tags }));
 
                 repo.ApplyTag("myTag", "5b5b025afb0b4c913b4c338a42934a3863bf3644");
                 Assert.Equal("myTag-5-g4c062a6", repo.Describe(masterTip,
@@ -47,7 +47,7 @@ namespace LibGit2Sharp.Tests
                 var anotherTip = repo.Branches["ForLackOfABetterName"].Tip;
                 Assert.Equal("test", repo.Describe(anotherTip));
                 Assert.Equal("test-0-g7b43849", repo.Describe(anotherTip,
-                    new DescribeOptions{ AlwaysRenderLongFormat = true }));
+                    new DescribeOptions { AlwaysRenderLongFormat = true }));
             }
         }
 

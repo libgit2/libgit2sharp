@@ -74,7 +74,7 @@ namespace LibGit2Sharp.Core
             if (!AllowedSortStrategies.Contains(queryFilter.SortBy))
             {
                 throw new ArgumentException("Unsupported sort strategy. Only 'Topological', 'Time', or 'Topological | Time' are allowed.",
-                                             "queryFilter");
+                                             nameof(queryFilter));
             }
 
             _repo = repo;

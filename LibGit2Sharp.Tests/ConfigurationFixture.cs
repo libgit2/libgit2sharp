@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
-using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -47,6 +46,113 @@ namespace LibGit2Sharp.Tests
 
                 repo.Config.Unset("Wow.Man-I-am-totally-global", ConfigurationLevel.Global);
                 Assert.Null(repo.Config.Get<int>("Wow.Man-I-am-totally-global"));
+            }
+        }
+
+        [Fact]
+        public void CanAddAndReadMultivarFromTheLocalConfiguration()
+        {
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Assert.DoesNotContain(repo.Config.OfType<ConfigurationEntry<string>>(), x => x.Key == "unittests.plugin");
+
+                repo.Config.Add("unittests.plugin", "value1", ConfigurationLevel.Local);
+                repo.Config.Add("unittests.plugin", "value2", ConfigurationLevel.Local);
+
+                Assert.Equal(new[] { "value1", "value2" }, repo.Config
+                    .OfType<ConfigurationEntry<string>>()
+                    .Where(x => x.Key == "unittests.plugin" && x.Level == ConfigurationLevel.Local)
+                    .Select(x => x.Value)
+                    .ToArray());
+            }
+        }
+
+        [Fact]
+        public void CanAddAndReadMultivarFromTheGlobalConfiguration()
+        {
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Assert.True(repo.Config.HasConfig(ConfigurationLevel.Global));
+                Assert.DoesNotContain(repo.Config.OfType<ConfigurationEntry<string>>(), x => x.Key == "unittests.plugin");
+
+                repo.Config.Add("unittests.plugin", "value1", ConfigurationLevel.Global);
+                repo.Config.Add("unittests.plugin", "value2", ConfigurationLevel.Global);
+
+                Assert.Equal(new[] { "value1", "value2" }, repo.Config
+                    .OfType<ConfigurationEntry<string>>()
+                    .Where(x => x.Key == "unittests.plugin")
+                    .Select(x => x.Value)
+                    .ToArray());
+            }
+        }
+
+        [Fact]
+        public void CanUnsetAllFromTheGlobalConfiguration()
+        {
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Assert.True(repo.Config.HasConfig(ConfigurationLevel.Global));
+                Assert.Empty(repo.Config
+                    .OfType<ConfigurationEntry<string>>()
+                    .Where(x => x.Key == "unittests.plugin")
+                    .Select(x => x.Value)
+                    .ToArray());
+
+                repo.Config.Add("unittests.plugin", "value1", ConfigurationLevel.Global);
+                repo.Config.Add("unittests.plugin", "value2", ConfigurationLevel.Global);
+
+                Assert.Equal(2, repo.Config
+                    .OfType<ConfigurationEntry<string>>()
+                    .Where(x => x.Key == "unittests.plugin" && x.Level == ConfigurationLevel.Global)
+                    .Select(x => x.Value)
+                    .Count());
+
+                repo.Config.UnsetAll("unittests.plugin");
+
+                Assert.Equal(2, repo.Config
+                    .OfType<ConfigurationEntry<string>>()
+                    .Where(x => x.Key == "unittests.plugin" && x.Level == ConfigurationLevel.Global)
+                    .Select(x => x.Value)
+                    .Count());
+
+                repo.Config.UnsetAll("unittests.plugin", ConfigurationLevel.Global);
+
+                Assert.Empty(repo.Config
+                    .OfType<ConfigurationEntry<string>>()
+                    .Where(x => x.Key == "unittests.plugin")
+                    .Select(x => x.Value)
+                    .ToArray());
+            }
+        }
+
+        [Fact]
+        public void CanUnsetAllFromTheLocalConfiguration()
+        {
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Assert.True(repo.Config.HasConfig(ConfigurationLevel.Global));
+                Assert.Empty(repo.Config
+                    .OfType<ConfigurationEntry<string>>()
+                    .Where(x => x.Key == "unittests.plugin")
+                    .Select(x => x.Value)
+                    .ToArray());
+
+                repo.Config.Add("unittests.plugin", "value1");
+                repo.Config.Add("unittests.plugin", "value2");
+
+                Assert.Equal(2, repo.Config
+                    .OfType<ConfigurationEntry<string>>()
+                    .Where(x => x.Key == "unittests.plugin" && x.Level == ConfigurationLevel.Local)
+                    .Select(x => x.Value)
+                    .Count());
+
+                repo.Config.UnsetAll("unittests.plugin");
+
+                Assert.DoesNotContain(repo.Config.OfType<ConfigurationEntry<string>>(), x => x.Key == "unittests.plugin");
             }
         }
 
@@ -418,20 +524,20 @@ namespace LibGit2Sharp.Tests
         {
             string globalPath = Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName());
             string systemPath = Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName());
-            string xdgPath    = Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName());
+            string xdgPath = Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName());
 
             GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, globalPath);
             GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.System, systemPath);
-            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Xdg,    xdgPath);
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Xdg, xdgPath);
 
             Assert.Equal(globalPath, GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Global).Single());
             Assert.Equal(systemPath, GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.System).Single());
-            Assert.Equal(xdgPath,    GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Xdg).Single());
+            Assert.Equal(xdgPath, GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Xdg).Single());
 
             // reset the search paths to their defaults
             GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, null);
             GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.System, null);
-            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Xdg,    null);
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Xdg, null);
         }
 
         [Fact]
@@ -464,12 +570,12 @@ namespace LibGit2Sharp.Tests
             var newPaths = new string[] { Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName()) };
 
             // change to the non-default path
-            GlobalSettings.SetConfigSearchPaths (ConfigurationLevel.Global, newPaths);
-            Assert.Equal (newPaths, GlobalSettings.GetConfigSearchPaths (ConfigurationLevel.Global));
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, newPaths);
+            Assert.Equal(newPaths, GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Global));
 
             // set it back to the default
-            GlobalSettings.SetConfigSearchPaths (ConfigurationLevel.Global, null);
-            Assert.Equal (oldPaths, GlobalSettings.GetConfigSearchPaths (ConfigurationLevel.Global));
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, null);
+            Assert.Equal(oldPaths, GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Global));
         }
 
         [Fact]

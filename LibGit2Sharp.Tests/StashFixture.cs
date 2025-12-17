@@ -287,9 +287,9 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, filename2, newContents);
 
                 Assert.Equal(StashApplyStatus.UncommittedChanges, repo.Stashes.Pop(0, new StashApplyOptions
-                    {
-                        ApplyModifiers = StashApplyModifiers.ReinstateIndex,
-                    }));
+                {
+                    ApplyModifiers = StashApplyModifiers.ReinstateIndex,
+                }));
                 Assert.Single(repo.Stashes);
                 Assert.Equal(newContents, File.ReadAllText(Path.Combine(repo.Info.WorkingDirectory, filename)));
                 Assert.Equal(newContents, File.ReadAllText(Path.Combine(repo.Info.WorkingDirectory, filename2)));
@@ -317,9 +317,9 @@ namespace LibGit2Sharp.Tests
 
                 called = false;
                 repo.Stashes.Apply(0, new StashApplyOptions
-                    {
-                        ProgressHandler = (progress) => { called = true; return true; }
-                    });
+                {
+                    ProgressHandler = (progress) => { called = true; return true; }
+                });
 
                 Assert.True(called);
 
@@ -327,9 +327,9 @@ namespace LibGit2Sharp.Tests
 
                 called = false;
                 repo.Stashes.Pop(0, new StashApplyOptions
-                    {
-                        ProgressHandler = (progress) => { called = true; return true; }
-                    });
+                {
+                    ProgressHandler = (progress) => { called = true; return true; }
+                });
 
                 Assert.True(called);
             }

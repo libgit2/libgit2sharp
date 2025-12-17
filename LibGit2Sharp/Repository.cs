@@ -35,6 +35,7 @@ namespace LibGit2Sharp
         private readonly Stack<IDisposable> toCleanup = new Stack<IDisposable>();
         private readonly Ignore ignore;
         private readonly SubmoduleCollection submodules;
+        private readonly WorktreeCollection worktrees;
         private readonly Lazy<PathCase> pathCase;
 
         [Flags]
@@ -91,7 +92,56 @@ namespace LibGit2Sharp
             this(path, options, RepositoryRequiredParameter.Path | RepositoryRequiredParameter.Options)
         {
         }
-        
+
+        internal Repository(WorktreeHandle worktreeHandle)
+        {
+            try
+            {
+                handle = Proxy.git_repository_open_from_worktree(worktreeHandle);
+                RegisterForCleanup(handle);
+                RegisterForCleanup(worktreeHandle);
+
+                isBare = Proxy.git_repository_is_bare(handle);
+
+                Func<Index> indexBuilder = () => new Index(this);
+
+                string configurationGlobalFilePath = null;
+                string configurationXDGFilePath = null;
+                string configurationSystemFilePath = null;
+
+                if (!isBare)
+                {
+                    index = new Lazy<Index>(() => indexBuilder());
+                }
+
+                commits = new CommitLog(this);
+                refs = new ReferenceCollection(this);
+                branches = new BranchCollection(this);
+                tags = new TagCollection(this);
+                stashes = new StashCollection(this);
+                info = new Lazy<RepositoryInformation>(() => new RepositoryInformation(this, isBare));
+                config = new Lazy<Configuration>(() => RegisterForCleanup(new Configuration(this,
+                                                                                            null,
+                                                                                            configurationGlobalFilePath,
+                                                                                            configurationXDGFilePath,
+                                                                                            configurationSystemFilePath)));
+                odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
+                diff = new Diff(this);
+                notes = new NoteCollection(this);
+                ignore = new Ignore(this);
+                network = new Lazy<Network>(() => new Network(this));
+                rebaseOperation = new Lazy<Rebase>(() => new Rebase(this));
+                pathCase = new Lazy<PathCase>(() => new PathCase(this));
+                submodules = new SubmoduleCollection(this);
+                worktrees = new WorktreeCollection(this);
+            }
+            catch
+            {
+                CleanupDisposableDependencies();
+                throw;
+            }
+        }
+
         private Repository(string path, RepositoryOptions options, RepositoryRequiredParameter requiredParameter)
         {
             if ((requiredParameter & RepositoryRequiredParameter.Path) == RepositoryRequiredParameter.Path)
@@ -180,6 +230,7 @@ namespace LibGit2Sharp
                 rebaseOperation = new Lazy<Rebase>(() => new Rebase(this));
                 pathCase = new Lazy<PathCase>(() => new PathCase(this));
                 submodules = new SubmoduleCollection(this);
+                worktrees = new WorktreeCollection(this);
 
                 EagerlyLoadComponentsWithSpecifiedPaths(options);
             }
@@ -396,6 +447,14 @@ namespace LibGit2Sharp
             get { return submodules; }
         }
 
+        /// <summary>
+        /// Worktrees in the repository.
+        /// </summary>
+        public WorktreeCollection Worktrees
+        {
+            get { return worktrees; }
+        }
+
         #region IDisposable Members
 
         /// <summary>
@@ -516,7 +575,7 @@ namespace LibGit2Sharp
 
             using (ObjectHandle obj = Proxy.git_object_lookup(handle, id, type))
             {
-                if (obj == null || obj.IsNull)
+                if (obj == null || obj.IsInvalid)
                 {
                     return null;
                 }
@@ -597,7 +656,18 @@ namespace LibGit2Sharp
         /// <returns>The references in the remote repository.</returns>
         public static IEnumerable<Reference> ListRemoteReferences(string url)
         {
-            return ListRemoteReferences(url, null);
+            return ListRemoteReferences(url, null, new ProxyOptions());
+        }
+
+        /// <summary>
+        /// Lists the Remote Repository References.
+        /// </summary>
+        /// <param name="url">The url to list from.</param>
+        /// <param name="proxyOptions">Options for connecting through a proxy.</param>
+        /// <returns>The references in the remote repository.</returns>
+        public static IEnumerable<Reference> ListRemoteReferences(string url, ProxyOptions proxyOptions)
+        {
+            return ListRemoteReferences(url, null, proxyOptions);
         }
 
         /// <summary>
@@ -613,23 +683,43 @@ namespace LibGit2Sharp
         /// <returns>The references in the remote repository.</returns>
         public static IEnumerable<Reference> ListRemoteReferences(string url, CredentialsHandler credentialsProvider)
         {
+            return ListRemoteReferences(url, credentialsProvider, new ProxyOptions());
+        }
+
+        /// <summary>
+        /// Lists the Remote Repository References.
+        /// </summary>
+        /// <para>
+        /// Does not require a local Repository. The retrieved
+        /// <see cref="IBelongToARepository.Repository"/>
+        /// throws <see cref="InvalidOperationException"/> in this case.
+        /// </para>
+        /// <param name="url">The url to list from.</param>
+        /// <param name="credentialsProvider">The <see cref="Func{Credentials}"/> used to connect to remote repository.</param>
+        /// <param name="proxyOptions">Options for connecting through a proxy.</param>
+        /// <returns>The references in the remote repository.</returns>
+        public static IEnumerable<Reference> ListRemoteReferences(string url, CredentialsHandler credentialsProvider, ProxyOptions proxyOptions)
+        {
             Ensure.ArgumentNotNull(url, "url");
 
-            using (RepositoryHandle repositoryHandle = Proxy.git_repository_new())
-            using (RemoteHandle remoteHandle = Proxy.git_remote_create_anonymous(repositoryHandle, url))
+            proxyOptions ??= new();
+
+            using RepositoryHandle repositoryHandle = Proxy.git_repository_new();
+            using RemoteHandle remoteHandle = Proxy.git_remote_create_anonymous(repositoryHandle, url);
+            using var proxyOptionsWrapper = new GitProxyOptionsWrapper(proxyOptions.CreateGitProxyOptions());
+
+            var gitCallbacks = new GitRemoteCallbacks { version = 1 };
+
+            if (credentialsProvider != null)
             {
-                var gitCallbacks = new GitRemoteCallbacks { version = 1 };
-                var proxyOptions = new GitProxyOptions { Version = 1 };
-
-                if (credentialsProvider != null)
-                {
-                    var callbacks = new RemoteCallbacks(credentialsProvider);
-                    gitCallbacks = callbacks.GenerateCallbacks();
-                }
-
-                Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch, ref gitCallbacks, ref proxyOptions);
-                return Proxy.git_remote_ls(null, remoteHandle);
+                var callbacks = new RemoteCallbacks(credentialsProvider);
+                gitCallbacks = callbacks.GenerateCallbacks();
             }
+
+            var gitProxyOptions = proxyOptionsWrapper.Options;
+
+            Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch, ref gitCallbacks, ref gitProxyOptions);
+            return Proxy.git_remote_ls(null, remoteHandle);
         }
 
         /// <summary>
@@ -682,42 +772,46 @@ namespace LibGit2Sharp
         /// <param name="workdirPath">Local path to clone into</param>
         /// <param name="options"><see cref="CloneOptions"/> controlling clone behavior</param>
         /// <returns>The path to the created repository.</returns>
-        public static string Clone(string sourceUrl, string workdirPath,
-            CloneOptions options)
+        public static string Clone(string sourceUrl, string workdirPath, CloneOptions options)
         {
             Ensure.ArgumentNotNull(sourceUrl, "sourceUrl");
             Ensure.ArgumentNotNull(workdirPath, "workdirPath");
 
-            options = options ?? new CloneOptions();
+            options ??= new CloneOptions();
 
             // context variable that contains information on the repository that
             // we are cloning.
             var context = new RepositoryOperationContext(Path.GetFullPath(workdirPath), sourceUrl);
 
             // Notify caller that we are starting to work with the current repository.
-            bool continueOperation = OnRepositoryOperationStarting(options.RepositoryOperationStarting,
-                                                                   context);
+            bool continueOperation = OnRepositoryOperationStarting(options.FetchOptions.RepositoryOperationStarting, context);
 
             if (!continueOperation)
             {
                 throw new UserCancelledException("Clone cancelled by the user.");
             }
 
-            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
+            using (var checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
+            using (var fetchOptionsWrapper = new GitFetchOptionsWrapper())
             {
                 var gitCheckoutOptions = checkoutOptionsWrapper.Options;
 
-                var remoteCallbacks = new RemoteCallbacks(options);
-                var gitRemoteCallbacks = remoteCallbacks.GenerateCallbacks();
+                var gitFetchOptions = fetchOptionsWrapper.Options;
+                gitFetchOptions.Depth = options.FetchOptions.Depth;
+                gitFetchOptions.ProxyOptions = options.FetchOptions.ProxyOptions.CreateGitProxyOptions();
+                gitFetchOptions.RemoteCallbacks = new RemoteCallbacks(options.FetchOptions).GenerateCallbacks();
 
-                var gitProxyOptions = new GitProxyOptions { Version = 1 };
+                if (options.FetchOptions != null && options.FetchOptions.CustomHeaders != null)
+                {
+                    gitFetchOptions.CustomHeaders = GitStrArrayManaged.BuildFrom(options.FetchOptions.CustomHeaders);
+                }
 
                 var cloneOpts = new GitCloneOptions
                 {
                     Version = 1,
                     Bare = options.IsBare ? 1 : 0,
                     CheckoutOpts = gitCheckoutOptions,
-                    FetchOpts = new GitFetchOptions { ProxyOptions = gitProxyOptions, RemoteCallbacks = gitRemoteCallbacks },
+                    FetchOpts = gitFetchOptions,
                 };
 
                 string clonedRepoPath;
@@ -737,8 +831,7 @@ namespace LibGit2Sharp
                 }
 
                 // Notify caller that we are done with the current repository.
-                OnRepositoryOperationCompleted(options.RepositoryOperationCompleted,
-                                               context);
+                OnRepositoryOperationCompleted(options.FetchOptions.RepositoryOperationCompleted, context);
 
                 // Recursively clone submodules if requested.
                 try
@@ -747,9 +840,7 @@ namespace LibGit2Sharp
                 }
                 catch (Exception ex)
                 {
-                    throw new RecurseSubmodulesException("The top level repository was cloned, but there was an error cloning its submodules.",
-                                                         ex,
-                                                         clonedRepoPath);
+                    throw new RecurseSubmodulesException("The top level repository was cloned, but there was an error cloning its submodules.", ex, clonedRepoPath);
                 }
 
                 return clonedRepoPath;
@@ -770,14 +861,11 @@ namespace LibGit2Sharp
 
                 using (Repository repo = new Repository(repoPath))
                 {
-                    SubmoduleUpdateOptions updateOptions = new SubmoduleUpdateOptions()
+                    var updateOptions = new SubmoduleUpdateOptions()
                     {
                         Init = true,
-                        CredentialsProvider = options.CredentialsProvider,
                         OnCheckoutProgress = options.OnCheckoutProgress,
-                        OnProgress = options.OnProgress,
-                        OnTransferProgress = options.OnTransferProgress,
-                        OnUpdateTips = options.OnUpdateTips,
+                        FetchOptions = options.FetchOptions
                     };
 
                     string parentRepoWorkDir = repo.Info.WorkingDirectory;
@@ -798,7 +886,7 @@ namespace LibGit2Sharp
                                                                      sm.Name,
                                                                      recursionDepth);
 
-                        bool continueOperation = OnRepositoryOperationStarting(options.RepositoryOperationStarting,
+                        bool continueOperation = OnRepositoryOperationStarting(options.FetchOptions.RepositoryOperationStarting,
                                                                                context);
 
                         if (!continueOperation)
@@ -808,7 +896,7 @@ namespace LibGit2Sharp
 
                         repo.Submodules.Update(sm.Name, updateOptions);
 
-                        OnRepositoryOperationCompleted(options.RepositoryOperationCompleted,
+                        OnRepositoryOperationCompleted(options.FetchOptions.RepositoryOperationCompleted,
                                                        context);
 
                         submodules.Add(Path.Combine(repo.Info.WorkingDirectory, sm.Path));
@@ -986,7 +1074,7 @@ namespace LibGit2Sharp
 
                 if (treesame && !amendMergeCommit)
                 {
-                    throw (options.AmendPreviousCommit ? 
+                    throw (options.AmendPreviousCommit ?
                         new EmptyCommitException("Amending this commit would produce a commit that is identical to its parent (id = {0})", parents[0].Id) :
                         new EmptyCommitException("No changes; nothing to commit."));
                 }
@@ -1177,7 +1265,7 @@ namespace LibGit2Sharp
             if (fetchHeads.Length == 0)
             {
                 var expectedRef = this.Head.UpstreamBranchCanonicalName;
-                throw new MergeFetchHeadNotFoundException("The current branch is configured to merge with the reference '{0}' from the remote, but this reference was not fetched.", 
+                throw new MergeFetchHeadNotFoundException("The current branch is configured to merge with the reference '{0}' from the remote, but this reference was not fetched.",
                     expectedRef);
             }
 
@@ -1364,7 +1452,7 @@ namespace LibGit2Sharp
                 case GitMergePreference.GIT_MERGE_PREFERENCE_NO_FASTFORWARD:
                     return FastForwardStrategy.NoFastForward;
                 default:
-                    throw new InvalidOperationException(String.Format("Unknown merge preference: {0}", preference));
+                    throw new InvalidOperationException(string.Format("Unknown merge preference: {0}", preference));
             }
         }
 
@@ -1436,13 +1524,13 @@ namespace LibGit2Sharp
                     break;
                 default:
                     throw new NotImplementedException(
-                        string.Format(CultureInfo.InvariantCulture, "Unknown fast forward strategy: {0}", mergeAnalysis));
+                        string.Format(CultureInfo.InvariantCulture, "Unknown fast forward strategy: {0}", fastForwardStrategy));
             }
 
             if (mergeResult == null)
             {
                 throw new NotImplementedException(
-                    string.Format(CultureInfo.InvariantCulture, "Unknown merge analysis: {0}", options.FastForwardStrategy));
+                    string.Format(CultureInfo.InvariantCulture, "Unknown merge analysis: {0}", mergeAnalysis));
             }
 
             return mergeResult;
@@ -1582,7 +1670,7 @@ namespace LibGit2Sharp
             {
                 if (string.IsNullOrEmpty(path))
                 {
-                    throw new ArgumentException("At least one provided path is either null or empty.", "paths");
+                    throw new ArgumentException("At least one provided path is either null or empty.", nameof(paths));
                 }
 
                 filePaths.Add(this.BuildRelativePathFrom(path));
@@ -1590,7 +1678,7 @@ namespace LibGit2Sharp
 
             if (filePaths.Count == 0)
             {
-                throw new ArgumentException("No path has been provided.", "paths");
+                throw new ArgumentException("No path has been provided.", nameof(paths));
             }
 
             return filePaths.ToArray();
@@ -1656,7 +1744,7 @@ namespace LibGit2Sharp
         /// </para>
         /// <para>
         ///   Optionally, the <paramref name="options"/> parameter allow to tweak the
-        ///   search strategy (considering lightweith tags, or even branches as reference points)
+        ///   search strategy (considering lightweight tags, or even branches as reference points)
         ///   and the formatting of the returned identifier.
         /// </para>
         /// </summary>
@@ -1689,7 +1777,7 @@ namespace LibGit2Sharp
             using (var objH = handles.Item1)
             using (var refH = handles.Item2)
             {
-                reference = refH.IsNull ? null : Reference.BuildFromPtr<Reference>(refH, this);
+                reference = refH.IsInvalid ? null : Reference.BuildFromPtr<Reference>(refH, this);
                 obj = GitObject.BuildFrom(this, Proxy.git_object_id(objH), Proxy.git_object_type(objH), PathFromRevparseSpec(revision));
             }
         }

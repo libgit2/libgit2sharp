@@ -38,7 +38,7 @@ namespace LibGit2Sharp
         internal unsafe CertificateSsh(git_certificate_ssh* cert)
         {
 
-            HasMD5  = cert->type.HasFlag(GitCertificateSshType.MD5);
+            HasMD5 = cert->type.HasFlag(GitCertificateSshType.MD5);
             HasSHA1 = cert->type.HasFlag(GitCertificateSshType.SHA1);
 
             HashMD5 = new byte[16];
@@ -72,7 +72,7 @@ namespace LibGit2Sharp
                 type = sshCertType,
             };
 
-            fixed (byte *p = &HashMD5[0])
+            fixed (byte* p = &HashMD5[0])
             {
                 for (var i = 0; i < HashMD5.Length; i++)
                 {
@@ -80,7 +80,7 @@ namespace LibGit2Sharp
                 }
             }
 
-            fixed (byte *p = &HashSHA1[0])
+            fixed (byte* p = &HashSHA1[0])
             {
                 for (var i = 0; i < HashSHA1.Length; i++)
                 {

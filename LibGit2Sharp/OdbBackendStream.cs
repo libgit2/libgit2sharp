@@ -140,7 +140,7 @@ namespace LibGit2Sharp
                         }
                         catch (Exception ex)
                         {
-                            Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                            Proxy.git_error_set_str(GitErrorCategory.Odb, ex);
                         }
                     }
                 }
@@ -164,7 +164,7 @@ namespace LibGit2Sharp
                         }
                         catch (Exception ex)
                         {
-                            Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                            Proxy.git_error_set_str(GitErrorCategory.Odb, ex);
                         }
                     }
                 }
@@ -184,7 +184,7 @@ namespace LibGit2Sharp
                     }
                     catch (Exception ex)
                     {
-                        Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                        Proxy.git_error_set_str(GitErrorCategory.Odb, ex);
                     }
                 }
 
@@ -203,7 +203,7 @@ namespace LibGit2Sharp
                     }
                     catch (Exception ex)
                     {
-                        Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                        Proxy.git_error_set_str(GitErrorCategory.Odb, ex);
                     }
                 }
             }

@@ -107,10 +107,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="Submodule"/>.
+        /// Determines whether the specified <see cref="object"/> is equal to the current <see cref="Submodule"/>.
         /// </summary>
-        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="Submodule"/>.</param>
-        /// <returns>True if the specified <see cref="Object"/> is equal to the current <see cref="Submodule"/>; otherwise, false.</returns>
+        /// <param name="obj">The <see cref="object"/> to compare with the current <see cref="Submodule"/>.</param>
+        /// <returns>True if the specified <see cref="object"/> is equal to the current <see cref="Submodule"/>; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as Submodule);
@@ -136,7 +136,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Returns the <see cref="Name"/>, a <see cref="String"/> representation of the current <see cref="Submodule"/>.
+        /// Returns the <see cref="Name"/>, a <see cref="string"/> representation of the current <see cref="Submodule"/>.
         /// </summary>
         /// <returns>The <see cref="Name"/> that represents the current <see cref="Submodule"/>.</returns>
         public override string ToString()

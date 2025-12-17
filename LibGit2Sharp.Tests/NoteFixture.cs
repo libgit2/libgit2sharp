@@ -10,7 +10,7 @@ namespace LibGit2Sharp.Tests
     public class NoteFixture : BaseFixture
     {
         private static readonly Signature signatureNullToken = new Signature("nulltoken", "emeric.fermas@gmail.com", DateTimeOffset.UtcNow);
-        private static readonly Signature signatureYorah = new Signature("yorah", "yoram.harmelin@gmail.com", Epoch.ToDateTimeOffset(1300557894, 60));
+        private static readonly Signature signatureYorah = new Signature("yorah", "yoram.harmelin@gmail.com", DateTimeOffset.FromUnixTimeSeconds(1300557894).ToOffset(TimeSpan.FromMinutes(60)));
 
         [Fact]
         public void RetrievingNotesFromANonExistingGitObjectYieldsNoResult()
@@ -56,7 +56,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRetrieveNotesFromAGitObject()
         {
-            var expectedMessages = new [] { "Just Note, don't you understand?\n", "Nope\n", "Not Nope, Note!\n" };
+            var expectedMessages = new[] { "Just Note, don't you understand?\n", "Nope\n", "Not Nope, Note!\n" };
 
             string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))

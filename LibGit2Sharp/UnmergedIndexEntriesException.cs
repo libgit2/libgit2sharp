@@ -1,5 +1,7 @@
 ﻿using System;
+#if NETFRAMEWORK
 using System.Runtime.Serialization;
+#endif
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -8,8 +10,10 @@ namespace LibGit2Sharp
     /// The exception that is thrown when an operation that requires a fully merged index
     /// is performed against an index with unmerged entries
     /// </summary>
+#if NETFRAMEWORK
     [Serializable]
-    public class UnmergedIndexEntriesException : LibGit2SharpException
+#endif
+    public class UnmergedIndexEntriesException : NativeException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="UnmergedIndexEntriesException"/> class.
@@ -28,7 +32,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Initializes a new instance of the <see cref="UnmergedIndexEntriesException"/> class with a specified error message.
         /// </summary>
-        /// <param name="format">A composite format string for use in <see cref="String.Format(IFormatProvider, string, object[])"/>.</param>
+        /// <param name="format">A composite format string for use in <see cref="string.Format(IFormatProvider, string, object[])"/>.</param>
         /// <param name="args">An object array that contains zero or more objects to format.</param>
         public UnmergedIndexEntriesException(string format, params object[] args)
             : base(format, args)
@@ -43,6 +47,7 @@ namespace LibGit2Sharp
             : base(message, innerException)
         { }
 
+#if NETFRAMEWORK
         /// <summary>
         /// Initializes a new instance of the <see cref="UnmergedIndexEntriesException"/> class with a serialized data.
         /// </summary>
@@ -51,9 +56,18 @@ namespace LibGit2Sharp
         protected UnmergedIndexEntriesException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
+#endif
 
-        internal UnmergedIndexEntriesException(string message, GitErrorCode code, GitErrorCategory category)
-            : base(message, code, category)
+        internal UnmergedIndexEntriesException(string message, GitErrorCategory category)
+            : base(message, category)
         { }
+
+        internal override GitErrorCode ErrorCode
+        {
+            get
+            {
+                return GitErrorCode.UnmergedEntries;
+            }
+        }
     }
 }

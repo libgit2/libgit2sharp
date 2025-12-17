@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using LibGit2Sharp.Core;
 
@@ -10,7 +11,11 @@ namespace LibGit2Sharp
     /// </summary>
     /// <typeparam name="TObject">The type of the referenced Git object.</typeparam>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
+#if NET
+    public abstract class ReferenceWrapper<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] TObject> : IEquatable<ReferenceWrapper<TObject>>, IBelongToARepository where TObject : GitObject
+#else
     public abstract class ReferenceWrapper<TObject> : IEquatable<ReferenceWrapper<TObject>>, IBelongToARepository where TObject : GitObject
+#endif
     {
         /// <summary>
         /// The repository.
@@ -124,10 +129,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="ReferenceWrapper{TObject}"/>.
+        /// Determines whether the specified <see cref="object"/> is equal to the current <see cref="ReferenceWrapper{TObject}"/>.
         /// </summary>
-        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="ReferenceWrapper{TObject}"/>.</param>
-        /// <returns>True if the specified <see cref="Object"/> is equal to the current <see cref="ReferenceWrapper{TObject}"/>; otherwise, false.</returns>
+        /// <param name="obj">The <see cref="object"/> to compare with the current <see cref="ReferenceWrapper{TObject}"/>.</param>
+        /// <returns>True if the specified <see cref="object"/> is equal to the current <see cref="ReferenceWrapper{TObject}"/>; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as ReferenceWrapper<TObject>);

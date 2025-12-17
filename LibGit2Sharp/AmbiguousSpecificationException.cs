@@ -1,13 +1,18 @@
 using System;
+#if NETFRAMEWORK
 using System.Runtime.Serialization;
+#endif
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
     /// <summary>
     /// The exception that is thrown when the provided specification cannot uniquely identify a reference, an object or a path.
     /// </summary>
+#if NETFRAMEWORK
     [Serializable]
-    public class AmbiguousSpecificationException : LibGit2SharpException
+#endif
+    public class AmbiguousSpecificationException : NativeException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AmbiguousSpecificationException"/> class.
@@ -26,10 +31,10 @@ namespace LibGit2Sharp
         /// <summary>
         /// Initializes a new instance of the <see cref="AmbiguousSpecificationException"/> class with a specified error message.
         /// </summary>
-        /// <param name="format">A composite format string for use in <see cref="String.Format(IFormatProvider, string, object[])"/>.</param>
+        /// <param name="format">A composite format string for use in <see cref="string.Format(IFormatProvider, string, object[])"/>.</param>
         /// <param name="args">An object array that contains zero or more objects to format.</param>
         public AmbiguousSpecificationException(string format, params object[] args)
-            : base(String.Format(format, args))
+            : base(string.Format(format, args))
         {
         }
 
@@ -42,6 +47,7 @@ namespace LibGit2Sharp
             : base(message, innerException)
         { }
 
+#if NETFRAMEWORK
         /// <summary>
         /// Initializes a new instance of the <see cref="AmbiguousSpecificationException"/> class with a serialized data.
         /// </summary>
@@ -50,5 +56,14 @@ namespace LibGit2Sharp
         protected AmbiguousSpecificationException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
+#endif
+
+        internal override GitErrorCode ErrorCode
+        {
+            get
+            {
+                return GitErrorCode.Ambiguous;
+            }
+        }
     }
 }

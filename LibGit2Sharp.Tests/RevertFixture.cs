@@ -157,7 +157,7 @@ namespace LibGit2Sharp.Tests
                     FileConflictStrategy = conflictStrategy,
                 };
 
-                RevertResult result =  repo.Revert(repo.Head.Tip.Parents.First(), Constants.Signature, options);
+                RevertResult result = repo.Revert(repo.Head.Tip.Parents.First(), Constants.Signature, options);
                 Assert.Equal(RevertStatus.Conflicts, result.Status);
 
                 // Verify there is a conflict.
@@ -288,7 +288,7 @@ namespace LibGit2Sharp.Tests
                 RevertResult result = repo.Revert(commitToRevert, Constants.Signature, options);
                 Assert.NotNull(result);
 
-                if(!findRenames.HasValue ||
+                if (!findRenames.HasValue ||
                     findRenames.Value == true)
                 {
                     Assert.Equal(RevertStatus.Reverted, result.Status);
@@ -340,7 +340,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(RevertStatus.Reverted, result.Status);
                 Assert.Equal(result.Commit.Sha, expectedId);
 
-                if(mainline == 1)
+                if (mainline == 1)
                 {
                     // In this case, we expect "d_renamed.txt" to be reverted (deleted),
                     // and a.txt to match the tip of the "revert" branch.
@@ -351,7 +351,7 @@ namespace LibGit2Sharp.Tests
                     Assert.NotNull(commit);
                     Assert.Equal(commit["a.txt"].Target.Id, repo.Index["a.txt"].Id);
                 }
-                else if(mainline == 2)
+                else if (mainline == 2)
                 {
                     // In this case, we expect "d_renamed.txt" to be preset,
                     // and a.txt to match the tip of the master branch.
@@ -488,7 +488,7 @@ namespace LibGit2Sharp.Tests
 
         [Fact]
         public void RevertWithConflictReportsConflict()
-       {
+        {
             // The branch name to perform the revert on,
             // and the file whose contents we expect to be reverted.
             const string revertBranchName = "refs/heads/revert";

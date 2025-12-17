@@ -77,12 +77,14 @@ namespace LibGit2Sharp
                 case GitDiffLineOrigin.GIT_DIFF_LINE_ADDITION:
                     linesAdded++;
                     currentChange.LinesAdded++;
+                    currentChange.AddedLines.Add(new Line(line.NewLineNo, patchPart));
                     prefix = "+";
                     break;
 
                 case GitDiffLineOrigin.GIT_DIFF_LINE_DELETION:
                     linesDeleted++;
                     currentChange.LinesDeleted++;
+                    currentChange.DeletedLines.Add(new Line(line.OldLineNo, patchPart));
                     prefix = "-";
                     break;
             }
@@ -168,7 +170,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="patch"><see cref="Patch"/>.</param>
         /// <returns>The patch content as string.</returns>
-        public static implicit operator string (Patch patch)
+        public static implicit operator string(Patch patch)
         {
             return patch.fullPatchBuilder.ToString();
         }

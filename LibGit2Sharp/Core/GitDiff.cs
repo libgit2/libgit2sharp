@@ -134,6 +134,13 @@ namespace LibGit2Sharp.Core
          */
 
         /// <summary>
+        /// Use a heuristic that takes indentation and whitespace into account
+        /// which generally can produce better diffs when dealing with ambiguous
+        /// diff hunks.
+        /// </summary>
+        GIT_DIFF_INDENT_HEURISTIC = (1 << 18),
+
+        /// <summary>
         /// Treat all files as text, disabling binary attributes and detection
         /// </summary>
         GIT_DIFF_FORCE_TEXT = (1 << 20),
@@ -191,12 +198,14 @@ namespace LibGit2Sharp.Core
         GIT_DIFF_SHOW_BINARY = (1 << 30),
     }
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     internal delegate int diff_notify_cb(
         IntPtr diff_so_far,
         IntPtr delta_to_add,
         IntPtr matched_pathspec,
         IntPtr payload);
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     internal delegate int diff_progress_cb(
         IntPtr diff_so_far,
         IntPtr old_path,
@@ -222,7 +231,7 @@ namespace LibGit2Sharp.Core
         public uint ContextLines;
         public uint InterhunkLines;
         public ushort IdAbbrev;
-        public Int64 MaxSize;
+        public long MaxSize;
         public IntPtr OldPrefixString;
         public IntPtr NewPrefixString;
 
@@ -246,10 +255,10 @@ namespace LibGit2Sharp.Core
     {
         public git_oid Id;
         public char* Path;
-        public Int64 Size;
+        public long Size;
         public GitDiffFlags Flags;
-        public UInt16 Mode;
-        public UInt16 IdAbbrev;
+        public ushort Mode;
+        public ushort IdAbbrev;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -257,8 +266,8 @@ namespace LibGit2Sharp.Core
     {
         public ChangeKind status;
         public GitDiffFlags flags;
-        public UInt16 similarity;
-        public UInt16 nfiles;
+        public ushort similarity;
+        public ushort nfiles;
         public git_diff_file old_file;
         public git_diff_file new_file;
     }
@@ -284,7 +293,7 @@ namespace LibGit2Sharp.Core
         public int NewLineNo;
         public int NumLines;
         public UIntPtr contentLen;
-        public Int64 contentOffset;
+        public long contentOffset;
         public IntPtr content;
     }
 
@@ -304,11 +313,11 @@ namespace LibGit2Sharp.Core
 
     enum GitDiffFormat
     {
-        GIT_DIFF_FORMAT_PATCH        = 1, // < full git diff
+        GIT_DIFF_FORMAT_PATCH = 1, // < full git diff
         GIT_DIFF_FORMAT_PATCH_HEADER = 2, // < just the file headers of patch
-        GIT_DIFF_FORMAT_RAW          = 3, // < like git diff --raw
-        GIT_DIFF_FORMAT_NAME_ONLY    = 4, // < like git diff --name-only
-        GIT_DIFF_FORMAT_NAME_STATUS  = 5, // < like git diff --name-status
+        GIT_DIFF_FORMAT_RAW = 3, // < like git diff --raw
+        GIT_DIFF_FORMAT_NAME_ONLY = 4, // < like git diff --name-only
+        GIT_DIFF_FORMAT_NAME_STATUS = 5, // < like git diff --name-status
     }
 
     [Flags]
@@ -362,10 +371,10 @@ namespace LibGit2Sharp.Core
     {
         public uint Version = 1;
         public GitDiffFindFlags Flags;
-        public UInt16 RenameThreshold;
-        public UInt16 RenameFromRewriteThreshold;
-        public UInt16 CopyThreshold;
-        public UInt16 BreakRewriteThreshold;
+        public ushort RenameThreshold;
+        public ushort RenameFromRewriteThreshold;
+        public ushort CopyThreshold;
+        public ushort BreakRewriteThreshold;
         public UIntPtr RenameLimit;
 
         // TODO

@@ -404,7 +404,7 @@ namespace LibGit2Sharp
 
             if (reference == null)
             {
-                throw new LibGit2SharpException("Reference '{0}' doesn't exist. One cannot move a non existing reference.", 
+                throw new LibGit2SharpException("Reference '{0}' doesn't exist. One cannot move a non existing reference.",
                     currentName);
             }
 
@@ -539,7 +539,7 @@ namespace LibGit2Sharp
 
                 if (refState == RefState.DoesNotLookValid)
                 {
-                    throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is a Symbolic reference, you must provide a reference canonical name as the target.", name), "canonicalRefNameOrObjectish");
+                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is a Symbolic reference, you must provide a reference canonical name as the target.", name), nameof(canonicalRefNameOrObjectish));
                 }
 
                 return UpdateTarget(symbolicReference, targetRef, logMessage);

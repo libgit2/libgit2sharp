@@ -28,7 +28,7 @@ namespace LibGit2Sharp.Tests
          *   'git rm <file>' fails ("error: '<file>' has local modifications").
          */
         [InlineData(false, "modified_unstaged_file.txt", false, FileStatus.ModifiedInWorkdir, true, true, FileStatus.NewInWorkdir | FileStatus.DeletedFromIndex)]
-        [InlineData(true, "modified_unstaged_file.txt", true,  FileStatus.ModifiedInWorkdir, true, true, FileStatus.Unaltered)]
+        [InlineData(true, "modified_unstaged_file.txt", true, FileStatus.ModifiedInWorkdir, true, true, FileStatus.Unaltered)]
         /***
          * Test case: modified file in wd, the modifications have already been promoted to the index.
          *   'git rm --cached <file>' works (removes the file from the index)
@@ -150,7 +150,7 @@ namespace LibGit2Sharp.Tests
 
                     Commands.Remove(repo, relativePath, i % 2 == 0);
                     Commands.Remove(repo, relativePath, i % 2 == 0,
-                                      new ExplicitPathsOptions {ShouldFailOnUnmatchedPath = false});
+                                      new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false });
                 }
             }
         }
@@ -169,7 +169,7 @@ namespace LibGit2Sharp.Tests
                     Assert.Equal(status, repo.RetrieveStatus(relativePath));
 
                     Assert.Throws<UnmatchedPathException>(
-                        () => Commands.Remove(repo, relativePath, i%2 == 0, new ExplicitPathsOptions()));
+                        () => Commands.Remove(repo, relativePath, i % 2 == 0, new ExplicitPathsOptions()));
                 }
             }
         }
@@ -182,7 +182,7 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Throws<ArgumentException>(() => Commands.Remove(repo, string.Empty));
                 Assert.Throws<ArgumentNullException>(() => Commands.Remove(repo, (string)null));
-                Assert.Throws<ArgumentException>(() => Commands.Remove(repo, new string[] { }));
+                Assert.Throws<ArgumentException>(() => Commands.Remove(repo, Array.Empty<string>()));
                 Assert.Throws<ArgumentNullException>(() => Commands.Remove(repo, new string[] { null }));
             }
         }

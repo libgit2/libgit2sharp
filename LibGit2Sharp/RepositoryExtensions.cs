@@ -24,7 +24,7 @@ namespace LibGit2Sharp
         {
             EnsureNoGitLink<T>();
 
-            if (typeof (T) == typeof (GitObject))
+            if (typeof(T) == typeof(GitObject))
             {
                 return (T)repository.Lookup(objectish);
             }

@@ -269,7 +269,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<CheckoutConflictException>(() => Commands.Checkout(repo, master.CanonicalName));
 
                 // Checkout with force option should succeed.
-                Commands.Checkout(repo, master.CanonicalName, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force});
+                Commands.Checkout(repo, master.CanonicalName, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
 
                 // Assert that master branch is checked out.
                 Assert.True(repo.Branches["master"].IsCurrentRepositoryHead);
@@ -411,7 +411,7 @@ namespace LibGit2Sharp.Tests
 
                 Branch branch = repo.Branches[otherBranchName];
                 Commands.Checkout(repo, branch,
-                    new CheckoutOptions { OnCheckoutProgress = (path, completed, total) => wasCalled = true});
+                    new CheckoutOptions { OnCheckoutProgress = (path, completed, total) => wasCalled = true });
 
                 Assert.True(wasCalled);
             }
@@ -427,7 +427,7 @@ namespace LibGit2Sharp.Tests
                 PopulateBasicRepository(repo);
                 bool wasCalled = false;
 
-                Commands.Checkout(repo, otherBranchName, new CheckoutOptions() { OnCheckoutProgress = (path, completed, total) => wasCalled = true});
+                Commands.Checkout(repo, otherBranchName, new CheckoutOptions() { OnCheckoutProgress = (path, completed, total) => wasCalled = true });
 
                 Assert.True(wasCalled);
             }
@@ -779,7 +779,7 @@ namespace LibGit2Sharp.Tests
         public void CheckoutBranchFromDetachedHead()
         {
             string path = SandboxStandardTestRepo();
-            using (var repo = new Repository(path, new RepositoryOptions{ Identity = Constants.Identity }))
+            using (var repo = new Repository(path, new RepositoryOptions { Identity = Constants.Identity }))
             {
                 // Set the working directory to the current head
                 ResetAndCleanWorkingDirectory(repo);
@@ -1025,6 +1025,52 @@ namespace LibGit2Sharp.Tests
                 repo.CheckoutPaths("HEAD", new[] { fileName }, opts);
 
                 Assert.False(repo.RetrieveStatus().IsDirty);
+            }
+        }
+
+        [Theory]
+        [InlineData("br2", "origin")]
+        [InlineData("unique/branch", "another/remote")]
+        public void CheckoutBranchTriesRemoteTrackingBranchAsFallbackAndSucceedsIfOnlyOne(string branchName, string expectedRemoteName)
+        {
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                ResetAndCleanWorkingDirectory(repo);
+
+                // Define another remote
+                var otherRemote = "another/remote";
+                repo.Network.Remotes.Add(otherRemote, "https://github.com/libgit2/TestGitRepository");
+
+                // Define an extra remote tracking branch that does not conflict
+                repo.Refs.Add($"refs/remotes/{otherRemote}/unique/branch", repo.Head.Tip.Sha);
+
+                Branch branch = Commands.Checkout(repo, branchName);
+
+                Assert.NotNull(branch);
+                Assert.True(branch.IsTracking);
+                Assert.Equal($"refs/remotes/{expectedRemoteName}/{branchName}", branch.TrackedBranch.CanonicalName);
+            }
+        }
+
+        [Fact]
+        public void CheckoutBranchTriesRemoteTrackingBranchAsFallbackAndThrowsIfMoreThanOne()
+        {
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                ResetAndCleanWorkingDirectory(repo);
+
+                // Define another remote
+                var otherRemote = "another/remote";
+                repo.Network.Remotes.Add(otherRemote, "https://github.com/libgit2/TestGitRepository");
+
+                // Define remote tracking branches that conflict
+                var branchName = "conflicting/branch";
+                repo.Refs.Add($"refs/remotes/origin/{branchName}", repo.Head.Tip.Sha);
+                repo.Refs.Add($"refs/remotes/{otherRemote}/{branchName}", repo.Head.Tip.Sha);
+
+                Assert.Throws<AmbiguousSpecificationException>(() => Commands.Checkout(repo, branchName));
             }
         }
 

@@ -137,7 +137,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 SetFilemode(repo, true);
-                using(var changes = repo.Diff.Compare<TreeChanges>(new[] { file }))
+                using (var changes = repo.Diff.Compare<TreeChanges>(new[] { file }))
                 {
                     Assert.Single(changes);
 
@@ -150,7 +150,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 SetFilemode(repo, false);
-                using(var changes = repo.Diff.Compare<TreeChanges>(new[] { file }))
+                using (var changes = repo.Diff.Compare<TreeChanges>(new[] { file }))
                 {
                     Assert.Empty(changes);
                 }

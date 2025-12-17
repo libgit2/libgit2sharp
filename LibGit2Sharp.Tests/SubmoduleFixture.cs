@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
-using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -240,8 +239,9 @@ namespace LibGit2Sharp.Tests
                     OnCheckoutProgress = (x, y, z) => checkoutProgressCalled = true,
                     OnCheckoutNotify = (x, y) => { checkoutNotifyCalled = true; return true; },
                     CheckoutNotifyFlags = CheckoutNotifyFlags.Updated,
-                    OnUpdateTips = (x, y, z) => { updateTipsCalled = true; return true; },
                 };
+
+                options.FetchOptions.OnUpdateTips = (x, y, z) => { updateTipsCalled = true; return true; };
 
                 repo.Submodules.Init(submodule.Name, false);
                 repo.Submodules.Update(submodule.Name, options);

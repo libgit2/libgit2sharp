@@ -55,7 +55,7 @@ namespace LibGit2Sharp
         private unsafe bool TryGetEntryWithChangeTypeAt(int index, ChangeKind changeKind, out TreeEntryChanges entry)
         {
             if (index < 0 || index > count.Value)
-                throw new ArgumentOutOfRangeException("index", "Index was out of range. Must be non-negative and less than the size of the collection.");
+                throw new ArgumentOutOfRangeException(nameof(index), "Index was out of range. Must be non-negative and less than the size of the collection.");
 
             var delta = Proxy.git_diff_get_delta(diff, index);
 
@@ -90,7 +90,7 @@ namespace LibGit2Sharp
         private unsafe TreeEntryChanges GetEntryAt(int index)
         {
             if (index < 0 || index > count.Value)
-                throw new ArgumentOutOfRangeException("index", "Index was out of range. Must be non-negative and less than the size of the collection.");
+                throw new ArgumentOutOfRangeException(nameof(index), "Index was out of range. Must be non-negative and less than the size of the collection.");
 
             return new TreeEntryChanges(Proxy.git_diff_get_delta(diff, index));
         }

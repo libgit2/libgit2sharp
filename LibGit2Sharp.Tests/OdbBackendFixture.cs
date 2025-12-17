@@ -26,7 +26,7 @@ namespace LibGit2Sharp.Tests
             var commit = repo.Commit("Initial commit", author, author);
 
             relativeFilepath = "big.txt";
-            var zeros = new string('0', 32*1024 + 3);
+            var zeros = new string('0', 32 * 1024 + 3);
             Touch(repo.Info.WorkingDirectory, relativeFilepath, zeros);
             Commands.Stage(repo, relativeFilepath);
 
@@ -145,7 +145,7 @@ namespace LibGit2Sharp.Tests
 
                 AddCommitToRepo(repo);
 
-                var expected = new[]{ "1fe3126", "2b297e6", "6518215", "9daeafb" };
+                var expected = new[] { "1fe3126", "2b297e6", "6518215", "9daeafb" };
 
                 IEnumerable<GitObject> objs = repo.ObjectDatabase;
 
@@ -296,7 +296,7 @@ namespace LibGit2Sharp.Tests
 
                 if (!m_objectIdToContent.TryGetValue(oid, out gitObject))
                 {
-                    return (int) ReturnCode.GIT_ENOTFOUND;
+                    return (int)ReturnCode.GIT_ENOTFOUND;
                 }
 
                 data = Allocate(gitObject.Length);
@@ -411,7 +411,7 @@ namespace LibGit2Sharp.Tests
                     if (numFound > 1)
                     {
                         found = null;
-                        return (int) ReturnCode.GIT_EAMBIGUOUS;
+                        return (int)ReturnCode.GIT_EAMBIGUOUS;
                     }
                 }
 

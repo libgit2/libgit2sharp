@@ -15,11 +15,11 @@ namespace LibGit2Sharp.Core
         /// <summary>
         /// Enumerates each string from the array using the UTF-8 marshaler.
         /// </summary>
-        public String[] ReadStrings()
+        public string[] ReadStrings()
         {
             var count = checked((int)Array.Count.ToUInt32());
 
-            String[] toReturn = new String[count];
+            string[] toReturn = new string[count];
 
             for (int i = 0; i < count; i++)
             {

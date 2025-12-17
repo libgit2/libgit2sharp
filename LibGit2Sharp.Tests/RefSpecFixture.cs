@@ -83,7 +83,7 @@ namespace LibGit2Sharp.Tests
 
                     repo.Network.Remotes.Update("origin",
                         r => r.FetchRefSpecs = newFetchRefSpecs, r => r.PushRefSpecs = newPushRefSpecs);
-                        Assert.Equal(oldRefSpecs, remote.RefSpecs.ToList());
+                    Assert.Equal(oldRefSpecs, remote.RefSpecs.ToList());
                 }
 
                 using (var newRemote = repo.Network.Remotes["origin"])

@@ -1,5 +1,4 @@
 ﻿using System;
-using LibGit2Sharp;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -34,7 +33,7 @@ namespace LibGit2Sharp
                 throw new LibGit2SharpException("No upstream remote for the current branch.");
             }
 
-            Commands.Fetch(repository, currentBranch.RemoteName, new string[0], options.FetchOptions, null);
+            Commands.Fetch(repository, currentBranch.RemoteName, Array.Empty<string>(), options.FetchOptions, null);
             return repository.MergeFetchedRefs(merger, options.MergeOptions);
         }
     }

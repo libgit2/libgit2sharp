@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using LibGit2Sharp;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -38,6 +37,7 @@ namespace LibGit2Sharp
 
             options = options ?? new FetchOptions();
             using (var remoteHandle = RemoteFromNameOrUrl(repository.Handle, remote))
+            using (var fetchOptionsWrapper = new GitFetchOptionsWrapper())
             {
 
                 var callbacks = new RemoteCallbacks(options);
@@ -51,11 +51,9 @@ namespace LibGit2Sharp
                 //
                 // Also, if GitRemoteCallbacks were a class instead of a struct, we would need to guard against
                 // GC occuring in between setting the remote callbacks and actual usage in one of the functions afterwords.
-                var fetchOptions = new GitFetchOptions
-                {
-                    RemoteCallbacks = gitCallbacks,
-                    download_tags = Proxy.git_remote_autotag(remoteHandle),
-                };
+                var fetchOptions = fetchOptionsWrapper.Options;
+                fetchOptions.RemoteCallbacks = gitCallbacks;
+                fetchOptions.download_tags = Proxy.git_remote_autotag(remoteHandle);
 
                 if (options.TagFetchMode.HasValue)
                 {
@@ -71,7 +69,12 @@ namespace LibGit2Sharp
                     fetchOptions.Prune = FetchPruneStrategy.FromConfigurationOrDefault;
                 }
 
-                fetchOptions.ProxyOptions = new GitProxyOptions { Version = 1 };
+                if (options.CustomHeaders != null && options.CustomHeaders.Length > 0)
+                {
+                    fetchOptions.CustomHeaders = GitStrArrayManaged.BuildFrom(options.CustomHeaders);
+                }
+
+                fetchOptions.ProxyOptions = options.ProxyOptions.CreateGitProxyOptions();
 
                 Proxy.git_remote_fetch(remoteHandle, refspecs, fetchOptions, logMessage);
             }

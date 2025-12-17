@@ -57,7 +57,7 @@ namespace LibGit2Sharp.Core
 
         #region ICustomMarshaler
 
-        public override IntPtr MarshalManagedToNative(Object managedObj)
+        public override IntPtr MarshalManagedToNative(object managedObj)
         {
             if (null == managedObj)
             {
@@ -105,7 +105,7 @@ namespace LibGit2Sharp.Core
 
         #region ICustomMarshaler
 
-        public override Object MarshalNativeToManaged(IntPtr pNativeData)
+        public override object MarshalNativeToManaged(IntPtr pNativeData)
         {
             return FromNative(pNativeData);
         }

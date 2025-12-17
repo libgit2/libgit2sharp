@@ -114,8 +114,8 @@ namespace LibGit2Sharp
                 return string.Format(CultureInfo.InvariantCulture,
                                      "{0}-{1} ({2})",
                                      FinalStartLineNumber,
-                                     FinalStartLineNumber+LineCount-1,
-                                     FinalCommit.ToString().Substring(0,7));
+                                     FinalStartLineNumber + LineCount - 1,
+                                     FinalCommit.ToString().Substring(0, 7));
             }
         }
 
@@ -135,10 +135,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="BlameHunk"/>.
+        /// Determines whether the specified <see cref="object"/> is equal to the current <see cref="BlameHunk"/>.
         /// </summary>
-        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="BlameHunk"/>.</param>
-        /// <returns>True if the specified <see cref="Object"/> is equal to the current <see cref="BlameHunk"/>; otherwise, false.</returns>
+        /// <param name="obj">The <see cref="object"/> to compare with the current <see cref="BlameHunk"/>.</param>
+        /// <returns>True if the specified <see cref="object"/> is equal to the current <see cref="BlameHunk"/>; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as BlameHunk);

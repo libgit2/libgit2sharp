@@ -6,7 +6,7 @@ using System.Linq;
 namespace LibGit2Sharp
 {
     /// <summary>
-    /// Criterias used to filter out and order the commits of the repository when querying its history.
+    /// Criteria used to filter out and order the commits of the repository when querying its history.
     /// </summary>
     public sealed class CommitFilter
     {
@@ -21,7 +21,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// The ordering stragtegy to use.
+        /// The ordering strategy to use.
         /// <para>
         ///   By default, the commits are shown in reverse chronological order.
         /// </para>

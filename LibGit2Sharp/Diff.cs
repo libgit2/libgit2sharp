@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text;
 using LibGit2Sharp.Core;
@@ -61,6 +60,11 @@ namespace LibGit2Sharp
             if (diffOptions.HasFlag(DiffModifiers.DisablePathspecMatch))
             {
                 options.Flags |= GitDiffOptionFlags.GIT_DIFF_DISABLE_PATHSPEC_MATCH;
+            }
+
+            if (compareOptions.IndentHeuristic)
+            {
+                options.Flags |= GitDiffOptionFlags.GIT_DIFF_INDENT_HEURISTIC;
             }
 
             if (matchedPathsAggregator != null)
@@ -351,7 +355,7 @@ namespace LibGit2Sharp
             }
 
             DiffHandle diff = BuildDiffList(oldTreeId, null, comparer, diffOptions, paths, explicitPathsOptions, compareOptions);
-            
+
             try
             {
                 return BuildDiffResult<T>(diff);
@@ -541,7 +545,7 @@ namespace LibGit2Sharp
 
             MatchedPathsAggregator matchedPaths = null;
 
-            // We can't match paths unless we've got something to match 
+            // We can't match paths unless we've got something to match
             // against and we're told to do so.
             if (filePaths != null && explicitPathsOptions != null)
             {
@@ -648,7 +652,7 @@ namespace LibGit2Sharp
             List<FilePath> unmatchedPaths = (filePaths != null ?
                 filePaths.Except(matchedPaths) : Enumerable.Empty<FilePath>()).ToList();
 
-            if (!unmatchedPaths.Any())
+            if (unmatchedPaths.Count == 0)
             {
                 return;
             }

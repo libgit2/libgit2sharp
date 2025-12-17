@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using LibGit2Sharp.Core;
 using Xunit;
 
 namespace LibGit2Sharp.Tests.TestHelpers
@@ -21,7 +20,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             BuildFakeConfigs(this);
 
 #if LEAKS_IDENTIFYING
-            LeaksContainer.Clear();
+            Core.LeaksContainer.Clear();
 #endif
         }
 
@@ -43,6 +42,8 @@ namespace LibGit2Sharp.Tests.TestHelpers
         private static string SubmoduleTargetTestRepoWorkingDirPath { get; set; }
         private static string AssumeUnchangedRepoWorkingDirPath { get; set; }
         public static string SubmoduleSmallTestRepoWorkingDirPath { get; set; }
+        public static string WorktreeTestRepoWorkingDirPath { get; private set; }
+        public static string WorktreeTestRepoWorktreesDirPath { get; private set; }
         public static string PackBuilderTestRepoPath { get; private set; }
 
         public static DirectoryInfo ResourcesDirectory { get; private set; }
@@ -51,33 +52,43 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
         protected static DateTimeOffset TruncateSubSeconds(DateTimeOffset dto)
         {
-            int seconds = dto.ToSecondsSinceEpoch();
-            return Epoch.ToDateTimeOffset(seconds, (int)dto.Offset.TotalMinutes);
+            var seconds = dto.ToUnixTimeSeconds();
+            return DateTimeOffset.FromUnixTimeSeconds(seconds).ToOffset(dto.Offset);
         }
 
         private static void SetUpTestEnvironment()
         {
             IsFileSystemCaseSensitive = IsFileSystemCaseSensitiveInternal();
 
-            string initialAssemblyParentFolder = Directory.GetParent(new Uri(typeof(BaseFixture).GetTypeInfo().Assembly.CodeBase).LocalPath).FullName;
+            var resourcesPath = Environment.GetEnvironmentVariable("LIBGIT2SHARP_RESOURCES");
 
-            const string sourceRelativePath = @"../../../../LibGit2Sharp.Tests/Resources";
-            ResourcesDirectory = new DirectoryInfo(Path.Combine(initialAssemblyParentFolder, sourceRelativePath));
+            if (resourcesPath == null)
+            {
+#if NETFRAMEWORK
+                resourcesPath = Path.Combine(Directory.GetParent(new Uri(typeof(BaseFixture).GetTypeInfo().Assembly.CodeBase).LocalPath).FullName, "Resources");
+#else
+                resourcesPath = Path.Combine(Directory.GetParent(typeof(BaseFixture).GetTypeInfo().Assembly.Location).FullName, "Resources");
+#endif
+            }
+
+            ResourcesDirectory = new DirectoryInfo(resourcesPath);
 
             // Setup standard paths to our test repositories
-            BareTestRepoPath = Path.Combine(sourceRelativePath, "testrepo.git");
-            StandardTestRepoWorkingDirPath = Path.Combine(sourceRelativePath, "testrepo_wd");
+            BareTestRepoPath = Path.Combine(ResourcesDirectory.FullName, "testrepo.git");
+            StandardTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "testrepo_wd");
             StandardTestRepoPath = Path.Combine(StandardTestRepoWorkingDirPath, "dot_git");
-            ShallowTestRepoPath = Path.Combine(sourceRelativePath, "shallow.git");
-            MergedTestRepoWorkingDirPath = Path.Combine(sourceRelativePath, "mergedrepo_wd");
-            MergeRenamesTestRepoWorkingDirPath = Path.Combine(sourceRelativePath, "mergerenames_wd");
-            MergeTestRepoWorkingDirPath = Path.Combine(sourceRelativePath, "merge_testrepo_wd");
-            RevertTestRepoWorkingDirPath = Path.Combine(sourceRelativePath, "revert_testrepo_wd");
-            SubmoduleTestRepoWorkingDirPath = Path.Combine(sourceRelativePath, "submodule_wd");
-            SubmoduleTargetTestRepoWorkingDirPath = Path.Combine(sourceRelativePath, "submodule_target_wd");
-            AssumeUnchangedRepoWorkingDirPath = Path.Combine(sourceRelativePath, "assume_unchanged_wd");
-            SubmoduleSmallTestRepoWorkingDirPath = Path.Combine(sourceRelativePath, "submodule_small_wd");
-            PackBuilderTestRepoPath = Path.Combine(sourceRelativePath, "packbuilder_testrepo_wd");
+            ShallowTestRepoPath = Path.Combine(ResourcesDirectory.FullName, "shallow.git");
+            MergedTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "mergedrepo_wd");
+            MergeRenamesTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "mergerenames_wd");
+            MergeTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "merge_testrepo_wd");
+            RevertTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "revert_testrepo_wd");
+            SubmoduleTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "submodule_wd");
+            SubmoduleTargetTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "submodule_target_wd");
+            AssumeUnchangedRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "assume_unchanged_wd");
+            SubmoduleSmallTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "submodule_small_wd");
+            PackBuilderTestRepoPath = Path.Combine(ResourcesDirectory.FullName, "packbuilder_testrepo_wd");
+            WorktreeTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "worktree", "testrepo_wd");
+            WorktreeTestRepoWorktreesDirPath = Path.Combine(ResourcesDirectory.FullName, "worktree", "worktrees");
 
             CleanupTestReposOlderThan(TimeSpan.FromMinutes(15));
         }
@@ -213,6 +224,11 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return path;
         }
 
+        public string SandboxWorktreeTestRepo()
+        {
+            return Sandbox(WorktreeTestRepoWorkingDirPath, WorktreeTestRepoWorktreesDirPath);
+        }
+
         protected string SandboxPackBuilderTestRepo()
         {
             return Sandbox(PackBuilderTestRepoPath);
@@ -260,11 +276,11 @@ namespace LibGit2Sharp.Tests.TestHelpers
             GC.Collect();
             GC.WaitForPendingFinalizers();
 
-            if (LeaksContainer.TypeNames.Any())
+            if (Core.LeaksContainer.TypeNames.Any())
             {
-                Assert.False(true, string.Format("Some handles of the following types haven't been properly released: {0}.{1}"
+                Assert.Fail(string.Format("Some handles of the following types haven't been properly released: {0}.{1}"
                     + "In order to get some help fixing those leaks, uncomment the define LEAKS_TRACKING in Libgit2Object.cs{1}"
-                    + "and run the tests locally.", string.Join(", ", LeaksContainer.TypeNames), Environment.NewLine));
+                    + "and run the tests locally.", string.Join(", ", Core.LeaksContainer.TypeNames), Environment.NewLine));
             }
 #endif
         }
@@ -454,7 +470,13 @@ namespace LibGit2Sharp.Tests.TestHelpers
             Assert.Equal(@from ?? ObjectId.Zero, reflogEntry.From);
 
             Assert.Equal(committer.Email, reflogEntry.Committer.Email);
-            Assert.InRange(reflogEntry.Committer.When, before, DateTimeOffset.Now);
+
+            // When verifying the timestamp range, give a little more room on the range.
+            // Git or file system datetime truncation seems to cause these stamps to jump up to a second earlier
+            // than we expect. See https://github.com/libgit2/libgit2sharp/issues/1764
+            var low = before - TimeSpan.FromSeconds(1);
+            var high = DateTimeOffset.Now.TruncateMilliseconds() + TimeSpan.FromSeconds(1);
+            Assert.InRange(reflogEntry.Committer.When, low, high);
         }
 
         protected static void EnableRefLog(IRepository repository, bool enable = true)

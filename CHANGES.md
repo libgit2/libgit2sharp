@@ -1,18 +1,110 @@
 # LibGit2Sharp Changes
 
-**LibGit2Sharp brings all the might and speed of libgit2, a native Git implementation, to the managed world of .Net and Mono.**
+## v0.31 - ([diff](https://github.com/libgit2/libgit2sharp/compare/0.30.0..0.31.0))
 
- - Source code: <https://github.com/libgit2/libgit2sharp>
- - NuGet package: <http://nuget.org/List/Packages/LibGit2Sharp>
- - Issue tracker: <https://github.com/libgit2/libgit2sharp/issues>
- - @libgit2sharp: <http://twitter.com/libgit2sharp>
- - CI servers:
-  - Windows (x86/amd64): <https://ci.appveyor.com/project/libgit2/libgit2sharp>
-  - Linux/Mac OS X: <https://travis-ci.org/libgit2/libgit2sharp>
-
-## v0.24 + 1
+### Changes
+- This release includes [libgit2 v1.8.4](https://github.com/libgit2/libgit2/releases/tag/v1.8.4).
+  - SSH is now supported through [libgit2's support for OpenSSH](https://github.com/libgit2/libgit2/pull/6617).
+- The ppc64le architecture is now supported on Linux.
+- .NET 6 has reached end of support, so LibGit2Sharp now targets `net472` and `net8.0`.
 
 ### Additions
+- Adds Depth to FetchOptions allowing for shallow cloning [#2070](https://github.com/libgit2/libgit2sharp/pull/2070)
+- Make owner validation configurable [#2093](https://github.com/libgit2/libgit2sharp/pull/2093)
+- Add a CloneOptions constructor that takes a FetchOptions [#2132](https://github.com/libgit2/libgit2sharp/pull/2132)
+
+### Fixes
+- TreeDefinition.Remove fails to remove unwrapped trees [#1869](https://github.com/libgit2/libgit2sharp/issues/1869) 
+- ObjectDatabase.Write<T>(Stream stream...) overload does not respect T [#2071](https://github.com/libgit2/libgit2sharp/issues/2071)
+- Repository.Worktrees.Add leaves now worktree empty [#2037](https://github.com/libgit2/libgit2sharp/issues/2037)
+
+## v0.30 - ([diff](https://github.com/libgit2/libgit2sharp/compare/0.29.0..0.30.0))
+
+### Changes
+- This release includes [libgit2 v1.7.2](https://github.com/libgit2/libgit2/releases/tag/v1.7.2).
+- Updates for trimming compatibility [#2084](https://github.com/libgit2/libgit2sharp/pull/2084)
+- Updates for .NET 8 [#2085](https://github.com/libgit2/libgit2sharp/pull/2085)
+
+## v0.29 - ([diff](https://github.com/libgit2/libgit2sharp/compare/0.28.0..0.29.0))
+
+### Changes
+- This release includes [libgit2 v1.7.1](https://github.com/libgit2/libgit2/releases/tag/v1.7.1).
+  - CI changes for the native binaries has removed support for CentOS 7. See [#2066](https://github.com/libgit2/libgit2sharp/pull/2066) for details.
+
+### Additions
+- Add proxy options [#2065](https://github.com/libgit2/libgit2sharp/pull/2065)
+  - See PR for details, including some breaking changes to `CloneOptions` and `SubmoduleUpdateOptions`
+
+## v0.28 - ([diff](https://github.com/libgit2/libgit2sharp/compare/0.27.2..0.28.0))
+
+### Additions
+- Add CustomHeaders to PushOptions [#2052](https://github.com/libgit2/libgit2sharp/pull/2052)
+
+## v0.27.2 - ([diff](https://github.com/libgit2/libgit2sharp/compare/0.27.1..0.27.2))
+
+### Changes
+- This release includes [libgit2 v1.6.4](https://github.com/libgit2/libgit2/releases/tag/v1.6.4).
+
+### Fixes
+- Can't access GIT config (Repository.Config) since v0.27.0 [#2031](https://github.com/libgit2/libgit2sharp/issues/2031)
+
+## v0.27.1 - ([diff](https://github.com/libgit2/libgit2sharp/compare/0.27.0..0.27.1))
+
+### Fixes
+- AssemblyVersion of v0.27.0 is `0.0.0.0`, which is lower than the AssemblyVersion of the v0.26.x releases. [#2030](https://github.com/libgit2/libgit2sharp/pull/2030)
+
+## v0.27 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.26..0.27.0))
+
+### Changes
+- LibGit2Sharp now targets .NET Framework 4.7.2 and .NET 6.
+- This release includes [libgit2 v1.6.3](https://github.com/libgit2/libgit2/releases/tag/v1.6.3).
+- Changes to the native binaries let LibGit2Sharp work on all [.NET 6 supported OS versions and architectures](https://github.com/dotnet/core/blob/main/release-notes/6.0/supported-os.md).
+- `GlobalSetings.NativeLibraryPath` used to automatically append architecture to the path when running on .NET Framework. This behavior has been removed to make it consistent. [#1918](https://github.com/libgit2/libgit2sharp/pull/1918)
+
+### Additions
+- Add support for adding and clearing multi-valued configuration [#1720](https://github.com/libgit2/libgit2sharp/pull/1720)
+- added lines and deleted lines in content changes [#1790](https://github.com/libgit2/libgit2sharp/pull/1790)
+- Set / get supported extensions [#1908](https://github.com/libgit2/libgit2sharp/pull/1908)
+- Simplify dealing with missing git objects [#1909](https://github.com/libgit2/libgit2sharp/pull/1909)
+- Throw NotFoundException if trees are missing when computing diff [#1936](https://github.com/libgit2/libgit2sharp/pull/1936)
+
+### Fixes
+- Adjust GitStatusOptions to match structure of native libgit2 [#1884](https://github.com/libgit2/libgit2sharp/pull/1884)
+- Update git_worktree_add_options struct to include ref pointer [#1890](https://github.com/libgit2/libgit2sharp/pull/1890)
+- Fix git_remote_connect not throwing on non-zero result [#1913](https://github.com/libgit2/libgit2sharp/pull/1913)
+- Fix incorrect information in exceptions [#1919](https://github.com/libgit2/libgit2sharp/pull/1919)
+- Checkout branch looks to remote tracking branches as fallback [#1820](https://github.com/libgit2/libgit2sharp/pull/1820)
+- Fixed calling into native libgit2 on osx-arm64 [#1955](https://github.com/libgit2/libgit2sharp/pull/1955)
+
+## v0.26 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.25..v0.26))
+
+### Additions
+
+* Add `CherryPickCommitIntoIndex` to `ObjectDatabase`
+* The underlying native library (libgit2) now no longer relies on libcurl
+* The underlying native library now no longer relies on zlib
+* Add `IndentHeuristic` option to `CompareOptions`
+
+## v0.25 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.24..v0.25))
+
+LibGit2Sharp is now .NET Core 2.0+ and .NET Framework compatible.
+
+### Additions
+
+ - `GitObject` now has a `Peel` method that will let you peel (for example)
+    a `Tag` to a `Tree`.
+ - `MergeOptions` now includes an option to `IgnoreWhitespaceChanges`.
+ - `TreeDefinition` can now `Add` an object with only the ID, which allows
+   users of large files to add entries without realizing a `Blob`.
+ - `ObjectDatabase` can now `Write` a `Stream`, which allows users of
+   large files to stream an object into storage without loading it into
+   memory.
+ - `ObjectDatabase` can now `MergeCommitsIntoIndex` allowing users to perform
+   an in-memory merge that produces an `Index` structure with conflicts.
+ - Users can enable or disable dependent object existence checks when
+   creating new objects with `GlobalSettings.SetEnableStrictObjectCreation`
+ - Users can enable or disable `ofs_delta` support with
+   `GlobalSettings.SetEnableOfsDelta`
 
 ### Changes
 
@@ -21,11 +113,15 @@
    the `StatusOptions.RecurseUntrackedDirs` options.
  - Status now does not show the ignored files by default.  To retrieve
    ignored files, include the `StatusOptions.IncludeIgnored` option.
+ - `Commands.Pull` can now provide a `null` value for `PullOptions`,
+   which indicates that default values should be used.
 
 ### Fixes
 
  - The exception thrown when the native library cannot be loaded is now
    able to be caught and will no longer crash the process.
+ - Getting the `Notes` collection from a `Repository` no longer throws an
+   exception when the repository has no notes.
 
 ## v0.24 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.23..v0.24))
 

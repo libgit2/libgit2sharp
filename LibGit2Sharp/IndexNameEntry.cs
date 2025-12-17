@@ -63,10 +63,10 @@ namespace LibGit2Sharp
         public virtual string Theirs { get; private set; }
 
         /// <summary>
-        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="IndexNameEntry"/>.
+        /// Determines whether the specified <see cref="object"/> is equal to the current <see cref="IndexNameEntry"/>.
         /// </summary>
-        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="IndexNameEntry"/>.</param>
-        /// <returns>True if the specified <see cref="Object"/> is equal to the current <see cref="IndexNameEntry"/>; otherwise, false.</returns>
+        /// <param name="obj">The <see cref="object"/> to compare with the current <see cref="IndexNameEntry"/>.</param>
+        /// <returns>True if the specified <see cref="object"/> is equal to the current <see cref="IndexNameEntry"/>; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as IndexNameEntry);

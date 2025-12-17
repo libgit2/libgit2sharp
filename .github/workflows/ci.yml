@@ -1,0 +1,102 @@
+name: CI
+on:
+  push:
+    branches: [master, release-*]
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+-*'
+  pull_request:
+  workflow_dispatch:
+env:
+  DOTNET_NOLOGO: true
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.2
+        with:
+          fetch-depth: 0
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v4.0.0
+        with:
+          dotnet-version: 9.0.x
+      - name: Build
+        run: dotnet build LibGit2Sharp.sln --configuration Release
+      - name: Upload packages
+        uses: actions/upload-artifact@v4.3.1
+        with:
+          name: NuGet packages
+          path: artifacts/package/
+          retention-days: 7
+      - name: Verify trimming compatibility
+        run: dotnet publish TrimmingTestApp
+  test:
+    name: Test / ${{ matrix.os }} / ${{ matrix.arch }} / ${{ matrix.tfm }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        arch: [ x64 ]
+        os: [ windows-2019, windows-2022, macos-13 ]
+        tfm: [ net472, net8.0, net9.0 ]
+        exclude:
+          - os: macos-13
+            tfm: net472
+        include:
+          - arch: arm64
+            os: macos-14
+            tfm: net8.0
+          - arch: arm64
+            os: macos-14
+            tfm: net9.0
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.2
+        with:
+          fetch-depth: 0
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v4.0.0
+        with:
+          dotnet-version: |
+            9.0.x
+            8.0.x
+      - name: Run ${{ matrix.tfm }} tests
+        run: dotnet test LibGit2Sharp.sln --configuration Release --framework ${{ matrix.tfm }} --logger "GitHubActions" /p:ExtraDefine=LEAKS_IDENTIFYING
+  test-linux:
+    name: Test / ${{ matrix.distro }} / ${{ matrix.arch }} / ${{ matrix.tfm }}
+    runs-on: ${{ matrix.runnerImage }}
+    strategy:
+      matrix:
+        arch: [ amd64, arm64 ]
+        distro: [ alpine.3.17, alpine.3.18, alpine.3.19, alpine.3.20, centos.stream.9, debian.12, fedora.40, ubuntu.20.04, ubuntu.22.04, ubuntu.24.04 ]
+        sdk:  [ '8.0', '9.0' ]
+        exclude:
+          - distro: alpine.3.17
+            sdk: '9.0'
+          - distro: alpine.3.18
+            sdk: '9.0'
+          - distro: alpine.3.19
+            sdk: '9.0'
+        include:
+          - sdk: '8.0'
+            tfm: net8.0
+          - sdk: '9.0'
+            tfm: net9.0
+          - arch: amd64
+            runnerImage: ubuntu-22.04
+          - arch: arm64
+            runnerImage: ubuntu-22.04-arm
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.2
+        with:
+          fetch-depth: 0
+      - name: Run ${{ matrix.tfm }} tests
+        run: |
+            git_command="git config --global --add safe.directory /app"
+            test_command="dotnet test LibGit2Sharp.sln --configuration Release -p:TargetFrameworks=${{ matrix.tfm }} --logger "GitHubActions" -p:ExtraDefine=LEAKS_IDENTIFYING"
+            docker run -t --rm --platform linux/${{ matrix.arch }} -v "$PWD:/app" -e OPENSSL_ENABLE_SHA1_SIGNATURES=1 gittools/build-images:${{ matrix.distro }}-sdk-${{ matrix.sdk }} sh -c "$git_command && $test_command"
+

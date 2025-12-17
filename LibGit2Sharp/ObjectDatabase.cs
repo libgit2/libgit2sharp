@@ -104,8 +104,8 @@ namespace LibGit2Sharp
             }
 
             ObjectId id = Path.IsPathRooted(path)
-                ? Proxy.git_blob_create_fromdisk(repo.Handle, path)
-                : Proxy.git_blob_create_fromfile(repo.Handle, path);
+                ? Proxy.git_blob_create_from_disk(repo.Handle, path)
+                : Proxy.git_blob_create_from_workdir(repo.Handle, path);
 
             return repo.Lookup<Blob>(id);
         }
@@ -199,10 +199,10 @@ namespace LibGit2Sharp
 
             if (!stream.CanRead)
             {
-                throw new ArgumentException("The stream cannot be read from.", "stream");
+                throw new ArgumentException("The stream cannot be read from.", nameof(stream));
             }
 
-            using (var odbStream = Proxy.git_odb_open_wstream(handle, numberOfBytesToConsume, GitObjectType.Blob))
+            using (var odbStream = Proxy.git_odb_open_wstream(handle, numberOfBytesToConsume, GitObject.TypeToGitKindMap[typeof(T)]))
             {
                 var buffer = new byte[4 * 1024];
                 long totalRead = 0;
@@ -274,10 +274,10 @@ namespace LibGit2Sharp
 
             if (!stream.CanRead)
             {
-                throw new ArgumentException("The stream cannot be read from.", "stream");
+                throw new ArgumentException("The stream cannot be read from.", nameof(stream));
             }
 
-            IntPtr writestream_ptr = Proxy.git_blob_create_fromstream(repo.Handle, hintpath);
+            IntPtr writestream_ptr = Proxy.git_blob_create_from_stream(repo.Handle, hintpath);
             GitWriteStream writestream = Marshal.PtrToStructure<GitWriteStream>(writestream_ptr);
 
             try
@@ -315,10 +315,10 @@ namespace LibGit2Sharp
                     throw new EndOfStreamException("The stream ended unexpectedly");
                 }
             }
-            catch(Exception e)
+            catch (Exception)
             {
                 writestream.free(writestream_ptr);
-                throw e;
+                throw;
             }
 
             ObjectId id = Proxy.git_blob_create_fromstream_commit(writestream_ptr);
@@ -562,44 +562,33 @@ namespace LibGit2Sharp
         public virtual MergeTreeResult CherryPickCommit(Commit cherryPickCommit, Commit cherryPickOnto, int mainline, MergeTreeOptions options)
         {
             Ensure.ArgumentNotNull(cherryPickCommit, "cherryPickCommit");
-            Ensure.ArgumentNotNull(cherryPickOnto, "ours");
+            Ensure.ArgumentNotNull(cherryPickOnto, "cherryPickOnto");
 
-            options = options ?? new MergeTreeOptions();
+            var modifiedOptions = new MergeTreeOptions();
 
             // We throw away the index after looking at the conflicts, so we'll never need the REUC
             // entries to be there
-            GitMergeFlag mergeFlags = GitMergeFlag.GIT_MERGE_NORMAL | GitMergeFlag.GIT_MERGE_SKIP_REUC;
-            if (options.FindRenames)
-            {
-                mergeFlags |= GitMergeFlag.GIT_MERGE_FIND_RENAMES;
-            }
-            if (options.FailOnConflict)
-            {
-                mergeFlags |= GitMergeFlag.GIT_MERGE_FAIL_ON_CONFLICT;
-            }
+            modifiedOptions.SkipReuc = true;
 
-
-            var opts = new GitMergeOpts
+            if (options != null)
             {
-                Version = 1,
-                MergeFileFavorFlags = options.MergeFileFavor,
-                MergeTreeFlags = mergeFlags,
-                RenameThreshold = (uint)options.RenameThreshold,
-                TargetLimit = (uint)options.TargetLimit
-            };
+                modifiedOptions.FailOnConflict = options.FailOnConflict;
+                modifiedOptions.FindRenames = options.FindRenames;
+                modifiedOptions.MergeFileFavor = options.MergeFileFavor;
+                modifiedOptions.RenameThreshold = options.RenameThreshold;
+                modifiedOptions.TargetLimit = options.TargetLimit;
+            }
 
             bool earlyStop;
 
-            using (var cherryPickOntoHandle = Proxy.git_object_lookup(repo.Handle, cherryPickOnto.Id, GitObjectType.Commit))
-            using (var cherryPickCommitHandle = Proxy.git_object_lookup(repo.Handle, cherryPickCommit.Id, GitObjectType.Commit))
-            using (var indexHandle = Proxy.git_cherrypick_commit(repo.Handle, cherryPickCommitHandle, cherryPickOntoHandle, (uint)mainline, opts, out earlyStop))
+            using (var indexHandle = CherryPickCommit(cherryPickCommit, cherryPickOnto, mainline, modifiedOptions, out earlyStop))
             {
                 MergeTreeResult cherryPickResult;
 
                 // Stopped due to FailOnConflict so there's no index or conflict list
                 if (earlyStop)
                 {
-                    return new MergeTreeResult(new Conflict[] { });
+                    return new MergeTreeResult(Array.Empty<Conflict>());
                 }
 
                 if (Proxy.git_index_has_conflicts(indexHandle))
@@ -650,7 +639,7 @@ namespace LibGit2Sharp
 
             if (minLength <= 0 || minLength > ObjectId.HexSize)
             {
-                throw new ArgumentOutOfRangeException("minLength",
+                throw new ArgumentOutOfRangeException(nameof(minLength),
                                                       minLength,
                                                       string.Format("Expected value should be greater than zero and less than or equal to {0}.",
                                                                     ObjectId.HexSize));
@@ -725,7 +714,7 @@ namespace LibGit2Sharp
             {
                 if (commit == null)
                 {
-                    throw new ArgumentException("Enumerable contains null at position: " + count.ToString(CultureInfo.InvariantCulture), "commits");
+                    throw new ArgumentException("Enumerable contains null at position: " + count.ToString(CultureInfo.InvariantCulture), nameof(commits));
                 }
                 ids.Add(commit.Id.Oid);
                 count++;
@@ -733,7 +722,7 @@ namespace LibGit2Sharp
 
             if (count < 2)
             {
-                throw new ArgumentException("The enumerable must contains at least two commits.", "commits");
+                throw new ArgumentException("The enumerable must contains at least two commits.", nameof(commits));
             }
 
             switch (strategy)
@@ -747,7 +736,7 @@ namespace LibGit2Sharp
                     break;
 
                 default:
-                    throw new ArgumentException("", "strategy");
+                    throw new ArgumentException("", nameof(strategy));
             }
 
             return id == null ? null : repo.Lookup<Commit>(id);
@@ -755,54 +744,43 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Perform a three-way merge of two commits, looking up their
-        /// commit ancestor. The returned index will contain the results
-        /// of the merge and can be examined for conflicts. The returned
-        /// index must be disposed.
+        /// commit ancestor. The returned <see cref="MergeTreeResult"/> will contain the results
+        /// of the merge and can be examined for conflicts.
         /// </summary>
-        /// <param name="ours">The first tree</param>
-        /// <param name="theirs">The second tree</param>
+        /// <param name="ours">The first commit</param>
+        /// <param name="theirs">The second commit</param>
         /// <param name="options">The <see cref="MergeTreeOptions"/> controlling the merge</param>
-        /// <returns>The <see cref="Index"/> containing the merged trees and any conflicts</returns>
+        /// <returns>The <see cref="MergeTreeResult"/> containing the merged trees and any conflicts</returns>
         public virtual MergeTreeResult MergeCommits(Commit ours, Commit theirs, MergeTreeOptions options)
         {
             Ensure.ArgumentNotNull(ours, "ours");
             Ensure.ArgumentNotNull(theirs, "theirs");
 
-            options = options ?? new MergeTreeOptions();
+            var modifiedOptions = new MergeTreeOptions();
 
             // We throw away the index after looking at the conflicts, so we'll never need the REUC
             // entries to be there
-            GitMergeFlag mergeFlags = GitMergeFlag.GIT_MERGE_NORMAL | GitMergeFlag.GIT_MERGE_SKIP_REUC;
-            if (options.FindRenames)
-            {
-                mergeFlags |= GitMergeFlag.GIT_MERGE_FIND_RENAMES;
-            }
-            if (options.FailOnConflict)
-            {
-                mergeFlags |= GitMergeFlag.GIT_MERGE_FAIL_ON_CONFLICT;
-            }
+            modifiedOptions.SkipReuc = true;
 
-
-            var mergeOptions = new GitMergeOpts
+            if (options != null)
             {
-                Version = 1,
-                MergeFileFavorFlags = options.MergeFileFavor,
-                MergeTreeFlags = mergeFlags,
-                RenameThreshold = (uint)options.RenameThreshold,
-                TargetLimit = (uint)options.TargetLimit,
-            };
+                modifiedOptions.FailOnConflict = options.FailOnConflict;
+                modifiedOptions.FindRenames = options.FindRenames;
+                modifiedOptions.IgnoreWhitespaceChange = options.IgnoreWhitespaceChange;
+                modifiedOptions.MergeFileFavor = options.MergeFileFavor;
+                modifiedOptions.RenameThreshold = options.RenameThreshold;
+                modifiedOptions.TargetLimit = options.TargetLimit;
+            }
 
             bool earlyStop;
-            using (var oneHandle = Proxy.git_object_lookup(repo.Handle, ours.Id, GitObjectType.Commit))
-            using (var twoHandle = Proxy.git_object_lookup(repo.Handle, theirs.Id, GitObjectType.Commit))
-            using (var indexHandle = Proxy.git_merge_commits(repo.Handle, oneHandle, twoHandle, mergeOptions, out earlyStop))
+            using (var indexHandle = MergeCommits(ours, theirs, modifiedOptions, out earlyStop))
             {
                 MergeTreeResult mergeResult;
 
                 // Stopped due to FailOnConflict so there's no index or conflict list
                 if (earlyStop)
                 {
-                    return new MergeTreeResult(new Conflict[] { });
+                    return new MergeTreeResult(Array.Empty<Conflict>());
                 }
 
                 if (Proxy.git_index_has_conflicts(indexHandle))
@@ -858,6 +836,152 @@ namespace LibGit2Sharp
         {
             return InternalPack(options, packDelegate);
         }
+
+        /// <summary>
+        /// Perform a three-way merge of two commits, looking up their
+        /// commit ancestor. The returned index will contain the results
+        /// of the merge and can be examined for conflicts.
+        /// </summary>
+        /// <param name="ours">The first tree</param>
+        /// <param name="theirs">The second tree</param>
+        /// <param name="options">The <see cref="MergeTreeOptions"/> controlling the merge</param>
+        /// <returns>The <see cref="TransientIndex"/> containing the merged trees and any conflicts, or null if the merge stopped early due to conflicts.
+        /// The index must be disposed by the caller.</returns>
+        public virtual TransientIndex MergeCommitsIntoIndex(Commit ours, Commit theirs, MergeTreeOptions options)
+        {
+            Ensure.ArgumentNotNull(ours, "ours");
+            Ensure.ArgumentNotNull(theirs, "theirs");
+
+            options = options ?? new MergeTreeOptions();
+
+            bool earlyStop;
+            var indexHandle = MergeCommits(ours, theirs, options, out earlyStop);
+            if (earlyStop)
+            {
+                if (indexHandle != null)
+                {
+                    indexHandle.Dispose();
+                }
+                return null;
+            }
+            var result = new TransientIndex(indexHandle, repo);
+            return result;
+        }
+
+        /// <summary>
+        /// Performs a cherry-pick of <paramref name="cherryPickCommit"/> onto <paramref name="cherryPickOnto"/> commit.
+        /// </summary>
+        /// <param name="cherryPickCommit">The commit to cherry-pick.</param>
+        /// <param name="cherryPickOnto">The commit to cherry-pick onto.</param>
+        /// <param name="mainline">Which commit to consider the parent for the diff when cherry-picking a merge commit.</param>
+        /// <param name="options">The options for the merging in the cherry-pick operation.</param>
+        /// <returns>The <see cref="TransientIndex"/> containing the cherry-pick result tree and any conflicts, or null if the merge stopped early due to conflicts.
+        /// The index must be disposed by the caller. </returns>
+        public virtual TransientIndex CherryPickCommitIntoIndex(Commit cherryPickCommit, Commit cherryPickOnto, int mainline, MergeTreeOptions options)
+        {
+            Ensure.ArgumentNotNull(cherryPickCommit, "cherryPickCommit");
+            Ensure.ArgumentNotNull(cherryPickOnto, "cherryPickOnto");
+
+            options = options ?? new MergeTreeOptions();
+
+            bool earlyStop;
+            var indexHandle = CherryPickCommit(cherryPickCommit, cherryPickOnto, mainline, options, out earlyStop);
+            if (earlyStop)
+            {
+                if (indexHandle != null)
+                {
+                    indexHandle.Dispose();
+                }
+                return null;
+            }
+            var result = new TransientIndex(indexHandle, repo);
+            return result;
+        }
+
+        /// <summary>
+        /// Perform a three-way merge of two commits, looking up their
+        /// commit ancestor. The returned index will contain the results
+        /// of the merge and can be examined for conflicts.
+        /// </summary>
+        /// <param name="ours">The first tree</param>
+        /// <param name="theirs">The second tree</param>
+        /// <param name="options">The <see cref="MergeTreeOptions"/> controlling the merge</param>
+        /// <param name="earlyStop">True if the merge stopped early due to conflicts</param>
+        /// <returns>The <see cref="IndexHandle"/> containing the merged trees and any conflicts</returns>
+        private IndexHandle MergeCommits(Commit ours, Commit theirs, MergeTreeOptions options, out bool earlyStop)
+        {
+            GitMergeFlag mergeFlags = GitMergeFlag.GIT_MERGE_NORMAL;
+            if (options.SkipReuc)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_SKIP_REUC;
+            }
+            if (options.FindRenames)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_FIND_RENAMES;
+            }
+            if (options.FailOnConflict)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_FAIL_ON_CONFLICT;
+            }
+
+            var mergeOptions = new GitMergeOpts
+            {
+                Version = 1,
+                MergeFileFavorFlags = options.MergeFileFavor,
+                MergeTreeFlags = mergeFlags,
+                RenameThreshold = (uint)options.RenameThreshold,
+                TargetLimit = (uint)options.TargetLimit,
+            };
+            using (var oneHandle = Proxy.git_object_lookup(repo.Handle, ours.Id, GitObjectType.Commit))
+            using (var twoHandle = Proxy.git_object_lookup(repo.Handle, theirs.Id, GitObjectType.Commit))
+            {
+                var indexHandle = Proxy.git_merge_commits(repo.Handle, oneHandle, twoHandle, mergeOptions, out earlyStop);
+                return indexHandle;
+            }
+        }
+
+        /// <summary>
+        /// Performs a cherry-pick of <paramref name="cherryPickCommit"/> onto <paramref name="cherryPickOnto"/> commit.
+        /// </summary>
+        /// <param name="cherryPickCommit">The commit to cherry-pick.</param>
+        /// <param name="cherryPickOnto">The commit to cherry-pick onto.</param>
+        /// <param name="mainline">Which commit to consider the parent for the diff when cherry-picking a merge commit.</param>
+        /// <param name="options">The options for the merging in the cherry-pick operation.</param>
+        /// <param name="earlyStop">True if the cherry-pick stopped early due to conflicts</param>
+        /// <returns>The <see cref="IndexHandle"/> containing the cherry-pick result tree and any conflicts</returns>
+        private IndexHandle CherryPickCommit(Commit cherryPickCommit, Commit cherryPickOnto, int mainline, MergeTreeOptions options, out bool earlyStop)
+        {
+            GitMergeFlag mergeFlags = GitMergeFlag.GIT_MERGE_NORMAL;
+            if (options.SkipReuc)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_SKIP_REUC;
+            }
+            if (options.FindRenames)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_FIND_RENAMES;
+            }
+            if (options.FailOnConflict)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_FAIL_ON_CONFLICT;
+            }
+
+            var mergeOptions = new GitMergeOpts
+            {
+                Version = 1,
+                MergeFileFavorFlags = options.MergeFileFavor,
+                MergeTreeFlags = mergeFlags,
+                RenameThreshold = (uint)options.RenameThreshold,
+                TargetLimit = (uint)options.TargetLimit,
+            };
+
+            using (var cherryPickOntoHandle = Proxy.git_object_lookup(repo.Handle, cherryPickOnto.Id, GitObjectType.Commit))
+            using (var cherryPickCommitHandle = Proxy.git_object_lookup(repo.Handle, cherryPickCommit.Id, GitObjectType.Commit))
+            {
+                var indexHandle = Proxy.git_cherrypick_commit(repo.Handle, cherryPickCommitHandle, cherryPickOntoHandle, (uint)mainline, mergeOptions, out earlyStop);
+                return indexHandle;
+            }
+        }
+
 
         /// <summary>
         /// Packs objects in the <see cref="ObjectDatabase"/> and write a pack (.pack) and index (.idx) files for them.
@@ -939,7 +1063,7 @@ namespace LibGit2Sharp
                 // Stopped due to FailOnConflict so there's no index or conflict list
                 if (earlyStop)
                 {
-                    return new MergeTreeResult(new Conflict[] { });
+                    return new MergeTreeResult(Array.Empty<Conflict>());
                 }
 
                 if (Proxy.git_index_has_conflicts(indexHandle))

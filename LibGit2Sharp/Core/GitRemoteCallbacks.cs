@@ -33,6 +33,10 @@ namespace LibGit2Sharp.Core
 
         internal IntPtr transport;
 
+        private IntPtr padding; // TODO: add git_remote_ready_cb
+
         internal IntPtr payload;
+
+        internal NativeMethods.url_resolve_callback resolve_url;
     }
 }

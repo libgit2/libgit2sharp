@@ -165,10 +165,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="Filter"/>.
+        /// Determines whether the specified <see cref="object"/> is equal to the current <see cref="Filter"/>.
         /// </summary>
-        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="Filter"/>.</param>
-        /// <returns>True if the specified <see cref="Object"/> is equal to the current <see cref="Filter"/>; otherwise, false.</returns>
+        /// <param name="obj">The <see cref="object"/> to compare with the current <see cref="Filter"/>.</param>
+        /// <returns>True if the specified <see cref="object"/> is equal to the current <see cref="Filter"/>; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as Filter);
@@ -236,7 +236,7 @@ namespace LibGit2Sharp
             {
                 Log.Write(LogLevel.Error, "Filter.InitializeCallback exception");
                 Log.Write(LogLevel.Error, exception.ToString());
-                Proxy.giterr_set_str(GitErrorCategory.Filter, exception);
+                Proxy.git_error_set_str(GitErrorCategory.Filter, exception);
                 result = (int)GitErrorCode.Error;
             }
             return result;
@@ -286,7 +286,7 @@ namespace LibGit2Sharp
 
                 Log.Write(LogLevel.Error, "Filter.StreamCreateCallback exception");
                 Log.Write(LogLevel.Error, exception.ToString());
-                Proxy.giterr_set_str(GitErrorCategory.Filter, exception);
+                Proxy.git_error_set_str(GitErrorCategory.Filter, exception);
                 result = (int)GitErrorCode.Error;
             }
 
@@ -304,9 +304,9 @@ namespace LibGit2Sharp
             {
                 Ensure.ArgumentNotZeroIntPtr(stream, "stream");
 
-                if(!activeStreams.TryGetValue(stream, out state))
+                if (!activeStreams.TryGetValue(stream, out state))
                 {
-                    throw new ArgumentException("Unknown stream pointer", "stream");
+                    throw new ArgumentException("Unknown stream pointer", nameof(stream));
                 }
 
                 Ensure.ArgumentIsExpectedIntPtr(stream, state.thisPtr, "stream");
@@ -322,7 +322,7 @@ namespace LibGit2Sharp
             {
                 Log.Write(LogLevel.Error, "Filter.StreamCloseCallback exception");
                 Log.Write(LogLevel.Error, exception.ToString());
-                Proxy.giterr_set_str(GitErrorCategory.Filter, exception);
+                Proxy.git_error_set_str(GitErrorCategory.Filter, exception);
                 result = (int)GitErrorCode.Error;
             }
 
@@ -339,7 +339,7 @@ namespace LibGit2Sharp
 
                 if (!activeStreams.TryRemove(stream, out state))
                 {
-                    throw new ArgumentException("Double free or invalid stream pointer", "stream");
+                    throw new ArgumentException("Double free or invalid stream pointer", nameof(stream));
                 }
 
                 Ensure.ArgumentIsExpectedIntPtr(stream, state.thisPtr, "stream");
@@ -365,7 +365,7 @@ namespace LibGit2Sharp
 
                 if (!activeStreams.TryGetValue(stream, out state))
                 {
-                    throw new ArgumentException("Invalid or already freed stream pointer", "stream");
+                    throw new ArgumentException("Invalid or already freed stream pointer", nameof(stream));
                 }
 
                 Ensure.ArgumentIsExpectedIntPtr(stream, state.thisPtr, "stream");
@@ -384,7 +384,7 @@ namespace LibGit2Sharp
                             break;
 
                         default:
-                            Proxy.giterr_set_str(GitErrorCategory.Filter, "Unexpected filter mode.");
+                            Proxy.git_error_set_str(GitErrorCategory.Filter, "Unexpected filter mode.");
                             return (int)GitErrorCode.Ambiguous;
                     }
                 }
@@ -393,7 +393,7 @@ namespace LibGit2Sharp
             {
                 Log.Write(LogLevel.Error, "Filter.StreamWriteCallback exception");
                 Log.Write(LogLevel.Error, exception.ToString());
-                Proxy.giterr_set_str(GitErrorCategory.Filter, exception);
+                Proxy.git_error_set_str(GitErrorCategory.Filter, exception);
                 result = (int)GitErrorCode.Error;
             }
 

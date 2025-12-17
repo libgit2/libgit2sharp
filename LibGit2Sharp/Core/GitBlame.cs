@@ -46,7 +46,7 @@ namespace LibGit2Sharp.Core
         public uint version = 1;
         public GitBlameOptionFlags flags;
 
-        public UInt16 min_match_characters;
+        public ushort min_match_characters;
         public git_oid newest_commit;
         public git_oid oldest_commit;
         public UIntPtr min_line;
@@ -61,7 +61,7 @@ namespace LibGit2Sharp.Core
         public git_oid final_commit_id;
         public UIntPtr final_start_line_number;
         public git_signature* final_signature;
-        
+
         public git_oid orig_commit_id;
         public char* orig_path;
         public UIntPtr orig_start_line_number;
