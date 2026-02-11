@@ -34,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LibGit2Sharp.NativeBinaries.UiPath" Version="1.9.1-v3" PrivateAssets="none" />
+    <PackageReference Include="LibGit2Sharp.NativeBinaries.UiPath" Version="1.9.1-v4" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
     <PackageReference Include="MinVer" Version="4.3.0" PrivateAssets="all" />
   </ItemGroup>
