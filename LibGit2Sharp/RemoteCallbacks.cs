@@ -17,6 +17,17 @@ namespace LibGit2Sharp
             CredentialsProvider = credentialsProvider;
         }
 
+        internal RemoteCallbacks(ListRemoteOptions listRemoteOptions)
+        {
+            if (listRemoteOptions == null)
+            {
+                return;
+            }
+
+            CertificateCheck = listRemoteOptions.CertificateCheck;
+            CredentialsProvider = listRemoteOptions.CredentialsProvider;
+        }
+
         internal RemoteCallbacks(PushOptions pushOptions)
         {
             if (pushOptions == null)
@@ -284,6 +295,17 @@ namespace LibGit2Sharp
             {
                 types |= SupportedCredentialTypes.Default;
             }
+
+            if (credTypes.HasFlag(GitCredentialType.SshKey))
+            {
+                types |= SupportedCredentialTypes.SShKey;
+            }
+
+            if (credTypes.HasFlag(GitCredentialType.SshMemory))
+            {
+                types |= SupportedCredentialTypes.SSMemory;
+            }
+
 
             ptr = IntPtr.Zero;
             try

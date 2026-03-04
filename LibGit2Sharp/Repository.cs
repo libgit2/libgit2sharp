@@ -673,6 +673,17 @@ namespace LibGit2Sharp
         /// <summary>
         /// Lists the Remote Repository References.
         /// </summary>
+        /// <param name="url">The url to list from.</param>
+        /// <param name="proxyOptions">Options for connecting through a proxy.</param>
+        /// <returns>The references in the remote repository.</returns>
+        public static IEnumerable<Reference> ListRemoteReferences(string url, ListRemoteOptions listRemoteOptions)
+        {
+            return ListRemoteReferences(url, listRemoteOptions);
+        }
+
+        /// <summary>
+        /// Lists the Remote Repository References.
+        /// </summary>
         /// <para>
         /// Does not require a local Repository. The retrieved
         /// <see cref="IBelongToARepository.Repository"/>
@@ -685,6 +696,7 @@ namespace LibGit2Sharp
         {
             return ListRemoteReferences(url, credentialsProvider, new ProxyOptions());
         }
+
 
         /// <summary>
         /// Lists the Remote Repository References.

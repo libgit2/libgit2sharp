@@ -9,8 +9,8 @@ namespace LibGit2Sharp.Tests
     public class NetworkFixture : BaseFixture
     {
         [Theory]
-        [InlineData("http://github.com/libgit2/TestGitRepository")]
-        [InlineData("https://github.com/libgit2/TestGitRepository")]
+        //[InlineData("http://github.com/libgit2/TestGitRepository")]
+        [InlineData("git@github.com:libgit2/TestGitRepository.git")]
         public void CanListRemoteReferences(string url)
         {
             string remoteName = "testRemote";
@@ -20,7 +20,11 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(repoPath))
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
-                IList<Reference> references = repo.Network.ListReferences(remote).ToList();
+                IList<Reference> references = repo.Network.ListReferences(remote, (s, fromUrl, types) =>
+                {
+
+                    return null;
+                }).ToList();
 
 
                 foreach (var reference in references)

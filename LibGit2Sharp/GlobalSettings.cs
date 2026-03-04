@@ -20,7 +20,7 @@ namespace LibGit2Sharp
 
         private static string nativeLibraryPath;
         private static bool nativeLibraryPathLocked;
-        private static readonly string nativeLibraryDefaultPath = null;
+        private static readonly string nativeLibraryDefaultPath = "/Users/robert/Development/Sandbox/libgit2/build";
 
         static GlobalSettings()
         {
