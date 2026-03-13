@@ -660,5 +660,19 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(9, status.Count());
             }
         }
+
+        [Fact]
+        public void TestUpdateIndexDoesNotFail()
+        {
+            var path = SandboxStandardTestRepo();
+
+            using (var repo = new Repository(path))
+            {
+                // This option improves the performance of subsequent calls,
+                // but there isn't really an observable difference to assert
+                // Therefor enable the option and to ensure it doesn't trigger and exception is the only thing possible
+                repo.RetrieveStatus(new StatusOptions() { UpdateIndex = true });
+            }
+        }
     }
 }

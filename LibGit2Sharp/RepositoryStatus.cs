@@ -139,6 +139,12 @@ namespace LibGit2Sharp
                     GitStatusOptionFlags.IncludeUnmodified;
             }
 
+            if (options.UpdateIndex)
+            {
+                coreOptions.Flags |=
+                    GitStatusOptionFlags.UpdateIndex;
+            }
+
             return coreOptions;
         }
 

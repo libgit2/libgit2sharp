@@ -105,5 +105,13 @@
         /// Include untracked files when scanning for status
         /// </summary>
         public bool IncludeUntracked { get; set; }
+
+        /// <summary>
+        /// Refresh out of date index and save it in index
+        /// </summary>
+        /// <remarks>
+        /// Will result in less work being done in subsequent calls
+        /// </remarks>
+        public bool UpdateIndex { get; set; }
     }
 }
