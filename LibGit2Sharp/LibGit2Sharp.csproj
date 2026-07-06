@@ -34,7 +34,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LibGit2Sharp.NativeBinaries.UiPath" Version="1.9.1-v4" />
+    <!-- Native binaries are staged from the fetched payload by Targets\NativeBinaries.props
+         (imported via the root Directory.Build.props), not from a NativeBinaries.UiPath package. -->
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
     <PackageReference Include="MinVer" Version="4.3.0" PrivateAssets="all" />
   </ItemGroup>

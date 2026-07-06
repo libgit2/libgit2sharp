@@ -12,4 +12,8 @@
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
+  <!-- Stages + packs the prebuilt native binaries (fetched by fetch.natives.ps1) in place of the
+       old LibGit2Sharp.NativeBinaries.UiPath PackageReference. -->
+  <Import Project="$(MSBuildThisFileDirectory)Targets\NativeBinaries.props" />
+
 </Project>

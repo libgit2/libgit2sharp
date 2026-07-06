@@ -1,0 +1,8 @@
+{
+  "$comment": "Pins the prebuilt LibGit2Sharp native payload (all RIDs) produced by the UiPath/libgit2sharp.nativebinaries 'build' workflow. fetch.natives.ps1 downloads this archive and fails hard unless its SHA256 matches. To bump: run that workflow with publish=true, then copy the new tag/url/sha256 (printed by the workflow and in the release's .sha256 sidecar) here.",
+  "repo": "UiPath/libgit2sharp.nativebinaries",
+  "tag": "natives-1.9.1-v5.21",
+  "filename": "natives-1.9.1-v5.21.zip",
+  "url": "https://github.com/UiPath/libgit2sharp.nativebinaries/releases/download/natives-1.9.1-v5.21/natives-1.9.1-v5.21.zip",
+  "sha256": "1a40ac67ac14b1e099b4d3a0823019e164fcde9211e3c40c95c6b355267f7440"
+}

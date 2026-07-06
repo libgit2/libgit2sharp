@@ -1,0 +1,51 @@
+<Project>
+
+  <!--
+    Stages the prebuilt LibGit2Sharp native binaries (fetched by fetch.natives.ps1 into native/)
+    into each project's output, and packs them into the LibGit2Sharp.UiPath package. This replaces
+    the build-time injection the old LibGit2Sharp.NativeBinaries.UiPath PackageReference provided:
+    its build props (libgit2_filename) and its runtimes/ native assets. Imported by the root
+    Directory.Build.props so the library packs the natives and the test project loads them at runtime.
+  -->
+  <PropertyGroup>
+    <NativesDir>$(MSBuildThisFileDirectory)..\native\</NativesDir>
+    <!-- Consumed by Targets\GenerateNativeDllName.targets (DllImport name) and
+         Targets\CodeGenerator.targets. Was previously set by the native package's build props. -->
+    <libgit2_filename>libgit2</libgit2_filename>
+    <libgit2_propsfile>$(MSBuildThisFileFullPath)</libgit2_propsfile>
+  </PropertyGroup>
+
+  <!-- libgit2 commit sha, shipped in the payload; feeds AssemblyCommitIds.g.cs + MinVerBuildMetadata. -->
+  <PropertyGroup Condition="Exists('$(NativesDir)libgit2\libgit2_hash.txt')">
+    <libgit2_hash>$([System.IO.File]::ReadAllText('$(NativesDir)libgit2\libgit2_hash.txt').Trim())</libgit2_hash>
+  </PropertyGroup>
+
+  <!-- .NET: LibGit2Sharp's loader probes runtimes\<rid>\native under the assembly dir, so copy the
+       full multi-RID payload to every consuming project's output and pack it under runtimes/. -->
+  <ItemGroup>
+    <Content Include="$(NativesDir)runtimes\**\*.*">
+      <Link>runtimes\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <PackagePath>runtimes\%(RecursiveDir)</PackagePath>
+      <Visible>false</Visible>
+    </Content>
+  </ItemGroup>
+
+  <!-- net472 loads from lib\win32\<arch> instead of runtimes/; stage the win-x64 DLLs there too.
+       Not packed (the LibGit2Sharp.UiPath package targets net6.0-windows). -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+    <Content Include="$(NativesDir)runtimes\win-x64\native\*.dll">
+      <Link>lib\win32\x64\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>false</Pack>
+      <Visible>false</Visible>
+    </Content>
+  </ItemGroup>
+
+  <!-- Fail early and clearly if the payload was never fetched (globs above would be silently empty). -->
+  <Target Name="EnsureNativePayload" BeforeTargets="BeforeBuild" Condition="!Exists('$(NativesDir)runtimes')">
+    <Error Text="Native payload not found at '$(NativesDir)'. Run 'pwsh ./fetch.natives.ps1' before building (it downloads and SHA256-verifies the archive pinned in natives.lock.json)." />
+  </Target>
+
+</Project>

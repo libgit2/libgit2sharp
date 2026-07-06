@@ -40,3 +40,6 @@ _ReSharper*/
 _NCrunch_LibGit2Sharp/
 packages/
 worktree.playlist
+
+# Prebuilt native binaries fetched by fetch.natives.ps1 (pinned in natives.lock.json)
+/native/
