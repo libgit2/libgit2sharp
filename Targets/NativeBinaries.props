@@ -27,7 +27,9 @@
       <Link>runtimes\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Pack>true</Pack>
-      <PackagePath>runtimes\%(RecursiveDir)</PackagePath>
+      <!-- Full target path (incl. filename), not a folder: a folder PackagePath makes NuGet
+           re-append the file's recursive path, producing runtimes/<rid>/native/<rid>/native/. -->
+      <PackagePath>runtimes\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
       <Visible>false</Visible>
     </Content>
   </ItemGroup>
