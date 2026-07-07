@@ -153,15 +153,31 @@ package version would regress, which NuGet forbids (versions must rise). Cut a n
 when the upstream base changes, once (e.g. `git tag 1.10.0-v0`), to start a fresh line. Same scheme
 and anchor tag apply to the nativebinaries repo.
 
-**Publishing to the uipath-internal feed — NOT YET IMPLEMENTED.** This is the one remaining piece of
-the pipeline. The intended design mirrors `build.yml`'s gating: on **`develop`** the managed CI
-publishes the `LibGit2Sharp.UiPath` nupkg to the feed **automatically**; on a **PR** it publishes only
-when a flag is active (otherwise it just produces the nupkg artifact). Until that job is built,
-`ci.yml` produces the nupkg but does not push it anywhere.
+**Publishing to the uipath-internal feed — done interactively from here** (like the gates: there is
+no CI publish job). Once the Gate B PR is merged to `develop` and CI is green, get the
+`LibGit2Sharp.UiPath` nupkg — download the managed CI's **NuGet packages** artifact, or build locally
+(`dotnet build -c Release` emits it under `bin/Packages/`, via `GeneratePackageOnBuild`).
 
-So a normal release needs no manual version or publish step: once the Gate B PR merges to `develop`,
-CI builds `LibGit2Sharp.UiPath` at `X.Y.Z-v<height>` and (once the publish job lands) ships it to the
-feed. Only if the upstream base changed: `git tag X.Y.Z-v0` once, first.
+**Recommended — mint a short-lived Azure DevOps token via the Azure CLI** (no stored PAT, reuses your
+`az login` SSO):
+
+```bash
+FEED=https://pkgs.dev.azure.com/uipath/Public.Feeds/_packaging/UiPath-Internal/nuget/v3/index.json
+# 499b84ac-... is the well-known Azure DevOps resource id
+TOKEN=$(az account get-access-token --resource 499b84ac-1321-427f-aa17-267ca6975798 --query accessToken -o tsv)
+dotnet nuget add source "$FEED" --name uipath-internal 2>/dev/null || true
+NuGetPackageSourceCredentials_uipath-internal="Username=az;Password=$TOKEN" \
+  dotnet nuget push "<path-to>.nupkg" --source uipath-internal --api-key az --skip-duplicate
+```
+
+**Fallback** — if the Azure Artifacts credential provider is already configured on the machine, just:
+`nuget push <pkg> -src "$FEED" -ApiKey AzureDevops -SkipDuplicate`.
+
+`--api-key`/`-ApiKey` is a required-but-ignored dummy (auth is the token / credential provider, not the
+key). `--skip-duplicate` keeps it idempotent — and matters here: the feed may already hold a
+manually-published `1.9.1-v5`, so the emitted `X.Y.Z-v<height>` must **exceed** the highest version
+already on the feed (see the version-collision caveat). Human-run step — confirm the exact version with
+the user before pushing. Only if the upstream base changed: `git tag X.Y.Z-v0` once, first.
 
 ---
 
