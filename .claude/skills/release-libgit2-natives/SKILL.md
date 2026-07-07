@@ -154,9 +154,15 @@ number keeps climbing. Only pitfall: never tag **below** the current `v<N>`, or 
 backwards (NuGet forbids). New upstream base → `git tag X.Y.Z-v0`. Same scheme in the nativebinaries repo.
 
 **Publishing to the uipath-internal feed — done interactively from here** (like the gates: there is
-no CI publish job). Once the Gate B PR is merged to `develop` and CI is green, get the
-`LibGit2Sharp.UiPath` nupkg — download the managed CI's **NuGet packages** artifact, or build locally
-(`dotnet build -c Release` emits it under `bin/Packages/`, via `GeneratePackageOnBuild`).
+no CI publish job). Once the Gate B PR is merged to `develop`, the managed `ci.yml` builds the nupkg
+and attaches it to a GitHub Release **`pkg-<version>`** (e.g. `pkg-1.9.1-v14`). Pull it straight from
+there — no local rebuild:
+
+```bash
+gh release download pkg-<version> --repo UiPath/libgit2sharp --pattern '*.nupkg' --dir ./pkg
+```
+
+(Or build locally: `dotnet build -c Release` emits it under `bin/Packages/`.)
 
 **Recommended — mint a short-lived Azure DevOps token via the Azure CLI** (no stored PAT, reuses your
 `az login` SSO):

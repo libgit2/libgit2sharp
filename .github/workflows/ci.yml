@@ -73,3 +73,45 @@ jobs:
         # and does not exercise our native packaging, so it is excluded here.
         run: dotnet test LibGit2Sharp.sln --configuration Release --framework ${{ matrix.tfm }} --logger "GitHubActions" /p:ExtraDefine=LEAKS_IDENTIFYING --filter "FullyQualifiedName!~CanInspectCertificateOnClone"
 
+  release:
+    name: Release nupkg
+    needs: build
+    # On develop, attach the built LibGit2Sharp.UiPath nupkg to a GitHub Release so the interactive
+    # feed-publish step can pull it straight from the release (gh release download) instead of
+    # rebuilding locally. No feed push happens here — that stays a deliberate manual step.
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          name: NuGet packages
+          path: packages
+      - name: Publish nupkg to GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # This job has no checkout, so point gh at the repo explicitly — otherwise gh tries to read a
+          # local .git and fails with "not a git repository".
+          GH_REPO: ${{ github.repository }}
+        run: |
+          $ErrorActionPreference = 'Continue'
+          $PSNativeCommandUseErrorActionPreference = $false
+          $nupkg = Get-ChildItem packages -Recurse -File |
+            Where-Object { $_.Extension -eq '.nupkg' } | Select-Object -First 1
+          if (-not $nupkg) { throw "No .nupkg found in the build artifact." }
+          # Version = the nupkg filename minus the package-id prefix. The tag is prefixed 'pkg-' so it
+          # is NOT a bare SemVer and MinVer ignores it (only the manual X.Y.Z-vN tag drives versions).
+          $version = $nupkg.BaseName -replace '^LibGit2Sharp\.UiPath\.', ''
+          $tag = "pkg-$version"
+          Write-Host "Publishing $($nupkg.Name) to release $tag"
+          gh release view $tag *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $tag --target $env:GITHUB_SHA --title $tag --notes "LibGit2Sharp.UiPath $version, built from develop. Fetch with: gh release download $tag --pattern '*.nupkg'"
+          }
+          gh release upload $tag "$($nupkg.FullName)" --clobber
+          if ($LASTEXITCODE -ne 0) { throw "gh release upload failed ($LASTEXITCODE)" }
+          Write-Host "Published $($nupkg.Name) to release $tag"
+
