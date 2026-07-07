@@ -115,8 +115,8 @@ gh run watch <run-id> --repo UiPath/libgit2sharp.nativebinaries --exit-status
 
 It fetches + SHA256-verifies the deps (no OpenSSL/libssh2 compile), builds libgit2 for all 6 RIDs,
 assembles `natives-<version>.zip`, and — because `publish=true` (or on `develop`) — publishes Release
-**`natives-<version>`**. `<version>` comes from **MinVer** on the nativebinaries repo, collapsed to a
-single auto number `X.Y.Z-v<height>` (base tag `1.9.1-v5` + height 21 → `1.9.1-v21`; see Reference).
+**`natives-<version>`**. `<version>` comes from **MinVer** on the nativebinaries repo, reformatted to a
+single auto number `X.Y.Z-v<epoch+height>` (base tag `1.9.1-v5` + height 1 → `1.9.1-v6`; see Reference).
 Find the exact tag:
 
 ```bash
@@ -141,17 +141,17 @@ windows/ubuntu/macos, and the user reviews and merges.
 
 ## Step 3 — Ship the managed package (the very last step)
 
-**Versioning — nothing to do.** The package version is `X.Y.Z-v<height>` (e.g. `1.9.1-v22`), a single
-auto-incrementing number. `<height>` is MinVer's commit count since the base tag, surfaced as `v<N>`
-by the managed repo's `AdjustVersions` target and the nativebinaries `build.yml` "Resolve version"
-step (both collapse MinVer's `<epoch>.<height>` into one `v<height>`). Every develop commit yields the
-next `v<N>` — no manual version tagging.
+**Versioning — nothing to do.** The package version is `X.Y.Z-v<N>` (e.g. `1.9.1-v6`), a single auto
+number where **`N = the base tag's epoch + the MinVer height`**. The base tag `1.9.1-v5` sets the epoch
+(5) and each commit past it increments N (v6, v7, …), computed by the managed repo's `AdjustVersions`
+target and the nativebinaries `build.yml` "Resolve version" step. Every develop commit yields the next
+`v<N>` — no manual version tagging.
 
-**Iron rule:** the existing `X.Y.Z-vN` tag (e.g. `1.9.1-v5`) is a **permanent counting anchor**. Do
-**not** cut another `-vN` tag on the same `X.Y.Z` line — the height (hence `v<N>`) would reset and the
-package version would regress, which NuGet forbids (versions must rise). Cut a new base tag **only**
-when the upstream base changes, once (e.g. `git tag 1.10.0-v0`), to start a fresh line. Same scheme
-and anchor tag apply to the nativebinaries repo.
+**Re-tagging is seamless** (unlike a height-only scheme). Because `N = epoch + height`, on the tag
+commit itself height is 0, so `v<N>` equals the tag — cutting a new tag at the **current** `v<N>` (e.g.
+`git tag 1.9.1-v20` when the version already reads `v20`) just re-bases the epoch with no jump, and the
+number keeps climbing. Only pitfall: never tag **below** the current `v<N>`, or the version goes
+backwards (NuGet forbids). New upstream base → `git tag X.Y.Z-v0`. Same scheme in the nativebinaries repo.
 
 **Publishing to the uipath-internal feed — done interactively from here** (like the gates: there is
 no CI publish job). Once the Gate B PR is merged to `develop` and CI is green, get the
@@ -175,7 +175,7 @@ NuGetPackageSourceCredentials_uipath-internal="Username=az;Password=$TOKEN" \
 
 `--api-key`/`-ApiKey` is a required-but-ignored dummy (auth is the token / credential provider, not the
 key). `--skip-duplicate` keeps it idempotent — and matters here: the feed may already hold a
-manually-published `1.9.1-v5`, so the emitted `X.Y.Z-v<height>` must **exceed** the highest version
+manually-published `1.9.1-v5`, so the emitted `X.Y.Z-v<N>` must **exceed** the highest version
 already on the feed (see the version-collision caveat). Human-run step — confirm the exact version with
 the user before pushing. Only if the upstream base changed: `git tag X.Y.Z-v0` once, first.
 
@@ -189,11 +189,12 @@ the user before pushing. Only if the upstream base changed: `git tag X.Y.Z-v0` o
 - `natives.lock.json` (this repo): `{ repo, tag, filename, url, sha256 }`, one archive; `filename` is
   always `<tag>.zip`.
 
-**MinVer** — both repos use **bare numeric base tags** (no `v` prefix) with
-`--default-pre-release-identifiers preview.0`. MinVer emits `X.Y.Z-<epoch>.<height>` (e.g.
-`1.9.1-v5.22`); both repos then **collapse it to `X.Y.Z-v<height>`** (e.g. `1.9.1-v22`) — a single
-monotonic auto number. The base tag (`1.9.1-v5`) is a permanent anchor; never re-tag the line (Step
-3's iron rule). New upstream base → one fresh `X.Y.Z-v0` tag.
+**MinVer** — both repos use `X.Y.Z-vN` base tags with `--default-pre-release-identifiers preview.0`.
+MinVer emits `X.Y.Z-v<epoch>.<height>` (e.g. `1.9.1-v5.1`); both repos reformat to
+**`X.Y.Z-v<epoch+height>`** (e.g. `1.9.1-v6`) — a single auto number that continues from the tag.
+MinVer's height is the *shortest graph distance* to the tag, so it stays small after a merge (the base
+tag often lands on the merge commit's first parent — that's why a naive height-only scheme wrongly
+produced `v1`); epoch+height keeps climbing regardless. New upstream base → `git tag X.Y.Z-v0`.
 
 **Release gating** — `build.yml`'s publish step is gated on `inputs.publish || github.ref ==
 refs/heads/develop`. PR/branch runs without `publish=true` produce only a workflow artifact (no stray
