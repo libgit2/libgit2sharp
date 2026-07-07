@@ -40,3 +40,10 @@ _ReSharper*/
 _NCrunch_LibGit2Sharp/
 packages/
 worktree.playlist
+
+# Prebuilt native binaries fetched by fetch.natives.ps1 (pinned in natives.lock.json)
+/native/
+
+# The release-libgit2-natives Claude skill: its directory name is caught by the [Rr]elease*/
+# build-output pattern above, so re-include it explicitly to keep the skill tracked.
+!.claude/skills/release-libgit2-natives/

@@ -117,12 +117,14 @@ namespace LibGit2Sharp.Core
                     return handle;
                 }
 
-                // We carry a number of .so files for Linux which are linked against various
-                // libc/OpenSSL libraries. Try them out.
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                // We carry the native library per-RID under 'runtimes/<rid>/native/'. On Linux/macOS
+                // the default resolver above won't find it (it is not registered as a deps.json
+                // native asset), so probe those locations explicitly.
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
-                    // The libraries are located at 'runtimes/<rid>/native/lib{libraryName}.so'
-                    // The <rid> ends with the processor architecture. e.g. fedora-x64.
+                    // The libraries are located at 'runtimes/<rid>/native/lib{libraryName}.{so|dylib}'
+                    // The <rid> ends with the processor architecture. e.g. linux-x64, osx-arm64.
+                    string libraryExtension = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? ".dylib" : ".so";
                     string assemblyDirectory = Path.GetDirectoryName(typeof(NativeMethods).Assembly.Location);
                     string processorArchitecture = RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant();
                     string runtimesDirectory = Path.Combine(assemblyDirectory, "runtimes");
@@ -131,7 +133,7 @@ namespace LibGit2Sharp.Core
                     {
                         foreach (var runtimeFolder in Directory.GetDirectories(runtimesDirectory, $"*-{processorArchitecture}"))
                         {
-                            string libPath = Path.Combine(runtimeFolder, "native", $"lib{libraryName}.so");
+                            string libPath = Path.Combine(runtimeFolder, "native", $"lib{libraryName}{libraryExtension}");
 
                             if (NativeLibrary.TryLoad(libPath, out handle))
                             {

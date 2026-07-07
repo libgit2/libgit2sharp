@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net$(NetCoreVersion)</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Description>LibGit2Sharp brings all the might and speed of libgit2, a native Git implementation, to the managed world of .NET</Description>
     <Company>LibGit2Sharp contributors</Company>
@@ -34,7 +34,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LibGit2Sharp.NativeBinaries.UiPath" Version="1.9.1-v4" />
+    <!-- Native binaries are staged from the fetched payload by Targets\NativeBinaries.props
+         (imported via the root Directory.Build.props), not from a NativeBinaries.UiPath package. -->
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
     <PackageReference Include="MinVer" Version="4.3.0" PrivateAssets="all" />
   </ItemGroup>
@@ -51,8 +52,18 @@
   <Target Name="AdjustVersions" AfterTargets="MinVer">
     <PropertyGroup>
       <AssemblyVersion>$(MinVerMajor).$(MinVerMinor).0.0</AssemblyVersion>
+      <!-- Turn MinVer's "v<epoch>.<height>" pre-release (base tag 1.9.1-v5 at height 1 -> "v5.1")
+           into a single continuing "v<epoch+height>" (e.g. v6). The base tag sets the epoch and each
+           commit past it increments the number (v6, v7, ...); on the tag itself the height is 0 so
+           the number equals the tag, making a later re-tag at v<N> seamless. Merge topology only
+           affects the height, and epoch+height keeps climbing. -->
+      <_PreNoV>$(MinVerPreRelease.TrimStart('v'))</_PreNoV>
+      <_Epoch Condition="$(_PreNoV.Contains('.'))">$(_PreNoV.Substring(0, $(_PreNoV.IndexOf('.'))))</_Epoch>
+      <_Epoch Condition="!$(_PreNoV.Contains('.'))">$(_PreNoV)</_Epoch>
+      <_Height>0</_Height>
+      <_Height Condition="$(_PreNoV.Contains('.'))">$(_PreNoV.Substring($([MSBuild]::Add($(_PreNoV.IndexOf('.')), 1))))</_Height>
       <PackageVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch)</PackageVersion>
-      <PackageVersion Condition="'$(MinVerPreRelease)' != ''">$(PackageVersion)-$(MinVerPreRelease)</PackageVersion>
+      <PackageVersion Condition="'$(MinVerPreRelease)' != ''">$(PackageVersion)-v$([MSBuild]::Add($(_Epoch), $(_Height)))</PackageVersion>
     </PropertyGroup>
   </Target>
 
