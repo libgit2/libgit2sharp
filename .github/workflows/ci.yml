@@ -21,7 +21,9 @@ jobs:
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: |
+            6.0.x
+            8.0.x
       - name: Fetch native binaries
         # Downloads + SHA256-verifies the prebuilt native payload pinned in natives.lock.json into
         # native/ (replaces the old NativeBinaries.UiPath PackageReference). pwsh ships on all runners.
@@ -47,7 +49,9 @@ jobs:
         # dropped: it pinned .NET 6/7 SDK images and included alpine/musl, which our glibc-linked
         # linux natives can't run anyway.
         os: [ windows-latest, ubuntu-latest, macos-14 ]
-        tfm: [ net8.0 ]
+        # Mirror NetCoreVersion in Directory.Build.props (net6.0). A workflow matrix can't read an
+        # MSBuild property, so keep the two in sync by hand when bumping the target framework.
+        tfm: [ net6.0 ]
       fail-fast: false
     steps:
       - name: Checkout
@@ -57,7 +61,9 @@ jobs:
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: |
+            6.0.x
+            8.0.x
       - name: Fetch native binaries
         shell: pwsh
         run: ./fetch.natives.ps1

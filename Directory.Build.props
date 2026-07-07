@@ -1,6 +1,10 @@
 <Project>
 
   <PropertyGroup>
+    <!-- Single knob for the .NET target of the managed library, its tests, and the native-load test
+         apps (consumed as net$(NetCoreVersion)). Kept at net6.0 so the package stays consumable by
+         net6.0/7.0/8.0 apps; bump this one value to retarget everything. -->
+    <NetCoreVersion>6.0</NetCoreVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <OutputPath>$(MSBuildThisFileDirectory)bin\$(MSBuildProjectName)\$(Configuration)\</OutputPath>
     <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
