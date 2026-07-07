@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [master, release-*]
+    branches: [master, develop, release-*]
     tags:
       - '[0-9]+.[0-9]+.[0-9]+'
       - '[0-9]+.[0-9]+.[0-9]+-*'
