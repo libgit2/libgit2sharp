@@ -52,8 +52,16 @@
   <Target Name="AdjustVersions" AfterTargets="MinVer">
     <PropertyGroup>
       <AssemblyVersion>$(MinVerMajor).$(MinVerMinor).0.0</AssemblyVersion>
+      <!-- Collapse MinVer's "<epoch>.<height>" pre-release (e.g. v5.22) into a single
+           auto-incrementing "v<height>" (e.g. v22). The base tag (1.9.1-v5) is only a permanent
+           counting anchor: v<height> rises monotonically on every develop commit, so no manual
+           version tagging is needed. NEVER cut another -vN tag on this line, or the height (hence
+           v<N>) resets and the package version would regress. On the base tag itself there is no
+           height, so the pre-release has no '.' and the height is 0. -->
+      <_VersionHeight>0</_VersionHeight>
+      <_VersionHeight Condition="$(MinVerPreRelease.Contains('.'))">$(MinVerPreRelease.Substring($([MSBuild]::Add($(MinVerPreRelease.LastIndexOf('.')), 1))))</_VersionHeight>
       <PackageVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch)</PackageVersion>
-      <PackageVersion Condition="'$(MinVerPreRelease)' != ''">$(PackageVersion)-$(MinVerPreRelease)</PackageVersion>
+      <PackageVersion Condition="'$(MinVerPreRelease)' != ''">$(PackageVersion)-v$(_VersionHeight)</PackageVersion>
     </PropertyGroup>
   </Target>
 
