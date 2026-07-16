@@ -92,7 +92,8 @@ namespace LibGit2Sharp.Core
 
             if (libraryName == libgit2)
             {
-                bool useSchannel = HasEnvironmentVariable("UIPATH_STUDIO_GIT_USE_SCHANNEL") || IsSchannelSelectedInGitConfig();
+                bool useSchannel = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                    && (HasEnvironmentVariable("UIPATH_STUDIO_GIT_USE_SCHANNEL") || IsSchannelSelectedInGitConfig());
                 string schannelSufix = useSchannel ? "_schannel" : string.Empty;
                 bool useSshExe = HasEnvironmentVariable("UIPATH_STUDIO_GIT_USE_SSH_EXE");
                 string useSshSufix = useSshExe ? "_ssh" : string.Empty;
