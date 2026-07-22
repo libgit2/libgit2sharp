@@ -2447,7 +2447,7 @@ namespace LibGit2Sharp.Core
 
         public static FilePath git_repository_discover(FilePath start_path)
         {
-            return ConvertPath(buf => NativeMethods.git_repository_discover(buf, start_path, false, null));
+            return ConvertPath((ref GitBufNative buf) => NativeMethods.git_repository_discover(ref buf, start_path, false, null));
         }
 
         public static unsafe bool git_repository_head_detached(RepositoryHandle repo)
@@ -3830,11 +3830,19 @@ namespace LibGit2Sharp.Core
             return (res == 1);
         }
 
-        private static FilePath ConvertPath(Func<GitBuf, int> pathRetriever)
+        private delegate int PathRetriever(ref GitBufNative buf);
+
+        /// <summary>
+        /// Invokes a native path-returning API using a blittable <see cref="GitBufNative"/>.
+        /// Must not use class <see cref="GitBuf"/>: Native AOT marshalling does not
+        /// copy native fills of ptr/size back onto sequential-layout classes.
+        /// </summary>
+        private static FilePath ConvertPath(PathRetriever pathRetriever)
         {
-            using (var buf = new GitBuf())
+            var buf = new GitBufNative();
+            try
             {
-                int result = pathRetriever(buf);
+                int result = pathRetriever(ref buf);
 
                 if (result == (int)GitErrorCode.NotFound)
                 {
@@ -3843,6 +3851,10 @@ namespace LibGit2Sharp.Core
 
                 Ensure.ZeroResult(result);
                 return LaxFilePathMarshaler.FromNative(buf.ptr);
+            }
+            finally
+            {
+                NativeMethods.git_buf_dispose(ref buf);
             }
         }
 

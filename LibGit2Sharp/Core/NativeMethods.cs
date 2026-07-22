@@ -361,6 +361,9 @@ namespace LibGit2Sharp.Core
         internal static extern void git_buf_dispose(GitBuf buf);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void git_buf_dispose(ref GitBufNative buf);
+
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_checkout_tree(
             git_repository* repo,
             git_object* treeish,
@@ -468,17 +471,19 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string regexp,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string value);
 
+        // Use ref GitBufNative (not class GitBuf): under Native AOT, sequential
+        // class marshalling does not write ptr/size back to the managed object.
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int git_config_find_global(GitBuf global_config_path);
+        internal static extern int git_config_find_global(ref GitBufNative global_config_path);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int git_config_find_system(GitBuf system_config_path);
+        internal static extern int git_config_find_system(ref GitBufNative system_config_path);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int git_config_find_xdg(GitBuf xdg_config_path);
+        internal static extern int git_config_find_xdg(ref GitBufNative xdg_config_path);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int git_config_find_programdata(GitBuf programdata_config_path);
+        internal static extern int git_config_find_programdata(ref GitBufNative programdata_config_path);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe void git_config_free(git_config* cfg);
@@ -1522,7 +1527,7 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int git_repository_discover(
-            GitBuf buf,
+            ref GitBufNative buf,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath start_path,
             [MarshalAs(UnmanagedType.Bool)] bool across_fs,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath ceiling_dirs);
