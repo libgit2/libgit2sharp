@@ -19,6 +19,7 @@ namespace LibGit2Sharp
     {
         private readonly DiffHandle diff;
         private readonly Lazy<int> count;
+        private readonly Lazy<ObjectId> patchid;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -30,6 +31,7 @@ namespace LibGit2Sharp
         {
             this.diff = diff;
             this.count = new Lazy<int>(() => Proxy.git_diff_num_deltas(diff));
+            this.patchid = new Lazy<ObjectId>(() => new ObjectId(Proxy.git_diff_patchid(diff, GitPatchIdOptions.Default)));
         }
 
         /// <summary>
@@ -176,6 +178,14 @@ namespace LibGit2Sharp
         public virtual int Count
         {
             get { return count.Value; }
+        }
+
+        /// <summary>
+        /// Gets the stable patch id for this comparison.
+        /// </summary>
+        public virtual ObjectId PatchId
+        {
+            get { return patchid.Value; }
         }
 
         private string DebuggerDisplay
