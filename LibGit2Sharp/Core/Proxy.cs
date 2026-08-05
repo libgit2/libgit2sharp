@@ -854,6 +854,38 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_diff_get_delta(diff, (UIntPtr)idx);
         }
 
+        public static unsafe void git_diff_buffers(
+            byte[] oldBuffer,
+            byte[] newBuffer,
+            GitDiffOptions options,
+            NativeMethods.git_diff_file_cb fileCallback,
+            NativeMethods.git_diff_hunk_cb hunkCallback,
+            NativeMethods.git_diff_line_cb lineCallback)
+        {
+            int res;
+            fixed(byte* oldP = oldBuffer)
+            {
+                fixed(byte* newP = newBuffer)
+                {
+                    res = NativeMethods.git_diff_buffers(
+                        (IntPtr)oldP,
+                        new UIntPtr(oldBuffer != null ? (ulong)oldBuffer.LongLength: 0),
+                        null,
+                        (IntPtr)newP,
+                        new UIntPtr(newBuffer != null ?(ulong)newBuffer.LongLength : 0),
+                        null,
+                        options,
+                        fileCallback,
+                        null,
+                        hunkCallback,
+                        lineCallback,
+                        IntPtr.Zero);
+                }
+            }
+
+            Ensure.ZeroResult(res);
+        }
+
         #endregion
 
         #region git_error_

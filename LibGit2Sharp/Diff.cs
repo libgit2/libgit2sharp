@@ -125,6 +125,32 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Show changes between two arbitrary <see cref="T:byte[]"/> buffers.
+        /// </summary>
+        /// <param name="oldBuffer">The <see cref="T:byte[]"/> buffer you want to compare from.</param>
+        /// <param name="newBuffer">The <see cref="T:byte[]"/> buffer you want to compare to.</param>
+        /// <returns>A <see cref="ContentChanges"/> containing the changes between the <paramref name="oldBuffer"/> and the <paramref name="newBuffer"/>.</returns>
+        public static ContentChanges Compare(byte[] oldBuffer, byte[] newBuffer)
+        {
+            return Compare(oldBuffer, newBuffer, null);
+        }
+
+        /// <summary>
+        /// Show changes between two arbitrary <see cref="T:byte[]"/> buffers.
+        /// </summary>
+        /// <param name="oldBuffer">The <see cref="T:byte[]"/> buffer you want to compare from.</param>
+        /// <param name="newBuffer">The <see cref="T:byte[]"/> buffer you want to compare to.</param>
+        /// <param name="compareOptions">Additional options to define comparison behavior.</param>
+        /// <returns>A <see cref="ContentChanges"/> containing the changes between the <paramref name="oldBuffer"/> and the <paramref name="newBuffer"/>.</returns>
+        public static ContentChanges Compare(byte[] oldBuffer, byte[] newBuffer, CompareOptions compareOptions)
+        {
+            using(var options = BuildOptions(DiffModifiers.None, compareOptions: compareOptions))
+            {
+                return new ContentChanges(oldBuffer, newBuffer, options);
+            }
+        }
+
+        /// <summary>
         /// Show changes between two <see cref="Blob"/>s.
         /// </summary>
         /// <param name="oldBlob">The <see cref="Blob"/> you want to compare from.</param>
