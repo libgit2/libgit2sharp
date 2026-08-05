@@ -15,7 +15,8 @@ But first things first...
   * Make sure you fill in the earliest version that you know has the issue.
 * Fork the repository on GitHub, then clone it using your favorite Git client.
 * Make sure the project builds and all tests pass on your machine by running
-  the `buildandtest.cmd` script on Windows or `buildandtest.sh` on Linux/Mac.
+  `dotnet test LibGit2Sharp.sln`.
+* Optionally install Visual Studio 2019 or a similar IDE.
 
 ## LibGit2
 
@@ -27,8 +28,8 @@ To build libgit2 see [here](https://github.com/libgit2/libgit2sharp/wiki/How-to-
 ## Making Changes
 
 Make sure you have the required .NET Core SDK and runtimes installed.
-The easiest way to do this is run our `tools\Install-DotNetSdk.ps1` script.
-Using the `-InstallLocality Machine` switch requires elevation but ensures
+The easiest way to do this is run our `init.ps1` (or `init.cmd`) script.
+On Windows you can use the `-InstallLocality Machine` switch which requires elevation but ensures
 that Visual Studio will be able to load the solution even when launched from a shortcut.
 
 Then proceed to:
@@ -52,6 +53,7 @@ Some things that will increase the chance that your pull request is accepted.
 * If code from elsewhere is used, proper credit and a link to the source should exist in the code comments.
   Then licensing issues can be checked against LibGit2Sharp's very permissive MIT based open source license.
 * Having a configured git client that converts line endings to LF. [See here.](https://help.github.com/articles/dealing-with-line-endings/).
+
 # Additional Resources
 
 * [General GitHub documentation](http://help.github.com/)
