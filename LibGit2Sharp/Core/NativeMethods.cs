@@ -361,6 +361,9 @@ namespace LibGit2Sharp.Core
         internal static extern void git_buf_dispose(GitBuf buf);
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int git_buf_grow(IntPtr buf, uint target_size);
+
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_checkout_tree(
             git_repository* repo,
             git_object* treeish,
@@ -988,6 +991,16 @@ namespace LibGit2Sharp.Core
             UIntPtr their_heads_len,
             ref GitMergeOpts merge_opts,
             ref GitCheckoutOpts checkout_opts);
+
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int git_merge_driver_register(
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name,
+            IntPtr gitMergeDriver);
+
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int git_merge_driver_unregister(
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))]string name);
+
 
         [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int git_merge_commits(
