@@ -100,7 +100,7 @@ namespace LibGit2Sharp.Core
 
                 // We carry a number of .so files for Linux which are linked against various
                 // libc/OpenSSL libraries. Try them out.
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))
                 {
                     // The libraries are located at 'runtimes/<rid>/native/lib{libraryName}.so'
                     // The <rid> ends with the processor architecture. e.g. fedora-x64.

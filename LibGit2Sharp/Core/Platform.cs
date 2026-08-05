@@ -23,7 +23,7 @@ namespace LibGit2Sharp.Core
                     return OperatingSystemType.Windows;
                 }
 
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))
                 {
                     return OperatingSystemType.Unix;
                 }
