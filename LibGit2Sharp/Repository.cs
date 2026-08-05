@@ -249,6 +249,7 @@ namespace LibGit2Sharp
         /// would be the ".git" folder inside the working directory) or the path to the working directory.
         /// </param>
         /// <returns>True if a repository can be resolved through this path; false otherwise</returns>
+        /// <exception cref="LibGit2SharpException">If repository is corrupt or a system error occurs</exception>
         static public bool IsValid(string path)
         {
             Ensure.ArgumentNotNull(path, "path");
@@ -258,14 +259,26 @@ namespace LibGit2Sharp
                 return false;
             }
 
-            try
-            {
-                Proxy.git_repository_open_ext(path, RepositoryOpenFlags.NoSearch, null);
-            }
-            catch (RepositoryNotFoundException)
+            return IsRepoFound(path);
+        }
+
+        private static unsafe bool IsRepoFound(string path)
+        {
+            git_repository* repo;
+
+            // Try to open the repository to check if it is found
+            int res = NativeMethods.git_repository_open_ext(out repo, path, RepositoryOpenFlags.NoSearch, null);
+            NativeMethods.git_repository_free(repo);
+
+            // If repo not found, then return false
+            if (res == (int)GitErrorCode.NotFound)
             {
                 return false;
             }
+
+            // Possibility for other errors, such as -1 for corrupt repo. Probably makes sense to throw exception in
+            // this case
+            Ensure.ZeroResult(res);
 
             return true;
         }
