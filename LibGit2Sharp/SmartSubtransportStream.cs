@@ -119,6 +119,10 @@ namespace LibGit2Sharp
                 {
                     errorCode = ((NativeException)ret).ErrorCode;
                 }
+                else
+                {
+                    Proxy.git_error_set_str(GitErrorCategory.Unknown, caught);
+                }
 
                 return (int)errorCode;
             }

@@ -77,6 +77,28 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void ExceptionPropogationTest()
+        {
+            var scd = BuildSelfCleaningDirectory();
+            var url = "https://github.com/libgit2/TestGitRepository";
+
+            SmartSubtransportRegistration<FailingSmartSubtransport> registration = null;
+
+            try
+            {
+                registration = GlobalSettings.RegisterSmartSubtransport<FailingSmartSubtransport>("https");
+                Assert.NotNull(registration);
+
+                var thrownException = Assert.Throws<LibGit2SharpException>(() => Repository.Clone(url, scd.RootedDirectoryPath));
+                Assert.True(thrownException.Message.Contains("This is a Read Exception"), "Exception message did not contain expected reference.");
+            }
+            finally
+            {
+                GlobalSettings.UnregisterSmartSubtransport(registration);
+            }
+        }
+
         //[Theory]
         //[InlineData("https", "https://bitbucket.org/libgit2/testgitrepository.git", "libgit3", "libgit3")]
         //public void CanUseCredentials(string scheme, string url, string user, string pass)
@@ -157,6 +179,32 @@ namespace LibGit2Sharp.Tests
 
             Assert.Throws<NotFoundException>(() =>
                 GlobalSettings.UnregisterSmartSubtransport(httpRegistration));
+        }
+
+        private class FailingSmartSubtransport : RpcSmartSubtransport
+        {
+            protected override SmartSubtransportStream Action(string url, GitSmartSubtransportAction action)
+            {
+                return new FailingSmartSubtransportStream(this);
+            }
+
+            private class FailingSmartSubtransportStream : SmartSubtransportStream
+            {
+                public FailingSmartSubtransportStream(FailingSmartSubtransport parent)
+                    : base(parent)
+                {
+
+                }
+                public override int Read(Stream dataStream, long length, out long bytesRead)
+                {
+                    throw new Exception("This is a Read Exception");
+                }
+
+                public override int Write(Stream dataStream, long length)
+                {
+                    throw new NotImplementedException();
+                }
+            }
         }
 
         private class MockSmartSubtransport : RpcSmartSubtransport
