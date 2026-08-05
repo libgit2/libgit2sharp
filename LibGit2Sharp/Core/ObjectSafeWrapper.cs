@@ -13,7 +13,7 @@ namespace LibGit2Sharp.Core
 
             if (allowNullObjectId && id == null)
             {
-                objectPtr = new ObjectHandle(null, false);
+                objectPtr = new ObjectHandle(IntPtr.Zero, false);
             }
             else
             {

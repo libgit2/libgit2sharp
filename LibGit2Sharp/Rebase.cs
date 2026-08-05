@@ -1,7 +1,6 @@
 ﻿using System;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
-using System.Globalization;
 
 namespace LibGit2Sharp
 {
@@ -65,7 +64,7 @@ namespace LibGit2Sharp
         unsafe AnnotatedCommitHandle AnnotatedCommitHandleFromRefHandle(ReferenceHandle refHandle)
         {
             return (refHandle == null) ?
-                new AnnotatedCommitHandle(null, false) :
+                new AnnotatedCommitHandle(IntPtr.Zero, false) :
                 Proxy.git_annotated_commit_from_ref(this.repository.Handle, refHandle);
         }
 

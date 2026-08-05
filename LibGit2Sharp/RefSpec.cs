@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Globalization;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -18,10 +17,10 @@ namespace LibGit2Sharp
 #pragma warning restore 0414
         readonly IntPtr handle;
 
-        internal unsafe RefSpec(Remote remote, git_refspec* handle)
+        internal unsafe RefSpec(Remote remote, nint handle)
         {
             this.remote = remote;
-            this.handle = new IntPtr(handle);
+            this.handle = handle;
         }
 
         /// <summary>
@@ -37,7 +36,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return Proxy.git_refspec_string(this.handle);
+                return Proxy.git_refspec_string(handle);
             }
         }
 
@@ -48,7 +47,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return Proxy.git_refspec_direction(this.handle);
+                return Proxy.git_refspec_direction(handle);
             }
         }
 
@@ -59,7 +58,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return Proxy.git_refspec_src(this.handle);
+                return Proxy.git_refspec_src(handle);
             }
         }
 
@@ -70,7 +69,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return Proxy.git_refspec_dst(this.handle);
+                return Proxy.git_refspec_dst(handle);
             }
         }
 
@@ -81,7 +80,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return Proxy.git_refspec_force(this.handle);
+                return Proxy.git_refspec_force(handle);
             }
         }
 

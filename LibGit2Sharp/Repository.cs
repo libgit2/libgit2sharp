@@ -1167,7 +1167,7 @@ namespace LibGit2Sharp
                                      | CheckoutStrategy.GIT_CHECKOUT_ALLOW_CONFLICTS,
             };
 
-            Proxy.git_checkout_index(Handle, new ObjectHandle(null, false), ref options);
+            Proxy.git_checkout_index(Handle, new ObjectHandle(IntPtr.Zero, false), ref options);
         }
 
         private void CleanupDisposableDependencies()
@@ -1769,13 +1769,14 @@ namespace LibGit2Sharp
         public void RevParse(string revision, out Reference reference, out GitObject obj)
         {
             var handles = Proxy.git_revparse_ext(Handle, revision);
-            if (handles == null)
+
+            if (handles == (null, null))
             {
                 Ensure.GitObjectIsNotNull(null, revision);
             }
 
-            using (var objH = handles.Item1)
-            using (var refH = handles.Item2)
+            using (var objH = handles.obj)
+            using (var refH = handles.reference)
             {
                 reference = refH.IsInvalid ? null : Reference.BuildFromPtr<Reference>(refH, this);
                 obj = GitObject.BuildFrom(this, Proxy.git_object_id(objH), Proxy.git_object_type(objH), PathFromRevparseSpec(revision));
