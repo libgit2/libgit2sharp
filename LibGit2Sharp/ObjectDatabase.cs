@@ -899,6 +899,36 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Performs a revert of <paramref name="revertCommit"/> onto <paramref name="revertOnto"/> commit.
+        /// </summary>
+        /// <param name="revertCommit">The commit to revert.</param>
+        /// <param name="revertOnto">The commit to revert onto.</param>
+        /// <param name="mainline">Which commit to consider the parent for the diff when reverting a merge commit.</param>
+        /// <param name="options">The options for the merging in the revert operation.</param>
+        /// <returns>The <see cref="TransientIndex"/> containing the revert result tree and any conflicts, or null if the revert stopped early due to conflicts.
+        /// The index must be disposed by the caller. </returns>
+        public virtual TransientIndex RevertCommitIntoIndex(Commit revertCommit, Commit revertOnto, int mainline, MergeTreeOptions options)
+        {
+            Ensure.ArgumentNotNull(revertCommit, "revertCommit");
+            Ensure.ArgumentNotNull(revertOnto, "revertOnto");
+
+            options = options ?? new MergeTreeOptions();
+
+            bool earlyStop;
+            var indexHandle = RevertCommit(revertCommit, revertOnto, mainline, options, out earlyStop);
+            if (earlyStop)
+            {
+                if (indexHandle != null)
+                {
+                    indexHandle.Dispose();
+                }
+                return null;
+            }
+            var result = new TransientIndex(indexHandle, repo);
+            return result;
+        }
+
+        /// <summary>
         /// Perform a three-way merge of two commits, looking up their
         /// commit ancestor. The returned index will contain the results
         /// of the merge and can be examined for conflicts.
@@ -982,6 +1012,47 @@ namespace LibGit2Sharp
             }
         }
 
+        /// <summary>
+        /// Performs a revert of <paramref name="revertCommit"/> onto <paramref name="revertOnto"/> commit.
+        /// </summary>
+        /// <param name="revertCommit">The commit to revert.</param>
+        /// <param name="revertOnto">The commit to revert onto.</param>
+        /// <param name="mainline">Which commit to consider the parent for the diff when cherry-picking a merge commit.</param>
+        /// <param name="options">The options for the merging in the revert operation.</param>
+        /// <param name="earlyStop">True if the merge stopped early due to conflicts</param>
+        /// <returns>The <see cref="IndexHandle"/> containing the revert result tree and any conflicts</returns>
+        private IndexHandle RevertCommit(Commit revertCommit, Commit revertOnto, int mainline, MergeTreeOptions options, out bool earlyStop)
+        {
+            GitMergeFlag mergeFlags = GitMergeFlag.GIT_MERGE_NORMAL;
+            if (options.SkipReuc)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_SKIP_REUC;
+            }
+            if (options.FindRenames)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_FIND_RENAMES;
+            }
+            if (options.FailOnConflict)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_FAIL_ON_CONFLICT;
+            }
+
+            var opts = new GitMergeOpts
+            {
+                Version = 1,
+                MergeFileFavorFlags = options.MergeFileFavor,
+                MergeTreeFlags = mergeFlags,
+                RenameThreshold = (uint)options.RenameThreshold,
+                TargetLimit = (uint)options.TargetLimit
+            };
+
+            using (var revertOntoHandle = Proxy.git_object_lookup(repo.Handle, revertOnto.Id, GitObjectType.Commit))
+            using (var revertCommitHandle = Proxy.git_object_lookup(repo.Handle, revertCommit.Id, GitObjectType.Commit))
+            {
+                var indexHandle = Proxy.git_revert_commit(repo.Handle, revertCommitHandle, revertOntoHandle, (uint)mainline, opts, out earlyStop);
+                return indexHandle;
+            }
+        }
 
         /// <summary>
         /// Packs objects in the <see cref="ObjectDatabase"/> and write a pack (.pack) and index (.idx) files for them.
@@ -1028,35 +1099,22 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(revertCommit, "revertCommit");
             Ensure.ArgumentNotNull(revertOnto, "revertOnto");
 
-            options = options ?? new MergeTreeOptions();
-
+            var modifiedOptions = new MergeTreeOptions();
             // We throw away the index after looking at the conflicts, so we'll never need the REUC
             // entries to be there
-            GitMergeFlag mergeFlags = GitMergeFlag.GIT_MERGE_NORMAL | GitMergeFlag.GIT_MERGE_SKIP_REUC;
-            if (options.FindRenames)
-            {
-                mergeFlags |= GitMergeFlag.GIT_MERGE_FIND_RENAMES;
-            }
-            if (options.FailOnConflict)
-            {
-                mergeFlags |= GitMergeFlag.GIT_MERGE_FAIL_ON_CONFLICT;
-            }
+            modifiedOptions.SkipReuc = true;
 
-
-            var opts = new GitMergeOpts
+            if (options != null)
             {
-                Version = 1,
-                MergeFileFavorFlags = options.MergeFileFavor,
-                MergeTreeFlags = mergeFlags,
-                RenameThreshold = (uint)options.RenameThreshold,
-                TargetLimit = (uint)options.TargetLimit
-            };
+                modifiedOptions.FailOnConflict = options.FailOnConflict;
+                modifiedOptions.FindRenames = options.FindRenames;
+                modifiedOptions.MergeFileFavor = options.MergeFileFavor;
+                modifiedOptions.RenameThreshold = options.RenameThreshold;
+                modifiedOptions.TargetLimit = options.TargetLimit;
+            }
 
             bool earlyStop;
-
-            using (var revertOntoHandle = Proxy.git_object_lookup(repo.Handle, revertOnto.Id, GitObjectType.Commit))
-            using (var revertCommitHandle = Proxy.git_object_lookup(repo.Handle, revertCommit.Id, GitObjectType.Commit))
-            using (var indexHandle = Proxy.git_revert_commit(repo.Handle, revertCommitHandle, revertOntoHandle, (uint)mainline, opts, out earlyStop))
+            using (var indexHandle = RevertCommit(revertCommit, revertOnto, mainline, modifiedOptions, out earlyStop))
             {
                 MergeTreeResult revertTreeResult;
 
