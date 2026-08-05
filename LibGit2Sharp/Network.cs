@@ -38,6 +38,76 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Lookup the default branch name in a Remote repository
+        /// </summary>
+        /// <param name="remote"><The <see cref="Remote"/> to get the default branch from.</param>
+        /// <returns>The canonical name of the Remote repository's default branch.</returns>
+        public virtual string DefaultBranchName(Remote remote)
+        {
+            Ensure.ArgumentNotNull(remote, "remote");
+
+            return DefaultBranchNameInternal(remote.Url, null);
+        }
+
+        /// <summary>
+        /// Lookup the default branch name in a Remote repository
+        /// </summary>
+        /// <param name="remote"><The <see cref="Remote"/> to get the default branch from.</param>
+        /// <param name="remote"><The <see cref="Func{Credentials}"/> used to connect to the remote repository.</param>
+        /// <returns>The canonical name of the Remote repository's default branch.</returns>
+        public virtual string DefaultBranchName(Remote remote, CredentialsHandler credentialsProvider)
+        {
+            Ensure.ArgumentNotNull(remote, "remote");
+            Ensure.ArgumentNotNull(credentialsProvider, "credentialsProvider");
+
+            return DefaultBranchNameInternal(remote.Url, credentialsProvider);
+        }
+
+        /// <summary>
+        /// Lookup the default branch name in a Remote repository
+        /// </summary>
+        /// <param name="remote"><The url to get the default branch from.</param>
+        /// <returns>The canonical name of the Remote repository's default branch.</returns>
+        public virtual string DefaultBranchName(string url)
+        {
+            Ensure.ArgumentNotNull(url, "url");
+
+            return DefaultBranchNameInternal(url, null);
+        }
+
+        /// <summary>
+        /// Lookup the default branch name in a Remote repository
+        /// </summary>
+        /// <param name="remote"><The url to get the default branch from.</param>
+        /// <param name="remote"><The <see cref="Func{Credentials}"/> used to connect to the remote repository.</param>
+        /// <returns>The canonical name of the Remote repository's default branch.</returns>
+        public virtual string DefaultBranchName(string url, CredentialsHandler credentialsProvider)
+        {
+            Ensure.ArgumentNotNull(url, "url");
+            Ensure.ArgumentNotNull(credentialsProvider, "credentialsProvider");
+
+            return DefaultBranchNameInternal(url, credentialsProvider);
+        }
+
+        private string DefaultBranchNameInternal(string url, CredentialsHandler credentialsProvider)
+        {
+            using (RemoteHandle remoteHandle = BuildRemoteHandle(repository.Handle, url))
+            {
+                GitRemoteCallbacks gitCallbacks = new GitRemoteCallbacks { version = 1 };
+                GitProxyOptions proxyOptions = new GitProxyOptions { Version = 1 };
+
+                if (credentialsProvider != null)
+                {
+                    var callbacks = new RemoteCallbacks(credentialsProvider);
+                    gitCallbacks = callbacks.GenerateCallbacks();
+                }
+
+                Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch, ref gitCallbacks, ref proxyOptions);
+                return Proxy.git_remote_default_branch(remoteHandle);
+            }
+        }
+
+        /// <summary>
         /// List references in a <see cref="Remote"/> repository.
         /// <para>
         /// When the remote tips are ahead of the local ones, the retrieved
