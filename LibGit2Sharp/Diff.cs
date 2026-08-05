@@ -57,6 +57,22 @@ namespace LibGit2Sharp
                 options.Flags |= GitDiffOptionFlags.GIT_DIFF_MINIMAL;
             }
 
+            if (compareOptions.WhitespaceMode != null)
+            {
+                if (compareOptions.WhitespaceMode == DiffWhitespaceMode.IgnoreAllWhitespaces)
+                {
+                    options.Flags |= GitDiffOptionFlags.GIT_DIFF_IGNORE_WHITESPACE;
+                }
+                else if (compareOptions.WhitespaceMode == DiffWhitespaceMode.IgnoreWhitespaceChange)
+                {
+                    options.Flags |= GitDiffOptionFlags.GIT_DIFF_IGNORE_WHITESPACE_CHANGE;
+                }
+                else
+                {
+                    options.Flags |= GitDiffOptionFlags.GIT_DIFF_IGNORE_WHITESPACE_EOL;
+                }
+            }
+
             if (diffOptions.HasFlag(DiffModifiers.DisablePathspecMatch))
             {
                 options.Flags |= GitDiffOptionFlags.GIT_DIFF_DISABLE_PATHSPEC_MATCH;
