@@ -31,7 +31,7 @@ namespace LibGit2Sharp
             {
                 Author = commit.Author,
                 Committer = commit.Committer,
-                Message = commit.Message
+                Message = commit.MessageRaw
             };
         }
 
