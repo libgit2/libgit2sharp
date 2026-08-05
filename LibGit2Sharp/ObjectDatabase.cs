@@ -809,6 +809,74 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Perform a three-way merge of two trees relative to the provided ancestor.
+        /// The returned <see cref="MergeTreeResult"/> will contain the results
+        /// of the merge and can be examined for conflicts.
+        /// </summary>
+        /// <param name="ancestor">The ancestor tree</param>
+        /// <param name="ours">The first tree</param>
+        /// <param name="theirs">The second tree</param>
+        /// <param name="options">The <see cref="MergeTreeOptions"/> controlling the merge</param>
+        /// <returns>The <see cref="MergeTreeResult"/> containing the merged trees and any conflicts</returns>
+        public virtual MergeTreeResult MergeTrees(Tree ancestor, Tree ours, Tree theirs, MergeTreeOptions options)
+        {
+            Ensure.ArgumentNotNull(ancestor, "ancestor");
+            Ensure.ArgumentNotNull(ours, "ours");
+            Ensure.ArgumentNotNull(theirs, "theirs");
+
+            var modifiedOptions = new MergeTreeOptions();
+
+            // We throw away the index after looking at the conflicts, so we'll never need the REUC
+            // entries to be there
+            modifiedOptions.SkipReuc = true;
+
+            if (options != null)
+            {
+                modifiedOptions.FailOnConflict = options.FailOnConflict;
+                modifiedOptions.FindRenames = options.FindRenames;
+                modifiedOptions.IgnoreWhitespaceChange = options.IgnoreWhitespaceChange;
+                modifiedOptions.MergeFileFavor = options.MergeFileFavor;
+                modifiedOptions.RenameThreshold = options.RenameThreshold;
+                modifiedOptions.TargetLimit = options.TargetLimit;
+            }
+
+            bool earlyStop;
+            using (var indexHandle = MergeTrees(ancestor, ours, theirs, modifiedOptions, out earlyStop))
+            {
+                MergeTreeResult mergeResult;
+
+                // Stopped due to FailOnConflict so there's no index or conflict list
+                if (earlyStop)
+                {
+                    return new MergeTreeResult(new Conflict[] { });
+                }
+
+                if (Proxy.git_index_has_conflicts(indexHandle))
+                {
+                    List<Conflict> conflicts = new List<Conflict>();
+                    Conflict conflict;
+
+                    using (ConflictIteratorHandle iterator = Proxy.git_index_conflict_iterator_new(indexHandle))
+                    {
+                        while ((conflict = Proxy.git_index_conflict_next(iterator)) != null)
+                        {
+                            conflicts.Add(conflict);
+                        }
+                    }
+
+                    mergeResult = new MergeTreeResult(conflicts);
+                }
+                else
+                {
+                    var treeId = Proxy.git_index_write_tree_to(indexHandle, repo.Handle);
+                    mergeResult = new MergeTreeResult(this.repo.Lookup<Tree>(treeId));
+                }
+
+                return mergeResult;
+            }
+        }
+
+        /// <summary>
         /// Packs all the objects in the <see cref="ObjectDatabase"/> and write a pack (.pack) and index (.idx) files for them.
         /// </summary>
         /// <param name="options">Packing options</param>
@@ -936,6 +1004,50 @@ namespace LibGit2Sharp
             using (var twoHandle = Proxy.git_object_lookup(repo.Handle, theirs.Id, GitObjectType.Commit))
             {
                 var indexHandle = Proxy.git_merge_commits(repo.Handle, oneHandle, twoHandle, mergeOptions, out earlyStop);
+                return indexHandle;
+            }
+        }
+
+        /// <summary>
+        /// Perform a three-way merge of two trees relative to the provided ancestor.
+        /// The returned <see cref="MergeTreeResult"/> will contain the results
+        /// of the merge and can be examined for conflicts.
+        /// </summary>
+        /// <param name="ancestor">The ancestor tree</param>
+        /// <param name="ours">The first tree</param>
+        /// <param name="theirs">The second tree</param>
+        /// <param name="options">The <see cref="MergeTreeOptions"/> controlling the merge</param>
+        /// <param name="earlyStop">True if the merge stopped early due to conflicts</param>
+        /// <returns>The <see cref="MergeTreeResult"/> containing the merged trees and any conflicts</returns>
+        private IndexHandle MergeTrees(Tree ancestor, Tree ours, Tree theirs, MergeTreeOptions options, out bool earlyStop)
+        {
+            GitMergeFlag mergeFlags = GitMergeFlag.GIT_MERGE_NORMAL;
+            if (options.SkipReuc)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_SKIP_REUC;
+            }
+            if (options.FindRenames)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_FIND_RENAMES;
+            }
+            if (options.FailOnConflict)
+            {
+                mergeFlags |= GitMergeFlag.GIT_MERGE_FAIL_ON_CONFLICT;
+            }
+
+            var mergeOptions = new GitMergeOpts
+            {
+                Version = 1,
+                MergeFileFavorFlags = options.MergeFileFavor,
+                MergeTreeFlags = mergeFlags,
+                RenameThreshold = (uint)options.RenameThreshold,
+                TargetLimit = (uint)options.TargetLimit,
+            };
+            using (var ancestorHandle = Proxy.git_object_lookup(repo.Handle, ancestor.Id, GitObjectType.Tree))
+            using (var oursHandle = Proxy.git_object_lookup(repo.Handle, ours.Id, GitObjectType.Tree))
+            using (var theirHandle = Proxy.git_object_lookup(repo.Handle, theirs.Id, GitObjectType.Tree))
+            {
+                var indexHandle = Proxy.git_merge_trees(repo.Handle, ancestorHandle, oursHandle, theirHandle, mergeOptions, out earlyStop);
                 return indexHandle;
             }
         }
