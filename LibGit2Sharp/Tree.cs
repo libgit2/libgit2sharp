@@ -68,8 +68,9 @@ namespace LibGit2Sharp
                     return null;
                 }
 
-                string filename = relativePath.Split('/').Last();
-                string parentPath = relativePath.Substring(0, relativePath.Length - filename.Length);
+                string trimmed = relativePath.TrimEnd('/');
+                string filename = trimmed.Split('/').Last();
+                string parentPath = trimmed.Substring(0, trimmed.Length - filename.Length);
                 return new TreeEntry(treeEntry, Id, repo, Tree.CombinePath(path, parentPath));
             }
         }
