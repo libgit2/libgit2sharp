@@ -2580,6 +2580,11 @@ namespace LibGit2Sharp.Core
             res = NativeMethods.git_repository_open_ext(out repo, path, flags, ceilingDirs);
             NativeMethods.git_repository_free(repo);
 
+            //if (res == (int)GitErrorCode.Ok)
+            //{
+            //    NativeMethods.git_repository_free(repo);
+            //}
+
             if (res == (int)GitErrorCode.NotFound)
             {
                 throw new RepositoryNotFoundException("Path '{0}' doesn't point at a valid Git repository or workdir.",
