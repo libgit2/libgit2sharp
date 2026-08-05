@@ -1,0 +1,14 @@
+[core]
+	repositoryformatversion = 0
+	filemode = false
+	bare = false
+	logallrefupdates = true
+	ignorecase = true
+[remote "origin"]
+	url = ../multifetchspec_testrepo.git/
+	fetch = +refs/pull/28/head:refs/remotes/origin/PR-28
+	fetch = +refs/heads/master:refs/remotes/origin/master
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "PR-28"]
+	remote = origin
+	merge = refs/pull/28/head

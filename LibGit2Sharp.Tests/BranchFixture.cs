@@ -879,6 +879,39 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanSetTrackedBranch_MultipleFetchSpecs()
+        {
+            const string testBranchName = "master";
+            const string trackedBranchName = "refs/remotes/origin/master";
+
+            string path = SandboxMultiFetchSpecTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Branch trackedBranch = repo.Branches[trackedBranchName];
+                Assert.True(trackedBranch.IsRemote);
+
+                Branch branch = repo.CreateBranch(testBranchName, trackedBranch.Tip);
+                Assert.False(branch.IsTracking);
+
+                repo.Branches.Update(branch,
+                    b => b.TrackedBranch = trackedBranch.CanonicalName);
+
+                // Verify the immutability of the branch.
+                Assert.False(branch.IsTracking);
+
+                // Get the updated branch information.
+                branch = repo.Branches[testBranchName];
+
+                Remote upstreamRemote = repo.Network.Remotes["origin"];
+                Assert.NotNull(upstreamRemote);
+
+                Assert.True(branch.IsTracking);
+                Assert.Equal(trackedBranch, branch.TrackedBranch);
+                Assert.Equal("origin", branch.RemoteName);
+            }
+        }
+
+        [Fact]
         public void CanWalkCommitsFromBranch()
         {
             string path = SandboxBareTestRepo();
