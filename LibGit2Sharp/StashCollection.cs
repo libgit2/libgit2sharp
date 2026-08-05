@@ -113,6 +113,18 @@ namespace LibGit2Sharp
             return Add(stasher, message, StashModifiers.Default);
         }
 
+        public virtual Stash Add(Signature stasher, string message, StashModifiers options, string[] paths)
+        {
+            ObjectId oid = Proxy.git_stash_save_with_opts(repo.Handle, stasher, message, options, paths);
+
+            if (oid == null)
+            {
+                return null;
+            }
+
+            return new Stash(repo, oid, 0);
+        }
+
         /// <summary>
         /// Creates a stash with the specified message.
         /// </summary>

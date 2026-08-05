@@ -1744,6 +1744,12 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string message,
             StashModifiers flags);
 
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern unsafe int git_stash_save_with_opts(
+            out GitOid stashOid,
+            git_repository* repo,
+            ref GitStashSaveOpts saveOpts);
+
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate int git_stash_cb(
             UIntPtr index,
