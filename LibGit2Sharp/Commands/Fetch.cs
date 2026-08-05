@@ -54,6 +54,7 @@ namespace LibGit2Sharp
                 var fetchOptions = fetchOptionsWrapper.Options;
                 fetchOptions.RemoteCallbacks = gitCallbacks;
                 fetchOptions.download_tags = Proxy.git_remote_autotag(remoteHandle);
+                fetchOptions.Depth = options.Depth;
 
                 if (options.TagFetchMode.HasValue)
                 {
