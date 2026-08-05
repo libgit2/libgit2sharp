@@ -96,13 +96,14 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="path">The file's path.</param>
         /// <param name="filter">The options used to control which commits will be returned.</param>
+        /// <param name="compareOptions">Additional options to define comparison behavior.</param>
         /// <returns>A list of file history entries, ready to be enumerated.</returns>
-        public IEnumerable<LogEntry> QueryBy(string path, CommitFilter filter)
+        public IEnumerable<LogEntry> QueryBy(string path, CommitFilter filter, CompareOptions compareOptions = null)
         {
             Ensure.ArgumentNotNull(path, "path");
             Ensure.ArgumentNotNull(filter, "filter");
 
-            return new FileHistory(repo, path, filter);
+            return new FileHistory(repo, path, filter, compareOptions);
         }
 
         private class CommitEnumerator : IEnumerator<Commit>
