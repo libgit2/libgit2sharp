@@ -163,6 +163,16 @@ namespace LibGit2Sharp.Core
 
         private static string ParentPath(IRepository repo, Commit currentCommit, string currentPath, Commit parentCommit)
         {
+            // optimization: if the SHA of the parent commit's TreeEntry is the same as this commit's TreeEntry then
+            // they are the same and there is no need to diff the commit
+            TreeEntry parentTreeEntry = parentCommit.Tree[currentPath];
+            TreeEntry thisTreeEntry = currentCommit.Tree[currentPath];
+            if (parentTreeEntry != null && parentTreeEntry.Target.Sha == thisTreeEntry.Target.Sha)
+            {
+                return currentPath;
+            }
+
+            // something in the tree is different, so we need to diff the commits to look for renames
             using (var treeChanges = repo.Diff.Compare<TreeChanges>(parentCommit.Tree, currentCommit.Tree))
             {
                 var treeEntryChanges = treeChanges.FirstOrDefault(c => c.Path == currentPath);
