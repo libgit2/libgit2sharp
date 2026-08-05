@@ -3002,6 +3002,20 @@ namespace LibGit2Sharp.Core
             return git_foreach(resultSelector, c => NativeMethods.git_submodule_foreach(repo, (x, y, p) => c(x, y, p), IntPtr.Zero));
         }
 
+        public static unsafe SubmoduleHandle git_submodule_add_setup(RepositoryHandle repo, string url, FilePath path, int use_gitlink)
+        {
+            git_submodule* submodule;
+            var res = NativeMethods.git_submodule_add_setup(out submodule, repo, url, path, use_gitlink);
+            Ensure.ZeroResult(res);
+            return new SubmoduleHandle(submodule, true);
+        }
+
+        public static unsafe void git_submodule_add_finalize(SubmoduleHandle submodule)
+        {
+            var res = NativeMethods.git_submodule_add_finalize(submodule);
+            Ensure.ZeroResult(res);
+        }
+
         public static unsafe void git_submodule_add_to_index(SubmoduleHandle submodule, bool write_index)
         {
             var res = NativeMethods.git_submodule_add_to_index(submodule, write_index);
