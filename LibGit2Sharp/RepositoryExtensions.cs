@@ -171,7 +171,7 @@ namespace LibGit2Sharp
         /// <param name="committish">A revparse spec for the target commit object.</param>
         public static void Reset(this IRepository repository, ResetMode resetMode, string committish)
         {
-            Ensure.ArgumentNotNullOrEmptyString(committish, "committish");
+            Ensure.ArgumentNotNullOrEmptyString(committish, nameof(committish));
 
             Commit commit = LookUpCommit(repository, committish);
 

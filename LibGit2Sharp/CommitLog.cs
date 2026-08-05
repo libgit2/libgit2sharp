@@ -72,9 +72,9 @@ namespace LibGit2Sharp
         /// <returns>A list of commits, ready to be enumerated.</returns>
         public ICommitLog QueryBy(CommitFilter filter)
         {
-            Ensure.ArgumentNotNull(filter, "filter");
-            Ensure.ArgumentNotNull(filter.IncludeReachableFrom, "filter.IncludeReachableFrom");
-            Ensure.ArgumentNotNullOrEmptyString(filter.IncludeReachableFrom.ToString(), "filter.IncludeReachableFrom");
+            Ensure.ArgumentNotNull(filter, nameof(filter));
+            Ensure.ArgumentNotNull(filter.IncludeReachableFrom, nameof(filter.IncludeReachableFrom));
+            Ensure.ArgumentNotNullOrEmptyString(filter.IncludeReachableFrom.ToString(), nameof(filter.IncludeReachableFrom.ToString()));
 
             return new CommitLog(repo, filter);
         }
@@ -86,7 +86,7 @@ namespace LibGit2Sharp
         /// <returns>A list of file history entries, ready to be enumerated.</returns>
         public IEnumerable<LogEntry> QueryBy(string path)
         {
-            Ensure.ArgumentNotNull(path, "path");
+            Ensure.ArgumentNotNull(path, nameof(path));
 
             return new FileHistory(repo, path);
         }
@@ -99,8 +99,8 @@ namespace LibGit2Sharp
         /// <returns>A list of file history entries, ready to be enumerated.</returns>
         public IEnumerable<LogEntry> QueryBy(string path, CommitFilter filter)
         {
-            Ensure.ArgumentNotNull(path, "path");
-            Ensure.ArgumentNotNull(filter, "filter");
+            Ensure.ArgumentNotNull(path, nameof(path));
+            Ensure.ArgumentNotNull(filter, nameof(filter));
 
             return new FileHistory(repo, path, filter);
         }

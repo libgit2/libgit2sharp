@@ -19,8 +19,8 @@ namespace LibGit2Sharp
         /// <param name="path">The path of the file within the working directory.</param>
         public static void Stage(IRepository repository, string path)
         {
-            Ensure.ArgumentNotNull(repository, "repository");
-            Ensure.ArgumentNotNull(path, "path");
+            Ensure.ArgumentNotNull(repository, nameof(repository));
+            Ensure.ArgumentNotNull(path, nameof(path));
 
             Stage(repository, new[] { path }, null);
         }
@@ -35,8 +35,8 @@ namespace LibGit2Sharp
         /// <param name="stageOptions">Determines how paths will be staged.</param>
         public static void Stage(IRepository repository, string path, StageOptions stageOptions)
         {
-            Ensure.ArgumentNotNull(repository, "repository");
-            Ensure.ArgumentNotNull(path, "path");
+            Ensure.ArgumentNotNull(repository, nameof(repository));
+            Ensure.ArgumentNotNull(path, nameof(path));
 
             Stage(repository, new[] { path }, stageOptions);
         }
@@ -63,8 +63,8 @@ namespace LibGit2Sharp
         /// <param name="stageOptions">Determines how paths will be staged.</param>
         public static void Stage(IRepository repository, IEnumerable<string> paths, StageOptions stageOptions)
         {
-            Ensure.ArgumentNotNull(repository, "repository");
-            Ensure.ArgumentNotNull(paths, "paths");
+            Ensure.ArgumentNotNull(repository, nameof(repository));
+            Ensure.ArgumentNotNull(paths, nameof(paths));
 
             DiffModifiers diffModifiers = DiffModifiers.IncludeUntracked;
             ExplicitPathsOptions explicitPathsOptions = stageOptions != null ? stageOptions.ExplicitPathsOptions : null;
@@ -160,8 +160,8 @@ namespace LibGit2Sharp
         /// </param>
         public static void Unstage(IRepository repository, string path, ExplicitPathsOptions explicitPathsOptions)
         {
-            Ensure.ArgumentNotNull(repository, "repository");
-            Ensure.ArgumentNotNull(path, "path");
+            Ensure.ArgumentNotNull(repository, nameof(repository));
+            Ensure.ArgumentNotNull(path, nameof(path));
 
             Unstage(repository, new[] { path }, explicitPathsOptions);
         }
@@ -187,8 +187,8 @@ namespace LibGit2Sharp
         /// </param>
         public static void Unstage(IRepository repository, IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions)
         {
-            Ensure.ArgumentNotNull(repository, "repository");
-            Ensure.ArgumentNotNull(paths, "paths");
+            Ensure.ArgumentNotNull(repository, nameof(repository));
+            Ensure.ArgumentNotNull(paths, nameof(paths));
 
             if (repository.Info.IsHeadUnborn)
             {
@@ -222,9 +222,9 @@ namespace LibGit2Sharp
         /// <param name="destinationPaths">The target paths of the files within the working directory.</param>
         public static void Move(IRepository repository, IEnumerable<string> sourcePaths, IEnumerable<string> destinationPaths)
         {
-            Ensure.ArgumentNotNull(repository, "repository");
-            Ensure.ArgumentNotNull(sourcePaths, "sourcePaths");
-            Ensure.ArgumentNotNull(destinationPaths, "destinationPaths");
+            Ensure.ArgumentNotNull(repository, nameof(repository));
+            Ensure.ArgumentNotNull(sourcePaths, nameof(sourcePaths));
+            Ensure.ArgumentNotNull(destinationPaths, nameof(destinationPaths));
 
             //TODO: Move() should support following use cases:
             // - Moving a file under a directory ('file' and 'dir' -> 'dir/file')

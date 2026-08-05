@@ -39,7 +39,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                Ensure.ArgumentNotNullOrEmptyString(name, "name");
+                Ensure.ArgumentNotNullOrEmptyString(name, nameof(name));
 
                 if (LooksLikeABranchName(name))
                 {
@@ -138,7 +138,7 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref="Branch"/>.</returns>
         public virtual Branch Add(string name, Commit commit, bool allowOverwrite)
         {
-            Ensure.ArgumentNotNull(commit, "commit");
+            Ensure.ArgumentNotNull(commit, nameof(commit));
 
             return Add(name, commit.Sha, allowOverwrite);
         }
@@ -152,8 +152,8 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref="Branch"/>.</returns>
         public virtual Branch Add(string name, string committish, bool allowOverwrite)
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNullOrEmptyString(committish, "committish");
+            Ensure.ArgumentNotNullOrEmptyString(name, nameof(name));
+            Ensure.ArgumentNotNullOrEmptyString(committish, nameof(committish));
 
             using (Proxy.git_branch_create_from_annotated(repo.Handle, name, committish, allowOverwrite))
             { }
@@ -178,7 +178,7 @@ namespace LibGit2Sharp
         /// <param name="isRemote">True if the provided <paramref name="name"/> is the name of a remote branch, false otherwise.</param>
         public virtual void Remove(string name, bool isRemote)
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNullOrEmptyString(name, nameof(name));
 
             string branchName = isRemote ? Reference.RemoteTrackingBranchPrefix + name : name;
 
@@ -197,7 +197,7 @@ namespace LibGit2Sharp
         /// <param name="branch">The branch to delete.</param>
         public virtual void Remove(Branch branch)
         {
-            Ensure.ArgumentNotNull(branch, "branch");
+            Ensure.ArgumentNotNull(branch, nameof(branch));
 
             using (ReferenceHandle referencePtr = repo.Refs.RetrieveReferencePtr(branch.CanonicalName))
             {
@@ -225,8 +225,8 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref="Branch"/>.</returns>
         public virtual Branch Rename(string currentName, string newName, bool allowOverwrite)
         {
-            Ensure.ArgumentNotNullOrEmptyString(currentName, "currentName");
-            Ensure.ArgumentNotNullOrEmptyString(newName, "newName");
+            Ensure.ArgumentNotNullOrEmptyString(currentName, nameof(currentName));
+            Ensure.ArgumentNotNullOrEmptyString(newName, nameof(newName));
 
             Branch branch = this[currentName];
 
@@ -258,8 +258,8 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref="Branch"/>.</returns>
         public virtual Branch Rename(Branch branch, string newName, bool allowOverwrite)
         {
-            Ensure.ArgumentNotNull(branch, "branch");
-            Ensure.ArgumentNotNullOrEmptyString(newName, "newName");
+            Ensure.ArgumentNotNull(branch, nameof(branch));
+            Ensure.ArgumentNotNullOrEmptyString(newName, nameof(newName));
 
             if (branch.IsRemote)
             {

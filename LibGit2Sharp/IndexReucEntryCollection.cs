@@ -33,7 +33,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                Ensure.ArgumentNotNullOrEmptyString(path, "path");
+                Ensure.ArgumentNotNullOrEmptyString(path, nameof(path));
 
                 git_index_reuc_entry* entryHandle = Proxy.git_index_reuc_get_bypath(index.Handle, path);
                 return IndexReucEntry.BuildFromPtr(entryHandle);

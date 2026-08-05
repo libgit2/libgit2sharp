@@ -14,7 +14,7 @@ namespace LibGit2Sharp
         /// <param name="fetchOptions">The fetch options to use.</param>
         public CloneOptions(FetchOptions fetchOptions) : this()
         {
-            Ensure.ArgumentNotNull(fetchOptions, "fetchOptions");
+            Ensure.ArgumentNotNull(fetchOptions, nameof(fetchOptions));
 
             FetchOptions = fetchOptions;
         }

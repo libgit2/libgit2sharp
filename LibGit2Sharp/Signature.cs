@@ -32,10 +32,10 @@ namespace LibGit2Sharp
         /// <param name="when">The when.</param>
         public Signature(string name, string email, DateTimeOffset when)
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNullOrEmptyString(email, "email");
-            Ensure.ArgumentDoesNotContainZeroByte(name, "name");
-            Ensure.ArgumentDoesNotContainZeroByte(email, "email");
+            Ensure.ArgumentNotNullOrEmptyString(name, nameof(name));
+            Ensure.ArgumentNotNullOrEmptyString(email, nameof(email));
+            Ensure.ArgumentDoesNotContainZeroByte(name, nameof(name));
+            Ensure.ArgumentDoesNotContainZeroByte(email, nameof(email));
 
             this.name = name;
             this.email = email;
@@ -49,7 +49,7 @@ namespace LibGit2Sharp
         /// <param name="when">The when.</param>
         public Signature(Identity identity, DateTimeOffset when)
         {
-            Ensure.ArgumentNotNull(identity, "identity");
+            Ensure.ArgumentNotNull(identity, nameof(identity));
 
             this.name = identity.Name;
             this.email = identity.Email;

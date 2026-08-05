@@ -683,7 +683,7 @@ namespace LibGit2Sharp.Core
             ObjectId committishId,
             DescribeOptions options)
         {
-            Ensure.ArgumentPositiveInt32(options.MinimumCommitIdAbbreviatedSize, "options.MinimumCommitIdAbbreviatedSize");
+            Ensure.ArgumentPositiveInt32(options.MinimumCommitIdAbbreviatedSize, nameof(options.MinimumCommitIdAbbreviatedSize));
 
             using (var osw = new ObjectSafeWrapper(committishId, repo))
             {
@@ -1808,8 +1808,8 @@ namespace LibGit2Sharp.Core
             Identity author,
             Identity committer)
         {
-            Ensure.ArgumentNotNull(rebase, "rebase");
-            Ensure.ArgumentNotNull(committer, "committer");
+            Ensure.ArgumentNotNull(rebase, nameof(rebase));
+            Ensure.ArgumentNotNull(committer, nameof(committer));
 
             using (SignatureHandle committerHandle = committer.BuildNowSignatureHandle())
             using (SignatureHandle authorHandle = author.SafeBuildNowSignatureHandle())
@@ -1852,7 +1852,7 @@ namespace LibGit2Sharp.Core
         public static unsafe void git_rebase_abort(
             RebaseHandle rebase)
         {
-            Ensure.ArgumentNotNull(rebase, "rebase");
+            Ensure.ArgumentNotNull(rebase, nameof(rebase));
 
             int result = NativeMethods.git_rebase_abort(rebase);
             Ensure.ZeroResult(result);
@@ -1862,8 +1862,8 @@ namespace LibGit2Sharp.Core
             RebaseHandle rebase,
             Identity committer)
         {
-            Ensure.ArgumentNotNull(rebase, "rebase");
-            Ensure.ArgumentNotNull(committer, "committer");
+            Ensure.ArgumentNotNull(rebase, nameof(rebase));
+            Ensure.ArgumentNotNull(committer, nameof(committer));
 
             using (var signatureHandle = committer.BuildNowSignatureHandle())
             {

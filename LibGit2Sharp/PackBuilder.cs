@@ -17,7 +17,7 @@ namespace LibGit2Sharp
         /// </summary>
         internal PackBuilder(Repository repository)
         {
-            Ensure.ArgumentNotNull(repository, "repository");
+            Ensure.ArgumentNotNull(repository, nameof(repository));
 
             packBuilderHandle = Proxy.git_packbuilder_new(repository.Handle);
         }
@@ -30,7 +30,7 @@ namespace LibGit2Sharp
         /// <exception cref="ArgumentNullException">if the gitObject is null</exception>
         public void Add<T>(T gitObject) where T : GitObject
         {
-            Ensure.ArgumentNotNull(gitObject, "gitObject");
+            Ensure.ArgumentNotNull(gitObject, nameof(gitObject));
 
             Add(gitObject.Id);
         }
@@ -43,7 +43,7 @@ namespace LibGit2Sharp
         /// <exception cref="ArgumentNullException">if the gitObject is null</exception>
         public void AddRecursively<T>(T gitObject) where T : GitObject
         {
-            Ensure.ArgumentNotNull(gitObject, "gitObject");
+            Ensure.ArgumentNotNull(gitObject, nameof(gitObject));
 
             AddRecursively(gitObject.Id);
         }
@@ -56,7 +56,7 @@ namespace LibGit2Sharp
         /// <exception cref="ArgumentNullException">if the id is null</exception>
         public void Add(ObjectId id)
         {
-            Ensure.ArgumentNotNull(id, "id");
+            Ensure.ArgumentNotNull(id, nameof(id));
 
             Proxy.git_packbuilder_insert(packBuilderHandle, id, null);
         }
@@ -69,7 +69,7 @@ namespace LibGit2Sharp
         /// <exception cref="ArgumentNullException">if the id is null</exception>
         public void AddRecursively(ObjectId id)
         {
-            Ensure.ArgumentNotNull(id, "id");
+            Ensure.ArgumentNotNull(id, nameof(id));
 
             Proxy.git_packbuilder_insert_recur(packBuilderHandle, id, null);
         }
@@ -164,7 +164,7 @@ namespace LibGit2Sharp
         {
             set
             {
-                Ensure.ArgumentNotNullOrEmptyString(value, "packDirectory");
+                Ensure.ArgumentNotNullOrEmptyString(value, nameof(value));
 
                 if (!Directory.Exists(value))
                 {

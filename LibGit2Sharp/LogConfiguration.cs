@@ -22,8 +22,8 @@ namespace LibGit2Sharp
         /// <param name="handler">Handler to call when logging occurs</param>
         public LogConfiguration(LogLevel level, LogHandler handler)
         {
-            Ensure.ArgumentConformsTo<LogLevel>(level, (t) => { return (level != LogLevel.None); }, "level");
-            Ensure.ArgumentNotNull(handler, "handler");
+            Ensure.ArgumentConformsTo<LogLevel>(level, (t) => { return (level != LogLevel.None); }, nameof(level));
+            Ensure.ArgumentNotNull(handler, nameof(handler));
 
             Level = level;
             Handler = handler;

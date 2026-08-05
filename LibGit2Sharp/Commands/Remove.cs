@@ -68,8 +68,8 @@ namespace LibGit2Sharp
         /// </param>
         public static void Remove(IRepository repository, string path, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions)
         {
-            Ensure.ArgumentNotNull(repository, "repository");
-            Ensure.ArgumentNotNull(path, "path");
+            Ensure.ArgumentNotNull(repository, nameof(repository));
+            Ensure.ArgumentNotNull(path, nameof(path));
 
             Remove(repository, new[] { path }, removeFromWorkingDirectory, explicitPathsOptions);
         }
@@ -115,8 +115,8 @@ namespace LibGit2Sharp
         /// </param>
         public static void Remove(IRepository repository, IEnumerable<string> paths, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions)
         {
-            Ensure.ArgumentNotNull(repository, "repository");
-            Ensure.ArgumentNotNullOrEmptyEnumerable<string>(paths, "paths");
+            Ensure.ArgumentNotNull(repository, nameof(repository));
+            Ensure.ArgumentNotNullOrEmptyEnumerable<string>(paths, nameof(paths));
 
             var pathsToDelete = paths.Where(p => Directory.Exists(Path.Combine(repository.Info.WorkingDirectory, p))).ToList();
             var notConflictedPaths = new List<string>();
@@ -124,7 +124,7 @@ namespace LibGit2Sharp
 
             foreach (var path in paths)
             {
-                Ensure.ArgumentNotNullOrEmptyString(path, "path");
+                Ensure.ArgumentNotNullOrEmptyString(path, nameof(path));
 
                 var conflict = index.Conflicts[path];
 

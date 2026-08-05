@@ -22,7 +22,7 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref="TreeDefinition"/> holding the meta data of the <paramref name="tree"/>.</returns>
         public static TreeDefinition From(Tree tree)
         {
-            Ensure.ArgumentNotNull(tree, "tree");
+            Ensure.ArgumentNotNull(tree, nameof(tree));
 
             var td = new TreeDefinition();
 
@@ -41,7 +41,7 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref="TreeDefinition"/> holding the meta data of the <paramref name="commit"/>'s <see cref="Tree"/>.</returns>
         public static TreeDefinition From(Commit commit)
         {
-            Ensure.ArgumentNotNull(commit, "commit");
+            Ensure.ArgumentNotNull(commit, nameof(commit));
 
             return From(commit.Tree);
         }
@@ -65,7 +65,7 @@ namespace LibGit2Sharp
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
         public virtual TreeDefinition Remove(IEnumerable<string> treeEntryPaths)
         {
-            Ensure.ArgumentNotNull(treeEntryPaths, "treeEntryPaths");
+            Ensure.ArgumentNotNull(treeEntryPaths, nameof(treeEntryPaths));
 
             foreach (var treeEntryPath in treeEntryPaths)
             {
@@ -82,7 +82,7 @@ namespace LibGit2Sharp
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
         public virtual TreeDefinition Remove(string treeEntryPath)
         {
-            Ensure.ArgumentNotNullOrEmptyString(treeEntryPath, "treeEntryPath");
+            Ensure.ArgumentNotNullOrEmptyString(treeEntryPath, nameof(treeEntryPath));
 
             if (this[treeEntryPath] == null)
             {
@@ -124,8 +124,8 @@ namespace LibGit2Sharp
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
         public virtual TreeDefinition Add(string targetTreeEntryPath, TreeEntryDefinition treeEntryDefinition)
         {
-            Ensure.ArgumentNotNullOrEmptyString(targetTreeEntryPath, "targetTreeEntryPath");
-            Ensure.ArgumentNotNull(treeEntryDefinition, "treeEntryDefinition");
+            Ensure.ArgumentNotNullOrEmptyString(targetTreeEntryPath, nameof(targetTreeEntryPath));
+            Ensure.ArgumentNotNull(treeEntryDefinition, nameof(treeEntryDefinition));
 
             if (treeEntryDefinition is TransientTreeTreeEntryDefinition)
             {
@@ -161,7 +161,7 @@ namespace LibGit2Sharp
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
         public virtual TreeDefinition Add(string targetTreeEntryPath, TreeEntry treeEntry)
         {
-            Ensure.ArgumentNotNull(treeEntry, "treeEntry");
+            Ensure.ArgumentNotNull(treeEntry, nameof(treeEntry));
 
             TreeEntryDefinition ted = TreeEntryDefinition.From(treeEntry);
 
@@ -177,8 +177,8 @@ namespace LibGit2Sharp
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
         public virtual TreeDefinition Add(string targetTreeEntryPath, Blob blob, Mode mode)
         {
-            Ensure.ArgumentNotNull(blob, "blob");
-            Ensure.ArgumentConformsTo(mode, m => m.HasAny(TreeEntryDefinition.BlobModes), "mode");
+            Ensure.ArgumentNotNull(blob, nameof(blob));
+            Ensure.ArgumentConformsTo(mode, m => m.HasAny(TreeEntryDefinition.BlobModes), nameof(mode));
 
             TreeEntryDefinition ted = TreeEntryDefinition.From(blob, mode);
 
@@ -195,7 +195,7 @@ namespace LibGit2Sharp
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
         public virtual TreeDefinition Add(string targetTreeEntryPath, string filePath, Mode mode)
         {
-            Ensure.ArgumentNotNullOrEmptyString(filePath, "filePath");
+            Ensure.ArgumentNotNullOrEmptyString(filePath, nameof(filePath));
 
             TreeEntryDefinition ted = TreeEntryDefinition.TransientBlobFrom(filePath, mode);
 
@@ -211,8 +211,8 @@ namespace LibGit2Sharp
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
         public virtual TreeDefinition Add(string targetTreeEntryPath, ObjectId id, Mode mode)
         {
-            Ensure.ArgumentNotNull(id, "id");
-            Ensure.ArgumentConformsTo(mode, m => m.HasAny(TreeEntryDefinition.BlobModes), "mode");
+            Ensure.ArgumentNotNull(id, nameof(id));
+            Ensure.ArgumentConformsTo(mode, m => m.HasAny(TreeEntryDefinition.BlobModes), nameof(mode));
 
             TreeEntryDefinition ted = TreeEntryDefinition.From(id, mode);
 
@@ -227,7 +227,7 @@ namespace LibGit2Sharp
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
         public virtual TreeDefinition Add(string targetTreeEntryPath, Tree tree)
         {
-            Ensure.ArgumentNotNull(tree, "tree");
+            Ensure.ArgumentNotNull(tree, nameof(tree));
 
             TreeEntryDefinition ted = TreeEntryDefinition.From(tree);
 
@@ -241,7 +241,7 @@ namespace LibGit2Sharp
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
         public virtual TreeDefinition Add(Submodule submodule)
         {
-            Ensure.ArgumentNotNull(submodule, "submodule");
+            Ensure.ArgumentNotNull(submodule, nameof(submodule));
 
             return AddGitLink(submodule.Path, submodule.HeadCommitId);
         }
@@ -256,7 +256,7 @@ namespace LibGit2Sharp
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
         public virtual TreeDefinition AddGitLink(string targetTreeEntryPath, ObjectId objectId)
         {
-            Ensure.ArgumentNotNull(objectId, "objectId");
+            Ensure.ArgumentNotNull(objectId, nameof(objectId));
 
             var ted = TreeEntryDefinition.From(objectId);
 
@@ -379,7 +379,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                Ensure.ArgumentNotNullOrEmptyString(treeEntryPath, "treeEntryPath");
+                Ensure.ArgumentNotNullOrEmptyString(treeEntryPath, nameof(treeEntryPath));
 
                 Tuple<string, string> segments = ExtractPosixLeadingSegment(treeEntryPath);
 

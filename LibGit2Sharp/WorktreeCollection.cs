@@ -37,7 +37,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                Ensure.ArgumentNotNullOrEmptyString(name, "name");
+                Ensure.ArgumentNotNullOrEmptyString(name, nameof(name));
 
                 return Lookup(name, handle => new Worktree(repo,
                     name,

@@ -32,7 +32,7 @@ namespace LibGit2Sharp
         /// </remarks>
         public FilterAttributeEntry(string filterName)
         {
-            Ensure.ArgumentNotNullOrEmptyString(filterName, "filterName");
+            Ensure.ArgumentNotNullOrEmptyString(filterName, nameof(filterName));
             if (filterName.StartsWith("filter=", StringComparison.OrdinalIgnoreCase))
             {
                 throw new ArgumentException("The filterName parameter should not begin with \"filter=\"", filterName);

@@ -80,7 +80,7 @@ namespace LibGit2Sharp
         /// <returns>true if completed successfully, false if conflicts encountered.</returns>
         public virtual RebaseResult Start(Branch branch, Branch upstream, Branch onto, Identity committer, RebaseOptions options)
         {
-            Ensure.ArgumentNotNull(upstream, "upstream");
+            Ensure.ArgumentNotNull(upstream, nameof(upstream));
 
             options = options ?? new RebaseOptions();
 
@@ -135,7 +135,7 @@ namespace LibGit2Sharp
         /// <param name="options">The <see cref="RebaseOptions"/> that specify the rebase behavior.</param>
         public virtual unsafe RebaseResult Continue(Identity committer, RebaseOptions options)
         {
-            Ensure.ArgumentNotNull(committer, "committer");
+            Ensure.ArgumentNotNull(committer, nameof(committer));
 
             options = options ?? new RebaseOptions();
 

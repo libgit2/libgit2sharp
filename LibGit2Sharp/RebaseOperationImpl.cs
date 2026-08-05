@@ -20,10 +20,10 @@ namespace LibGit2Sharp
             Identity committer,
             RebaseOptions options)
         {
-            Ensure.ArgumentNotNull(rebaseOperationHandle, "rebaseOperationHandle");
-            Ensure.ArgumentNotNull(repository, "repository");
-            Ensure.ArgumentNotNull(committer, "committer");
-            Ensure.ArgumentNotNull(options, "options");
+            Ensure.ArgumentNotNull(rebaseOperationHandle, nameof(rebaseOperationHandle));
+            Ensure.ArgumentNotNull(repository, nameof(repository));
+            Ensure.ArgumentNotNull(committer, nameof(committer));
+            Ensure.ArgumentNotNull(options, nameof(options));
 
             RebaseResult rebaseResult = null;
 

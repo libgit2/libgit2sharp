@@ -18,10 +18,10 @@ namespace LibGit2Sharp
         /// <param name="email">The email.</param>
         public Identity(string name, string email)
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNullOrEmptyString(email, "email");
-            Ensure.ArgumentDoesNotContainZeroByte(name, "name");
-            Ensure.ArgumentDoesNotContainZeroByte(email, "email");
+            Ensure.ArgumentNotNullOrEmptyString(name, nameof(name));
+            Ensure.ArgumentNotNullOrEmptyString(email, nameof(email));
+            Ensure.ArgumentDoesNotContainZeroByte(name, nameof(name));
+            Ensure.ArgumentDoesNotContainZeroByte(email, nameof(email));
 
             _name = name;
             _email = email;

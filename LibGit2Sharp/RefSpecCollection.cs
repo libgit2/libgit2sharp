@@ -30,7 +30,7 @@ namespace LibGit2Sharp
 
         internal RefSpecCollection(Remote remote, RemoteHandle handle)
         {
-            Ensure.ArgumentNotNull(handle, "handle");
+            Ensure.ArgumentNotNull(handle, nameof(handle));
 
             this.remote = remote;
             this.handle = handle;

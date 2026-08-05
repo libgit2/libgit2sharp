@@ -78,7 +78,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                Ensure.ArgumentNotNullOrEmptyString(path, "path");
+                Ensure.ArgumentNotNullOrEmptyString(path, nameof(path));
 
                 git_index_entry* entry = Proxy.git_index_get_bypath(handle, path, 0);
                 return IndexEntry.BuildFromPtr(entry);
@@ -167,7 +167,7 @@ namespace LibGit2Sharp
         /// <param name="indexEntryPath">The path of the <see cref="Index"/> entry to be removed.</param>
         public virtual void Remove(string indexEntryPath)
         {
-            Ensure.ArgumentNotNull(indexEntryPath, "indexEntryPath");
+            Ensure.ArgumentNotNull(indexEntryPath, nameof(indexEntryPath));
             RemoveFromIndex(indexEntryPath);
         }
 
@@ -181,7 +181,7 @@ namespace LibGit2Sharp
         /// <param name="pathInTheWorkdir">The path, in the working directory, of the file to be added.</param>
         public virtual void Add(string pathInTheWorkdir)
         {
-            Ensure.ArgumentNotNull(pathInTheWorkdir, "pathInTheWorkdir");
+            Ensure.ArgumentNotNull(pathInTheWorkdir, nameof(pathInTheWorkdir));
             Proxy.git_index_add_bypath(handle, pathInTheWorkdir);
         }
 
@@ -198,9 +198,9 @@ namespace LibGit2Sharp
         /// or <see cref="Mode.SymbolicLink"/>.</param>
         public virtual void Add(Blob blob, string indexEntryPath, Mode indexEntryMode)
         {
-            Ensure.ArgumentConformsTo(indexEntryMode, m => m.HasAny(TreeEntryDefinition.BlobModes), "indexEntryMode");
-            Ensure.ArgumentNotNull(blob, "blob");
-            Ensure.ArgumentNotNull(indexEntryPath, "indexEntryPath");
+            Ensure.ArgumentConformsTo(indexEntryMode, m => m.HasAny(TreeEntryDefinition.BlobModes), nameof(indexEntryMode));
+            Ensure.ArgumentNotNull(blob, nameof(blob));
+            Ensure.ArgumentNotNull(indexEntryPath, nameof(indexEntryPath));
             AddEntryToTheIndex(indexEntryPath, blob.Id, indexEntryMode);
         }
 
@@ -293,7 +293,7 @@ namespace LibGit2Sharp
         /// </param>
         public virtual void Replace(Commit commit, IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions)
         {
-            Ensure.ArgumentNotNull(commit, "commit");
+            Ensure.ArgumentNotNull(commit, nameof(commit));
 
             using (var changes = repo.Diff.Compare<TreeChanges>(commit.Tree, DiffTargets.Index, paths, explicitPathsOptions, new CompareOptions { Similarity = SimilarityOptions.None }))
             {

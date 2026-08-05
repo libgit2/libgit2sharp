@@ -62,7 +62,7 @@ namespace LibGit2Sharp
         /// <exception cref="NotFoundException">Throws if blob is missing</exception>
         public virtual Stream GetContentStream(FilteringOptions filteringOptions)
         {
-            Ensure.ArgumentNotNull(filteringOptions, "filteringOptions");
+            Ensure.ArgumentNotNull(filteringOptions, nameof(filteringOptions));
 
             return Proxy.git_blob_filtered_content_stream(repo.Handle, Id, filteringOptions.HintPath, false);
         }
@@ -86,7 +86,7 @@ namespace LibGit2Sharp
         /// <exception cref="NotFoundException">Throws if blob is missing</exception>
         public virtual string GetContentText(Encoding encoding)
         {
-            Ensure.ArgumentNotNull(encoding, "encoding");
+            Ensure.ArgumentNotNull(encoding, nameof(encoding));
 
             return ReadToEnd(GetContentStream(), encoding);
         }
@@ -114,7 +114,7 @@ namespace LibGit2Sharp
         /// <exception cref="NotFoundException">Throws if blob is missing</exception>
         public virtual string GetContentText(FilteringOptions filteringOptions, Encoding encoding)
         {
-            Ensure.ArgumentNotNull(filteringOptions, "filteringOptions");
+            Ensure.ArgumentNotNull(filteringOptions, nameof(filteringOptions));
 
             return ReadToEnd(GetContentStream(filteringOptions), encoding);
         }
