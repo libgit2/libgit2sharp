@@ -42,6 +42,17 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// True if the <see cref="StatusEntry"/> has been altered since the last commit. False otherwise.
+        /// </summary>
+        public virtual bool IsDirty
+        {
+            get
+            {
+                return State != FileStatus.Ignored && State != FileStatus.Unaltered;
+            }
+        }
+
+        /// <summary>
         /// Gets the relative new filepath to the working directory of the file.
         /// </summary>
         public virtual string FilePath
