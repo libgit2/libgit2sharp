@@ -194,5 +194,10 @@ namespace LibGit2Sharp.Core
         /// Take extra time to find minimal diff
         /// </summary>
         GIT_MERGE_FILE_DIFF_MINIMAL = (1 << 7),
+
+        /// <summary>
+        /// Create zdiff3 ("zealous diff3")-style files
+        /// </summary>
+        GIT_MERGE_FILE_STYLE_ZDIFF3 = (1 << 8),
     }
 }

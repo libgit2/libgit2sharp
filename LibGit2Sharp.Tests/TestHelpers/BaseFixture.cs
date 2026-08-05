@@ -36,6 +36,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
         public static string ShallowTestRepoPath { get; private set; }
         public static string MergedTestRepoWorkingDirPath { get; private set; }
         public static string MergeTestRepoWorkingDirPath { get; private set; }
+        public static string MergeConflictTestRepoWorkingDirPath { get; private set; }
         public static string MergeRenamesTestRepoWorkingDirPath { get; private set; }
         public static string RevertTestRepoWorkingDirPath { get; private set; }
         public static string SubmoduleTestRepoWorkingDirPath { get; private set; }
@@ -81,6 +82,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             MergedTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "mergedrepo_wd");
             MergeRenamesTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "mergerenames_wd");
             MergeTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "merge_testrepo_wd");
+            MergeConflictTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "mergeconflict_testrepo_wd");
             RevertTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "revert_testrepo_wd");
             SubmoduleTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "submodule_wd");
             SubmoduleTargetTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "submodule_target_wd");
@@ -199,6 +201,11 @@ namespace LibGit2Sharp.Tests.TestHelpers
         protected string SandboxMergeTestRepo()
         {
             return Sandbox(MergeTestRepoWorkingDirPath);
+        }
+
+        protected string SandboxMergeConflictTestRepo()
+        {
+            return Sandbox(MergeConflictTestRepoWorkingDirPath);
         }
 
         protected string SandboxRevertTestRepo()
