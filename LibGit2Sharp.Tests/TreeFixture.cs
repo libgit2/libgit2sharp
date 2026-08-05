@@ -242,6 +242,31 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanUseTrailingSlashToIndexIntoSubtree()
+        {
+            var path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var tree = repo.Lookup<Tree>(sha);
+                Assert.False(tree.IsMissing);
+
+                var treeEntry1 = tree["1/"];
+                var treeEntry2 = tree["1"];
+
+                Assert.NotNull(treeEntry1);
+                Assert.NotNull(treeEntry1.Target);
+                Assert.NotNull(treeEntry2);
+                Assert.NotNull(treeEntry2.Target);
+
+                Assert.Equal(treeEntry1.Name, treeEntry2.Name);
+                Assert.Equal(treeEntry1.TargetType, treeEntry2.TargetType);
+                Assert.Equal(treeEntry1.Target.Sha, treeEntry2.Target.Sha);
+                Assert.Equal(treeEntry1.Mode, treeEntry2.Mode);
+                Assert.Equal(treeEntry1.Path, treeEntry2.Path);
+            }
+        }
+
+        [Fact]
         public void CanParseSymlinkTreeEntries()
         {
             var path = SandboxBareTestRepo();
