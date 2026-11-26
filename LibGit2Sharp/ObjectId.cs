@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using System.Linq;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -100,6 +99,12 @@ namespace LibGit2Sharp
             this.sha = sha;
         }
 
+        private ObjectId(GitOid oid, string sha)
+        {
+            this.oid = oid;
+            this.sha = sha;
+        }
+
         internal GitOid Oid
         {
             get { return oid; }
@@ -129,9 +134,17 @@ namespace LibGit2Sharp
         /// <returns>true if the <paramref name="sha"/> parameter was converted successfully; otherwise, false.</returns>
         public static bool TryParse(string sha, out ObjectId result)
         {
-            result = BuildOidFrom(sha, false);
+            GitOid? parsedOid = BuildOidFrom(sha, false);
 
-            return result != null;
+            if (!parsedOid.HasValue)
+            {
+                result = null;
+                return false;
+            }
+
+            // A valid sha is already in canonical lowercase form, so reuse it rather than re-encoding the bytes.
+            result = new ObjectId(parsedOid.Value, sha);
+            return true;
         }
 
         private static GitOid? BuildOidFrom(string sha, bool shouldThrowIfInvalid)
@@ -257,11 +270,16 @@ namespace LibGit2Sharp
             return bytes;
         }
 
-        internal static string ToString(byte[] id, int lengthInNibbles)
+        internal static unsafe string ToString(byte[] id, int lengthInNibbles)
         {
             // Inspired from http://stackoverflow.com/questions/623104/c-byte-to-hex-string/3974535#3974535
 
-            var c = new char[lengthInNibbles];
+            if ((uint)lengthInNibbles > HexSize)
+            {
+                throw new ArgumentOutOfRangeException(nameof(lengthInNibbles));
+            }
+
+            char* c = stackalloc char[HexSize];
 
             for (int i = 0; i < (lengthInNibbles & -2); i++)
             {
@@ -280,7 +298,7 @@ namespace LibGit2Sharp
                 c[lengthInNibbles - 1] = hexDigits[b];
             }
 
-            return new string(c);
+            return new string(c, 0, lengthInNibbles);
         }
 
         private static GitOid ToOid(string sha)
@@ -330,7 +348,20 @@ namespace LibGit2Sharp
                                             nameof(objectId));
             }
 
-            return objectId.All(c => hexDigits.IndexOf(c) >= 0);
+            foreach (char c in objectId)
+            {
+                if (!IsHexDigit(c))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool IsHexDigit(char c)
+        {
+            return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f');
         }
 
         /// <summary>

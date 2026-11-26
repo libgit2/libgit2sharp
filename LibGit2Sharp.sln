@@ -19,6 +19,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NativeLibraryLoadTestApp.x8
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NativeLibraryLoadTestApp.x64", "NativeLibraryLoadTestApp\x64\NativeLibraryLoadTestApp.x64.csproj", "{5C55175D-6A1F-4C51-B791-BF7DD00124EE}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibGit2Sharp.Benchmarks", "LibGit2Sharp.Benchmarks\LibGit2Sharp.Benchmarks.csproj", "{918C6DA8-750B-499D-8E65-225767BF8704}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,10 @@ Global
 		{5C55175D-6A1F-4C51-B791-BF7DD00124EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C55175D-6A1F-4C51-B791-BF7DD00124EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5C55175D-6A1F-4C51-B791-BF7DD00124EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{918C6DA8-750B-499D-8E65-225767BF8704}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{918C6DA8-750B-499D-8E65-225767BF8704}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{918C6DA8-750B-499D-8E65-225767BF8704}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{918C6DA8-750B-499D-8E65-225767BF8704}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

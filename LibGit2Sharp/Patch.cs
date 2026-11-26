@@ -24,6 +24,11 @@ namespace LibGit2Sharp
         private int linesAdded;
         private int linesDeleted;
 
+        // The entry git_patch_print is currently printing. Every line of a patch belongs
+        // to the delta added just before printing it, so there is no need to decode the
+        // path and look the entry up for each line.
+        private PatchEntryChanges currentChange;
+
         /// <summary>
         /// Needed for mocking purposes.
         /// </summary>
@@ -51,24 +56,17 @@ namespace LibGit2Sharp
         {
             var treeEntryChanges = new TreeEntryChanges(delta);
 
-            changes.Add(treeEntryChanges.Path, new PatchEntryChanges(delta->flags.HasFlag(GitDiffFlags.GIT_DIFF_FLAG_BINARY), treeEntryChanges));
+            currentChange = new PatchEntryChanges(delta->flags.HasFlag(GitDiffFlags.GIT_DIFF_FLAG_BINARY), treeEntryChanges);
+            changes.Add(treeEntryChanges.Path, currentChange);
         }
 
-        private unsafe int PrintCallBack(git_diff_delta* delta, GitDiffHunk hunk, GitDiffLine line, IntPtr payload)
+        private unsafe int PrintCallBack(git_diff_delta* delta, git_diff_hunk* hunk, git_diff_line* line, IntPtr payload)
         {
-            string patchPart = LaxUtf8Marshaler.FromNative(line.content, (int)line.contentLen);
+            string patchPart = LaxUtf8Marshaler.FromNative(line->content, (int)line->contentLen);
 
-            // Deleted files mean no "new file" path
-
-            var pathPtr = delta->new_file.Path != null
-                ? delta->new_file.Path
-                : delta->old_file.Path;
-            var filePath = LaxFilePathMarshaler.FromNative(pathPtr);
-
-            PatchEntryChanges currentChange = this[filePath];
             string prefix = string.Empty;
 
-            switch (line.lineOrigin)
+            switch (line->lineOrigin)
             {
                 case GitDiffLineOrigin.GIT_DIFF_LINE_CONTEXT:
                     prefix = " ";
@@ -77,22 +75,21 @@ namespace LibGit2Sharp
                 case GitDiffLineOrigin.GIT_DIFF_LINE_ADDITION:
                     linesAdded++;
                     currentChange.LinesAdded++;
-                    currentChange.AddedLines.Add(new Line(line.NewLineNo, patchPart));
+                    currentChange.AddedLines.Add(new Line(line->NewLineNo, patchPart));
                     prefix = "+";
                     break;
 
                 case GitDiffLineOrigin.GIT_DIFF_LINE_DELETION:
                     linesDeleted++;
                     currentChange.LinesDeleted++;
-                    currentChange.DeletedLines.Add(new Line(line.OldLineNo, patchPart));
+                    currentChange.DeletedLines.Add(new Line(line->OldLineNo, patchPart));
                     prefix = "-";
                     break;
             }
 
-            string formattedOutput = string.Concat(prefix, patchPart);
-
-            fullPatchBuilder.Append(formattedOutput);
-            currentChange.AppendToPatch(formattedOutput);
+            fullPatchBuilder.Append(prefix).Append(patchPart);
+            currentChange.AppendToPatch(prefix);
+            currentChange.AppendToPatch(patchPart);
 
             return 0;
         }

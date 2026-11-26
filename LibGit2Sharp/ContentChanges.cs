@@ -89,44 +89,37 @@ namespace LibGit2Sharp
             return 0;
         }
 
-        private unsafe int HunkCallback(git_diff_delta* delta, GitDiffHunk hunk, IntPtr payload)
+        private unsafe int HunkCallback(git_diff_delta* delta, git_diff_hunk* hunk, IntPtr payload)
         {
-            string decodedContent = LaxUtf8Marshaler.FromBuffer(hunk.Header, (int)hunk.HeaderLen);
+            string decodedContent = LaxUtf8Marshaler.FromNative((IntPtr)hunk->Header, (int)hunk->HeaderLen);
 
             AppendToPatch(decodedContent);
             return 0;
         }
 
-        private unsafe int LineCallback(git_diff_delta* delta, GitDiffHunk hunk, GitDiffLine line, IntPtr payload)
+        private unsafe int LineCallback(git_diff_delta* delta, git_diff_hunk* hunk, git_diff_line* line, IntPtr payload)
         {
-            string decodedContent = LaxUtf8Marshaler.FromNative(line.content, (int)line.contentLen);
+            string decodedContent = LaxUtf8Marshaler.FromNative(line->content, (int)line->contentLen);
 
-            string prefix;
-
-            switch (line.lineOrigin)
+            switch (line->lineOrigin)
             {
                 case GitDiffLineOrigin.GIT_DIFF_LINE_ADDITION:
-                    AddedLines.Add(new Line(line.NewLineNo, decodedContent));
+                    AddedLines.Add(new Line(line->NewLineNo, decodedContent));
                     LinesAdded++;
-                    prefix = Encoding.ASCII.GetString(new[] { (byte)line.lineOrigin });
+                    AppendToPatch("+");
                     break;
 
                 case GitDiffLineOrigin.GIT_DIFF_LINE_DELETION:
-                    DeletedLines.Add(new Line(line.OldLineNo, decodedContent));
+                    DeletedLines.Add(new Line(line->OldLineNo, decodedContent));
                     LinesDeleted++;
-                    prefix = Encoding.ASCII.GetString(new[] { (byte)line.lineOrigin });
+                    AppendToPatch("-");
                     break;
 
                 case GitDiffLineOrigin.GIT_DIFF_LINE_CONTEXT:
-                    prefix = Encoding.ASCII.GetString(new[] { (byte)line.lineOrigin });
-                    break;
-
-                default:
-                    prefix = string.Empty;
+                    AppendToPatch(" ");
                     break;
             }
 
-            AppendToPatch(prefix);
             AppendToPatch(decodedContent);
             return 0;
         }
