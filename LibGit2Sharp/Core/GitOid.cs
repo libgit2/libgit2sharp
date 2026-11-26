@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace LibGit2Sharp.Core
+﻿namespace LibGit2Sharp.Core
 {
     internal struct git_oid
     {
@@ -11,7 +9,11 @@ namespace LibGit2Sharp.Core
     /// <summary>
     /// Represents a unique id in git which is the sha1 hash of this id's content.
     /// </summary>
-    internal struct GitOid
+    /// <remarks>
+    /// The bytes are stored inline, so the struct is blittable: it is passed to and
+    /// from libgit2 without being copied or allocating a managed array.
+    /// </remarks>
+    internal unsafe struct GitOid
     {
         /// <summary>
         /// Number of bytes in the Id.
@@ -21,8 +23,7 @@ namespace LibGit2Sharp.Core
         /// <summary>
         /// The raw binary 20 byte Id.
         /// </summary>
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = Size)]
-        public byte[] Id;
+        public fixed byte Id[Size];
 
         public static implicit operator ObjectId(GitOid oid)
         {

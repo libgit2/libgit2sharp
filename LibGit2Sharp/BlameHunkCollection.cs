@@ -37,7 +37,7 @@ namespace LibGit2Sharp
             {
                 fixed (byte* p = rawopts.newest_commit.Id)
                 {
-                    Marshal.Copy(repo.Committish(options.StartingAt).Oid.Id, 0, new IntPtr(p), git_oid.Size);
+                    *(GitOid*)p = repo.Committish(options.StartingAt).Oid;
                 }
             }
 
@@ -45,7 +45,7 @@ namespace LibGit2Sharp
             {
                 fixed (byte* p = rawopts.oldest_commit.Id)
                 {
-                    Marshal.Copy(repo.Committish(options.StoppingAt).Oid.Id, 0, new IntPtr(p), git_oid.Size);
+                    *(GitOid*)p = repo.Committish(options.StoppingAt).Oid;
                 }
             }
 
