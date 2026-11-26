@@ -21,7 +21,7 @@ jobs:
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v4.0.0
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 11.0.x
       - name: Build
         run: dotnet build LibGit2Sharp.sln --configuration Release
       - name: Upload packages
@@ -62,6 +62,7 @@ jobs:
         uses: actions/setup-dotnet@v4.0.0
         with:
           dotnet-version: |
+            11.0.x
             9.0.x
             8.0.x
       - name: Run ${{ matrix.tfm }} tests
