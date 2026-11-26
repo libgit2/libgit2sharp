@@ -273,20 +273,20 @@ namespace LibGit2Sharp.Core
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal class GitDiffHunk
+    internal unsafe struct git_diff_hunk
     {
+        public const int HeaderSize = 128;
+
         public int OldStart;
         public int OldLines;
         public int NewStart;
         public int NewLines;
         public UIntPtr HeaderLen;
-
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
-        public byte[] Header;
+        public fixed byte Header[HeaderSize];
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal class GitDiffLine
+    internal struct git_diff_line
     {
         public GitDiffLineOrigin lineOrigin;
         public int OldLineNo;
