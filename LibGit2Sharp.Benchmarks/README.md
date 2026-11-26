@@ -2,7 +2,7 @@
 
 [BenchmarkDotNet](https://benchmarkdotnet.org/) benchmarks for LibGit2Sharp. Every benchmark reports allocations.
 
-The diff and commit walk benchmarks build a throwaway repository under the temp folder in their setup and delete it afterwards.
+The diff, commit walk and lookup benchmarks build a throwaway repository under the temp folder in their setup and delete it afterwards.
 
 Run all benchmarks on .NET 11:
 
