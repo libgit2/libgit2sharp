@@ -326,7 +326,7 @@ namespace LibGit2Sharp
 
                 try
                 {
-                    var shortSha = ObjectId.ToString(short_oid.Id, (int)len);
+                    var shortSha = ObjectId.ToString(short_oid, (int)len);
 
                     ObjectId oid;
                     ObjectType objectType;
@@ -343,7 +343,7 @@ namespace LibGit2Sharp
                         return (int)GitErrorCode.Error;
                     }
 
-                    out_oid.Id = oid.RawId;
+                    out_oid = oid.Oid;
                     len_p = new UIntPtr((ulong)memoryStream.Capacity);
                     type_p = objectType.ToGitObjectType();
 
@@ -536,14 +536,14 @@ namespace LibGit2Sharp
                 try
                 {
                     ObjectId found;
-                    var shortSha = ObjectId.ToString(short_oid.Id, (int)len);
+                    var shortSha = ObjectId.ToString(short_oid, (int)len);
 
-                    found_oid.Id = ObjectId.Zero.RawId;
+                    found_oid = ObjectId.Zero.Oid;
                     int result = odbBackend.ExistsPrefix(shortSha, out found);
 
                     if (result == (int)GitErrorCode.Ok)
                     {
-                        found_oid.Id = found.RawId;
+                        found_oid = found.Oid;
                     }
 
                     return result;
@@ -616,12 +616,9 @@ namespace LibGit2Sharp
 
                 private unsafe int CallbackMethod(ObjectId id)
                 {
-                    var oid = id.RawId;
+                    GitOid oid = id.Oid;
 
-                    fixed (void* ptr = &oid[0])
-                    {
-                        return cb(new IntPtr(ptr), data);
-                    }
+                    return cb(new IntPtr(&oid), data);
                 }
 
                 public readonly ForEachCallback ManagedCallback;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -13,6 +14,10 @@ namespace LibGit2Sharp
         private readonly GitOid oid;
         private const int rawSize = GitOid.Size;
         private readonly string sha;
+
+        // The bytes live inline in oid. This array is only created when RawId is read,
+        // so ids that never expose their raw bytes don't carry a second copy of them.
+        private byte[] rawId;
 
         /// <summary>
         /// Size of the string-based representation of a SHA-1.
@@ -37,24 +42,27 @@ namespace LibGit2Sharp
         /// <param name="oid">The oid.</param>
         internal ObjectId(GitOid oid)
         {
-            if (oid.Id == null || oid.Id.Length != rawSize)
-            {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "A non null array of {0} bytes is expected.", rawSize), nameof(oid));
-            }
-
             this.oid = oid;
-            sha = ToString(oid.Id, oid.Id.Length * 2);
+            sha = ToString(oid, HexSize);
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ObjectId"/> class.
         /// </summary>
         /// <param name="rawId">The byte array.</param>
-        public ObjectId(byte[] rawId)
-            : this(new GitOid { Id = rawId })
+        public unsafe ObjectId(byte[] rawId)
         {
             Ensure.ArgumentNotNull(rawId, "rawId");
             Ensure.ArgumentConformsTo(rawId, b => b.Length == rawSize, "rawId");
+
+            fixed (byte* source = rawId)
+            {
+                oid = *(GitOid*)source;
+            }
+
+            // Keep the caller's array so RawId keeps returning it, as it always has.
+            this.rawId = rawId;
+            sha = ToString(oid, HexSize);
         }
 
         internal static unsafe ObjectId BuildFromPtr(IntPtr ptr)
@@ -69,18 +77,8 @@ namespace LibGit2Sharp
 
         internal unsafe ObjectId(byte* rawId)
         {
-            byte[] id = new byte[GitOid.Size];
-
-            fixed (byte* p = id)
-            {
-                for (int i = 0; i < rawSize; i++)
-                {
-                    p[i] = rawId[i];
-                }
-            }
-
-            this.oid = new GitOid { Id = id };
-            this.sha = ToString(oid.Id, oid.Id.Length * 2);
+            oid = *(GitOid*)rawId;
+            sha = ToString(oid, HexSize);
         }
 
         /// <summary>
@@ -110,7 +108,28 @@ namespace LibGit2Sharp
         /// </summary>
         public byte[] RawId
         {
-            get { return oid.Id; }
+            get
+            {
+                if (rawId == null)
+                {
+                    // CompareExchange keeps every caller on the same array if two threads race here.
+                    Interlocked.CompareExchange(ref rawId, CreateRawId(), null);
+                }
+
+                return rawId;
+            }
+        }
+
+        private unsafe byte[] CreateRawId()
+        {
+            var bytes = new byte[rawSize];
+
+            fixed (byte* destination = bytes)
+            {
+                *(GitOid*)destination = oid;
+            }
+
+            return bytes;
         }
 
         /// <summary>
@@ -257,35 +276,43 @@ namespace LibGit2Sharp
             return bytes;
         }
 
-        internal static string ToString(byte[] id, int lengthInNibbles)
+        internal static unsafe string ToString(GitOid id, int lengthInNibbles)
         {
             // Inspired from http://stackoverflow.com/questions/623104/c-byte-to-hex-string/3974535#3974535
+
+            // Indexing the inline buffer isn't bounds checked, so check the length up front.
+            if ((uint)lengthInNibbles > HexSize)
+            {
+                throw new ArgumentOutOfRangeException(nameof(lengthInNibbles));
+            }
 
             var c = new char[lengthInNibbles];
 
             for (int i = 0; i < (lengthInNibbles & -2); i++)
             {
                 int index0 = i >> 1;
-                var b = ((byte)(id[index0] >> 4));
+                var b = ((byte)(id.Id[index0] >> 4));
                 c[i++] = hexDigits[b];
 
-                b = ((byte)(id[index0] & 0x0F));
+                b = ((byte)(id.Id[index0] & 0x0F));
                 c[i] = hexDigits[b];
             }
 
             if ((lengthInNibbles & 1) == 1)
             {
                 int index0 = lengthInNibbles >> 1;
-                var b = ((byte)(id[index0] >> 4));
+                var b = ((byte)(id.Id[index0] >> 4));
                 c[lengthInNibbles - 1] = hexDigits[b];
             }
 
             return new string(c);
         }
 
-        private static GitOid ToOid(string sha)
+        // Only called once LooksValid has checked sha is exactly HexSize characters,
+        // which keeps the writes inside the 20 byte buffer.
+        private static unsafe GitOid ToOid(string sha)
         {
-            var bytes = new byte[rawSize];
+            var oid = new GitOid();
 
             if ((sha.Length & 1) == 1)
             {
@@ -297,10 +324,9 @@ namespace LibGit2Sharp
                 int c1 = byteConverter(sha[i++]) << 4;
                 int c2 = byteConverter(sha[i]);
 
-                bytes[i >> 1] = (byte)(c1 + c2);
+                oid.Id[i >> 1] = (byte)(c1 + c2);
             }
 
-            var oid = new GitOid { Id = bytes };
             return oid;
         }
 

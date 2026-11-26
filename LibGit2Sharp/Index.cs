@@ -249,7 +249,7 @@ namespace LibGit2Sharp
                 mode = (uint)mode,
                 path = (char*)pathPtr,
             };
-            Marshal.Copy(id.RawId, 0, new IntPtr(indexEntry.id.Id), GitOid.Size);
+            *(GitOid*)indexEntry.id.Id = id.Oid;
 
             Proxy.git_index_add(handle, &indexEntry);
             EncodingMarshaler.Cleanup(pathPtr);
